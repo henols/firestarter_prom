@@ -39,6 +39,81 @@
 
 **v1.31 shipped:** 2026-08-18 (27C Programming-Algorithm Fidelity — 9 phases (138–146), 74 plans, 164 tasks; **45/45 v1 requirements**; firmware-touching, dual-repo lockstep. Implements [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected, not as filed** — two wrong numbers and one inverted premise, all three corrected *publicly and before implementation* (comment `#5233463320`): `0x0B`'s pulse is **500 µs**, not `50000 us`; pulse width is a **database datum**, not a per-protocol constant (re-derived live through the production parser — 170/127/32 chips); and the safe 32-bit delay helper is for the overprogram pulse, not any bare pulse. Delivered: **one shared per-byte pulse-to-verify loop** driven by a `const` PROGMEM `eprom_params_t` table keyed on `protocol_id` (**D-01** — protocol owns *shape*, the database owns the *pulse*), **not** gh#15's three state machines; fixed-width pulses that never grow between attempts; hard-fail at `max_pulses` reporting the failing **address and pulse count**; one shared `eprom_hv_route_mask()` with every **error** exit disabling every HV route through a single-exit wrapper; `write --pulse-us N` bounded 1..65535 and pre-validated before a serial byte, riding the existing wire field with **no new DB field and no second algorithm selector**; plus a host long-write timeout fix and intra-block progress, scoped to the `leonardo` class only — on `SERIAL_ON_IO` boards the emission is compiled out **structurally**, because a buffered progress frame there could displace a later `MSG_ERR_MAX_PULSES` and convert a program failure into a transport timeout. **Bench-validated on real silicon:** three full 65536-byte write→read→verify cycles on a Winbond **W27C512** (`0xda08`), **Leonardo**, shield **Rev 2.0** — three distinct images, nine clean oracle cells, read stability N=3 at one SHA each, write timing consistent to **0.37 s**. A firmware defect this milestone itself introduced (Phase 141 deleted the only `CTRL_VPE_ENABLE` assert) failed the **first** bench cycle on byte 0; it was root-caused by a debug session, fixed, and **stands in the record with its cause** rather than being counted out. **Evidence Ceiling stands: the ~6.25 V program-VCC rail all four vendor algorithms assume is unreachable on every shield revision this project owns** — so this milestone claims **fidelity, not improvement**, with no comparative claim, no control run, and no datasheet-conformance claim in either direction. `0x08` (AM27C020) and `0x0B` (M2716/M2732) are **skipped-with-reason** with the missing parts named, never inferred from `0x07`. Twelve items carry forward with the literal phrase `no v1.31 owner`; **MERGE-05's +96 B leonardo band breach is open and un-adjudicated** with the operator as its named owner. Eighth consecutive `override_closeout` (9 carry-forward items, none originating in v1.31). Closed via **PRs to `beta` in all three repos, not direct merges**, per operator decision — meta tagged `v1.31`, gitlinks re-pinned; **no beta cut yet**, and stable stays operator-gated. See `.planning/MILESTONES.md` §v1.31.)
 
+## Current Milestone: v1.34 — Pre-Merge Hardware Regression Validation
+
+**Activated:** 2026-08-25 · **Phases continue at 160** (v1.33 ran 154–159; the vacated **150** slot
+and the v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving)
+
+**Goal:** Prove on real silicon that v1.33's size reduction changed nothing behavioural — across
+every Arduino board and every RURP shield revision the operator owns — before `prom#43` / `fw#56` /
+`app#54` merge to `beta`.
+
+**Why now.** v1.33 closed **locally** on 2026-08-24 with 42/43 requirements and the entire milestone
+premised on **byte-level equivalence**: the heap allocator removed, the 64-bit runtime dropped,
+`jsmntok_t` narrowed 8 → 6 B, the command-decode table reworked, handle types narrowed — **−2938 B
+flash, −13 B RAM**. Every one of those claims is backed by native tests, golden traces and cold
+build measurements, and **not one of them has run on an Arduino.** Three PRs sit open and unmerged.
+A size-reduction milestone is exactly the shape of change whose failure mode is invisible to a build
+gate and obvious on a bench, so the merge gets a hardware gate in front of it.
+
+**The matrix — five distinct cells.** Leonardo + Rev 2.0 is the intersection of both sweeps and is
+run once, not twice.
+
+| Cell | Board | Shield | Note |
+|------|-------|--------|------|
+| A1 | Uno (ATmega328P) | Rev 2.0 | |
+| A2 | uno328pb (ATmega328PB) | Rev 2.0 | Write expected to fail — Backlog 999.2 |
+| A3/B2 | **Leonardo (ATmega32U4)** | **Rev 2.0** | Shared by both sweeps; the v1.31 reference rig |
+| B1 | Leonardo | Modified Rev 0 | Voltage-divider-retrofitted Rev 1.0 board |
+| B3 | Leonardo | Rev 2.2 | R41 = 10 kΩ (vs 4k7 on 2.0) |
+
+**Per-cell method — A/B, control first.** Flash the pre-v1.33 control build, run the cell, then
+flash the v1.33 build and re-run. Control baselines are the exact merge-bases the v1.33 branches
+forked from: firmware **`8695ee5`**, host app **`6bfa645`** (35 and 7 commits behind their branch
+HEADs respectively). Two chips per pass — **W27C512** (DIP28, `0x07`, 64 KiB) and **W29C020**
+(DIP32, `0x05`, 256 KiB page-write) — each a full write → read → verify. **20 W→R→V cycles.**
+
+The A/B is the whole point: without a control run in the same cell, on the same shield, with the
+same chip seated, "this failed" cannot be distinguished from "this has always failed here." v1.31
+shipped with **no comparative claim and no control run** and said so; v1.34 buys the comparison it
+declined to make.
+
+**Chip sweep.** Leonardo + Rev 2.0, `firestarter dev test <chip>` against all 11 parts of the v1.15
+physical inventory on v1.33 firmware — W27C512, W27E512, SST27SF512, W27E040, ST M27C512,
+SST39SF040, W29C040, W29C020, FM1608, AM27C020, 2516. Reports carry `fw_board_identity` since
+Phase 147, so every report is firmware-attributable. A control re-run fires only where a result
+diverges from that chip's recorded v1.15 disposition.
+
+**Failure policy.** Every failure gets an evidence row and a root cause. **Only v1.33-caused
+regressions get fixed in-milestone.** Pre-existing faults are recorded as known-and-carried, not
+adopted.
+
+**Known faults, declared before the bench runs, so a red cell is not mistaken for a v1.33 break:**
+
+- **uno328pb cannot finish a program** — Backlog 999.2, chip-PROGRAM brownout. Its write cells are
+  expected red on **both** arms.
+- **W27E512** (stuck erase bit @0x3d) and **W27E040** (stuck erase bit @0x7db) — silicon wear,
+  D-32, deterministic across reseats.
+- **W29C040** carries a permanently locked §6.6 boot block; a full-device verify is physically
+  impossible and its flash4 page-0 fault is CR-01, open since v1.15.
+- **AM27C020** is marginal, not deterministic (write#1 60/64, write#2 0/64) — it cannot arbitrate
+  any result in either direction.
+
+**Second deliverable — the Modified Rev 0 rework trace.** That board is on the bench for cell B1
+anyway, and `.planning/v1.7/MODIFICATIONS.md` has been a stub since v1.7 with six `TBD pending
+Phase 35` rows in `v1.7-SHIELD-REVS.md` §4/§5, blocked all that time on operator photos. v1.34
+photographs the board, traces each cut and jumper against the upstream Rev 0 schematic (blob
+`d2a7f691`), and fills those rows.
+
+**Merge posture.** v1.34 closes with a signed-off evidence table and an explicit merge
+recommendation. **It does not merge.** Precedent since v1.21 puts every outward-facing step behind
+the operator, and a merge to `beta` auto-fires a pre-release cut — not something to trigger as a
+side effect of a bench milestone.
+
+**Deliberately out of scope.** Three seeds triggered at activation and all three were declined to
+keep v1.34 a regression gate: white-box voltage calibration, the Rev 2.2 3-pin header / 2516-family
+support, and the per-pin-map jumper table. They stay planted, untouched.
+
 ## v1.33 Archive: Source Hygiene & Firmware Size Reduction — Shipped 2026-08-24
 
 **Started:** 2026-08-22 · **Phases continue at 154** (v1.32 ran 147–153; the vacated **150** slot and the
@@ -1711,6 +1786,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-08-25 — **v1.34 (Pre-Merge Hardware Regression Validation) STARTED.** Phases continue at **160**. A hardware gate in front of the three open v1.33 PRs (`prom#43` / `fw#56` / `app#54`), all unmerged. v1.33 shipped **−2938 B flash / −13 B RAM** on the premise of byte-level equivalence — heap allocator removed, 64-bit runtime dropped, `jsmntok_t` 8 → 6 B, command-decode table reworked — proven by native tests, golden traces and cold builds, and **run on no Arduino at all**. v1.34 runs it on silicon: **five distinct board×shield cells** (Uno / uno328pb / Leonardo on Rev 2.0; Leonardo on Modified Rev 0 / Rev 2.0 / Rev 2.2, with Leonardo+Rev 2.0 shared between the sweeps), each as an **A/B against the pre-v1.33 merge-base** (fw `8695ee5`, app `6bfa645`) with two chips per pass — W27C512 (DIP28, `0x07`) and W29C020 (DIP32, `0x05`) — for **20 full write→read→verify cycles**; plus a `dev test` sweep of all 11 v1.15 inventory chips on the Leonardo + Rev 2.0 reference rig. The control arm is the deliverable, not a formality: it is the only thing that separates "v1.33 broke this" from "this was always broken here", and v1.31 closed explicitly **without** a control run. Known faults are declared **before** the bench runs — uno328pb cannot finish a program (999.2), W27E512 and W27E040 carry stuck erase bits (D-32), W29C040's boot block is permanently locked, AM27C020 is marginal and cannot arbitrate anything. Only v1.33-**caused** regressions get fixed in-milestone. Second deliverable: the Modified Rev 0 rework trace, blocked on operator photos since v1.7, closing six `TBD pending Phase 35` rows in `v1.7-SHIELD-REVS.md` §4/§5. **v1.34 does not merge** — it closes with an evidence table and a recommendation; the merge stays operator-gated, as every outward-facing step has since v1.21, and because a merge to `beta` auto-fires a pre-release cut. Three seeds triggered at activation (voltage calibration, Rev 2.2 3-pin header / 2516 family, per-pin-map jumper table) and all three were **declined** to keep the milestone a regression gate. Prior footer retained below.*
 
 *Last updated: 2026-08-22 — **v1.33 (Source Hygiene & Firmware Size Reduction) STARTED.** Six phases, 154–159. Two halves that share one property: both make the source shorter and neither changes behaviour. First the promoted Backlog **999.34** provenance-comment sweep (~646 GSD `// Phase NNN (REQ-NN):` comments across 167 files; firmware ~345/94, host ~301/73) — **split** per D-01, so Phase 154 sweeps source and *builds* the citation-remap tool while Phase 159 applies it **once** over the composite diff (measured: **723** citations would otherwise be remapped twice, and 41% of that rework traces to four added `#include` lines). Then four **measured** firmware size reductions totalling **−2938 B flash / −13 B RAM on all three AVR targets for a net −2 lines of source**, validated at 172/172 native across seven runs: `mem_util_blank_check` malloc'd **four bytes** and was the allocator's only caller anywhere, dereferencing the result unchecked on a part with ~470 B free RAM (**the firmware becomes heap-free**); `rurp_read_voltage_mv` was the only user-code caller of the entire 438 B 64-bit runtime; the VPP-report and chip-ID-report blocks were copy-pasted **4× each**, holding 24 of the image's 30 `__udivmodhi4` call sites between them; and `json_parser.c`'s `key_parsers[]` re-matched every wire key a second time inside each `get_*` stub, costing **1012 B** across 11 PROGMEM-function-pointer stubs while five *identical* directly-called siblings cost zero. **Leonardo Caterina headroom 502 B → 3440 B (6.9×)** — which matters because v1.32 Phase 151 left that target at zero MERGE-05 headroom. **MERGE-05 is one-sided** (`check_size_baseline.py:697` is `if flash_delta > allowance`), so this is the first size movement in the project's history needing **no** named exemption (D-03). **Scoping was NOT done by this activation** — `ROADMAP.md` §v1.33 and `REQUIREMENTS.md` (31 requirements: SWEEP / DEAD / DEDUP / DECODE / LAND / REMAP) were hand-authored by `/gsd-explore` routing on 2026-08-22 and are pointed at, not regenerated, because the GSD roadmap/requirements verbs normalise whole files; `phases.clear` was **skipped** (126 phase directories exist). This activation contributed the §"Current Milestone: v1.33" section, the `STATE.md` frontmatter switch, and the commits. Phases 155–158 are **review, decomposition and landing** phases — the work is already implemented on firmware branch `size-reduction-survey` (off `8695ee5`) and captured at `.planning/notes/firmware-size-reduction-measured.patch`. **Explicitly OUT: replacing JSON with a binary command protocol** (operator, 2026-08-22) — measured **−3728 B flash / −512 B RAM** on `leonardo`, the largest single saving the survey found, deliberately not taken because it is a breaking cross-repo wire change; stays queued as **v1.28** and filed as Backlog **999.35**, whose figure **overlaps DECODE-01** and is therefore **not additive**. **No criterion requires a physical board** (D-02); the one honest ceiling is that `src/boards/rurp_common.cpp` compiles in no native environment, so the voltage reformulation has no native coverage and Phase 155 must establish a committed numerical oracle. Meta forked off local `beta` @ `59a9ff5d` as `v1.33-source-hygiene-size-reduction`. **Next:** `/gsd-discuss-phase 154` — that phase's requirements are deliberately UNSET because its triage policy is the substance of the phase. Prior footer (v1.31 close) retained below.*
 

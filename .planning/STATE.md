@@ -1,95 +1,116 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.33
-milestone_name: — Source Hygiene & Firmware Size Reduction
-current_phase: 159
-current_phase_name: Citation Remap + Milestone Close — LAST phase of v1.33, milestone CLOSED
-status: milestone-complete
-stopped_at: Milestone v1.33 CLOSED and archived 2026-08-24. Closeout type override_closeout (SWEEP-13 deliberately unticked + 10 pre-existing audit-open carry-forwards, none from v1.33). LOCAL CLOSE ONLY — meta tagged v1.33, nothing pushed, no PR, no merge, no beta cut, no release; all three repos remain on gsd/v1.33-source-hygiene-firmware-size-reduction and every outward-facing step stays operator-gated. REQUIREMENTS.md removed via git rm — recreate with /gsd-new-milestone.
-last_updated: "2026-08-24T20:40:00.000Z"
-last_activity: 2026-08-24
-last_activity_desc: "Quick task 260825-cmt complete -- narrative comments stripped from shipped source and maintenance tooling. Superseded: Milestone v1.33 (Source Hygiene & Firmware Size Reduction) CLOSED and archived 2026-08-24 — 6 phases (154-159), 45 plans, 42/43 requirements Complete; firmware heap-free, Leonardo Caterina headroom 502 B -> 3440 B, 2706 citations remapped across 562 documents in one application; zero product-code behaviour changed."
+milestone: v1.34
+milestone_name: Pre-Merge Hardware Regression Validation
+status: planning
+last_updated: "2026-08-25T10:35:28.294Z"
+last_activity: 2026-08-25
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 45
-  completed_plans: 45
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-08-22
+**Updated:** 2026-08-25
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-22 — v1.33 started)
+See: `.planning/PROJECT.md` (updated 2026-08-25 — v1.34 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
-authoritative dispatch key end to end. v1.33 does not touch that contract at all: its entire premise is
-byte-level equivalence. **Make the source shorter without changing what it does.**
-**Current focus:** Planning the next milestone — v1.33 is CLOSED.
+authoritative dispatch key end to end. v1.34 does not touch that contract, or any product code, unless
+the bench proves v1.33 broke something. **Prove on silicon that v1.33 changed nothing behavioural, before
+the merge.**
+**Current focus:** Defining requirements for v1.34.
 
-**v1.33 CLOSED 2026-08-24** by `/gsd-complete-milestone`. All six phases (154–159) complete and
-verified; 42/43 requirements Complete (SWEEP-13 open by design); closeout type `override_closeout`.
+**v1.34 Pre-Merge Hardware Regression Validation** — ACTIVATED 2026-08-25. Phases continue at **160**
+(v1.33 ran 154–159; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
+by-number cross-reference keeps resolving).
+
+**The gate exists because v1.33 has never run on an Arduino.** It shipped **−2938 B flash / −13 B RAM**
+across all three AVR targets on a premise of byte-level equivalence — heap allocator removed (the firmware
+is now heap-free), the 438 B 64-bit runtime dropped, `jsmntok_t` narrowed 8 → 6 B, the `key_parsers[]`
+command-decode table rewritten, handle types narrowed. Every claim is backed by native tests, golden
+traces and cold builds; **none by silicon.** Three PRs are open and unmerged:
+[`prom#43`](https://github.com/henols/firestarter_prom/pull/43),
+[`fw#56`](https://github.com/henols/firestarter/pull/56),
+[`app#54`](https://github.com/henols/firestarter_app/pull/54).
+
+**Five distinct board×shield cells** — Leonardo + Rev 2.0 is the intersection of both sweeps and runs once:
+
+| Cell | Board | Shield | Note |
+|------|-------|--------|------|
+| A1 | Uno (ATmega328P) | Rev 2.0 | |
+| A2 | uno328pb (ATmega328PB) | Rev 2.0 | Write expected red on both arms — Backlog 999.2 |
+| A3/B2 | Leonardo (ATmega32U4) | Rev 2.0 | Shared; the v1.31 reference rig |
+| B1 | Leonardo | Modified Rev 0 | Voltage-divider-retrofitted Rev 1.0 |
+| B3 | Leonardo | Rev 2.2 | R41 = 10 kΩ vs 4k7 on Rev 2.0 |
+
+**A/B per cell, control arm first.** Pre-v1.33 control = the exact merge-bases the v1.33 branches forked
+from: firmware **`8695ee5`**, host app **`6bfa645`** (35 and 7 commits behind their branch HEADs). Two
+chips per arm — **W27C512** (DIP28, `0x07`, 64 KiB) and **W29C020** (DIP32, `0x05`, 256 KiB page-write),
+each a full write → read → verify. **20 W→R→V cycles.** The control arm is the deliverable, not a
+formality: it is the only thing separating "v1.33 broke this" from "this was always broken here." v1.31
+closed with **no comparative claim and no control run** and said so plainly; v1.34 buys the comparison it
+declined to make.
+
+**Chip sweep:** Leonardo + Rev 2.0, `firestarter dev test <chip>` over all 11 v1.15 inventory parts on
+v1.33 firmware — W27C512, W27E512, SST27SF512, W27E040, ST M27C512, SST39SF040, W29C040, W29C020, FM1608,
+AM27C020, 2516. Reports carry `fw_board_identity` since Phase 147, so each is firmware-attributable. A
+control re-run fires only where a result diverges from that chip's recorded v1.15 disposition.
+
+**Failure policy:** every failure gets an evidence row and a root cause; **only v1.33-caused regressions
+are fixed in-milestone.** Pre-existing faults are recorded as known-and-carried, never adopted.
+
+**Known faults declared BEFORE the bench runs** — so a red cell is not misread as a v1.33 break:
+uno328pb cannot finish a program (Backlog **999.2**, chip-PROGRAM brownout); **W27E512** @0x3d and
+**W27E040** @0x7db carry stuck erase bits (D-32, deterministic across reseats); **W29C040**'s §6.6 boot
+block is permanently locked so a full-device verify is physically impossible (CR-01 open since v1.15);
+**AM27C020** is marginal not deterministic (write#1 60/64, write#2 0/64) and cannot arbitrate anything.
+
+**Second deliverable — the Modified Rev 0 rework trace.** That board is on the bench for B1 anyway.
+`.planning/v1.7/MODIFICATIONS.md` has been a stub since v1.7 with six `TBD pending Phase 35` rows in
+`v1.7-SHIELD-REVS.md` §4/§5, blocked all that time on operator photos. v1.34 photographs it, traces each
+cut and jumper against the upstream Rev 0 schematic (blob `d2a7f691`), and fills those rows.
+
+**Merge posture: v1.34 does NOT merge.** It closes with a signed-off evidence table and an explicit
+recommendation. Every outward-facing step has been operator-gated since v1.21, and a merge to `beta`
+auto-fires a pre-release cut — not a side effect to trigger from a bench milestone.
+
+**Bench rules that bind every cell** (standing, not v1.34 inventions): verify `controller:` identity per
+port each task — `ttyACM*` numbers shuffle across replug; **chip OUT before sideload on Uno-class only**,
+Leonardo exempt; the operator adjusts the voltage pot himself — state the target, wait, take ONE read, no
+live monitor loops; photographs, multimeter work and chip handling are operator-only, everything else
+Claude drives over USB passthrough; `vpp`/`vpe` monitors do not route to the socket, so a blank or `0x303`
+reading means a contact fault, not a rail fault.
+
+**Declined at activation — three seeds triggered and all three were left planted** to keep v1.34 a
+regression gate rather than a feature milestone: white-box voltage-reading calibration (its
+"accuracy/hardware-focused milestone" trigger fired literally), the Rev 2.2 3-pin header + 2516-family
+support (opportunistic only — its own v1.24 trigger has not fired, and its blocker list needs a new DB
+field, `build_db.py` support and firmware pin-strobe verification), and the per-pin-map jumper table
+(host-only, no bench dependency at all).
+
+**Branch model:** all three repos currently sit on `gsd/v1.33-source-hygiene-firmware-size-reduction`
+with the PRs open against `beta`. v1.34 forks its own branch off `beta` in all three repos per the
+standing rule — **but the firmware and app builds under test are the v1.33 PR heads**, not v1.34's own
+branch, because the v1.33 tree is the thing being validated.
+
+**v1.33 Source Hygiene & Firmware Size Reduction** — ✅ **SHIPPED 2026-08-24** (activated 2026-08-22), six
+phases **154–159**, 45 plans, 42/43 requirements (SWEEP-13 open by design), closeout `override_closeout`.
 Archived to [`.planning/milestones/v1.33-ROADMAP.md`](milestones/v1.33-ROADMAP.md) and
 [`.planning/milestones/v1.33-REQUIREMENTS.md`](milestones/v1.33-REQUIREMENTS.md); full entry in
-`.planning/MILESTONES.md` §v1.33. Meta tagged `v1.33`. **⚠ LOCAL CLOSE ONLY — nothing pushed, no PR,
-no merge, no beta cut, no release.** All three repos remain on
-`gsd/v1.33-source-hygiene-firmware-size-reduction`; every outward-facing step stays operator-gated and
-was deliberately untaken. `.planning/REQUIREMENTS.md` was removed via `git rm` so the next milestone
-starts fresh — recreate it with `/gsd-new-milestone`.
+`.planning/MILESTONES.md` §v1.33. Meta tagged `v1.33`. **⚠ LOCAL CLOSE ONLY — nothing pushed, no merge,
+no beta cut, no release**; the three PRs above were opened 2026-08-25 and are what v1.34 gates. Leonardo
+Caterina headroom went **502 B → 3440 B (6.9×)**, which mattered because v1.32 Phase 151 left that target
+at zero MERGE-05 headroom. Retired Backlog **999.34**; filed Backlog **999.35** (binary command protocol)
+rather than carrying it.
 
-**v1.33 Source Hygiene & Firmware Size Reduction** — ✅ **SHIPPED 2026-08-24** (activated 2026-08-22). Six phases,
-**154–159**. Phase 154 is dual-repo lockstep; Phases 155–158 are firmware-only; Phase 159 touches
-`.planning/` only. Retires Backlog **999.34**; files Backlog **999.35** rather than carrying it.
-
-**⚠ The scoping was done on 2026-08-22 by `/gsd-explore` routing, NOT by this activation.**
-`ROADMAP.md` §v1.33 and `REQUIREMENTS.md` (31 requirements — SWEEP / DEAD / DEDUP / DECODE / LAND / REMAP)
-are **hand-authored** and must be **pointed at, never regenerated**: the GSD roadmap/requirements verbs
-normalise whole files and would reformat six phase entries, five D-labels and 31 requirements.
-`phases.clear` was **skipped** — 126 phase directories exist and it hard-deletes them. This activation
-contributed exactly three things: PROJECT.md §"Current Milestone: v1.33", this frontmatter switch, and the
-commits.
-
-**Phases 155–158 are review, decomposition and landing — not greenfield.** The work is **already
-implemented** on firmware branch `size-reduction-survey` (off `8695ee5`), with 11 files modified and
-**uncommitted**, and captured as an applyable patch at
-`.planning/notes/firmware-size-reduction-measured.patch`. Read
-`.planning/notes/firmware-size-reduction-survey.md` before planning any of them. Measured total:
-**−2938 B flash / −13 B RAM on all three AVR targets for a net −2 lines of source**, validated at
-**172/172 native across seven runs** plus `native_nodevtools`. The firmware becomes **heap-free**, and
-Leonardo Caterina headroom goes **502 B → 3440 B (6.9×)** — which matters because v1.32 Phase 151 left that
-target at zero MERGE-05 headroom.
-
-**Five decisions binding on every phase** (full statements in `ROADMAP.md` §v1.33):
-**D-01** Phase 154 sweeps source and *builds* the remap tool; **Phase 159 applies it once** over the
-composite diff — measured, **723** citations would otherwise be remapped twice and 41% of that rework traces
-to four added `#include` lines. **D-02** No success criterion requires a physical board. **D-03** MERGE-05
-is one-sided (`check_size_baseline.py:697` is `if flash_delta > allowance`), so a shrink needs **no** named
-exemption — recorded *as* one-sided so nobody reads the green run as "nothing moved". **D-04** The native
-suite is **load-flaky** (172/172 at ~35 s ×5; 171/172 at 1:13; 158-cases-2-ERRORED at 1:44 — failure tracks
-run *duration*, not tree content) — no phase may blame its own change on N=1. **D-05** The Phase-154→159
-citation staleness is temporary, **marked, and close-blocking** via REMAP-04.
-
-**Two ceilings, stated not buried.** `src/boards/rurp_common.cpp` compiles in **no** native environment
-(`[env:native]`'s `src_filter = +<proms/>`), so the 32-bit voltage reformulation has **no native coverage**
-and Phase 155 must establish a committed numerical oracle. And `check_size_baseline.py` runs in **no CI
-workflow at all** — every gate this milestone leans on is a local-run obligation; its canonical
-`--policy merge05` invocation is **already RED on `beta`** for a pre-existing reason (`native: cases
-baseline=141 observed=172`, BASE-01 frozen at Phase 124's count), failing on case counts before it ever
-reports flash.
-
-**Explicitly OUT of scope: replacing JSON with a binary command protocol** (operator, 2026-08-22) —
-measured **−3728 B flash / −512 B RAM** on `leonardo`, the largest single saving the survey found, and
-deliberately not taken because it is a breaking cross-repo wire change rather than a refactor. Stays queued
-as **v1.28**, filed as Backlog **999.35**. It **overlaps DECODE-01**, so the two figures are **not
-additive**.
-
-**Branch model:** meta on `v1.33-source-hygiene-size-reduction`, forked off local `beta` @ `59a9ff5d`.
-Sub-repos fork off their `beta` tips per phase; the firmware already has `size-reduction-survey` to rename
-or rebase.
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ✅ **SHIPPED 2026-08-21** (activated 2026-08-18, ~~folding Backlog
 **999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
@@ -152,77 +173,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 159 (Citation Remap + Milestone Close) — COMPLETE, verified 17/17
-Plan: 6 of 6
-Status: v1.33 phases all complete — awaiting operator-gated `/gsd-complete-milestone`
-Next: **Phase 159 -- Citation Remap + Milestone Close** -- apply the Phase 154 remap tool exactly once over the composite pre-154-to-post-158 diff, then close the milestone. Not yet planned.
-**Plan 158-05 complete (2026-08-24):** BASE-01's native inventory axis re-anchored 141->184 on
-both `native`/`native_nodevtools` (`avr_targets` byte-unchanged; new
-`meta.native_inventory_axis_phase158` note) -- `fix(158-05)` `7894dec` -- flipping the canonical
-`--policy merge05 --baseline size_baseline_base01.json --rebuild` invocation from plan 01's
-recorded exit 1 (two `cases baseline=141 observed=184` lines) to exit 0 with a full `PASS:` line.
-`test_checker_convention.py`'s named carry-forward closed as a tightening, not a repair:
-`FLOOR` 7->8, `FIXTURE_FLOOR` 16->31, both counted on the tree (`test(158-05)` `5dca69d`), with a
-non-vacuity probe (`FIXTURE_FLOOR=32` fails with `assert 31 >= 32`) recorded then reverted. Two
-in-tree docstrings (`test_check_size_baseline.py`, `meta_presence.py`) corrected, comment-only,
-to state the checker's own pytest suite DOES run in CI via `build.yml:161` on every branch except
-`beta` (`docs(158-05)` `2ccda8d`), verified by an AST-diff with docstrings stripped showing zero
-assertion/import/constant/def changes. `python3 -m pytest tests/ -q -o addopts=""` green (360
-passed, 0 skipped) after each of the three commits. See `158-05-SUMMARY.md`.
-**Stopped at:** Phase 158 complete and verified 8/8 -- jsmntok_t narrowed 8->6 B on AVR for a measured -138/-138/-136 B flash and -128 B RAM cold-to-cold on uno/uno328pb/leonardo (the ROADMAP's +30 B flash prediction superseded, C-2); size_baseline.json re-recorded cold (22952/1434, 23000/1440, 25098/1875, native+native_nodevtools 184/184/17) with fixtures severed onto the *_v158* family; BASE-01 fixed on a third native test-inventory axis 141->184 with its growth axis byte-unchanged; LAND-06's mask rewrite DECLINED with the measurement (+22/+24/+22 B flash, no linkage saving); LAND-07's 57-tokens/7-headroom figure refuted by three re-derived bounds (50/14, 51/13, 55/9) and closed on the forward-compatibility budget, not arithmetic. Thirteen corrections C-1..C-13 and ten decisions OD-1..OD-10 closed in .planning/v1.33/158-after-figures.md. Firmware HEAD 2ccda8d; 360 pytest + 184/184 native + 184/184 native_nodevtools green.
-**Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
-as a compiler-derived `{key, clamp, offset, width}` `field_desc_t` table (`19df431`), replacing the
-PROGMEM function-pointer column and its ten dispatch stubs (`get_memory_size`, `get_address`,
-`get_chip_id`, `get_pin_count`, `get_delay`, `get_vpp_mv`, `get_algorithm`, `get_read_settling`,
-`get_read_strobe`, `get_page_size`) with one shared, inlined `store_field`. `offset`/`width` are
-compiler-derived (`offsetof`/`sizeof`), never a literal; twelve `_Static_assert` guards stand
-behind the raw `memcpy` and were PROVEN to fire against two planted negatives (a struct reorder, a
-duplicated table row) in a throwaway `git worktree`, discarded before the task ended. `ctrl_flags`
-uses `FIELD_MASK` (mask semantics, OD-1) rather than saturating; `get_flags` now references
-`key_flags` directly (OD-3), and one key-string block survives on all three AVR targets --
-re-measured, not merely re-derived. Measured flash delta, RAM unchanged: `uno` 24234->23350
-(-884 B), `uno328pb` 24282->23398 (-884 B), `leonardo` 26378->25494 (-884 B); the 6 B divergence
-from the reference's -890 B is attributed to OD-1's policy column (C-19), not chased by editing
-code. Both native envs still 172/172, both local check scripts pass, and `firestarter_app`'s host
-wire-key parity gate reports 24 passed with zero host files touched. Next: plan 157-03 (the
-`protocol`/`ctrl_flags` type narrowing, DECODE-04).
-
-Last activity: 2026-08-24 — Phase 159 complete and verified 17/17
-
-**The manifest is on disk and committed, and it is the point of no return for Phase 159.**
-`.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents
-against a **171**-file candidate set, generated at the pre-sweep shas `firestarter 8695ee5` /
-`firestarter_app 6bfa645` (both written into its own header record). **10,445** records target a candidate
-swept file (10,169 occurrence-equivalent, vs the pre-registered **10,054**, +1.1%); **7,249** are shifting
-(7,076 vs the recorded **6,939**). It cannot be regenerated after the sweep — the pre-sweep
-`(target_line, source_text)` pairs exist nowhere on disk once the sweep lands. Reconciliation, per-variant
-and per-resolution counts, and the Ruling B answer:
-`.planning/v1.33/sweep-citation-manifest-report.md`.
-
-**Three things a later plan must not re-litigate.** (1) `.planning/v1.33/tools/citation_paths.py` is the
-**single** resolver, imported by both the generator and plan 05's `remap_citations.py`, so the same citation
-cannot resolve two different ways — do not re-implement resolution in the remapper. (2) ~~Every record is `retarget: false` and the field exists **to be flipped** in plan 12~~ — **DONE 2026-08-23 by plan 12: 815 rows flipped to `retarget: true`, in place, with five declared added keys and no schema re-emission.** `target_line` was deliberately **not** advanced: every row keeps its pre-154 anchor, because Phase 159 maps a composite pre-154 -> post-158 diff and a row advanced to post-154 while its 12,877 siblings stayed pre-154 would be silently mis-mapped; the hand-chosen target lives in `retarget_new_line`. (3) The manifest's `source_text` convention is
-"without the line terminator, compare against `splitlines()`", and an unreadable endpoint carries the
-`<UNREADABLE>` sentinel with `text_status` saying why — Phase 159's oracle must skip a non-`read` row **by
-name**, never treat it as a match.
-
-**Detail.** Phase 154 was discussed and planned on 2026-08-23 (12 plans, 5 waves) and its phase directory
-exists. Its `SWEEP-01…NN` placeholder resolved to **13** requirements, now carried in `REQUIREMENTS.md` §1;
-the other 30 (DEAD / DEDUP / DECODE / LAND / REMAP) were already written. **Was:** not yet discussed,
-planned or given a directory, with SWEEP-01…NN deliberately UNSET pending `/gsd-discuss-phase 154`.
-
-**Branch posture — settled 2026-08-23 by Plan 154-01.** All three repos are on
-`gsd/v1.33-source-hygiene-firmware-size-reduction`, each forked off its own `beta`: meta @ `717757f`,
-`firestarter` @ `8695ee5` (`FW_PRE_SHA`), `firestarter_app` @ `6bfa645` (`APP_PRE_SHA`). The firmware
-tree's 11 uncommitted files were **committed, not discarded**, onto
-`wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8`, then proven byte-identical to `beta` +
-`.planning/notes/firmware-size-reduction-measured.patch` by an **empty** recursive tree diff **before** the
-tree stopped being dirty. No `reset --hard`, `clean`, `checkout --` or `stash` ran. **That branch is the
-only ref carrying Phases 155-158's implemented work — do not delete or force-update it during v1.33.**
-All anchors and every pre-sweep number: `.planning/v1.33/baseline-pre-sweep.md`. **Was:** meta on
-`v1.33-source-hygiene-size-reduction` off local `beta` @ `59a9ff5d`; `firestarter` on
-`size-reduction-survey` @ `8695ee5` with 11 files modified and uncommitted; `firestarter_app` still on
-`beta`.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-08-25 — Milestone v1.34 started
 
 ## Roadmap Summary (v1.33)
 
