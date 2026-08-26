@@ -5,15 +5,15 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: Completed 160-03-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
-last_updated: "2026-08-26T21:38:54.504Z"
+stopped_at: Completed 160-04-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
+last_updated: "2026-08-26T22:02:48.309Z"
 last_activity: 2026-08-26
-last_activity_desc: Phase 160 execution started
+last_activity_desc: Phase 160 plan 04 execution complete (probe_board.py, capture_provenance.py, gate_record.py)
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -188,9 +188,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
-Plan: 3 of 13
+Plan: 4 of 13
 Status: Ready to execute
-Last activity: 2026-08-26 — Phase 160 execution started
+Last activity: 2026-08-26 — Phase 160 plan 04 execution complete (probe_board.py, capture_provenance.py, gate_record.py)
 Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Waves 1-4 are host-side tooling under `.planning/v1.34/` (no product code); waves 5-10 are on-device, so plans 08-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Bring-up proves the read-back reader per target cheapest-first `uno` -> `uno328pb` -> `leonardo` BEFORE D-03's deliberate wrong-arm cross-flash depends on it; the three on-device read chains are the phase's one LOW-confidence mechanism (`flash:r` has never been invoked in this project's history). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
@@ -2573,6 +2573,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 160-03]: check_arms.py measures the CLI surface by importing each arm's live Click app from its own venv, not by static AST — six @dev.command blocks are registered conditionally under the channel gate; a live import reflects the true runtime-registered set (25 entries both arms, zero set difference)
 - [Phase 160-03]: Help-text diff between the two arms measured empty; investigated the 'restore Click docstrings' commit and confirmed it restores text the control arm already carries — avoids asserting a research-flagged risk away without checking it
 - [Phase 160-03]: config-dir content-SHA algorithm reverse-engineered by matching four candidate schemes against the recorded 160-01 value; canonicalized in check_arms.py's compute_config_dir_sha() — the exact byte sequence was underspecified upstream; later plans should reuse this function rather than re-deriving it
+- [Phase 160-04]: board identity comes from a phase-owned avrdude signature probe, never a firmware handshake -- probe_board.py reuses the pending todo's two bench-verified parse routes and refuses when neither parses or the mcu mismatches
+- [Phase 160-04]: capture_provenance.py's __file__ probe is kept as a local literal copy (not delegated to check_arms.py) so the -P flag is textually present in this tool's own source, per this plan's acceptance criteria; the other host-arm probes (git HEAD, porcelain, config-dir SHA, interpreter, dep freeze) are reused from check_arms.py
+- [Phase 160-04]: gate_record.py reads its required-field list and outcome domain from a _schema block embedded in the record under examination (both --cell and --jsonl modes), rather than from a module constant, so the gate's correctness does not depend on staying in sync with a schema a later plan settles on
 
 ## Performance Metrics
 
@@ -2920,11 +2923,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 158 P06 | 55min | 2 tasks | 1 files |
 | Phase 160 P01 | 22min | 3 tasks | 6 files |
 | Phase 160 P03 | 62min | 3 tasks | 5 files |
+| Phase 160 P04 | ~55min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-26T21:38:17.974Z
-**Stopped at:** Completed 160-01-PLAN.md (task 3 + SUMMARY); ready for 160-02
+**Last session:** 2026-08-26T22:02:48.268Z
+**Stopped at:** Completed 160-04-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
@@ -2959,7 +2963,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/160-rig-dual-arm-build-flash-provenance-the-shared-cell-procedur/160-CONTEXT.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
