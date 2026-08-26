@@ -64,3 +64,6 @@ chip-test/
 # Phase 115 fresh-machine onboarding transcripts).
 /*.bin
 node_modules
+
+# v1.34 host-arm worktree root (two firestarter_app worktrees + venvs, Phase 160 D-06).
+/.v1.34-arms/
