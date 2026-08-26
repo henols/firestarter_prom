@@ -4,16 +4,16 @@ milestone: v1.34
 milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
-status: ready
-stopped_at: Phase 160 planned -- 13 plans / 38 tasks / 10 waves; plan-checker PASSED on the first iteration. Research, pattern map and validation strategy written. All 5 RIG requirements and all 18 CONTEXT decisions covered by plans. Nothing has executed; nothing on the bench has run.
-last_updated: "2026-08-26T20:28:34.000Z"
+status: executing
+stopped_at: Completed 160-01-PLAN.md (task 3 + SUMMARY); ready for 160-02
+last_updated: "2026-08-26T21:19:27.136Z"
 last_activity: 2026-08-26
-last_activity_desc: Phase 160 planned -- 13 plans, 38 tasks, 10 waves
+last_activity_desc: Phase 160 execution started
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-25 — v1.34 started)
 authoritative dispatch key end to end. v1.34 does not touch that contract, or any product code, unless
 the bench proves v1.33 broke something. **Prove on silicon that v1.33 changed nothing behavioural, before
 the merge.**
-**Current focus:** Defining requirements for v1.34.
+**Current focus:** Phase 160 — RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 
 **v1.34 Pre-Merge Hardware Regression Validation** — ACTIVATED 2026-08-25. Phases continue at **160**
 (v1.33 ran 154–159; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -187,10 +187,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — planned, not started
-Plan: Not started
-Status: Ready to execute — 13 plans / 10 waves; plan-checker PASSED on the first iteration
-Last activity: 2026-08-26 — Phase 160 planned: 13 plans, 38 tasks, 10 waves. Research (1080 lines), pattern map (17 new + 1 modified file) and validation strategy written. Requirements coverage 5/5 (RIG-01..05); decision coverage 18/18 (D-01..D-18).
+Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
+Plan: 2 of 13
+Status: Ready to execute
+Last activity: 2026-08-26 — Phase 160 execution started
 Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Waves 1-4 are host-side tooling under `.planning/v1.34/` (no product code); waves 5-10 are on-device, so plans 08-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Bring-up proves the read-back reader per target cheapest-first `uno` -> `uno328pb` -> `leonardo` BEFORE D-03's deliberate wrong-arm cross-flash depends on it; the three on-device read chains are the phase's one LOW-confidence mechanism (`flash:r` has never been invoked in this project's history). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
@@ -2566,6 +2566,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 158-05: test_checker_convention.py FLOOR/FIXTURE_FLOOR floors raised 7/16 -> 8/31 as a tightening of a loose gate, both counted on the tree; carry-forward closed
 - [Phase ?]: 158-05: corrected two in-tree docstrings (test_check_size_baseline.py, meta_presence.py) that falsely claimed no CI leg runs the checker's own pytest suite -- build.yml:161 does, on every branch except beta
 - [Phase ?]: 158-06: LAND-06's mask-cost figures transcribed from plan 03's SUMMARY (mask exists in no committed tree); the two re-derivable probes (__udivmodsi4 call count, jsmntok_t sizeof) re-run and confirmed identical on the shipped tree
+- [Phase 160]: Task 2 checkpoint: operator approved all six [SUS] transitive deps (click, pyserial, requests, rich, tqdm, packaging) verbatim 'Approved' — pre-existing pyproject.toml floors, none held
+- [Phase 160]: Config dir seeded via ConfigManager.set_value() API directly, not CLI — every firestarter subcommand that persists state requires a live serial handshake and no board is attached
+- [Phase 160]: Dependency-set equality (Pitfall 8) measured with 'uv pip freeze --python <venv>' not 'python -m pip freeze' — uv venv 0.12.6 installs no pip module
 
 ## Performance Metrics
 
@@ -2911,11 +2914,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 158 P04 | 40min | 3 tasks | 8 files |
 | Phase 158 P05 | 35min | 3 tasks | 4 files |
 | Phase 158 P06 | 55min | 2 tasks | 1 files |
+| Phase 160 P01 | 22min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-25T20:56:08.811Z
-**Stopped at:** Phase 160 context gathered
+**Last session:** 2026-08-26T21:19:27.086Z
+**Stopped at:** Completed 160-01-PLAN.md (task 3 + SUMMARY); ready for 160-02
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
