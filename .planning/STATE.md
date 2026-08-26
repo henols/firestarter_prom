@@ -5,15 +5,15 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: Completed 160-02-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
-last_updated: "2026-08-26T22:37:52.346Z"
+stopped_at: "Completed 160-06-PLAN.md (tasks 1-2 + SUMMARY); PROCEDURE.md + render_steps.py authored, RIG-03/SC#3 closed"
+last_updated: "2026-08-26T23:08:20.165Z"
 last_activity: 2026-08-26
-last_activity_desc: Phase 160 plan 02 execution complete (six arm-tagged images, BUILD-MANIFEST.json, check_rebuild.py, REBUILD-CHECK.json)
+last_activity_desc: Phase 160 plan 06 execution complete (PROCEDURE.md, tools/render_steps.py, RIG-03/SC#3 closed)
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -188,9 +188,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
-Plan: 6 of 13
+Plan: 7 of 13
 Status: Ready to execute
-Last activity: 2026-08-26 — Phase 160 plan 02 execution complete (six arm-tagged images, BUILD-MANIFEST.json, check_rebuild.py, REBUILD-CHECK.json)
+Last activity: 2026-08-26 — Phase 160 plan 06 execution complete (PROCEDURE.md, tools/render_steps.py, RIG-03/SC#3 closed)
 Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Waves 1-4 are host-side tooling under `.planning/v1.34/` (no product code); waves 5-10 are on-device, so plans 08-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Bring-up proves the read-back reader per target cheapest-first `uno` -> `uno328pb` -> `leonardo` BEFORE D-03's deliberate wrong-arm cross-flash depends on it; the three on-device read chains are the phase's one LOW-confidence mechanism (`flash:r` has never been invoked in this project's history). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
@@ -2580,6 +2580,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 160]: verdict_disagreement in judge_wrv.py is one uniform XOR of (app_verdict==0) vs (sha_verdict_judged=='match') across all four verdict states, not a hand-enumerated per-state table
 - [Phase ?]: Control arm's hex spans diverge from size_baseline.json (pre-Phase-158 tree); recorded and named rather than reconciled
 - [Phase ?]: check_rebuild.py decouples --images (candidate) from --expect (reference manifest + sibling original file) so one tool serves both self-check and rebuild-verification without a rebuild-invoking flag
+- [Phase 160]: PROCEDURE.md P-04 flashes via an in-place firmware checkout (git checkout <fw_sha> in /workspaces/firestarter), not a second firmware worktree -- mitigated by recording the post-checkout fw_sha + empty porcelain check, same class of mitigation D-08 applies to the host app
+- [Phase 160]: render_steps.py flattens each step's full body (not just its heading) into its emitted render line, so literal command-shape tokens like $ARM_BIN are visible in the diffed output rather than only in prose the gate never touches
 
 ## Performance Metrics
 
@@ -2930,11 +2932,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 160 P04 | ~55min | 3 tasks | 3 files |
 | Phase 160 P05 | 50min | 3 tasks | 3 files |
 | Phase 160 P02 | 50min | 3 tasks | 10 files |
+| Phase 160 P06 | 65min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-26T22:37:52.307Z
-**Stopped at:** Completed 160-02-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
+**Last session:** 2026-08-26T23:08:20.124Z
+**Stopped at:** Completed 160-06-PLAN.md (tasks 1-2 + SUMMARY); PROCEDURE.md + render_steps.py authored, RIG-03/SC#3 closed
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A

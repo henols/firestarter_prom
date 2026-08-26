@@ -251,7 +251,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 160-06-PLAN.md — `PROCEDURE.md`: the derived 11-step arm-agnostic cell run with its halt branches, plus the step renderer whose empty two-arm diff is the SC#3 gate
+- [x] 160-06-PLAN.md — `PROCEDURE.md`: the derived 11-step arm-agnostic cell run with its halt branches, plus the step renderer whose empty two-arm diff is the SC#3 gate
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
