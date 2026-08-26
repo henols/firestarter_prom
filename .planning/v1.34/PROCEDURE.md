@@ -60,6 +60,18 @@ honor.
    phase.** If a failure is attributable to a named physical cause (a suspected bad contact),
    one re-seat and one re-run are permitted — and **both the discarded attempt and the re-run
    are recorded**, never just the re-run.
+9. **`FIRESTARTER_CONFIG_DIR` is set inline on every command that invokes an arm binary or a
+   tool that itself shells out to one, never by a session-level `export`.** `config.py` computes
+   `HOME_PATH`, `DATABASE_FILE` and `PIN_MAP_FILE` as **import-time** constants derived from
+   `get_config_dir()`, even though `get_config_dir()` itself is call-time (its own docstring says
+   so, for the `dev test` report path). Exporting the variable mid-session, or in a shell other
+   than the one that launches the process, fixes only the call-time consumers and silently leaves
+   the database and pin-map pointed at the unset default (`~/.firestarter`) — a partial fix that
+   *looks* complete. Every step below that names `$ARM_BIN` directly, and every phase tool that
+   shells out to an arm binary internally (`capture_provenance.py`), sets
+   `FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR` inline on that same command line. If any step
+   is ever copy-pasted into a fresh shell, that shell re-establishes the variable itself, inline,
+   before the step runs — it is never assumed to already be exported there.
 
 ---
 
@@ -100,6 +112,7 @@ regardless of which arm is running:
 | `$TARGET` | `uno` / `uno328pb` / `leonardo` (the PlatformIO env name) |
 | `$MASK` | this position's XOR mask, from `bench/IMAGE-PLAN.json` |
 | `$CELL_DIR` | `.planning/v1.34/bench/cells/<cell_slug>/` |
+| `$FIRESTARTER_CONFIG_DIR` | the one frozen shared config dir, pinned in `rig-pins.json` (`config_dir`): `/workspaces/.planning/v1.34/config` |
 
 **The annotation syntax `[arm: control]` / `[arm: v133]`** is defined here for
 `tools/render_steps.py` to detect, and is used **nowhere** in the `## Step list` section below.
@@ -134,7 +147,7 @@ Claude re-verifies port identity for **this cell**, never inheriting it from a p
 ```
 python3 .planning/v1.34/tools/probe_board.py --target $TARGET --port $PORT \
   --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/board_probe.json
-$ARM_BIN -p $PORT hw
+FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT hw
 ```
 
 The signature probe (`probe_board.py`) is the **authoritative** board identity; the `hw`
@@ -199,7 +212,7 @@ Claude states the target for the declared VPP value (both bench chips declare
 and Claude takes **exactly one** confirming read:
 
 ```
-$ARM_BIN -p $PORT vpp
+FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT vpp
 ```
 
 The pot is set **once per cell, not once per chip**, because both bench chips agree on the
@@ -219,25 +232,26 @@ the full 65536 B device size with `judge_wrv.py`:
 
 ```
 python3 .planning/v1.34/tools/gen_addr_image.py --stamp-width 16 65536 $MASK $CELL_DIR/written.bin
-time $ARM_BIN -p $PORT write w27c512 $CELL_DIR/written.bin
+time FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT write w27c512 $CELL_DIR/written.bin
 ```
 
 Read counts and arbitration (stated here, not as a separate step, because it applies
 identically to this step and its W29C020 counterpart below): **three independent reads on the
 v1.33 arm at every position**, via
-`$ARM_BIN -p $PORT dev consistency-check w27c512 --runs 3 --output-dir $CELL_DIR/reads --keep-files`;
+`FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT dev consistency-check w27c512 --runs 3 --output-dir $CELL_DIR/reads --keep-files`;
 **a single read on the control arm normally**, via
-`$ARM_BIN -p $PORT read w27c512 $CELL_DIR/reads/run_01.bin` (the positional-output form, named
-to match `judge_wrv.py`'s `run_NN.bin` glob) — **escalating to the same three-run
-`dev consistency-check` invocation on the control arm only where the v1.33 arm's three reads
-for this position disagreed**, arbitrating whether the instability is new or was always there.
-A disagreement is **recorded as a disagreement and never retried away**.
+`FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT read w27c512 $CELL_DIR/reads/run_01.bin`
+(the positional-output form, named to match `judge_wrv.py`'s `run_NN.bin` glob) — **escalating to
+the same three-run `dev consistency-check` invocation on the control arm only where the v1.33
+arm's three reads for this position disagreed**, arbitrating whether the instability is new or
+was always there. A disagreement is **recorded as a disagreement and never retried away**.
 
 ```
 python3 .planning/v1.34/tools/judge_wrv.py --written $CELL_DIR/written.bin --reads $CELL_DIR/reads \
   --expect-size 65536 --app-verdict <dev consistency-check's own 0/1/2, when it ran> \
   --position-id $POSITION_ID --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/wrv_verdict.json
-python3 .planning/v1.34/tools/capture_provenance.py --cell-id $CELL_ID --position-id $POSITION_ID \
+FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR python3 .planning/v1.34/tools/capture_provenance.py \
+  --cell-id $CELL_ID --position-id $POSITION_ID \
   --arm {control|v133} --target $TARGET --port $PORT --chip w27c512 --shield-rev "$SHIELD_REV" \
   --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/provenance_$POSITION_ID.json
 ```
@@ -270,7 +284,7 @@ this 18-address-bit part — D-12):
 
 ```
 python3 .planning/v1.34/tools/gen_addr_image.py --stamp-width 32 262144 $MASK $CELL_DIR/written.bin
-time $ARM_BIN -p $PORT write w29c020 $CELL_DIR/written.bin
+time FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT write w29c020 $CELL_DIR/written.bin
 ```
 
 Read counts and arbitration are exactly `P-07`'s rule, over 262144 B: three independent reads
@@ -281,7 +295,8 @@ v1.33 arm's three reads for this position disagreed. A disagreement is recorded,
 python3 .planning/v1.34/tools/judge_wrv.py --written $CELL_DIR/written.bin --reads $CELL_DIR/reads \
   --expect-size 262144 --app-verdict <dev consistency-check's own 0/1/2, when it ran> \
   --position-id $POSITION_ID --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/wrv_verdict.json
-python3 .planning/v1.34/tools/capture_provenance.py --cell-id $CELL_ID --position-id $POSITION_ID \
+FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR python3 .planning/v1.34/tools/capture_provenance.py \
+  --cell-id $CELL_ID --position-id $POSITION_ID \
   --arm {control|v133} --target $TARGET --port $PORT --chip w29c020 --shield-rev "$SHIELD_REV" \
   --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/provenance_$POSITION_ID.json
 ```
@@ -298,10 +313,38 @@ operator (the physical steps `P-03`/`P-05`/`P-08` repeat).
 ### P-11 — Teardown
 
 Record the final board and arm state: re-run `probe_board.py` to confirm the board identity
-has not changed since `P-02`, re-verify `$FIRESTARTER_CONFIG_DIR`'s content SHA is unchanged
-from the value seeded at bring-up (D-07 — either arm writing to the shared config dir mid-cell
-is a visible, recorded event, not invisible drift), and append this cell's four position rows
-to `bench/EVIDENCE.jsonl` via the phase's evidence writer. Performer: Claude.
+has not changed since `P-02`, then run the config-dir check below, then append this cell's four
+position rows to `bench/EVIDENCE.jsonl` via the phase's evidence writer. Performer: Claude.
+
+**The config-dir check is two assertions, in order — not one.** An unchanged SHA proves nothing
+by itself if nothing this cell ran ever pointed at the frozen directory in the first place; that
+is a vacuous pass, not a clean one (Standing bench rule 9).
+
+A structural note on *why* this is two assertions and not an argv inspection: a shell-level
+`FIRESTARTER_CONFIG_DIR=<path> $ARM_BIN ...` assignment (Standing bench rule 9's inline form) is
+stripped by the shell before it executes the program — the child process sees the variable in its
+own environment, never as a token in its own `argv`. That is true at every level this procedure's
+tools shell out through (`capture_provenance.py`'s internal call to the arm's own `hw` command
+inherits the variable the same way). So **no recorded `commands[].argv` entry will ever contain
+the assignment literally**, by the nature of what an environment variable is — `gate_record.py`'s
+existing argv re-parse (`check_commands`) has nothing to inspect here, and this procedure does not
+pretend otherwise. The two assertions below are the mechanisms that actually exist today:
+
+1. **Assert `~/.firestarter` still does not exist.** This is the cheap, falsifiable positive
+   proof that no invocation in this cell fell back to the unset default (`config.py`'s
+   `get_config_dir()` resolves there when `FIRESTARTER_CONFIG_DIR` is absent, and
+   `HOME_PATH`/`DATABASE_FILE`/`PIN_MAP_FILE` would have been computed against it at import time
+   for that invocation, creating it). It is checkable today, without a device, and it is exactly
+   the failure mode a missing env-var prefix would produce. Treat its existence as a `P-H1` rig
+   failure — the seam this rule exists to prove was not actually used by at least one invocation.
+2. **Only then**, re-verify `$FIRESTARTER_CONFIG_DIR`'s content SHA is unchanged from the value
+   seeded at bring-up, via `gate_record.py`'s existing `check_config_dir_sha` (D-07 — either arm
+   writing to the shared config dir mid-cell is a visible, recorded event, not invisible drift),
+   and confirm each of this cell's four position records carries a **non-null** `config_dir_sha`
+   field at all (a field silently omitted would let the SHA check pass by never running — the
+   same vacuous-pass shape (1) exists to close, applied to the record itself rather than to the
+   filesystem). With (1) holding and the field genuinely present, the SHA check is now
+   falsifiable on its own terms: it fails if either arm actually wrote to the frozen dir.
 
 ---
 
