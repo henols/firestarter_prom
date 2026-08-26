@@ -255,7 +255,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 160-07-PLAN.md — `EVIDENCE.jsonl` schema pinned (`locked_columns`, the 20-position counting rule), the deterministic renderer with its never-hand-edited check, and the full gate suite
+- [x] 160-07-PLAN.md — `EVIDENCE.jsonl` schema pinned (`locked_columns`, the 20-position counting rule), the deterministic renderer with its never-hand-edited check, and the full gate suite
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
