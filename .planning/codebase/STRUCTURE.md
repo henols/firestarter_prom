@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: e0dc0622d35be57c5a1a57c470a56ec85b0b253f
+last_mapped_commit: 3e2f7d89
 last_mapped_at: 2026-08-26T20:42:40.949Z
 mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUDE.md
 ---
@@ -44,7 +44,6 @@ directories empty.
 │   ├── gsd-core/                     #   [ignored] workflows, references, templates, bin/
 │   ├── hooks/                        #   [ignored] 18 gsd-* hooks + lib/, registry
 │   ├── scripts/                      #   [ignored] changeset/, lib/, fix-slash-commands.cjs
-│   ├── channels/discord/             #   [ignored] bot token (.env, 600), access.json, approved/
 │   ├── worktrees/                    #   [ignored] parallel worktree area (empty)
 │   ├── skills/                       #   TRACKED (devtest-triage, devtest-rootcause only)
 │   ├── settings.json                 #   [ignored] shared permission allowlist (95) + autoMode
@@ -58,9 +57,8 @@ directories empty.
 │   ├── devcontainer.json             #   mounts, features, containerEnv, postCreateCommand
 │   ├── Dockerfile
 │   ├── devcontainer-lock.json        #   pins the devcontainer features
-│   ├── post-create.sh                #   provisioning: platformio.ini, pip -e, pio pkg, graphify, discord
+│   ├── post-create.sh                #   provisioning: platformio.ini, pip -e, pio pkg, graphify
 │   ├── gen-platformio-ini.py         #   emits the gitignored root platformio.ini
-│   └── discord-singleton.sh          #   flock guard: one Discord bot per machine
 ├── .github/workflows/
 │   └── catalog-sync-check.yml        # TRACKED — the repo's ONLY workflow
 ├── .vscode/                          # TRACKED — mostly PlatformIO-generated
@@ -118,7 +116,7 @@ under `.planning/v1.7/**` except `*.md` (raw chat dumps and photo binaries stay 
 | Permission allowlist | `.claude/settings.json` → `permissions.allow` (95), `autoMode.allow` (3) |
 | Project-specific skills | `.claude/skills/devtest-triage/`, `.claude/skills/devtest-rootcause/` |
 | Release-note tooling | `.claude/scripts/changeset/cli.cjs` |
-| Discord bridge state | `.claude/channels/discord/` — **contains a live bot token; never quote it** |
+| Discord bridge state | removed 2026-08-26 (commit `3e2f7d89`); a token copy remains at `~/.claude/channels/discord/.env`, outside the repo — **never quote it** |
 | Container definition | `.devcontainer/devcontainer.json`, `.devcontainer/Dockerfile` |
 | Provisioning steps | `.devcontainer/post-create.sh` |
 | Root PlatformIO wrapper generator | `.devcontainer/gen-platformio-ini.py` |

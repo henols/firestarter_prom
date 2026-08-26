@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: e0dc0622d35be57c5a1a57c470a56ec85b0b253f
+last_mapped_commit: 3e2f7d89
 last_mapped_at: 2026-08-26T20:42:40.949Z
 mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUDE.md
 ---
@@ -79,8 +79,10 @@ The pin must match `build_db.py:MINIPRO_XML_URL` in the host app; the script has
 
 - `.claude/settings.local.json` registers `extraKnownMarketplaces` →
   `claude-plugins-official` from `https://github.com/anthropics/claude-plugins-official.git`,
-  and enables `discord@claude-plugins-official`. `post-create.sh` rewrites these entries
-  idempotently, since the settings file itself is gitignored.
+  Previously it also enabled `discord@claude-plugins-official` and `post-create.sh`
+  rewrote both entries idempotently; the Discord plugin was disabled and that
+  provisioning block deleted on 2026-08-26 (commit `3e2f7d89`). The marketplace
+  registration remains — it is generic, not Discord-specific.
 - `.gitignore` documents two **marketplace-installed, deliberately un-vendored** skills:
   `.claude/skills/find-skills/` (carries `source.json`) and
   `.claude/skills/skill-creator` (installed via
@@ -90,27 +92,21 @@ The pin must match `build_db.py:MINIPRO_XML_URL` in the host app; the script has
 - An untracked root `package.json` pins `@mastra/mcp-docs-server` (npm), so npm is a
   further registry in play for MCP docs tooling.
 
-## Discord bot bridge (inbound/outbound messaging)
+## Discord bot bridge — **REMOVED 2026-08-26** (commit `3e2f7d89`)
 
-**Service:** Discord, via the official Claude Code `discord` channel plugin. Its MCP server
-runs on Bun.
+The repo previously ran an inbound/outbound Discord DM bridge via the official Claude Code
+`discord` channel plugin (MCP server on Bun), with a bot token on the host bind mount and an
+`flock` single-instance gate. **It has been removed**: the plugin is disabled, the workspace
+state dir `.claude/channels/discord/` is deleted, and the tracked re-provisioning wiring in
+`post-create.sh` / `devcontainer.json` plus `.devcontainer/discord-singleton.sh` are gone.
 
-- State dir: `DISCORD_STATE_DIR=/workspaces/.claude/channels/discord`, set in
-  `devcontainer.json` so the token/pairing lives on the host bind mount and survives a
-  named-volume wipe. `.claude/` is gitignored, so it is never committed.
-- **Credential:** a Discord **bot token** is stored in `.claude/channels/discord/.env`
-  (chmod 600 by `post-create.sh`). Never read, quote, or transcribe it.
-- Access policy: `.claude/channels/discord/access.json` — keys `dmPolicy`, `allowFrom`,
-  `groups`, `pending`; plus a `.claude/channels/discord/approved/` directory.
-- **Single-instance gate:** `.devcontainer/discord-singleton.sh` is an `flock` wrapper on
-  `/tmp/firestarter-discord-bot.lock` (override: `DISCORD_SINGLETON_LOCK`). Every Claude
-  process — including GSD/Agent-spawned workers — would otherwise start its own bot on the
-  same token and the gateway connections would collide, scattering inbound DMs.
-  First process wins the lock and `exec bun run --shell=bun --silent start`s the plugin;
-  the rest `exit 0`. `post-create.sh` repoints the plugin's `.mcp.json` `command`/`args` at
-  this wrapper on every rebuild so it survives plugin reinstalls.
-- Traffic direction: **inbound** DMs/group messages to the agent, and **outbound** replies.
-  Not a webhook — a persistent gateway connection.
+Residual, outside this repo and NOT yet removed:
+- `~/.claude/channels/discord/.env` — the last remaining copy of the bot token. The plugin
+  falls back to this path when `DISCORD_STATE_DIR` is unset, so it is a live re-activation
+  path. Deleting the file does **not** revoke the credential; that requires a token reset in
+  the Discord Developer Portal.
+- The plugin cache at `~/.claude/plugins/cache/claude-plugins-official/discord/0.0.4/`, and
+  the Bun install in `.devcontainer/Dockerfile` (which existed only for this plugin).
 
 ## Other agent-runtime services
 
@@ -128,7 +124,7 @@ runs on Bun.
 
 | Kind | Location | Notes |
 |------|----------|-------|
-| Discord bot token | `.claude/channels/discord/.env` | gitignored, chmod 600, live |
+| Discord bot token | ~~`.claude/channels/discord/.env`~~ — deleted 2026-08-26 | a copy survives at `~/.claude/channels/discord/.env`, outside the repo; **not revoked** |
 | GitHub credential | `gh` CLI store under `~/.config` (named volume) | not in repo |
 | Claude Code auth | `~/.claude` (named volume `firestarter-claude`) | not in repo |
 | CI secrets | none referenced by `.github/workflows/catalog-sync-check.yml` | uses default `GITHUB_TOKEN` |
@@ -140,7 +136,7 @@ runs on Bun.
 
 **Incoming:** none. GitHub Actions triggers are `push`, `pull_request`, and
 `workflow_dispatch` — not webhooks the repo receives directly.
-**Outgoing:** none. The Discord bridge is a gateway client, not a webhook emitter.
+**Outgoing:** none. (The Discord gateway client was removed 2026-08-26; it was never a webhook emitter.)
 
 ---
 

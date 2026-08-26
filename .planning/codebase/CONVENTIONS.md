@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: e0dc0622d35be57c5a1a57c470a56ec85b0b253f
+last_mapped_commit: 3e2f7d89
 last_mapped_at: 2026-08-26T20:42:40.949Z
 mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUDE.md
 ---
@@ -72,8 +72,7 @@ Layout, per `devtest-triage` and `devtest-rootcause`:
 
 ### Shell script conventions
 
-`.devcontainer/post-create.sh`, `.devcontainer/discord-singleton.sh`,
-`tools/catalog/sync_to_subrepos.sh`: `#!/usr/bin/env bash` + `set -e`, and progress is
+`.devcontainer/post-create.sh`, `tools/catalog/sync_to_subrepos.sh`: `#!/usr/bin/env bash` + `set -e`, and progress is
 echoed as `=== Section name ===` banners. Steps are written to be **idempotent** so a
 container rebuild re-applies them safely.
 
@@ -96,10 +95,11 @@ infrastructure here, extend the rationale comment rather than deleting it.
 
 ### Secrets handling
 
-`.claude/settings.local.json` and `.claude/channels/discord/.env` hold live credentials
-(Discord bot token). Both are gitignored by the `.claude/*` rule. `post-create.sh`
-`chmod 600`s the `.env`. Never transcribe these values into tracked files, planning
-documents, or commit messages; reference the path only.
+`.claude/settings.local.json` holds live credentials and is gitignored by the `.claude/*`
+rule. The Discord bot token that lived at `.claude/channels/discord/.env` was **deleted
+2026-08-26** (commit `3e2f7d89`); one copy remains at `~/.claude/channels/discord/.env`,
+outside the repo and **still valid**. Never transcribe such values into tracked files,
+planning documents, or commit messages; reference the path only.
 
 ---
 

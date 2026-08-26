@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: e0dc0622d35be57c5a1a57c470a56ec85b0b253f
+last_mapped_commit: 3e2f7d89
 last_mapped_at: 2026-08-26T20:42:40.949Z
 mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUDE.md
 ---
@@ -49,8 +49,10 @@ Guidance for both is in `CLAUDE.md` (48 lines) plus each submodule's own `CLAUDE
 
 **Bun:** installed by the official `https://bun.sh/install` script with
 `BUN_INSTALL=/usr/local`, so the binary is at `/usr/local/bin/bun` and resolvable from
-non-login, non-interactive shells (present: 1.4.0). Required because the Discord channel
-plugin's MCP server declares the bare command `bun`.
+non-login, non-interactive shells (present: 1.4.0). It was installed solely because the
+Discord channel plugin's MCP server declares the bare command `bun`. **That plugin was
+removed 2026-08-26 (commit `3e2f7d89`), so this install is now vestigial** — nothing else
+in the repo uses Bun. The `Dockerfile` lines were deliberately left in place.
 
 **Devcontainer features** (pinned by digest in `.devcontainer/devcontainer-lock.json`):
 - `ghcr.io/devcontainers/features/github-cli:1` @ 1.1.0 — `gh` CLI
@@ -66,7 +68,7 @@ possible from inside the container.
 `~/.cache/pip`, `firestarter-claude` → `~/.claude`.
 
 **Environment set by the container:**
-- `containerEnv.DISCORD_STATE_DIR=/workspaces/.claude/channels/discord`
+- (`containerEnv.DISCORD_STATE_DIR` removed 2026-08-26, commit `3e2f7d89`; `containerEnv` had no other keys and is gone)
 - `remoteEnv.PATH` appends `/home/vscode/.local/bin` (pip user scripts, incl. the
   `firestarter` entry point)
 
@@ -87,11 +89,9 @@ installable on demand but is not part of the provisioned stack.)
 2. `pip install -e /workspaces/firestarter_app` — editable install of the host CLI.
 3. `cd /workspaces/firestarter && pio pkg install` — firmware library deps.
 4. `graphify install` — installs the graphify skill/references into the `~/.claude` volume.
-5. Provisions the Discord bridge **state** dir (never starts the bot), chmod 600 on its
-   `.env`, with a one-time migration from the legacy `~/.claude` location.
-6. Idempotently writes `enabledPlugins` + `extraKnownMarketplaces` into
-   `.claude/settings.local.json` (config-as-code, since that file is gitignored).
-7. Repoints the Discord plugin's `.mcp.json` at `.devcontainer/discord-singleton.sh`.
+Steps 5-7 (Discord state dir, `enabledPlugins`/`extraKnownMarketplaces` config-as-code,
+and repointing the plugin's `.mcp.json` at `discord-singleton.sh`) were **removed
+2026-08-26, commit `3e2f7d89`**. `post-create.sh` is now 19 lines, down from 91.
 
 ## Agent tooling runtime (`.claude/`)
 
@@ -118,8 +118,10 @@ this repo alone:
 - `.claude/settings.local.json` — keys: `permissions`, `hooks` (SessionStart, PostToolUse,
   PreToolUse, SubagentStop, Stop, PreCompact, FileChanged), `worktree`, `enabledPlugins`,
   `extraKnownMarketplaces`
-- `.claude/channels/discord/` — Discord bridge state. **Contains a live bot credential in
-  `.claude/channels/discord/.env` — never read or transcribe it.**
+- ~~`.claude/channels/discord/`~~ — Discord bridge state, **deleted 2026-08-26** (commit
+  `3e2f7d89`) along with `.claude/channels/`. One copy of the bot token survives at
+  `~/.claude/channels/discord/.env`, outside the repo and **not revoked** — never read or
+  transcribe it.
 - `.claude/.gsd-profile` (`full`), `.claude/gsd-file-manifest.json`,
   `.claude/gsd-install-state.json`, `.claude/gsd-migration-journal`
 

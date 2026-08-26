@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: e0dc0622d35be57c5a1a57c470a56ec85b0b253f
+last_mapped_commit: 3e2f7d89
 last_mapped_at: 2026-08-26T20:42:40.949Z
 mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUDE.md
 ---
@@ -194,8 +194,7 @@ The repository is a **meta-repo with two git submodules** (`.gitmodules`), not a
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│                   Human operator / Discord DM                │
-│  `.claude/channels/discord/` (bot token + pairing state)     │
+│              Human operator (terminal / IDE)                 │
 ├─────────────────────────────────────────────────────────────┤
 │              Slash commands (thin dispatch shells)           │
 │   `.claude/commands/gsd-*.md`  (69 files)                    │
@@ -249,7 +248,6 @@ The repository is a **meta-repo with two git submodules** (`.gitmodules`), not a
 | Permission/hook config | Allowlists, hook wiring, plugin enablement | `.claude/settings.json`, `.claude/settings.local.json` |
 | Dev environment | Container image, mounts, features, post-create provisioning | `.devcontainer/devcontainer.json`, `.devcontainer/Dockerfile`, `.devcontainer/post-create.sh` |
 | PlatformIO root wrapper generator | Emits the gitignored root `platformio.ini` mapping IDE paths into `firestarter/` | `.devcontainer/gen-platformio-ini.py` |
-| Discord bot singleton | flock guard so only one Claude process runs the bot | `.devcontainer/discord-singleton.sh` |
 | CI | Cross-sub-repo catalog authority assertion | `.github/workflows/catalog-sync-check.yml` |
 | Editor/debug config | PlatformIO IntelliSense + debug launch targets | `.vscode/c_cpp_properties.json`, `.vscode/launch.json` |
 
@@ -308,10 +306,11 @@ The repository is a **meta-repo with two git submodules** (`.gitmodules`), not a
 - Note: node is not on `PATH` in the devcontainer; invoke via the absolute nvm node path (the same one the hook wiring hardcodes)
 - Sibling: `.claude/scripts/changeset/` (`cli.cjs`, `parse.cjs`, `render.cjs`, `serialize.cjs`, `lint.cjs`, `github-release-notes.cjs`, `new.cjs`), `.claude/scripts/fix-slash-commands.cjs`, `.claude/scripts/lib/allowlist-ratchet.cjs`
 
-**Channel layer:**
-- Location: `.claude/channels/discord/` — `.env` (bot token, mode `600`), `access.json`, `approved/`
+**Channel layer:** — **REMOVED 2026-08-26** (commit `3e2f7d89`)
+- The Discord DM channel has been removed: `.claude/channels/` is deleted, the plugin is disabled, and the tracked wiring is gone. One copy of the bot token remains at `~/.claude/channels/discord/.env` (outside the repo) and is **not revoked**. The description below is historical.
+- Former location: `.claude/channels/discord/` — `.env` (bot token, mode `600`), `access.json`, `approved/`
 - `DISCORD_STATE_DIR` is set to this path by `.devcontainer/devcontainer.json` so the token and pairing survive a named-volume wipe; `.gitignore` keeps it out of git
-- **Credential warning:** `.claude/channels/discord/.env` holds a live bot token and `.claude/settings*.json` may hold keys. Never transcribe values from these files.
+- **Credential warning:** `.claude/settings*.json` may hold keys — never transcribe values from it. The former `.claude/channels/discord/.env` was deleted 2026-08-26 (commit `3e2f7d89`); one copy of that token remains at `~/.claude/channels/discord/.env`, outside the repo and **still valid** until reset in the Discord Developer Portal.
 
 ## Data Flow
 
@@ -335,9 +334,7 @@ The repository is a **meta-repo with two git submodules** (`.gitmodules`), not a
    - `pip install -e /workspaces/firestarter_app`
    - `pio pkg install` inside `firestarter/`
    - `graphify install` (writes into the `~/.claude` volume, which only exists at runtime)
-   - provisions `/workspaces/.claude/channels/discord/`, migrating a legacy `~/.claude` token once, and `chmod 600` on `.env`
-   - idempotently writes `enabledPlugins` + `extraKnownMarketplaces` into `.claude/settings.local.json`
-   - repoints the Discord plugin's cached `.mcp.json` at `discord-singleton.sh`
+   - (removed 2026-08-26, commit `3e2f7d89`: three further steps provisioned the Discord state dir, force-wrote `enabledPlugins`/`extraKnownMarketplaces`, and repointed the plugin's `.mcp.json` at `discord-singleton.sh`. `post-create.sh` is now 19 lines, down from 91.)
 
 ### CI: catalog authority
 
@@ -383,9 +380,9 @@ There is **no** build, test, or release workflow in this repo — firmware and h
 - Examples: `.devcontainer/gen-platformio-ini.py` → root `platformio.ini` (gitignored)
 - Pattern: read the submodule's config, prepend a `[platformio]` path-redirect section, rewrite relative `-I` and `pre:`/`post:` script paths
 
-**Singleton MCP launcher:**
+**Singleton MCP launcher:** — **REMOVED 2026-08-26** (commit `3e2f7d89`)
 - Purpose: one Discord bot per machine despite N Claude processes each initializing MCP
-- Examples: `.devcontainer/discord-singleton.sh`
+- Examples: `.devcontainer/discord-singleton.sh` (deleted; pattern retained here as prior art)
 - Pattern: non-blocking `flock` on fd 9; the loser exits 0, which Claude Code reads as "this server produced nothing"
 
 ## Entry Points
@@ -400,7 +397,7 @@ There is **no** build, test, or release workflow in this repo — firmware and h
 
 **Firmware debug:** `.vscode/launch.json` — three `platformio-debug` configurations, all targeting `firestarter/.pio/build/uno/firestarter_uno.elf` for the `uno` env.
 
-**Discord DM:** the channel plugin's MCP server, launched through `.devcontainer/discord-singleton.sh`.
+**Discord DM:** **REMOVED 2026-08-26** (commit `3e2f7d89`) — was the channel plugin's MCP server, launched through `.devcontainer/discord-singleton.sh`. No longer an entry point.
 
 ## Architectural Constraints
 
@@ -412,7 +409,7 @@ There is **no** build, test, or release workflow in this repo — firmware and h
 - **Hardware coupling.** `--privileged` plus a `/dev` bind mount are required for serial access; without them only builds work.
 - **Machine-local absolute paths leak into config.** `settings.local.json` hardcodes `/usr/local/share/nvm/versions/node/v24.15.0/bin/node`, and `.vscode/c_cpp_properties.json`, `launch.json`, `settings.json` all carry `/home/henrik/...` host paths that do not exist inside the container.
 - **Node is not on `PATH`** in the devcontainer; use the absolute node binary or `.claude/gsd-core/bin/gsd-tools.cjs` through a full path.
-- **Single Discord bot per token.** Multiple gateway connections on one token scatter inbound DMs; the flock in `discord-singleton.sh` is the only thing preventing one bot per subagent.
+- **Single Discord bot per token.** (**REMOVED 2026-08-26** (commit `3e2f7d89`) — no longer applies; kept as prior art.) Multiple gateway connections on one token scatter inbound DMs; the flock in `discord-singleton.sh` is the only thing preventing one bot per subagent.
 
 ## Anti-Patterns
 
@@ -454,7 +451,7 @@ There is **no** build, test, or release workflow in this repo — firmware and h
 - `PreToolUse` hooks block a violating call before it runs (`gsd-validate-commit.sh` on `Bash`, `gsd-workflow-guard.js`, `gsd-worktree-path-guard.js`)
 - `gsd-read-injection-scanner.js` scans read content post-hoc for prompt injection
 - `.devcontainer/post-create.sh` runs `set -e`, but its two embedded Python blocks catch and log rather than abort (`FileNotFoundError`/`ValueError` on a missing `settings.local.json`; a bare `except` around the plugin `.mcp.json` patch, which no-ops when the plugin isn't installed yet)
-- `discord-singleton.sh` uses `set -uo pipefail` (deliberately not `-e`) and exits **0** on lock failure — a non-zero exit would surface as an MCP error in every worker
+- `discord-singleton.sh` (deleted 2026-08-26) used `set -uo pipefail` (deliberately not `-e`) and exits **0** on lock failure — a non-zero exit would surface as an MCP error in every worker
 - CI has no soft failures: every assertion is `cmp`/`diff`, which aborts the job
 
 ## Cross-Cutting Concerns
@@ -463,7 +460,7 @@ There is **no** build, test, or release workflow in this repo — firmware and h
 
 **Validation:** command frontmatter (`allowed-tools`, `requires`) constrains each run; `gsd-tools.cjs validate` / `check` / `verify` assert `.planning/` integrity; `.claude/scripts/lib/allowlist-ratchet.cjs` guards permission-list growth.
 
-**Secrets:** `.claude/channels/discord/.env` (`chmod 600`) and `.claude/settings*.json` are gitignored via `.claude/*`. Never quote their contents.
+**Secrets:** `.claude/settings*.json` is gitignored via `.claude/*`. Never quote its contents. (`.claude/channels/discord/.env` was deleted 2026-08-26; a copy remains at `~/.claude/channels/discord/.env`, outside the repo and still valid.)
 
 **Reproducibility:** tracked provisioning code regenerates untracked local state; `.devcontainer/devcontainer-lock.json` pins the devcontainer features.
 

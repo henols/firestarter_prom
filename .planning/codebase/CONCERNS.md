@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: e0dc0622d35be57c5a1a57c470a56ec85b0b253f
+last_mapped_commit: 3e2f7d89
 last_mapped_at: 2026-08-26T20:42:40.949Z
 mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUDE.md
 ---
@@ -25,17 +25,18 @@ mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUD
 
 ## Security Considerations
 
-**Plaintext Discord bot token on disk in the workspace:**
+**Plaintext Discord bot token on disk in the workspace:** — **REMOVED 2026-08-26** (commit `3e2f7d89`), partially resolved
+- **Status 2026-08-26:** the workspace copy `.claude/channels/discord/.env` and the whole `.claude/channels/` tree are **deleted**, and the tracked provisioning that recreated them is gone. What follows described the pre-removal state. **Residual:** one copy of the token still exists at `~/.claude/channels/discord/.env` (outside the repo, so never a commit risk) and the credential is **still valid** — revoking it requires a token reset in the Discord Developer Portal.
 - Risk: A live Discord bot credential is stored as a plaintext file at `.claude/channels/discord/.env` (credential kind: Discord bot token; value not transcribed here). It lives on the **host bind mount**, not in a container-only volume, by deliberate design — see `.devcontainer/devcontainer.json:59-61` (`containerEnv.DISCORD_STATE_DIR=/workspaces/.claude/channels/discord`) and `.devcontainer/post-create.sh:18-35`.
 - Files: `.claude/channels/discord/.env`, `.claude/channels/discord/access.json`
 - Current mitigation: **Commit protection verified** — `git check-ignore -v .claude/channels/discord` resolves to `.gitignore:4` (`.claude/*`), and only 7 files are tracked under `.claude/` (all under `.claude/skills/`). File mode is `0600`, re-asserted by `post-create.sh:34` (`chmod 600`). So the token is genuinely not committable today.
 - Residual risk: The protection rests entirely on the single broad `.gitignore:4` `.claude/*` line plus its `!.claude/skills/` negation (`.gitignore:5`). Any future negation added under `.claude/` (e.g. `!.claude/settings.json`, `!.claude/channels/`) would silently un-ignore sibling paths. There is no `.claude/**/.env`-specific belt-and-braces pattern and no pre-commit secret scan.
 - Recommendations: Add an explicit, non-negatable guard (`.claude/channels/**` and `**/.env` as their own entries) so the token's protection does not depend on one broad glob; add a pre-commit secret scan; rotate the token if the workspace has ever been shared or imaged.
 
-**`Read` deny-list does not cover the token's actual path:**
+**`Read` deny-list does not cover the token's actual path:** — still open, reduced scope
 - Risk: `.claude/settings.local.json` denies `Read(.env)`, `Read(.env.*)`, `Read(.secrets)` — repo-root-relative patterns. The token lives at `.claude/channels/discord/.env`, which those three patterns do not obviously match. An agent reading that path is not blocked by policy.
 - Files: `.claude/settings.local.json` (`permissions.deny`)
-- Recommendations: Add `Read(.claude/channels/**)` and `Read(**/.env)` to the deny list.
+- Recommendations: Add `Read(**/.env)` to the deny list. (`Read(.claude/channels/**)` is moot in-repo since 2026-08-26 — that tree is deleted — but the home-directory copy at `~/.claude/channels/discord/.env` is still readable.)
 
 **Blanket `Bash(git *)` and `Bash(python3 *)` in the tracked-intent allow list:**
 - Risk: `.claude/settings.json` `permissions.allow` (95 entries) includes `Bash(git *)` and `Bash(python3 *)`. `python3 *` is arbitrary code execution, and `git *` reaches `git -c core.pager=...`/`--exec-path` style escapes. Every narrower entry in the same list (`Bash(git add *)`, `Bash(git status *)`, the long per-PR `gh pr merge` literals) is thereby dead weight — the broad entries subsume them, so the file reads as far more restrictive than it behaves.
@@ -118,8 +119,9 @@ mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUD
 - Safe modification: Add `permissions: contents: read` at the workflow level and pin `actions/checkout` to a full commit SHA.
 - Note: The two sub-repo checkouts (lines 69-81) fetch **public** repos with no explicit token, which is the right call — keep it that way.
 
-**`post-create.sh` reaches into Claude Code's plugin cache and patches it:**
-- Files: `.devcontainer/post-create.sh:59-89`
+**`post-create.sh` reaches into Claude Code's plugin cache and patches it:** — **RESOLVED 2026-08-26** (commit `3e2f7d89`)
+- Status: this block was deleted along with the Discord bridge; `post-create.sh` no longer touches the plugin cache. Retained below as prior art, since the same anti-pattern would recur if any plugin is ever gated this way again.
+- Files: `.devcontainer/post-create.sh:59-89` (as of `e0dc0622`; lines no longer exist)
 - Why fragile: It globs `~/.claude/plugins/cache/claude-plugins-official/discord/*/`, takes the lexically-last directory, and rewrites that plugin's `.mcp.json` to redirect the MCP server through `.devcontainer/discord-singleton.sh`. This depends on an undocumented internal layout, picks the newest dir by *string sort* (not version sort), and wraps the whole thing in `except Exception` that prints and continues — a genuine failure is a log line, not an error, and `set -e` (line 2) never sees it.
 - Safe modification: Fail loudly if the glob finds nothing when the plugin is expected, and re-run the patch on every session start rather than only at container create.
 - Test coverage: None.
@@ -151,7 +153,7 @@ mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUD
 ## Test Coverage Gaps
 
 **Zero tests for the meta-repo's own tooling:**
-- What's not tested: `tools/catalog/codegen.py` (emits `messages.h` + `messages.py` into both submodules), `tools/catalog/sync_to_subrepos.sh`, `.devcontainer/gen-platformio-ini.py`, `.devcontainer/discord-singleton.sh` (an flock singleton gate — its whole value is a race that is never exercised), and the ~20 hook scripts in `.claude/hooks/`.
+- What's not tested: `tools/catalog/codegen.py` (emits `messages.h` + `messages.py` into both submodules), `tools/catalog/sync_to_subrepos.sh`, `.devcontainer/gen-platformio-ini.py`, and the ~20 hook scripts in `.claude/hooks/`. (`.devcontainer/discord-singleton.sh` was also on this list — an flock singleton gate whose whole value was a race that was never exercised — but it was deleted 2026-08-26, commit `3e2f7d89`.)
 - Files: `tools/catalog/`, `.devcontainer/`, `.claude/hooks/`
 - Risk: These are the components that mutate both submodules and that enforce agent guardrails. A silent failure in any of them is indistinguishable from correct operation.
 - Priority: High
