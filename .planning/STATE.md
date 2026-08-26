@@ -5,15 +5,15 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: Completed 160-01-PLAN.md (task 3 + SUMMARY); ready for 160-02
-last_updated: "2026-08-26T21:19:27.136Z"
+stopped_at: Completed 160-03-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
+last_updated: "2026-08-26T21:38:54.504Z"
 last_activity: 2026-08-26
 last_activity_desc: Phase 160 execution started
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -188,7 +188,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
-Plan: 2 of 13
+Plan: 3 of 13
 Status: Ready to execute
 Last activity: 2026-08-26 — Phase 160 execution started
 Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Waves 1-4 are host-side tooling under `.planning/v1.34/` (no product code); waves 5-10 are on-device, so plans 08-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Bring-up proves the read-back reader per target cheapest-first `uno` -> `uno328pb` -> `leonardo` BEFORE D-03's deliberate wrong-arm cross-flash depends on it; the three on-device read chains are the phase's one LOW-confidence mechanism (`flash:r` has never been invoked in this project's history). Nothing else on the bench may run before this phase closes.
@@ -2569,6 +2569,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 160]: Task 2 checkpoint: operator approved all six [SUS] transitive deps (click, pyserial, requests, rich, tqdm, packaging) verbatim 'Approved' — pre-existing pyproject.toml floors, none held
 - [Phase 160]: Config dir seeded via ConfigManager.set_value() API directly, not CLI — every firestarter subcommand that persists state requires a live serial handshake and no board is attached
 - [Phase 160]: Dependency-set equality (Pitfall 8) measured with 'uv pip freeze --python <venv>' not 'python -m pip freeze' — uv venv 0.12.6 installs no pip module
+- [Phase 160-03]: gen_addr_image.py keeps the Phase 145 sys.exit(main(sys.argv)) entry point; --stamp-width/--decode are hand-parsed, not argparse — rig-pins.json pins this file as the one documented exception to the sys.exit(main()) convention
+- [Phase 160-03]: check_arms.py measures the CLI surface by importing each arm's live Click app from its own venv, not by static AST — six @dev.command blocks are registered conditionally under the channel gate; a live import reflects the true runtime-registered set (25 entries both arms, zero set difference)
+- [Phase 160-03]: Help-text diff between the two arms measured empty; investigated the 'restore Click docstrings' commit and confirmed it restores text the control arm already carries — avoids asserting a research-flagged risk away without checking it
+- [Phase 160-03]: config-dir content-SHA algorithm reverse-engineered by matching four candidate schemes against the recorded 160-01 value; canonicalized in check_arms.py's compute_config_dir_sha() — the exact byte sequence was underspecified upstream; later plans should reuse this function rather than re-deriving it
 
 ## Performance Metrics
 
@@ -2915,10 +2919,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 158 P05 | 35min | 3 tasks | 4 files |
 | Phase 158 P06 | 55min | 2 tasks | 1 files |
 | Phase 160 P01 | 22min | 3 tasks | 6 files |
+| Phase 160 P03 | 62min | 3 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-08-26T21:19:27.086Z
+**Last session:** 2026-08-26T21:38:17.974Z
 **Stopped at:** Completed 160-01-PLAN.md (task 3 + SUMMARY); ready for 160-02
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
