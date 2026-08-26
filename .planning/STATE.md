@@ -5,15 +5,15 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: Completed 160-05-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
-last_updated: "2026-08-26T22:21:05.615Z"
+stopped_at: Completed 160-02-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
+last_updated: "2026-08-26T22:37:52.346Z"
 last_activity: 2026-08-26
-last_activity_desc: Phase 160 plan 05 execution complete (judge_readback.py, judge_wrv.py, touch_1200.py)
+last_activity_desc: Phase 160 plan 02 execution complete (six arm-tagged images, BUILD-MANIFEST.json, check_rebuild.py, REBUILD-CHECK.json)
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -188,9 +188,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
-Plan: 5 of 13
+Plan: 6 of 13
 Status: Ready to execute
-Last activity: 2026-08-26 — Phase 160 plan 05 execution complete (judge_readback.py, judge_wrv.py, touch_1200.py)
+Last activity: 2026-08-26 — Phase 160 plan 02 execution complete (six arm-tagged images, BUILD-MANIFEST.json, check_rebuild.py, REBUILD-CHECK.json)
 Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Waves 1-4 are host-side tooling under `.planning/v1.34/` (no product code); waves 5-10 are on-device, so plans 08-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Bring-up proves the read-back reader per target cheapest-first `uno` -> `uno328pb` -> `leonardo` BEFORE D-03's deliberate wrong-arm cross-flash depends on it; the three on-device read chains are the phase's one LOW-confidence mechanism (`flash:r` has never been invoked in this project's history). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
@@ -2578,6 +2578,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 160-04]: gate_record.py reads its required-field list and outcome domain from a _schema block embedded in the record under examination (both --cell and --jsonl modes), rather than from a module constant, so the gate's correctness does not depend on staying in sync with a schema a later plan settles on
 - [Phase 160]: judge_wrv.py's incomplete-read-set is triggered by app_verdict==2 or read_count==0, never by comparing against a tracked expected N -- neither the plan's frozen flag list nor its verdict-key list carries an expected-count field
 - [Phase 160]: verdict_disagreement in judge_wrv.py is one uniform XOR of (app_verdict==0) vs (sha_verdict_judged=='match') across all four verdict states, not a hand-enumerated per-state table
+- [Phase ?]: Control arm's hex spans diverge from size_baseline.json (pre-Phase-158 tree); recorded and named rather than reconciled
+- [Phase ?]: check_rebuild.py decouples --images (candidate) from --expect (reference manifest + sibling original file) so one tool serves both self-check and rebuild-verification without a rebuild-invoking flag
 
 ## Performance Metrics
 
@@ -2927,11 +2929,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 160 P03 | 62min | 3 tasks | 5 files |
 | Phase 160 P04 | ~55min | 3 tasks | 3 files |
 | Phase 160 P05 | 50min | 3 tasks | 3 files |
+| Phase 160 P02 | 50min | 3 tasks | 10 files |
 
 ## Session
 
-**Last session:** 2026-08-26T22:20:37.950Z
-**Stopped at:** Completed 160-05-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
+**Last session:** 2026-08-26T22:37:52.307Z
+**Stopped at:** Completed 160-02-PLAN.md (tasks 1-3 + SUMMARY); ready for the next wave-2/3 plan
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
