@@ -189,8 +189,8 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
 Plan: 8 of 13
-Status: Ready to execute
-Last activity: 2026-08-26 — Phase 160 plan 06 execution complete (PROCEDURE.md, tools/render_steps.py, RIG-03/SC#3 closed)
+Status: Blocked on operator — waves 5-10 are on-device and no board is attached
+Last activity: 2026-08-26 — Phase 160 waves 1-4 complete (plans 01-07, all host-side tooling). HALTED at wave 5: plan 160-08 task 1 is an operator-physical gate and no board is attached (/dev/ttyACM* absent).
 Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Waves 1-4 are host-side tooling under `.planning/v1.34/` (no product code); waves 5-10 are on-device, so plans 08-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Bring-up proves the read-back reader per target cheapest-first `uno` -> `uno328pb` -> `leonardo` BEFORE D-03's deliberate wrong-arm cross-flash depends on it; the three on-device read chains are the phase's one LOW-confidence mechanism (`flash:r` has never been invoked in this project's history). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
