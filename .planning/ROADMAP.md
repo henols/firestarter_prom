@@ -237,19 +237,49 @@ Two chips per arm — **W27C512** (DIP28, `0x07`, 64 KiB / 65536 B) and **W29C02
 **Plans**: 13 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 160-01-PLAN.md — Pin the rig: `.planning/v1.34/` scaffold, `rig-pins.json`, the four SHAs re-verified, and the two host arms with their D-08 proof triple, frozen config dir and identical dependency sets
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 160-02-PLAN.md — Build both arms × three AVR targets into six committed arm-tagged images with `SHA256SUMS.txt`, and measure the cold rebuild on all six pairs
 - [ ] 160-03-PLAN.md — Address-attributable image generator with the stamp width resolved, the standing host-arm verifier, and the 21-position mask table plus the artifact-volume policy
 - [ ] 160-04-PLAN.md — Signature probe (no handshake), the required-or-refuse provenance collector, and the record gate enforcing field completeness, command lines and the two-state outcome domain
 - [ ] 160-05-PLAN.md — The independent flash read-back judge, the full-device write→read→verify judge, and the Leonardo bootloader-entry helper
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 160-06-PLAN.md — `PROCEDURE.md`: the derived 11-step arm-agnostic cell run with its halt branches, plus the step renderer whose empty two-arm diff is the SC#3 gate
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 160-07-PLAN.md — `EVIDENCE.jsonl` schema pinned (`locked_columns`, the 20-position counting rule), the deterministic renderer with its never-hand-edited check, and the full gate suite
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 160-08-PLAN.md — On-device bring-up on `uno`: prove the read chain, then the deliberate wrong-arm cross-flash with the MISMATCH observed and recorded
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 160-09-PLAN.md — On-device bring-up on `uno328pb`: record the bootloader interrogation before arming the comparator, derive the judged-span policy, then the cross-flash
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 160-10-PLAN.md — On-device bring-up on `leonardo`: measure the bootloader window, prove the read or take SC#2's named alternative with its limits, then the cross-flash completing D-03 on all three targets
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 160-11-PLAN.md — First full provenance capture on an assembled Uno + Rev 2.0 rig, with the per-cell read-back proof, then chip seated and pot set
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 160-12-PLAN.md — Exercise the oracle on silicon: write this position's own image, three independent reads, judged by SHA over the full device size with the app's verdict recorded unjudged
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 160-13-PLAN.md — D-17's fresh-context record reconstruction, the folded-todo annotation, the filled validation map, and the operator phase-gate sign-off
+
 **UI hint**: no
 
 ### Phase 161: BOARD — Board Sweep, Three Boards on Rev 2.0

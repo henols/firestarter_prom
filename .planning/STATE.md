@@ -4,15 +4,15 @@ milestone: v1.34
 milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
-status: planning
-stopped_at: Phase 160 context gathered
-last_updated: "2026-08-25T20:56:08.844Z"
-last_activity: 2026-08-25
-last_activity_desc: Milestone v1.34 activated; 31 requirements defined, 7 phases (160–166) roadmapped and approved
+status: ready
+stopped_at: Phase 160 planned -- 13 plans / 38 tasks / 10 waves; plan-checker PASSED on the first iteration. Research, pattern map and validation strategy written. All 5 RIG requirements and all 18 CONTEXT decisions covered by plans. Nothing has executed; nothing on the bench has run.
+last_updated: "2026-08-26T20:28:34.000Z"
+last_activity: 2026-08-26
+last_activity_desc: Phase 160 planned -- 13 plans, 38 tasks, 10 waves
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 0
+  total_plans: 13
   completed_plans: 0
   percent: 0
 ---
@@ -187,11 +187,11 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — not started
-Plan: —
-Status: Roadmap approved — ready to plan Phase 160
-Last activity: 2026-08-25 — Milestone v1.34 activated; 31 requirements defined, 7 phases (160–166) roadmapped and approved
-Next: **Phase 160 — RIG.** Build and name both firmware arms (control fw `8695ee5` / app `6bfa645`; v1.33 = the fw#56 / app#54 PR heads, SHAs read off the branches), make a flash provable by on-device read-back, write the one arm-agnostic per-cell procedure, and fix the oracle at full-device read-back SHA. Nothing on the bench may run before it closes. Not yet planned.
+Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — planned, not started
+Plan: Not started
+Status: Ready to execute — 13 plans / 10 waves; plan-checker PASSED on the first iteration
+Last activity: 2026-08-26 — Phase 160 planned: 13 plans, 38 tasks, 10 waves. Research (1080 lines), pattern map (17 new + 1 modified file) and validation strategy written. Requirements coverage 5/5 (RIG-01..05); decision coverage 18/18 (D-01..D-18).
+Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Waves 1-4 are host-side tooling under `.planning/v1.34/` (no product code); waves 5-10 are on-device, so plans 08-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Bring-up proves the read-back reader per target cheapest-first `uno` -> `uno328pb` -> `leonardo` BEFORE D-03's deliberate wrong-arm cross-flash depends on it; the three on-device read chains are the phase's one LOW-confidence mechanism (`flash:r` has never been invoked in this project's history). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
 

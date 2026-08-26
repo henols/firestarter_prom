@@ -243,7 +243,7 @@ belt-and-braces — it is the only mechanism that can catch a wrong-arm cell.
 
 ### Claude's Discretion
 
-- **D-06** (host-arm switching mechanism) was answered "You decide". Claude chose two worktrees + two
+- The **host-arm switching mechanism** (D-06 above) was answered "You decide". Claude chose two worktrees + two
   venvs. The planner may substitute two full clones if the worktree route hits an obstacle — the
   load-bearing property is that **the arm appears in the invoked binary path**, not the worktree
   mechanism itself. In-place `git checkout` does not satisfy that property and is not a permitted
@@ -278,8 +278,8 @@ belt-and-braces — it is the only mechanism that can catch a wrong-arm cell.
 - `.planning/REQUIREMENTS.md` — RIG-01…05 verbatim, the five-cell table, the control baseline SHAs, and
   the **Out of Scope** table that forbids product-code change untraceable to a v1.33 regression
 - `.planning/ROADMAP.md` §"Phase 160: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure"
-  (lines 224–238) — the Goal and the five Success Criteria this phase is judged against
-- `.planning/ROADMAP.md` §"Phase 161" (lines 240–254) — BOARD-02 SC#2 mandates the per-cell read-back
+  (lines 224–283) — the Goal and the five Success Criteria this phase is judged against
+- `.planning/ROADMAP.md` §"Phase 161" (lines 285–299) — BOARD-02 SC#2 mandates the per-cell read-back
   confirmation that D-05 adopts; BOARD-01 SC#1 fixes the 12-position shape the record must hold
 - `.planning/PROJECT.md` §"Current Milestone: v1.34" (lines 42–117) — the matrix, the known-faults
   declaration, and the merge posture
