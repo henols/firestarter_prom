@@ -234,7 +234,22 @@ Two chips per arm — **W27C512** (DIP28, `0x07`, 64 KiB / 65536 B) and **W29C02
   4. The write→read→verify oracle is read-back SHA equality against the written image over the **full device size** — 65536 B for W27C512, 262144 B for W29C020 — and never a command exit code; the v1.33 arm additionally records **three independent reads resolving to one SHA**, with any N=3 disagreement recorded as a disagreement rather than retried away.
   5. A completed cell record carries every input a re-run needs, with nothing implicit: board identity **by signature** (never by handshake), the port's `controller:` string, the operator-declared shield revision, firmware build SHA, host app SHA, chip part + package, and the exact command lines issued. Falsification test, run against the bring-up record before any sweep cell executes: reconstructing the run from the record alone yields a command set and physical setup identical to what the procedure prescribes, with **zero fields sourced from session memory**.
 
-**Plans**: TBD
+**Plans**: 13 plans
+
+Plans:
+- [ ] 160-01-PLAN.md — Pin the rig: `.planning/v1.34/` scaffold, `rig-pins.json`, the four SHAs re-verified, and the two host arms with their D-08 proof triple, frozen config dir and identical dependency sets
+- [ ] 160-02-PLAN.md — Build both arms × three AVR targets into six committed arm-tagged images with `SHA256SUMS.txt`, and measure the cold rebuild on all six pairs
+- [ ] 160-03-PLAN.md — Address-attributable image generator with the stamp width resolved, the standing host-arm verifier, and the 21-position mask table plus the artifact-volume policy
+- [ ] 160-04-PLAN.md — Signature probe (no handshake), the required-or-refuse provenance collector, and the record gate enforcing field completeness, command lines and the two-state outcome domain
+- [ ] 160-05-PLAN.md — The independent flash read-back judge, the full-device write→read→verify judge, and the Leonardo bootloader-entry helper
+- [ ] 160-06-PLAN.md — `PROCEDURE.md`: the derived 11-step arm-agnostic cell run with its halt branches, plus the step renderer whose empty two-arm diff is the SC#3 gate
+- [ ] 160-07-PLAN.md — `EVIDENCE.jsonl` schema pinned (`locked_columns`, the 20-position counting rule), the deterministic renderer with its never-hand-edited check, and the full gate suite
+- [ ] 160-08-PLAN.md — On-device bring-up on `uno`: prove the read chain, then the deliberate wrong-arm cross-flash with the MISMATCH observed and recorded
+- [ ] 160-09-PLAN.md — On-device bring-up on `uno328pb`: record the bootloader interrogation before arming the comparator, derive the judged-span policy, then the cross-flash
+- [ ] 160-10-PLAN.md — On-device bring-up on `leonardo`: measure the bootloader window, prove the read or take SC#2's named alternative with its limits, then the cross-flash completing D-03 on all three targets
+- [ ] 160-11-PLAN.md — First full provenance capture on an assembled Uno + Rev 2.0 rig, with the per-cell read-back proof, then chip seated and pot set
+- [ ] 160-12-PLAN.md — Exercise the oracle on silicon: write this position's own image, three independent reads, judged by SHA over the full device size with the app's verdict recorded unjudged
+- [ ] 160-13-PLAN.md — D-17's fresh-context record reconstruction, the folded-todo annotation, the filled validation map, and the operator phase-gate sign-off
 **UI hint**: no
 
 ### Phase 161: BOARD — Board Sweep, Three Boards on Rev 2.0
