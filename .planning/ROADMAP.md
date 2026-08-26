@@ -247,7 +247,7 @@ Plans:
 - [ ] 160-02-PLAN.md — Build both arms × three AVR targets into six committed arm-tagged images with `SHA256SUMS.txt`, and measure the cold rebuild on all six pairs
 - [x] 160-03-PLAN.md — Address-attributable image generator with the stamp width resolved, the standing host-arm verifier, and the 21-position mask table plus the artifact-volume policy
 - [x] 160-04-PLAN.md — Signature probe (no handshake), the required-or-refuse provenance collector, and the record gate enforcing field completeness, command lines and the two-state outcome domain
-- [ ] 160-05-PLAN.md — The independent flash read-back judge, the full-device write→read→verify judge, and the Leonardo bootloader-entry helper
+- [x] 160-05-PLAN.md — The independent flash read-back judge, the full-device write→read→verify judge, and the Leonardo bootloader-entry helper
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
