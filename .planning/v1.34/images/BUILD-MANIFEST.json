@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "built_at_commit": {
+    "control": "8695ee52c27a4bee4387c5c489afd5f3d7275e8a",
+    "v133": "5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463",
+    "note": "Both SHAs pinned in rig-pins.json arms.*.fw_sha; re-verified against gh pr view headRefOid / merge-base at plan 01 (rig_pins.json sha_verification block)."
+  },
+  "arms": {
+    "control": {
+      "fw_sha": "8695ee52c27a4bee4387c5c489afd5f3d7275e8a",
+      "description": "merge-base(origin/beta, gsd/v1.33-source-hygiene-firmware-size-reduction) -- the pre-v1.33 firmware tree"
+    },
+    "v133": {
+      "fw_sha": "5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463",
+      "description": "fw PR #56 head (gsd/v1.33-source-hygiene-firmware-size-reduction tip) -- includes Phase 158's LAND-01 jsmntok_t narrowing and every other v1.33 firmware change"
+    }
+  },
+  "toolchain": {
+    "platformio_core": "6.1.19",
+    "platform_atmelavr": "5.2.0",
+    "toolchain_atmelavr": "1.70300.191015",
+    "avr_gcc": "7.3.0",
+    "framework_arduino_avr": "5.3.0",
+    "framework_arduino_avr_minicore": "3.1.2",
+    "measured_from": [
+      "pio --version",
+      "~/.platformio/platforms/atmelavr/.piopm",
+      "~/.platformio/packages/toolchain-atmelavr/package.json",
+      "~/.platformio/packages/toolchain-atmelavr/bin/avr-gcc --version",
+      "~/.platformio/packages/framework-arduino-avr/package.json",
+      "~/.platformio/packages/framework-arduino-avr-minicore/package.json"
+    ],
+    "enforcement_note": "platform = atmelavr in firestarter/platformio.ini is unversioned and ~/.platformio/platforms/atmelavr/.piopm records requirements: null, so nothing enforces these five pins. All five currently installed versions match firestarter/scripts/baseline/size_baseline.json's recorded pins. Documentation, not enforcement."
+  },
+  "toolchain_enforcement_note": "platform = atmelavr in firestarter/platformio.ini is unversioned and ~/.platformio/platforms/atmelavr/.piopm records requirements: null, so nothing enforces these five pins. All five currently installed versions match firestarter/scripts/baseline/size_baseline.json's recorded pins. Documentation, not enforcement.",
+  "images": [
+    {
+      "file": "firestarter_uno.control.hex",
+      "arm": "control",
+      "env": "uno",
+      "fw_sha": "8695ee52c27a4bee4387c5c489afd5f3d7275e8a",
+      "sha256": "be6e4ac80a70e251e2c263beb4109f9f7f9852a034b1064a5dbc8dbbcf05c095",
+      "hex_records": 1629,
+      "hex_lo": 0,
+      "hex_hi": 26026,
+      "hex_span": 26026,
+      "flash_used_baseline": 22952,
+      "bootloader": "optiboot 512 B",
+      "avrdude_programmer": "arduino",
+      "avrdude_baud": 115200,
+      "mcu": "atmega328p"
+    },
+    {
+      "file": "firestarter_uno328pb.control.hex",
+      "arm": "control",
+      "env": "uno328pb",
+      "fw_sha": "8695ee52c27a4bee4387c5c489afd5f3d7275e8a",
+      "sha256": "7b86c1aac5642b968bd9604bde249b7d68643ebe135f0d05690e56e43e20ebba",
+      "hex_records": 1631,
+      "hex_lo": 0,
+      "hex_hi": 26074,
+      "hex_span": 26074,
+      "flash_used_baseline": 23000,
+      "bootloader": "urboot 384 B",
+      "avrdude_programmer": "urclock",
+      "avrdude_baud": 115200,
+      "mcu": "atmega328pb"
+    },
+    {
+      "file": "firestarter_leonardo.control.hex",
+      "arm": "control",
+      "env": "leonardo",
+      "fw_sha": "8695ee52c27a4bee4387c5c489afd5f3d7275e8a",
+      "sha256": "2b9ad44e23dd6dc88e76a5aeb9105050f56c84d470a14b9a9d2597feffb0ee88",
+      "hex_records": 1762,
+      "hex_lo": 0,
+      "hex_hi": 28170,
+      "hex_span": 28170,
+      "flash_used_baseline": 25098,
+      "bootloader": "Caterina 4096 B",
+      "avrdude_programmer": "avr109",
+      "avrdude_baud": 57600,
+      "mcu": "atmega32u4"
+    },
+    {
+      "file": "firestarter_uno.v133.hex",
+      "arm": "v133",
+      "env": "uno",
+      "fw_sha": "5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463",
+      "sha256": "6823e6f939d336754498baafc34d6517675e38102accf625f360e3ca16b0a608",
+      "hex_records": 1436,
+      "hex_lo": 0,
+      "hex_hi": 22952,
+      "hex_span": 22952,
+      "flash_used_baseline": 22952,
+      "bootloader": "optiboot 512 B",
+      "avrdude_programmer": "arduino",
+      "avrdude_baud": 115200,
+      "mcu": "atmega328p"
+    },
+    {
+      "file": "firestarter_uno328pb.v133.hex",
+      "arm": "v133",
+      "env": "uno328pb",
+      "fw_sha": "5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463",
+      "sha256": "6415fe98ee783385aed5c85c06b6e0f12d8df442dd6ff7ac494cb200de307932",
+      "hex_records": 1440,
+      "hex_lo": 0,
+      "hex_hi": 23000,
+      "hex_span": 23000,
+      "flash_used_baseline": 23000,
+      "bootloader": "urboot 384 B",
+      "avrdude_programmer": "urclock",
+      "avrdude_baud": 115200,
+      "mcu": "atmega328pb"
+    },
+    {
+      "file": "firestarter_leonardo.v133.hex",
+      "arm": "v133",
+      "env": "leonardo",
+      "fw_sha": "5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463",
+      "sha256": "887cabbb3963f831b9032ba35da790a7db798c77479d1650c9e5ad674d28f8f5",
+      "hex_records": 1571,
+      "hex_lo": 0,
+      "hex_hi": 25098,
+      "hex_span": 25098,
+      "flash_used_baseline": 25098,
+      "bootloader": "Caterina 4096 B",
+      "avrdude_programmer": "avr109",
+      "avrdude_baud": 57600,
+      "mcu": "atmega32u4"
+    }
+  ],
+  "build_commands": [
+    {
+      "description": "detach to control arm fw SHA",
+      "argv": [
+        "git",
+        "-C",
+        "/workspaces/firestarter",
+        "checkout",
+        "8695ee52c27a4bee4387c5c489afd5f3d7275e8a"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "clean uno build dir (control)",
+      "argv": [
+        "rm",
+        "-rf",
+        ".pio/build/uno"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "build uno (control)",
+      "argv": [
+        "/usr/local/bin/pio",
+        "run",
+        "-e",
+        "uno"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "clean uno328pb build dir (control)",
+      "argv": [
+        "rm",
+        "-rf",
+        ".pio/build/uno328pb"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "build uno328pb (control)",
+      "argv": [
+        "/usr/local/bin/pio",
+        "run",
+        "-e",
+        "uno328pb"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "clean leonardo build dir (control)",
+      "argv": [
+        "rm",
+        "-rf",
+        ".pio/build/leonardo"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "build leonardo (control)",
+      "argv": [
+        "/usr/local/bin/pio",
+        "run",
+        "-e",
+        "leonardo"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "detach to v133 arm fw SHA",
+      "argv": [
+        "git",
+        "-C",
+        "/workspaces/firestarter",
+        "checkout",
+        "5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "clean uno build dir (v133)",
+      "argv": [
+        "rm",
+        "-rf",
+        ".pio/build/uno"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "build uno (v133)",
+      "argv": [
+        "/usr/local/bin/pio",
+        "run",
+        "-e",
+        "uno"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "clean uno328pb build dir (v133)",
+      "argv": [
+        "rm",
+        "-rf",
+        ".pio/build/uno328pb"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "build uno328pb (v133)",
+      "argv": [
+        "/usr/local/bin/pio",
+        "run",
+        "-e",
+        "uno328pb"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "clean leonardo build dir (v133)",
+      "argv": [
+        "rm",
+        "-rf",
+        ".pio/build/leonardo"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "build leonardo (v133)",
+      "argv": [
+        "/usr/local/bin/pio",
+        "run",
+        "-e",
+        "leonardo"
+      ],
+      "cwd": "/workspaces/firestarter"
+    },
+    {
+      "description": "restore starting branch",
+      "argv": [
+        "git",
+        "-C",
+        "/workspaces/firestarter",
+        "checkout",
+        "gsd/v1.33-source-hygiene-firmware-size-reduction"
+      ],
+      "cwd": "/workspaces/firestarter"
+    }
+  ],
+  "measured_divergence_finding": {
+    "summary": "The control arm's three images DO NOT match size_baseline.json's flash_used figures (or the plan's stated expected spans of 22952/23000/25098); the v133 arm's three images match exactly, byte-for-byte address extent.",
+    "measured": {
+      "uno": {
+        "control_hex_span": 26026,
+        "v133_hex_span": 22952,
+        "baseline_flash_used": 22952
+      },
+      "uno328pb": {
+        "control_hex_span": 26074,
+        "v133_hex_span": 23000,
+        "baseline_flash_used": 23000
+      },
+      "leonardo": {
+        "control_hex_span": 28170,
+        "v133_hex_span": 25098,
+        "baseline_flash_used": 25098
+      }
+    },
+    "cause": "size_baseline.json's avr_targets figures were re-recorded cold at Phase 158 Plan 04 (LAND-01), against firmware_tree_sha 8e126f2f743ed4209c8aab6dd7f0266f979a6080 -- plan 158-02's jsmntok_t narrowing commit. The control arm's fw_sha (8695ee52c27a4bee4387c5c489afd5f3d7275e8a) is the merge-base of origin/beta and gsd/v1.33-source-hygiene-firmware-size-reduction, i.e. the tree BEFORE Phase 158's size reduction landed (and before every other v1.33 firmware change). The v1.33 arm's fw_sha (5759dc8, PR #56 head) IS at/after that reduction, so its three spans match size_baseline.json exactly. This is a real, measured, structural fact about the two arms -- not a build error -- and it is exactly the kind of invisible-to-every-handshake divergence this milestone's rig exists to make visible (160-CONTEXT.md's organizing constraint: both arms report identical self-reported identity strings despite genuinely different code).",
+    "disposition": "The expectation (22952/23000/25098 on both arms) is NOT edited. The actual measured values are recorded in each image's own hex_span field above; the divergence is named here rather than silently reconciled, per the plan's own acceptance criteria ('if any differs, the actual value is recorded and the divergence is named rather than the expectation being edited')."
+  }
+}
