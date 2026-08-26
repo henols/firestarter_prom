@@ -48,7 +48,8 @@
       "bootloader": "optiboot 512 B",
       "avrdude_programmer": "arduino",
       "avrdude_baud": 115200,
-      "mcu": "atmega328p"
+      "mcu": "atmega328p",
+      "flash_used_baseline_own_arm": 25548
     },
     {
       "file": "firestarter_uno328pb.control.hex",
@@ -64,7 +65,8 @@
       "bootloader": "urboot 384 B",
       "avrdude_programmer": "urclock",
       "avrdude_baud": 115200,
-      "mcu": "atmega328pb"
+      "mcu": "atmega328pb",
+      "flash_used_baseline_own_arm": 25598
     },
     {
       "file": "firestarter_leonardo.control.hex",
@@ -80,7 +82,8 @@
       "bootloader": "Caterina 4096 B",
       "avrdude_programmer": "avr109",
       "avrdude_baud": 57600,
-      "mcu": "atmega32u4"
+      "mcu": "atmega32u4",
+      "flash_used_baseline_own_arm": 27630
     },
     {
       "file": "firestarter_uno.v133.hex",
@@ -96,7 +99,8 @@
       "bootloader": "optiboot 512 B",
       "avrdude_programmer": "arduino",
       "avrdude_baud": 115200,
-      "mcu": "atmega328p"
+      "mcu": "atmega328p",
+      "flash_used_baseline_own_arm": 22952
     },
     {
       "file": "firestarter_uno328pb.v133.hex",
@@ -112,7 +116,8 @@
       "bootloader": "urboot 384 B",
       "avrdude_programmer": "urclock",
       "avrdude_baud": 115200,
-      "mcu": "atmega328pb"
+      "mcu": "atmega328pb",
+      "flash_used_baseline_own_arm": 23000
     },
     {
       "file": "firestarter_leonardo.v133.hex",
@@ -128,7 +133,8 @@
       "bootloader": "Caterina 4096 B",
       "avrdude_programmer": "avr109",
       "avrdude_baud": 57600,
-      "mcu": "atmega32u4"
+      "mcu": "atmega32u4",
+      "flash_used_baseline_own_arm": 25098
     }
   ],
   "build_commands": [
@@ -281,25 +287,44 @@
     }
   ],
   "measured_divergence_finding": {
-    "summary": "The control arm's three images DO NOT match size_baseline.json's flash_used figures (or the plan's stated expected spans of 22952/23000/25098); the v133 arm's three images match exactly, byte-for-byte address extent.",
+    "summary": "The control arm's three images do not match size_baseline.json's flash_used figures at HEAD (22952/23000/25098) -- the v133 arm's images match those exactly. But `scripts/baseline/size_baseline.json` lives INSIDE the firestarter repo, so it is itself arm-dependent: read at the CONTROL arm's own fw_sha (8695ee52c27a4bee4387c5c489afd5f3d7275e8a), the file records flash_used 25548/25598/27630 -- and the control arm's measured spans (26026/26074/28170) do not match THAT figure either. There is a residual of exactly +478/+476/+540 B (uno/uno328pb/leonardo) between the control arm's measured build and its OWN committed baseline. This residual is fully explained below, not absorbed into the cross-arm delta.",
     "measured": {
       "uno": {
         "control_hex_span": 26026,
         "v133_hex_span": 22952,
-        "baseline_flash_used": 22952
+        "baseline_flash_used": 22952,
+        "control_own_arm_baseline": 25548,
+        "v133_own_arm_baseline": 22952,
+        "residual_vs_own_arm_baseline": {
+          "control": 478,
+          "v133": 0
+        }
       },
       "uno328pb": {
         "control_hex_span": 26074,
         "v133_hex_span": 23000,
-        "baseline_flash_used": 23000
+        "baseline_flash_used": 23000,
+        "control_own_arm_baseline": 25598,
+        "v133_own_arm_baseline": 23000,
+        "residual_vs_own_arm_baseline": {
+          "control": 476,
+          "v133": 0
+        }
       },
       "leonardo": {
         "control_hex_span": 28170,
         "v133_hex_span": 25098,
-        "baseline_flash_used": 25098
+        "baseline_flash_used": 25098,
+        "control_own_arm_baseline": 27630,
+        "v133_own_arm_baseline": 25098,
+        "residual_vs_own_arm_baseline": {
+          "control": 540,
+          "v133": 0
+        }
       }
     },
-    "cause": "size_baseline.json's avr_targets figures were re-recorded cold at Phase 158 Plan 04 (LAND-01), against firmware_tree_sha 8e126f2f743ed4209c8aab6dd7f0266f979a6080 -- plan 158-02's jsmntok_t narrowing commit. The control arm's fw_sha (8695ee52c27a4bee4387c5c489afd5f3d7275e8a) is the merge-base of origin/beta and gsd/v1.33-source-hygiene-firmware-size-reduction, i.e. the tree BEFORE Phase 158's size reduction landed (and before every other v1.33 firmware change). The v1.33 arm's fw_sha (5759dc8, PR #56 head) IS at/after that reduction, so its three spans match size_baseline.json exactly. This is a real, measured, structural fact about the two arms -- not a build error -- and it is exactly the kind of invisible-to-every-handshake divergence this milestone's rig exists to make visible (160-CONTEXT.md's organizing constraint: both arms report identical self-reported identity strings despite genuinely different code).",
-    "disposition": "The expectation (22952/23000/25098 on both arms) is NOT edited. The actual measured values are recorded in each image's own hex_span field above; the divergence is named here rather than silently reconciled, per the plan's own acceptance criteria ('if any differs, the actual value is recorded and the divergence is named rather than the expectation being edited')."
+    "cause": "Two independent, additive facts, both measured from firestarter git history (never guessed):\n(1) CROSS-ARM DELTA (v133 vs control's own-arm baseline, ~+3074 B): size_baseline.json's LIVE figures (22952/23000/25098) were re-recorded cold at Phase 158 Plan 04 (LAND-01, the jsmntok_t narrowing), against a tree at/after that reduction. The control arm's fw_sha is the merge-base of origin/beta and gsd/v1.33-..., i.e. the tree BEFORE that reduction (and before every other v1.33 firmware change) -- so it never had a chance to inherit Phase 158's size drop.\n(2) RESIDUAL WITHIN THE CONTROL ARM ITSELF (+478/+476/+540 B, now fully attributed): at the control arm's own fw_sha, `scripts/baseline/size_baseline.json` was ALREADY STALE relative to the tree it sits in, by exactly this amount. Root-cause chain, git-history-sourced: commit e0d6a1f (Phase 153 Plan 14, ERASE-08) last legitimately cold-re-recorded avr_targets to 25548/25598/27630. PR #55 'perf(eprom): amortise the VPE settle over a pass, not every byte (3.2x faster writes)' (branch debug-w27c512-write-slow: commits 071d505 the perf rewrite itself, 5882548, 453a188, 273eedb, 6d4d6bc; merged via f0f214f) then rewrote src/proms/eprom.cpp (289 lines changed) -- a real flash-size-affecting change -- and landed on the branch that becomes the control arm's direct ancestor. Commit 273eedb's own message says so explicitly, verbatim: \"NOTHING ELSE IN THIS FILE MOVED: the avr_targets flash_used/ram_used figures below still record the PRE-change position (uno 25548, uno328pb 25598, leonardo 27630) deliberately -- a native-only test adds no AVR bytes, and re-recording the AVR figures is the separate act whoever lands this branch must adjudicate along with the +478/+476/+540 flash growth.\" That figure -- +478/+476/+540 -- is a byte-for-byte match against this session's measured residual. Commit 8695ee52c27a4bee4387c5c489afd5f3d7275e8a itself (the control arm's fw_sha, \"Apply automatic changes\") touches only include/version.h -- confirmed via `git diff 6d4d6bc 8695ee52 -- scripts/baseline/size_baseline.json` (empty). So the deferred adjudication 273eedb's own author named was NEVER performed before this milestone's control-arm SHA was cut: the committed baseline is knowingly stale by the residual amount, and this session's measurement is simply re-discovering a gap the firmware repo's own commit history had already named and left open. RAM is unaffected: this session's measured control-arm RAM (1575/1581/2016 B) matches the stale baseline's RAM figures exactly, consistent with 273eedb's own framing that the perf rewrite is flash-only.",
+    "disposition": "The expectation (22952/23000/25098 on both arms) is NOT edited. The actual measured values are recorded in each image's own hex_span field, and each image now also carries flash_used_baseline_own_arm (the size_baseline.json figure recorded AT THAT IMAGE'S OWN fw_sha) alongside the existing flash_used_baseline (which stays the v133/HEAD figure unconditionally, unchanged, because judge_readback.py and this plan's own verify leg read it). The residual is fully attributed to a named, git-history-sourced cause (PR #55's unrecorded flash growth) rather than left as an unexplained gap -- see `cause` above. Zero bytes remain unaccounted for: 478-478=0, 476-476=0, 540-540=0.",
+    "gate_vs_criterion_mismatch": "This plan's own Task 1 <automated> verify leg hard-asserts, for ALL SIX manifest entries, that hex_span == flash_used_baseline == a hardcoded per-env constant (22952/23000/25098), with no escape clause for a named divergence. Run literally as written, it throws an AssertionError on the three control-arm entries (observed and quoted in this plan's SUMMARY). That is a RED-by-construction gate, not a broken build: the plan's own written acceptance criterion for the SAME task (line 154) explicitly permits this outcome -- 'if any differs, the actual value is recorded and the divergence is named rather than the expectation being edited.' The coded verify script has no such escape hatch and will always fail whenever a real, legitimate, named divergence occurs (which is exactly the case here). This authoring mismatch between the acceptance-criteria prose and the coded gate is recorded here so a future reader -- including 160-13's fresh-context reconstruction -- does not mistake the RED exit for evidence of a defect in the images or the manifest."
   }
 }
