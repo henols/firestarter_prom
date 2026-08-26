@@ -1,0 +1,437 @@
+# v1.34 Bench Procedure — One Arm-Agnostic Cell Run
+
+**Phase:** 160-rig-dual-arm-build-flash-provenance-the-shared-cell-procedur (RIG-03 / SC#3)
+**Status:** Prescriptive. This document says what will be done, in what order, and with which
+literal command shapes — it is not a log of what happened (that is `bench/EVIDENCE.jsonl` /
+`bench/EVIDENCE.md`).
+
+This procedure is executed **unchanged** by Phases 161, 162 and 163. Every cell those phases
+run cites this document's step ids rather than re-describing the run.
+
+---
+
+## Scope
+
+One cell run covers **both arms** (`control` then `v133`) and **both bench chips**
+(W27C512 DIP28, then W29C020 DIP32) on one mounted shield/board pair. A cell therefore holds
+**four positions**: `{control,v133} × {w27c512,w29c020}`. The five cells this milestone runs
+are `A1`, `A2`, `A3/B2`, `B1`, `B3` (`.planning/STATE.md`, `.planning/REQUIREMENTS.md`); one of
+those (`A3/B2`) additionally carries a bring-up position (`BRINGUP-wrv`) recorded outside the
+five-cell table.
+
+This document is executed **unchanged** by Phases 161–163. Any change to it after the first
+real cell has run must be recorded as a **procedure amendment**: a dated note at the bottom of
+this file naming (a) what changed, (b) why, and (c) exactly which cells ran under the old text
+and which run under the new text. An amendment is never silent — a step whose text quietly
+drifts mid-sweep is exactly the failure mode `render_steps.py`'s gate and this scope note exist
+to prevent.
+
+---
+
+## Standing bench rules
+
+These bind every step below; they are restated here as rules, not preferences, and none of
+them is new to this milestone — most are standing project memory this procedure is required to
+honor.
+
+1. **Port identity is re-verified for every cell, never inherited.** `/dev/ttyACM*` numbering
+   shuffles across replug, so the port used by a previous cell (or a previous session) is never
+   assumed for this one.
+2. **Chip-out-before-sideload is Uno-class only.** On `uno` and `uno328pb`, the chip must be
+   out of its socket before any avrdude invocation that touches the bootloader — a flash **and**
+   a read-back are the same electrical situation, so both live inside the chip-out window. The
+   **Leonardo is exempt** and is flashed and read back with the chip **seated**.
+3. **Photography, multimeter readings, chip handling and pot adjustment are operator-only.**
+   Claude drives serial and CLI only — `fw`, `hw`, `read`, `write`, `vpp`, `dev consistency-check`
+   and this phase's own tools. Claude never touches the physical rig.
+4. **The operator adjusts the pot himself.** Claude states the target, the operator sets it and
+   reports back, and Claude takes **exactly one** confirming read — never a live monitor loop.
+5. **The VPP and VPE monitors do not route to the socket.** A blank or nonsense reading on
+   either means a contact fault, not a rail fault — do not chase it as a voltage problem.
+6. **Board identity is by silkscreen and avrdude signature, never by a firmware-reported
+   revision field.** `hw_revision` cannot distinguish the operator's three shields (Rev 2.0 /
+   Rev 2.2 / Modified Rev 0 collide on the same resistor band), so the operator's silkscreen
+   read is authoritative for shield identity and the avrdude signature probe is authoritative
+   for board/MCU identity. A firmware-reported field is never used for either.
+7. **This procedure must not run under `--auto` / `--chain` / any auto-advance mode.** Those
+   modes auto-approve the `human-verify` checkpoints every physical step in this procedure
+   depends on; `autonomous: false` on a plan is not self-protecting against that.
+8. **A single clean re-seat is allowed per position, carried forward from the prior bench
+   phase.** If a failure is attributable to a named physical cause (a suspected bad contact),
+   one re-seat and one re-run are permitted — and **both the discarded attempt and the re-run
+   are recorded**, never just the re-run.
+
+---
+
+## Arm substitution
+
+The single arm-dependent token in this procedure is **`$ARM_BIN`**, resolved to one of the two
+absolute arm binary paths recorded in `rig-pins.json` (`arms.control.venv_bin` /
+`arms.v133.venv_bin`). **No step's text differs between the arms.** The arm enters a step only
+through this token's runtime value, and because the token is never expanded in the rendered
+step list (see `tools/render_steps.py` below), the two arms' rendered step lists are
+byte-identical — the arm is visible only in the **recorded, literal command line** a step
+actually produces on the bench, never in the procedure's own prose.
+
+The reason this is sufficient, stated plainly: both arms self-report the **identical**
+application version (`3.0.0b32`) and both firmware builds self-report the **identical**
+version literal (`3.0.0b22`). The invoked binary path and the device read-back are therefore
+the *only* two places the arm exists at all — everything else about the two arms is
+indistinguishable over the wire. A step that tried to name an arm by version string, by a
+handshake, or by any firmware-reported identity field would be naming nothing, because both
+arms answer identically.
+
+A small number of tools also take the arm's **bare name** (`control` or `v133`) as a required
+argument value — `capture_provenance.py --arm`, `judge_readback.py --flashed-arm` /
+`--expect-arm`. That name is the *same* selection `$ARM_BIN` encodes, not a second independent
+token; a step's command shape writes it as `{control|v133}` inline, exactly mirroring the
+tool's own closed-choice argument, and it never appears as a version string or handshake value.
+
+Every other substitution token below is **not** arm-dependent — its value is the same
+regardless of which arm is running:
+
+| Token | Meaning |
+|---|---|
+| `$PORT` | the device node for this cell (e.g. `/dev/ttyACM0`), re-verified per Rule 1 above |
+| `$CELL_ID` | `A1`, `A2`, `A3/B2`, `B1`, `B3`, or `BRINGUP-wrv` |
+| `$POSITION_ID` | `<cell_slug>__<arm>__<chip>`, the `bench/IMAGE-PLAN.json` primary key |
+| `$SHIELD_REV` | the operator-declared silkscreen value: `Rev 2.0` / `Rev 2.2` / `Modified Rev 0` |
+| `$CHIP` | `w27c512` or `w29c020` |
+| `$TARGET` | `uno` / `uno328pb` / `leonardo` (the PlatformIO env name) |
+| `$MASK` | this position's XOR mask, from `bench/IMAGE-PLAN.json` |
+| `$CELL_DIR` | `.planning/v1.34/bench/cells/<cell_slug>/` |
+
+**The annotation syntax `[arm: control]` / `[arm: v133]`** is defined here for
+`tools/render_steps.py` to detect, and is used **nowhere** in the `## Step list` section below.
+A step carrying that marker would be included in only one arm's render, breaking the empty-diff
+property SC#3 requires; its deliberate absence from every real step is exactly what the SC#3
+gate measures. If a future edit ever needs a genuinely arm-conditional step, it must carry this
+marker and the resulting non-empty diff is the signal that the edit needs a design decision,
+not a silent merge.
+
+---
+
+## Step list
+
+Eleven numbered steps, in the order Pattern 6 (RESEARCH.md) derives from two standing rules
+colliding with D-05 — not an invented order. The two colliding facts: an avrdude
+**read** is the same electrical situation as a **write** (bootloader active, shield GPIO lines
+exercised), so the Uno-class chip-out window must cover the flash **and** its read-back proof,
+not just the flash; and both bench chips declare the identical `vpp_mv: 12000`, so the pot is
+set **once per cell**, not once per chip.
+
+### P-01 — Mount and declare
+
+Operator mounts the shield on the board and **declares the shield revision from the
+silkscreen**. Silkscreen is authoritative — `hw_revision` cannot distinguish the operator's
+Rev 2.0 / Rev 2.2 / Modified Rev 0 shields (the A3 ADC band collides on 10 kΩ). No command;
+performer: operator. Record field: `shield_rev_declared` (`$SHIELD_REV`).
+
+### P-02 — Re-verify port identity
+
+Claude re-verifies port identity for **this cell**, never inheriting it from a previous task:
+
+```
+python3 .planning/v1.34/tools/probe_board.py --target $TARGET --port $PORT \
+  --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/board_probe.json
+$ARM_BIN -p $PORT hw
+```
+
+The signature probe (`probe_board.py`) is the **authoritative** board identity; the `hw`
+command's printed `I: FW: ` / controller line is a separate, non-authoritative port-identity
+datum, recorded alongside it. This is RIG-02's "before any test step executes" capture point —
+`capture_provenance.py`'s `captured_at_step` field is fixed at `2` for exactly this reason: the
+identity fields a position's provenance record eventually carries were established here, at
+step 2, before any flash, write or read has touched the board. Performer: Claude. Record
+fields: `board_signature`, `controller_string`.
+
+### P-03 — Uno-class chip-out (flash + read-back window)
+
+**Uno-class only** (`uno`, `uno328pb`): operator removes the chip and confirms. This window
+covers the flash **and its read-back proof** in P-04 — an avrdude read is the same electrical
+situation as a write, so the chip stays out for both. **The Leonardo is exempt**: it is flashed
+and read back with the chip **seated**, per the standing chip-out rule (Standing bench rule 2).
+No command; performer: operator.
+
+### P-04 — Flash this arm, then prove it by independent read-back
+
+Claude selects this arm's firmware source state, flashes it via the PlatformIO upload path
+(never a hand-rolled avrdude write — PIO supplies the per-target flags this procedure does not
+reproduce: `-x nometadata` on `uno328pb`'s urclock bootloader, the 1200-baud touch and
+port-wait on `leonardo`'s avr109), then proves the flash with an **independent** avrdude
+read-back, never avrdude's own upload-time verify pass (D-01):
+
+```
+git -C /workspaces/firestarter checkout <fw_sha for {control|v133}>
+git -C /workspaces/firestarter status --porcelain          # must be empty
+cd /workspaces/firestarter && pio run -t upload -e $TARGET  # Pitfall 4: cwd MUST be firestarter/, never /workspaces
+python3 .planning/v1.34/tools/judge_readback.py --target $TARGET --port $PORT \
+  --flashed-arm {control|v133} --expect-arm {control|v133} \
+  --out-dir $CELL_DIR --pins .planning/v1.34/rig-pins.json
+```
+
+`judge_readback.py` runs its own avrdude read with `-A` explicit (Pitfall 2 — without it the
+read-back is truncated), normalizes the flashed arm's `.hex` with the pinned `avr-objcopy`, and
+judges the `[0, hex_span)` prefix under the target's `judged_span_policy` — refusing outright on
+`uno328pb` while that policy is still the `PENDING-xshowvector` placeholder (see Recording
+discipline). **D-05: this read-back proof runs at every cell's flash, not only at bring-up** —
+a cell whose arm was mis-flashed is caught at the cell, not at the close. The whole 32768 B
+read-back's SHA is recorded as an **unjudged** provenance datum alongside the judged verdict,
+never consumed in the match decision (D-02).
+
+The `--flashed-arm`/`--expect-arm` pair is also how D-03's deliberate cross-flash (bring-up
+only, Phase 160 plans 08–10) is expressed as a single invocation: flash arm X, judge against
+arm Y's hex, observe the MISMATCH, then flash and judge the correct arm.
+
+Performer: Claude. Record fields: `fw_sha` (post-checkout `git rev-parse HEAD`),
+`host_arm_porcelain_clean` for the firmware checkout, `fw_readback_sha_judged`,
+`fw_readback_sha_whole_flash`, the literal `commands` argv for every invocation above.
+
+### P-05 — Uno-class: seat the first chip
+
+**Uno-class only:** operator seats the 28-pin chip (W27C512, DIP28) and confirms. No command;
+performer: operator.
+
+### P-06 — Set the pot once per cell
+
+Claude states the target for the declared VPP value (both bench chips declare
+`vpp_mv: 12000` — see `rig-pins.json` `chips.*.vpp_mv`), the operator sets the pot and reports,
+and Claude takes **exactly one** confirming read:
+
+```
+$ARM_BIN -p $PORT vpp
+```
+
+The pot is set **once per cell, not once per chip**, because both bench chips agree on the
+VPP target — this is the single largest simplification available to this step list, and it is
+why this step sits before the chip rotation rather than inside it. If the
+historical `VPP is high: 13.1V > 12.0V` init guard fires (Phase 145 D-17), the pot is adjusted
+until the reading is in band and the run restarts clean from this step — **the guard is never
+bypassed**, and `--force` is never used to push past it (see Forbidden invocations). Performer:
+operator (adjustment) + Claude (one confirming read, no monitor loop). Record field: the
+confirming VPP reading, plus `--force used? No` as a load-bearing line.
+
+### P-07 — Chip 1 write → read → judge (65536 B)
+
+Claude generates this position's image from its recorded mask and stamp width, writes it with
+no forbidden flag, times the write by wall clock, then runs the read set and judges it over
+the full 65536 B device size with `judge_wrv.py`:
+
+```
+python3 .planning/v1.34/tools/gen_addr_image.py --stamp-width 16 65536 $MASK $CELL_DIR/written.bin
+time $ARM_BIN -p $PORT write w27c512 $CELL_DIR/written.bin
+```
+
+Read counts and arbitration (stated here, not as a separate step, because it applies
+identically to this step and its W29C020 counterpart below): **three independent reads on the
+v1.33 arm at every position**, via
+`$ARM_BIN -p $PORT dev consistency-check w27c512 --runs 3 --output-dir $CELL_DIR/reads --keep-files`;
+**a single read on the control arm normally**, via
+`$ARM_BIN -p $PORT read w27c512 $CELL_DIR/reads/run_01.bin` (the positional-output form, named
+to match `judge_wrv.py`'s `run_NN.bin` glob) — **escalating to the same three-run
+`dev consistency-check` invocation on the control arm only where the v1.33 arm's three reads
+for this position disagreed**, arbitrating whether the instability is new or was always there.
+A disagreement is **recorded as a disagreement and never retried away**.
+
+```
+python3 .planning/v1.34/tools/judge_wrv.py --written $CELL_DIR/written.bin --reads $CELL_DIR/reads \
+  --expect-size 65536 --app-verdict <dev consistency-check's own 0/1/2, when it ran> \
+  --position-id $POSITION_ID --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/wrv_verdict.json
+python3 .planning/v1.34/tools/capture_provenance.py --cell-id $CELL_ID --position-id $POSITION_ID \
+  --arm {control|v133} --target $TARGET --port $PORT --chip w27c512 --shield-rev "$SHIELD_REV" \
+  --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/provenance_$POSITION_ID.json
+```
+
+`judge_wrv.py` computes SHA-256 over the full 65536 B against the written image — never
+`dev consistency-check`'s own exit code (Pitfall 6: that code compares the N reads only to
+**each other**, so a chip that reliably returns the wrong bytes still passes it). The app's
+0/1/2 is recorded alongside as an unjudged second datum; any disagreement between the two is
+itself a finding, not resolved. `capture_provenance.py` runs **after** this position's
+read-back verdict exists (it hard-refuses without it), referencing the `fw_readback_sha_*`
+fields `judge_readback.py` wrote at `P-04` for this cell/arm and adding this position's
+chip-specific fields (`chip`, `chip_package`, `chip_size_bytes`). Performer: Claude (all
+commands); the write duration is measured by Claude around the write command.
+
+One clean re-seat is permitted per Standing bench rule 8 if a contact fault is suspected mid-write
+— both the discarded attempt and the re-run are recorded, the discard never silent.
+
+### P-08 — Swap to the second chip, no pot re-adjustment
+
+Operator swaps the 28-pin chip for the 32-pin chip (W29C020, DIP32) and confirms. **No pot
+re-adjustment happens here** — the declared VPP target (`vpp_mv: 12000`) is the same for both
+parts, so `P-06`'s single confirming read stands for the whole cell. No command; performer:
+operator.
+
+### P-09 — Chip 2 write → read → judge (262144 B)
+
+As `P-07`, over the full 262144 B device size, with a 32-bit stamp width (the 16-bit stamp used
+for W27C512 repeats every 65536 B and would leave an A16/A17 aliasing fault unattributable on
+this 18-address-bit part — D-12):
+
+```
+python3 .planning/v1.34/tools/gen_addr_image.py --stamp-width 32 262144 $MASK $CELL_DIR/written.bin
+time $ARM_BIN -p $PORT write w29c020 $CELL_DIR/written.bin
+```
+
+Read counts and arbitration are exactly `P-07`'s rule, over 262144 B: three independent reads
+on the v1.33 arm always; a single read on the control arm, escalating to three only where the
+v1.33 arm's three reads for this position disagreed. A disagreement is recorded, never retried.
+
+```
+python3 .planning/v1.34/tools/judge_wrv.py --written $CELL_DIR/written.bin --reads $CELL_DIR/reads \
+  --expect-size 262144 --app-verdict <dev consistency-check's own 0/1/2, when it ran> \
+  --position-id $POSITION_ID --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/wrv_verdict.json
+python3 .planning/v1.34/tools/capture_provenance.py --cell-id $CELL_ID --position-id $POSITION_ID \
+  --arm {control|v133} --target $TARGET --port $PORT --chip w29c020 --shield-rev "$SHIELD_REV" \
+  --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/provenance_$POSITION_ID.json
+```
+
+Performer: Claude.
+
+### P-10 — Arm switch
+
+Return to `P-03` for the **second** arm. **Arm order is control first, then v1.33**, so the
+control arm never inherits the other arm's chip contents — the first pass through `P-03`–`P-09`
+is always the control arm's, the second is always v1.33's. Performer: Claude (sequencing) +
+operator (the physical steps `P-03`/`P-05`/`P-08` repeat).
+
+### P-11 — Teardown
+
+Record the final board and arm state: re-run `probe_board.py` to confirm the board identity
+has not changed since `P-02`, re-verify `$FIRESTARTER_CONFIG_DIR`'s content SHA is unchanged
+from the value seeded at bring-up (D-07 — either arm writing to the shared config dir mid-cell
+is a visible, recorded event, not invisible drift), and append this cell's four position rows
+to `bench/EVIDENCE.jsonl` via the phase's evidence writer. Performer: Claude.
+
+---
+
+## Outcome taxonomy
+
+**Two axes, not one — and Phase 145 D-14's two-state ban is not being relaxed.**
+
+- **Cell outcome** (the axis this procedure produces, Phases 160–163): exactly **two** states,
+  `validated` or `skipped-with-reason`. Anything that is not a clean pass is a **fail**;
+  anything not attempted is a **skip**. There is **no third state** at this axis. A cell result
+  may never be recorded as `inconclusive` — `gate_record.py` enforces this domain mechanically.
+- **Triage classification** (a *different* axis, Phase 165 only, RCA-01): the three-state axis
+  — `v1.33-caused` / `pre-existing` / `inconclusive` — applied to a **failure**, after the fact,
+  once a cell has already been recorded as `skipped-with-reason`. This axis never touches a
+  cell result directly; it classifies a failure a cell result already named.
+
+Stated explicitly: this milestone's Phase 165 triage requirement does **not** relax Phase 145's
+prior ban on a third cell state. The two axes coexist because they describe different things —
+one produced by this procedure, one applied later to a subset of what this procedure produced.
+
+---
+
+## Halt policy
+
+Two branches, decided in advance so the distinction is never made under pressure mid-sweep.
+
+### P-H1 — Rig failure: halt and fix in-phase
+
+A **rig** failure — a read-back mismatch on a board that was correctly flashed, a judge
+crashing, a provenance field missing or refusing to resolve, a gate that cannot read its own
+input — **halts the sweep** and is fixed in-phase, because the rig is this phase's deliverable
+and every later cell rests on it. Do not carry a rig failure forward; a broken oracle produces
+meaningless results for every cell that follows it.
+
+### P-H2 — Cell failure: record and carry forward
+
+A **cell** failure — a write that fails, three reads that disagree, a chip that reds — is
+recorded with its observed symptom (`skipped-with-reason`, never `inconclusive`) and **carried
+to Phase 165**, and the sweep **continues** to the next position/cell. This is what makes
+Phase 165's later classification possible at all — a cell failure that halted the sweep instead
+of being recorded would leave nothing for RCA-01 to classify.
+
+**The prior bench phase's policy of halting on any failure and handing to `/gsd-debug`
+(Phase 145 D-13) is deliberately not inherited here.** That policy fit a phase with no
+designated triage owner; this milestone has Phase 165 as that owner instead, so a cell failure
+is data for Phase 165, not an interrupt for this phase.
+
+---
+
+## Write-duration definition
+
+**Wall-clock around the write command is the judged measure.** It is the only measure that
+exists for every arm, every target and every outcome — including a position where the write is
+*expected* to fail on both arms (cell A2), where the app emits no success line at all. It is
+also arm-agnostic by construction: one procedure step (`time $ARM_BIN -p $PORT write ...`), no
+per-arm text.
+
+The app's own success-only figure (`Write to {CHIP} successful ({t:.2f}s)`) is recorded
+**alongside** it as a **second, unjudged datum**, whenever the write succeeds and the line is
+present. State explicitly: wall-clock includes process start-up and the serial handshake, so it
+is comparable **arm to arm** on this milestone's own rig, but it is **not** directly comparable
+to v1.31's figure unless that figure was taken the same way.
+
+**Which measure v1.31's 0.37 s W27C512 figure was, resolved from the record**
+(`.planning/phases/145-bench-validation/145-BENCH-LOG.md`, "Positive findings" #2 and the
+"v1.31 write timing" table): it is **not** a single write's duration. It is the **spread**
+(max − min) across three full 64 KiB write cycles' **app-reported, success-only** figures —
+106.06 s / 105.69 s / 106.06 s, each line read verbatim from
+`Write to W27C512 successful ({t:.2f}s).` (`eprom_operations.py:1934`) — never an
+independently-timed wall-clock measurement. Phase 145 made **no comparative claim** against any
+earlier firmware with that figure (D-08 rejected a pre-v1.31 control run); it is cited here only
+as *consistency*, not as a *duration*.
+
+Consequence for this milestone's comparison: v1.34's per-position wall-clock figures are a
+**different quantity** (a single measured duration per position, not a three-cycle spread) taken
+by a **different method** (independent wall-clock, not the app's own success line) than v1.31's
+0.37 s. **Honesty-ledger line for Phase 166:** any figure-to-figure comparison drawn between
+v1.34's wall-clock durations and v1.31's 0.37 s figure compares a duration to a spread and a
+wall-clock measurement to an app-reported one; it is not an apples-to-apples regression check
+and must be stated as such rather than drawn silently. v1.34's own app-reported figures
+(recorded alongside wall-clock per position, per this section's first paragraph) are the
+directly comparable quantity to v1.31's, and even that comparison is valid only on the one cell
+this milestone shares with v1.31's rig — `A3/B2`, Leonardo + Rev 2.0.
+
+---
+
+## Forbidden invocations
+
+Every flag and binary below is **never** used in a bench command, each for a stated reason.
+`gate_record.py` rejects any recorded command line carrying a forbidden flag by exact token
+match, regardless of its position in the argv.
+
+| Forbidden | Reason |
+|---|---|
+| `--force` / `-f` | Phase 145 D-17 withdrew the standing permission to force past a guard, permanently. A guard-blocked run (e.g. the W27C512's `VPP is high` init guard) is a bench fault fixed in pre-flight (`P-06`), never bypassed. |
+| `-b` / `--no-blank-check` | Skips the pre-write blank check. Has no place in a normal position — every position writes a fresh, known image and the blank check is part of what proves that. **Superseded-framing correction:** this flag does **not** also skip the erase (an older standing memory said otherwise); the erase is now a separate flag (Phase 153) and the current help text is explicit that the erase **still runs** when `-b` is given. This procedure names the current behaviour, not the superseded one. |
+| `--skip-erase` | Skips the pre-write erase entirely. Its own help text warns it "leaves un-erased bits that cannot be reprogrammed" on a non-blank electrically-erasable chip while the write still reports success — the exact false-green shape this milestone's oracle design (D-12) exists to avoid. |
+| bare `firestarter` | Resolves to the pre-existing user-site editable install (`/home/vscode/.local/bin/firestarter` → `/workspaces/firestarter_app`), a **third, un-named arm** on `PATH`. Every bench command names an arm venv's absolute binary path (`$ARM_BIN`) instead. |
+| `firestarter fw -i` (the host app's own firmware-install path) | Requires a firmware handshake (which blocks the D-03 deliberate cross-flash, since a mis-flashed board cannot handshake correctly by design), ignores its own `--board` argument, and omits `urclock`'s `-x nometadata` option — producing **different flash content** from the PlatformIO path on `uno328pb`. This procedure flashes only via `pio run -t upload -e $TARGET` (`P-04`). |
+| the stale `tool-avrdude@1.60300.200527` (avrdude 6.3) | Predates the `urclock` programmer entirely; cannot flash or read `uno328pb` correctly. The rig's pinned avrdude is `rig-pins.json`'s `avrdude.binary` (8.1), with `avrdude_fallback` (system 7.1) named only as a fallback, not used unless the pinned binary fails to open the port. |
+| any `pio` invocation whose working directory is not `rig-pins.json`'s `pio_project_dir` (`/workspaces/firestarter`) | The generated, untracked, gitignored `/workspaces/platformio.ini` has a duplicate `[platformio]` section that makes `configparser` abort — the identical command string succeeds or fails depending on cwd alone (Pitfall 4, reproduced live). Every `pio` command in this procedure is recorded with its working directory. |
+| any `import firestarter` probe run without `python -P` | `/workspaces` contains a directory literally named `firestarter` (the firmware repo) that wins as a PEP 420 namespace-package portion, so the probe silently prints `None` on every interpreter without `-P` (Pitfall 1). Every such probe in this procedure and its tools carries `-P`. |
+
+---
+
+## Recording discipline
+
+Carried forward from the prior bench phase's standing anti-fabrication rule, restated here as a
+binding rule for this procedure rather than a norm:
+
+- **Nothing here is fabricated.** A reading that tooling blocks — because a bootloader
+  interrogation has not yet been recorded (`judged_span_policy: PENDING-xshowvector` on
+  `uno328pb`), because a CLI path does not exist for a value (the R16/R14R15 ohm calibration
+  values), or for any other named reason — is recorded as `"not measured — <reason>"` **on the
+  same line**, never as a blank. `gate_record.py`'s field-presence check treats this exact
+  shape as a valid, non-null value.
+- **A negative control is recorded as having FIRED, not as having been configured.** The
+  W27C512's VPP-high init guard, and the deliberate wrong-arm cross-flash's MISMATCH, are both
+  examples: the record states that the guard/mismatch actually occurred and what happened next,
+  not merely that the mechanism which could produce it was present.
+- **The judged verdict and the unjudged verdict are recorded separately, and their
+  disagreement is itself a finding** — never resolved by preferring one over the other. This
+  applies identically to `judge_readback.py`'s judged-span-vs-whole-flash pair and to
+  `judge_wrv.py`'s SHA-verdict-vs-app-verdict pair (`verdict_disagreement`).
+- **Every recorded command is the literal argv with its working directory.** A `pio` command's
+  cwd is part of its record for the same reason Pitfall 4 exists: the same string can succeed or
+  fail depending on it.
+- **No SHA is ever transcribed by hand.** Every SHA in a cell's record is computed by a tool
+  and written by that tool, never copied by a human from one file into another.
+
+---
+
+*Procedure defined: 2026-08-26, Phase 160 Plan 06. No amendments recorded yet.*
