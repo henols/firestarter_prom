@@ -38,6 +38,8 @@ key-decisions:
   - "The control arm's 'single read normally' (D-11) is expressed as a plain 'read <chip> <cell_dir>/reads/run_01.bin' invocation (using the read command's positional output-file argument, per rig-pins.json's 'no -o flag' note) rather than 'dev consistency-check --runs 1' (invalid — the app's own contract floors --runs at 2). This keeps the control arm's default file naming compatible with judge_wrv.py's run_*.bin glob without inventing a new tool flag, and the escalation path (control's own N=3, fired only on a v1.33 disagreement) switches to the identical 'dev consistency-check --runs 3' shape the v1.33 arm always uses."
   - "render_steps.py flattens each step's FULL body (not just its heading) into the emitted line, specifically so $ARM_BIN and the procedure's other literal command-shape tokens are visible in the rendered output — the plan's own verify block greps the control render for the substring 'ARM_BIN', which a heading-only render (my first draft) could not satisfy since none of my step headings happen to contain a command line."
   - "Two literal-string mentions of the full step-id range ('P-01'..'P-11' together, and a forward reference to 'P-08' inside P-06's prose) had to be reworded during authoring because the plan's own verify script asserts ascending order by FIRST OCCURRENCE of each id string in the whole file, and an early summary sentence naming the full range would make 'P-11' appear before 'P-02' ever does. Resolved by describing the step count/order without repeating every id verbatim in prose that precedes the Step list section."
+  - "Post-hoc fix (orchestrator spot-check): FIRESTARTER_CONFIG_DIR is established inline on every command line that invokes an arm binary or shells out to one ('FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN ...'), never by a session export, per Standing bench rule 9 — because config.py computes HOME_PATH/DATABASE_FILE/PIN_MAP_FILE as import-time constants, a variable exported after process launch or in a different shell silently leaves those three pointed at the unset default."
+  - "P-11's config-dir check does NOT rely on gate_record.py's argv re-parse to detect a missing FIRESTARTER_CONFIG_DIR, despite the orchestrator's suggestion that it 'can already see' this — a shell-level VAR=val assignment is stripped by the shell before exec and never appears in a recorded argv, at every level this procedure's tools shell out through, so there is structurally nothing for an argv inspector to find. The actually-falsifiable proxy used instead: ~/.firestarter's continued absence, plus gate_record.py's existing check_config_dir_sha re-verification with a non-null-field requirement so the SHA check cannot pass by silently never running."
 
 requirements-completed: [RIG-03]
 
@@ -47,7 +49,7 @@ coverage:
     requirement: "RIG-03"
     verification:
       - kind: unit
-        ref: "python3 -c \"...\" structural check: 11 step ids ascending, P-H1/P-H2 present, all 9 '## ' section headings present, literal '$ARM_BIN' token present (rc=0, quoted in this SUMMARY)"
+        ref: "python3 -c \"...\" structural check: 11 step ids ascending, P-H1/P-H2 present, all 9 '## ' section headings present, literal '$ARM_BIN' and '$FIRESTARTER_CONFIG_DIR' tokens present (rc=0, quoted in this SUMMARY; re-verified after the post-hoc fix commit)"
         status: pass
       - kind: unit
         ref: "bash content-marker grep: P-H1, P-H2, 'once per cell', 'wall clock', '0.37', 'same line', 'silkscreen' all present (rc=0)"
@@ -66,24 +68,27 @@ coverage:
       - kind: other
         ref: "live diff against a temporary copy of PROCEDURE.md with one step marked [arm: control]: control renders 11 lines, v133 renders 10, non-empty diff (quoted in this SUMMARY); committed PROCEDURE.md confirmed byte-unchanged via git diff --stat"
         status: pass
+      - kind: other
+        ref: "post-hoc: re-ran --selftest (7/7) and the live diff against the FIRESTARTER_CONFIG_DIR fix commit (9a6f29cb) -- both arms still render 11 byte-identical lines, ARM_BIN and FIRESTARTER_CONFIG_DIR both appear 5x each in the control render"
+        status: pass
     human_judgment: false
 
-duration: ~65min
+duration: ~75min
 completed: 2026-08-26
 status: complete
 ---
 
 # Phase 160 Plan 06: The Arm-Agnostic Cell Procedure and Its Diff Gate Summary
 
-**Wrote `PROCEDURE.md`'s derived eleven-step cell run (mount → identity → chip-out → flash+read-back-judge → pot → write→read→judge ×2 chips → arm switch → teardown) with two named halt branches, then authored `render_steps.py` — the tool that turns SC#3's "no step differs by arm" claim into an enforced, falsifiable diff gate, observed both empty (the real document) and non-empty (a deliberately arm-conditional copy of it).**
+**Wrote `PROCEDURE.md`'s derived eleven-step cell run (mount → identity → chip-out → flash+read-back-judge → pot → write→read→judge ×2 chips → arm switch → teardown) with two named halt branches and `$FIRESTARTER_CONFIG_DIR` established inline on every app invocation, then authored `render_steps.py` — the tool that turns SC#3's "no step differs by arm" claim into an enforced, falsifiable diff gate, observed both empty (the real document) and non-empty (a deliberately arm-conditional copy of it).**
 
 ## Performance
 
-- **Duration:** ~65 min
+- **Duration:** ~75 min (includes a post-hoc orchestrator-spot-check fix)
 - **Started:** 2026-08-26T23:05Z (context load)
-- **Completed:** 2026-08-26T23:40Z (approx.)
-- **Tasks:** 2/2, both `type="auto"`
-- **Files modified:** 2 created (`PROCEDURE.md`, `tools/render_steps.py`), 1 modified (`REQUIREMENTS.md`)
+- **Completed:** 2026-08-26T23:40Z initial; fix follow-up completed same session
+- **Tasks:** 2/2, both `type="auto"`, plus one targeted post-hoc fix commit
+- **Files modified:** 2 created (`PROCEDURE.md`, `tools/render_steps.py`), 2 modified (`REQUIREMENTS.md`; `PROCEDURE.md` again for the fix)
 
 ## Accomplishments
 
@@ -103,6 +108,7 @@ status: complete
 
 1. **Task 1: Write `PROCEDURE.md`** — `6fbfdc46` (docs)
 2. **Task 2: Author `tools/render_steps.py` and observe the SC#3 diff gate both green and red** — `812fd2d9` (feat)
+3. **Post-hoc fix: establish `FIRESTARTER_CONFIG_DIR` at process launch, close the vacuous P-11 oracle** — `9a6f29cb` (fix)
 
 **Plan metadata:** committed below (this SUMMARY + REQUIREMENTS.md/STATE.md/ROADMAP.md)
 
@@ -140,10 +146,17 @@ See `key-decisions` in the frontmatter for the full list with rationale. Summary
 - **Verification:** Re-ran the live gate; `ARM_BIN` appears 6 times in the control render, diff against `v133` still empty, still 11 lines each.
 - **Committed in:** `812fd2d9` (Task 2 commit — found and fixed before the first commit)
 
+**3. [Rule 1 - Bug, post-hoc orchestrator spot-check] `$FIRESTARTER_CONFIG_DIR` was referenced at P-11 but never established anywhere, making P-11's SHA check vacuous**
+- **Found during:** Orchestrator spot-check after this plan's initial completion — `FIRESTARTER_CONFIG_DIR` appeared exactly once in the whole document (P-11's "re-verify content SHA is unchanged"), never set. Every bench app invocation would have silently resolved `firestarter_app/firestarter/config.py`'s import-time `HOME_PATH`/`DATABASE_FILE`/`PIN_MAP_FILE` constants against the unset default (`~/.firestarter`, confirmed absent — 160-01's clean slate), defeating D-07 and making P-11's "SHA unchanged" pass vacuously, since nothing would ever have written to the frozen dir in the first place.
+- **Fix:** Added `$FIRESTARTER_CONFIG_DIR` to the substitution-token table (pinned value from `rig-pins.json`'s `config_dir`, not arm-dependent); added Standing bench rule 9 stating the import-time-vs-call-time nuance and requiring the variable be set **inline** on every command line, never by a session `export` (which the fresh-shell case defeats); set `FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR` inline on every `P-02`/`P-06`/`P-07`/`P-09` command that invokes `$ARM_BIN` directly or shells out to it (`capture_provenance.py`); rewrote P-11's check as two assertions in order rather than one: (1) `~/.firestarter` still does not exist — the actually-falsifiable proxy, since a shell-level `VAR=val cmd` assignment is stripped before exec and therefore never appears in any recorded `argv`, meaning `gate_record.py`'s argv re-parse literally has nothing to inspect for this (a correction to the orchestrator's own "which gate_record.py's argv re-parse can already see" framing, made explicit in the procedure text rather than silently followed); (2) only then, the `config_dir_sha` re-verification via `gate_record.py`'s existing `check_config_dir_sha`, plus a non-null-field check so the SHA comparison cannot pass by silently never running.
+- **Files modified:** `.planning/v1.34/PROCEDURE.md`
+- **Verification:** Re-ran the plan's full structural + content-marker check (all pass); re-ran `render_steps.py --selftest` (7/7 legs, unchanged); re-diffed `--arm control` vs `--arm v133` against the edited document — still 11 byte-identical lines each, SC#3 diff still empty, `ARM_BIN` and `FIRESTARTER_CONFIG_DIR` both appear literally in the render (5 occurrences each).
+- **Committed in:** `9a6f29cb` (fix commit, post-completion)
+
 ---
 
-**Total deviations:** 2 auto-fixed (both Rule 1 — bugs found and fixed against the plan's own verify commands before either task's commit; neither changed scope).
-**Impact on plan:** None on scope. Both fixes were needed to make the plan's own automated verification pass; the procedure's content and the gate's behavior are otherwise exactly what the plan specified.
+**Total deviations:** 3 auto-fixed (2 Rule 1 bugs found against the plan's own verify commands during initial execution; 1 Rule 1 bug found by orchestrator spot-check after initial completion and fixed in a targeted follow-up commit). None changed scope.
+**Impact on plan:** None on scope. All three fixes were needed for correctness — two to satisfy the plan's own automated verification, one to make D-07's config-dir isolation seam and P-11's oracle actually non-vacuous rather than merely present in prose.
 
 ## Issues Encountered
 
@@ -161,6 +174,7 @@ None — no external service configuration required.
 - `render_steps.py` is ready to run as a standing gate at the start of every future cell-executing plan (08-13): `diff <(render_steps.py --arm control) <(render_steps.py --arm v133)` should stay empty for the life of this milestone; a non-empty result means an edit introduced an arm-conditional step and must be treated as a stop-and-report, not silently merged.
 - RIG-03 is marked `Complete` in `REQUIREMENTS.md`, per this plan's own "Requirement completion" section — no other requirement's status changed.
 - Open item for the bring-up plans (not blocking this plan): this procedure resolves the firmware arm-switching mechanism as an in-place `git checkout` (no second firmware worktree, unlike the host app's two) — plans 08-10 are the first point this gets exercised against a live board and should confirm the mitigation (recorded `fw_sha` + empty porcelain) is sufficient in practice.
+- Post-hoc fix applied and verified: `$FIRESTARTER_CONFIG_DIR` is now established inline on every app invocation in the procedure, and P-11's config-dir check is a non-vacuous two-assertion gate (`~/.firestarter` absence, then the `config_dir_sha` re-verification). Plans 08-13 should follow `PROCEDURE.md` as committed at `9a6f29cb`, not the earlier `812fd2d9` state.
 - No blockers.
 
 ## Self-Check: PASSED
@@ -169,8 +183,9 @@ None — no external service configuration required.
 - `FOUND: .planning/v1.34/tools/render_steps.py`
 - `FOUND: commit 6fbfdc46` (Task 1)
 - `FOUND: commit 812fd2d9` (Task 2)
-- `python3 .planning/v1.34/tools/render_steps.py --selftest` → rc=0 (7/7 legs)
-- Live SC#3 gate against the real `PROCEDURE.md`: diff empty, 11 lines each arm, `ARM_BIN` present
+- `FOUND: commit 9a6f29cb` (post-hoc fix)
+- `python3 .planning/v1.34/tools/render_steps.py --selftest` → rc=0 (7/7 legs, re-verified after the fix)
+- Live SC#3 gate against the real `PROCEDURE.md` (post-fix): diff empty, 11 lines each arm, `ARM_BIN` and `FIRESTARTER_CONFIG_DIR` both present (5x each)
 - Live SC#3 gate against a temporary arm-conditional copy: diff non-empty (11 vs 10 lines); `git diff --stat -- .planning/v1.34/PROCEDURE.md` → empty (committed file unchanged)
 - `git -C /workspaces/firestarter status --porcelain` → empty
 - `git -C /workspaces/firestarter_app status --porcelain` → empty
