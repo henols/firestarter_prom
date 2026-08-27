@@ -34,6 +34,19 @@ Conventions this tool assumes about the milestone layout (D-16):
     <milestone>/bench/cells/<cell_slug>/readback_verdict.json
     with keys "judged_sha256" and "whole_flash_sha256". This tool reads that artifact; it
     does not compute it. Missing or incomplete -> hard failure, never a null field.
+  - bench/IMAGE-PLAN.json lives at <milestone>/bench/IMAGE-PLAN.json, one level above
+    tools/, with a top-level "positions" list keyed by "position_id". This position's
+    image_mask / image_stamp_width / image_sha are gathered from that row -- Plan 13's
+    RIG-05 fresh-context reconstruction (160-13, round 1) found these three fields absent
+    from this tool's RECORD_KEYS even though the run genuinely needs them (to regenerate
+    the position's own image before writing it) and even though a separate, later-stage
+    record (bench/EVIDENCE.jsonl, assembled by each plan's own inline evidence-append
+    script) already carried the identical values under the same field names. Per this
+    project's "fix at the source" rule for a record insufficiency: the field is gathered
+    here, by this tool, not left to a downstream assembly script to supply. IMAGE-PLAN.json
+    is a pre-computed, milestone-level manifest (every sweep + bring-up position's mask/
+    stamp_width/sha256 assigned before any cell runs), so this lookup needs no device I/O
+    and is safe to run at captured_at_step=2, before the image itself has been generated.
 """
 from __future__ import annotations
 
@@ -51,6 +64,7 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 _MILESTONE_DIR = _HERE.parent
 _DEFAULT_PINS = _MILESTONE_DIR / "rig-pins.json"
+_DEFAULT_IMAGE_PLAN = _MILESTONE_DIR / "bench" / "IMAGE-PLAN.json"
 _PROBE_BOARD = _HERE / "probe_board.py"
 
 _CELL_ID_RE = re.compile(r"^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$")
@@ -89,6 +103,9 @@ RECORD_KEYS = [
     "avrdude_binary",
     "avrdude_conf",
     "eeprom_calibration",
+    "image_mask",
+    "image_stamp_width",
+    "image_sha",
     "commands",
 ]
 
@@ -129,6 +146,7 @@ def build_argparser() -> argparse.ArgumentParser:
         help="operator-declared shield revision; silkscreen is authoritative, NO default",
     )
     ap.add_argument("--pins", default=str(_DEFAULT_PINS))
+    ap.add_argument("--image-plan", default=str(_DEFAULT_IMAGE_PLAN))
     ap.add_argument("--out")
     ap.add_argument(
         "--pending-readback",
@@ -149,6 +167,18 @@ def build_argparser() -> argparse.ArgumentParser:
             "real READBACK-VERDICT.json, and rewrite only the two fw_readback_sha_* "
             "fields atomically. Runs no device or git probes, so the identity fields' "
             "original (pre-flash) log timestamps are preserved untouched."
+        ),
+    )
+    ap.add_argument(
+        "--patch-image-plan",
+        action="store_true",
+        help=(
+            "patch-only mode: load the EXISTING record at --out, look up this position's "
+            "row in --image-plan by --position-id, and rewrite only the image_mask / "
+            "image_stamp_width / image_sha fields atomically. Runs no device, git or "
+            "readback probe -- for retrofitting a record captured before these three "
+            "fields existed in RECORD_KEYS (160-13 RIG-05 reconstruction, round 1 finding), "
+            "without re-running any hardware-facing probe against an already-flashed cell."
         ),
     )
     ap.add_argument("--selftest", action="store_true")
@@ -346,6 +376,51 @@ def probe_dep_freeze_sha(ca_mod, venv_python: str, uv_cache_dir: str) -> tuple[b
 
 
 # ---------------------------------------------------------------------------
+# Probe: this position's image identity (bench/IMAGE-PLAN.json, no device I/O)
+#
+# 160-13 RIG-05 reconstruction, round 1 finding: a fresh context given only provenance.json
+# and PROCEDURE.md could not fill $MASK for PROCEDURE.md P-07's gen_addr_image.py invocation
+# -- the record this tool wrote never carried it, even though the run genuinely needed it and
+# a distinct, later-stage record (EVIDENCE.jsonl, image_mask/image_stamp_width/image_sha)
+# already carries the identical value under the same field names. IMAGE-PLAN.json is a
+# pre-computed, milestone-level manifest (every position's mask/stamp_width/sha256 assigned
+# before any cell runs), so this lookup is safe at captured_at_step=2 and needs no device.
+# ---------------------------------------------------------------------------
+
+
+def resolve_image_plan_fields(
+    position_id: str, image_plan_path: str
+) -> tuple[bool, int | None, int | None, str | None, str]:
+    try:
+        text = Path(image_plan_path).read_text()
+    except OSError as exc:
+        return False, None, None, None, f"could not read image plan {image_plan_path!r}: {exc}"
+    try:
+        plan = json.loads(text)
+    except json.JSONDecodeError as exc:
+        return False, None, None, None, f"image plan {image_plan_path!r} is not valid JSON: {exc}"
+    positions = plan.get("positions") if isinstance(plan, dict) else None
+    if not isinstance(positions, list):
+        return False, None, None, None, (
+            f"image plan {image_plan_path!r} has no top-level 'positions' list"
+        )
+    for row in positions:
+        if isinstance(row, dict) and row.get("position_id") == position_id:
+            mask = row.get("mask")
+            stamp_width = row.get("stamp_width")
+            sha256 = row.get("sha256")
+            if mask is None or stamp_width is None or not sha256:
+                return False, None, None, None, (
+                    f"image plan row for position_id {position_id!r} is missing "
+                    f"mask/stamp_width/sha256: {row!r}"
+                )
+            return True, mask, stamp_width, sha256, ""
+    return False, None, None, None, (
+        f"no image plan row found for position_id {position_id!r} in {image_plan_path!r}"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Atomic write
 # ---------------------------------------------------------------------------
 
@@ -398,6 +473,38 @@ def patch_readback_fields(out_path: Path, bench_dir: Path, cell_slug: str) -> in
     return 0
 
 
+def patch_image_plan_fields(out_path: Path, position_id: str, image_plan_path: str) -> int:
+    """--patch-image-plan mode: complete the three image_mask / image_stamp_width /
+    image_sha fields on an EXISTING record, from bench/IMAGE-PLAN.json, by position_id.
+    Runs no device, git or readback probe -- every other field, and critically every
+    earlier commands[] log entry's own timestamp, is left untouched. Exists to retrofit a
+    record captured before these three fields were added to RECORD_KEYS (160-13 RIG-05
+    reconstruction, round 1 finding) without re-running any hardware-facing probe against
+    a cell whose board/chip state must not be disturbed."""
+    if not out_path.exists():
+        print(
+            f"FAIL: --patch-image-plan requires an existing record at {out_path}",
+            file=sys.stderr,
+        )
+        return 1
+    try:
+        record = json.loads(out_path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"FAIL: could not read existing record at {out_path}: {exc}", file=sys.stderr)
+        return 1
+    record = {k: v for k, v in record.items() if k != "_schema"}
+    ok, mask, stamp_width, sha256, detail = resolve_image_plan_fields(position_id, image_plan_path)
+    if not ok:
+        print(f"FAIL: image-plan probe: {detail}", file=sys.stderr)
+        return 1
+    record["image_mask"] = mask
+    record["image_stamp_width"] = stamp_width
+    record["image_sha"] = sha256
+    write_record_atomic(record, out_path)
+    print(f"OK: image-plan fields patched for {out_path}")
+    return 0
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -435,6 +542,9 @@ def main() -> int:
 
     if args.patch_readback:
         return patch_readback_fields(out_path, _MILESTONE_DIR / "bench", cell_slug)
+
+    if args.patch_image_plan:
+        return patch_image_plan_fields(out_path, args.position_id, args.image_plan)
 
     try:
         arm_cfg = pins["arms"][args.arm]
@@ -552,6 +662,13 @@ def main() -> int:
         "r14r15_ohms": "not measured — no read-back CLI path exists for R14/R15; firestarter config is write-only in this app version",
     }
 
+    ok, image_mask, image_stamp_width, image_sha, detail = resolve_image_plan_fields(
+        args.position_id, args.image_plan
+    )
+    if not ok:
+        print(f"FAIL: image-plan probe: {detail}", file=sys.stderr)
+        return 1
+
     record = {
         "captured_at_step": CAPTURED_AT_STEP,
         "cell_id": args.cell_id,
@@ -578,6 +695,9 @@ def main() -> int:
         "avrdude_binary": avrdude_cfg["binary"],
         "avrdude_conf": avrdude_cfg["conf"],
         "eeprom_calibration": eeprom_calibration,
+        "image_mask": image_mask,
+        "image_stamp_width": image_stamp_width,
+        "image_sha": image_sha,
         "commands": commands_log,
     }
 
@@ -703,6 +823,9 @@ def _run_selftest() -> int:
                 "r16_ohms": "not measured — no read-back CLI path exists for R16",
                 "r14r15_ohms": "not measured — no read-back CLI path exists for R14/R15",
             },
+            "image_mask": 36,
+            "image_stamp_width": 16,
+            "image_sha": hashlib.sha256(b"image").hexdigest(),
             "commands": [{"argv": ["/fake/bin"], "cwd": "/tmp"}],
         }
         out_path = tmp / "provenance.json"
@@ -821,6 +944,98 @@ def _run_selftest() -> int:
         report("negative: --patch-readback with no existing record is a hard failure", rc != 0)
     finally:
         shutil.rmtree(tmp2, ignore_errors=True)
+
+    # --- 160-13 RIG-05 reconstruction round-1 fix coverage: resolve_image_plan_fields /
+    #     patch_image_plan_fields / --patch-image-plan (the record insufficiency the fresh-
+    #     context reconstruction surfaced -- $MASK was never in this tool's RECORD_KEYS) ---
+    tmp3 = Path(tempfile.mkdtemp(prefix="capture_provenance_selftest_imageplan_"))
+    try:
+        image_plan_path = tmp3 / "IMAGE-PLAN.json"
+        image_plan_path.write_text(
+            json.dumps(
+                {
+                    "positions": [
+                        {
+                            "position_id": "BRINGUP-wrv__v133__w27c512",
+                            "mask": 36,
+                            "stamp_width": 16,
+                            "sha256": "fff15da9f46d04b366b4b8bf42a91cd2f67a8f57a1cfccac26351c5325b35726",
+                        },
+                        {
+                            "position_id": "incomplete__row",
+                            "mask": None,
+                            "stamp_width": 16,
+                            "sha256": "x",
+                        },
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        ok, mask, stamp_width, sha256, detail = resolve_image_plan_fields(
+            "BRINGUP-wrv__v133__w27c512", str(image_plan_path)
+        )
+        report(
+            "positive: resolve_image_plan_fields finds this position's mask/stamp_width/"
+            "sha256 by position_id, no device or git probe",
+            ok and mask == 36 and stamp_width == 16
+            and sha256 == "fff15da9f46d04b366b4b8bf42a91cd2f67a8f57a1cfccac26351c5325b35726",
+            detail,
+        )
+
+        ok, mask, stamp_width, sha256, detail = resolve_image_plan_fields(
+            "no-such-position-id", str(image_plan_path)
+        )
+        report(
+            "negative: resolve_image_plan_fields with an unknown position_id is a hard "
+            "failure, never a null field",
+            not ok,
+            detail,
+        )
+
+        ok, mask, stamp_width, sha256, detail = resolve_image_plan_fields(
+            "incomplete__row", str(image_plan_path)
+        )
+        report(
+            "negative: an image-plan row missing mask/stamp_width/sha256 is a hard "
+            "failure, never a null field",
+            not ok,
+            detail,
+        )
+
+        # positive: --patch-image-plan completes only the three image_* fields on an
+        # existing record, leaving every other field (including commands[]) untouched --
+        # this is the exact retrofit path used on BRINGUP-wrv's own real record, with zero
+        # device or git probe.
+        out_path = tmp3 / "provenance_patch_test.json"
+        pending_record = {k: "x" for k in RECORD_KEYS}
+        pending_record["image_mask"] = None
+        pending_record["image_stamp_width"] = None
+        pending_record["image_sha"] = None
+        pending_record["commands"] = [{"argv": ["/fake/bin"], "cwd": "/tmp"}]
+        write_record_atomic(pending_record, out_path)
+        rc = patch_image_plan_fields(out_path, "BRINGUP-wrv__v133__w27c512", str(image_plan_path))
+        patched = json.loads(out_path.read_text())
+        report(
+            "positive: --patch-image-plan completes only the three image_* fields on an "
+            "existing record, leaving every other field untouched",
+            rc == 0
+            and patched["image_mask"] == 36
+            and patched["image_stamp_width"] == 16
+            and patched["image_sha"]
+            == "fff15da9f46d04b366b4b8bf42a91cd2f67a8f57a1cfccac26351c5325b35726"
+            and patched["cell_id"] == "x"
+            and patched["commands"] == [{"argv": ["/fake/bin"], "cwd": "/tmp"}],
+        )
+
+        # negative: --patch-image-plan with no prior record to patch is a hard failure.
+        rc = patch_image_plan_fields(
+            tmp3 / "does-not-exist.json", "BRINGUP-wrv__v133__w27c512", str(image_plan_path)
+        )
+        report("negative: --patch-image-plan with no existing record is a hard failure", rc != 0)
+    finally:
+        shutil.rmtree(tmp3, ignore_errors=True)
 
     return 0 if ok_overall else 1
 

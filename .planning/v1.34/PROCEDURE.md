@@ -319,6 +319,20 @@ Record the final board and arm state: re-run `probe_board.py` to confirm the boa
 has not changed since `P-02`, then run the config-dir check below, then append this cell's four
 position rows to `bench/EVIDENCE.jsonl` via the phase's evidence writer. Performer: Claude.
 
+```
+python3 .planning/v1.34/tools/probe_board.py --target $TARGET --port $PORT \
+  --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/board_probe_teardown.json
+```
+
+**This re-probe writes to a distinct output path from `P-02`'s** (`board_probe_teardown.json`,
+never `board_probe.json`), so the pre-flash and post-flash signature captures are two separate,
+individually-inspectable artifacts rather than one file silently overwritten — a re-run that
+reused `P-02`'s filename would make it impossible to tell, after the fact, whether the teardown
+probe ever ran at all. (Amendment 2 below: this literal command block did not exist when
+`BRINGUP-wrv`'s own teardown ran, Phase 160 Plan 12 — that cell's teardown never re-ran
+`probe_board.py` at all, only the config-dir check; the gap is recorded, not backfilled, in
+`bench/cells/BRINGUP-wrv/RECONSTRUCTION-DIFF.md`.)
+
 **The config-dir check is two assertions, in order — not one.** An unchanged SHA proves nothing
 by itself if nothing this cell ran ever pointed at the frozen directory in the first place; that
 is a vacuous pass, not a clean one (Standing bench rule 9).
@@ -490,3 +504,26 @@ node-class-agnostic, only the illustrative wording named one class. No mechanica
 and no `## Step list` text moved, so this amendment does not affect the SC#3 empty-diff render
 gate. (c) Every bring-up cell before this one (`BRINGUP-uno`, plan 08) ran under the old
 wording; no real sweep cell (`A1`/`A2`/`A3-B2`/`B1`/`B3`) has run yet under either wording.
+
+**Amendment 2 — 2026-08-27, Phase 160 Plan 13:** (a) What changed: `P-11`'s teardown gained a
+literal command block for the `probe_board.py` re-run its prose already prescribed ("re-run
+`probe_board.py` to confirm the board identity has not changed since `P-02`"), naming an
+explicit, distinct output path (`$CELL_DIR/board_probe_teardown.json`). Every other step in
+this list (`P-02`, `P-04`, `P-06`, `P-07`, `P-09`) already carried a literal command block; `P-11`
+was the one exception, describing the re-probe only in prose. (b) Why: RIG-05's D-17
+fresh-context reconstruction (`bench/cells/BRINGUP-wrv/RECONSTRUCTION.md`,
+`RECONSTRUCTION-DIFF.md`) surfaced this as a prescription ambiguity — a fresh context given
+only the provenance record and this procedure had to invent an output filename by analogy to
+`P-02`'s, because the procedure itself gave none. A step whose literal command must be inferred
+by analogy rather than read is exactly the failure mode this document's "prescriptive, not
+prose" contract exists to prevent. (c) Which cells ran under which text: every bring-up cell
+that has run so far (`BRINGUP-uno`, `BRINGUP-uno328pb`, `BRINGUP-leonardo`, `BRINGUP-wrv`) ran
+under the OLD (prose-only) `P-11` text; `BRINGUP-wrv`'s own teardown (Phase 160 Plan 12) in
+fact never re-ran `probe_board.py` at teardown at all, only the config-dir check — a genuine
+compliance gap against the prose prescription, discovered by this same reconstruction exercise
+and recorded, not backfilled, in `RECONSTRUCTION-DIFF.md` (backfilling it now would require an
+avrdude signature probe against a board this phase's own constraints forbid touching with a
+chip seated). No real sweep cell (`A1`/`A2`/`A3-B2`/`B1`/`B3`) has run yet under either text.
+No `## Step list` text outside `P-11`'s own body moved, and the arm-agnostic empty-diff render
+gate (`render_steps.py --arm control` vs `--arm v133`) was re-confirmed empty after this edit —
+the new command block carries no arm-dependent token (`probe_board.py` takes no `$ARM_BIN`).
