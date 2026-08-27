@@ -309,7 +309,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 161-03-PLAN.md — Cell A1 (Uno / Rev 2.0), 4 positions, W29C020 first silicon + derived stall ceiling — BOARD-01
+- [x] 161-03-PLAN.md — Cell A1 (Uno / Rev 2.0), 4 positions, W29C020 first silicon + derived stall ceiling — BOARD-01
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
