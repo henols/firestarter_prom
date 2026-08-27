@@ -271,7 +271,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 160-11-PLAN.md — First full provenance capture on an assembled Uno + Rev 2.0 rig, with the per-cell read-back proof, then chip seated and pot set
+- [x] 160-11-PLAN.md — First full provenance capture on an assembled Uno + Rev 2.0 rig, with the per-cell read-back proof, then chip seated and pot set
 
 **Wave 9** *(blocked on Wave 8 completion)*
 

@@ -33,7 +33,7 @@ v1.33 branches forked from: firmware **`8695ee5`**, host app **`6bfa645`**.
 ### Rig & Method (RIG)
 
 - [x] **RIG-01**: Operator can flash either named arm — control (fw `8695ee5`) or v1.33 (fw#56 head) — to any of the three AVR targets, with the flashed image confirmed by device read-back, so no cell can silently run the wrong firmware
-- [ ] **RIG-02**: Every cell run records, before any test step executes: board identity **by signature** (never by handshake), the port's `controller:` identity, the operator-declared shield revision, firmware build SHA, host app SHA, and chip part + package
+- [x] **RIG-02**: Every cell run records, before any test step executes: board identity **by signature** (never by handshake), the port's `controller:` identity, the operator-declared shield revision, firmware build SHA, host app SHA, and chip part + package
 - [x] **RIG-03**: One written per-cell procedure exists that both arms follow identically, so any A/B delta is attributable to the firmware and to nothing else
 - [ ] **RIG-04**: The write→read→verify oracle is read-back SHA equality against the written image over the **full device size**, never an exit code; the v1.33 arm additionally carries a read-stability check of N=3 reads resolving to one SHA
 - [ ] **RIG-05**: Any single cell can be re-run from the written record alone, without reconstructing context from the session that produced it
@@ -115,7 +115,7 @@ phase numbering continues at **160** (v1.33 ran 154–159).
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | RIG-01 | Phase 160 | Complete |
-| RIG-02 | Phase 160 | Pending |
+| RIG-02 | Phase 160 | Complete |
 | RIG-03 | Phase 160 | Complete |
 | RIG-04 | Phase 160 | Pending |
 | RIG-05 | Phase 160 | Pending |
@@ -159,6 +159,7 @@ phase numbering continues at **160** (v1.33 ran 154–159).
 | 166 | CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger | CLOSE-01…05 (5) |
 
 **Coverage:**
+
 - v1 requirements: 31 total
 - Mapped to phases: 31 ✅
 - Unmapped: 0

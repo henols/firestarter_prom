@@ -5,16 +5,16 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: "Completed 160-10-PLAN.md (BRINGUP-leonardo: Caterina/avr109 read chain proven on-device, bootloader-entry behaviour measured same-node, D-03 cross-flash MISMATCH observed and corrected; RIG-01 marked complete)"
-last_updated: "2026-08-27T07:24:22.445Z"
+stopped_at: "Completed 160-11-PLAN.md (BRINGUP-wrv: RIG-02 provenance mechanism proven on a live cell for the first time, v1.33 flashed and proven on the Uno via its own hex extent, W27C512 seated and pot confirmed at 12.0V by one reading; RIG-02 marked complete)"
+last_updated: "2026-08-27T08:12:41.735Z"
 last_activity: 2026-08-27
-last_activity_desc: "Phase 160 plan 10 execution complete (BRINGUP-leonardo: Caterina bootloader-entry behaviour measured same-node for the read direction, full 32768 B read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected, completing D-03 across all three targets). RIG-01 marked Complete. Leonardo remains attached with a shield mounted and a W27C512 seated -- safe to drive (chip-out exemption)."
+last_activity_desc: "Phase 160 plan 11 execution complete (BRINGUP-wrv: RIG-02 provenance mechanism proven for the first time on a live cell, v1.33 flashed and proven on the Uno via its own hex extent, six Rule 1 tooling bugs fixed, W27C512 seated and pot confirmed at 12.0V by one reading). RIG-02 marked Complete."
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 9
-  percent: 69
+  completed_plans: 11
+  percent: 85
 ---
 
 # Project State
@@ -188,11 +188,11 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
-Plan: 11 of 13
-Status: 160-10 (BRINGUP-leonardo) complete — Caterina/avr109 bootloader-entry behaviour measured live for the read direction (same node, not new; settle 2.0s, touch-to-responsive-programmer 3.487s), full 32768 B read chain proven on-device (judged_match=true, 28170 B control hex extent, 3.878s from touch to verdict against Caterina's ~8s window), D-03 cross-flash MISMATCH observed (24454/28170 bytes, 86.8%) and corrected — completing D-03 across all three targets (uno/uno328pb/leonardo). **RIG-01 marked Complete.** Waves 8-10 (plans 11-13: arms-provenance capture, fresh-context record-reconstruction falsification, phase close-out) remain.
-**SAFETY: the currently attached Leonardo board (`/dev/ttyACM0`, ATmega32U4) has a shield mounted and a W27C512 chip seated.** This is expected and safe — the Leonardo is the one board exempt from the chip-out-before-sideload rule (`rig-pins.json` `targets.leonardo.chip_out_before_sideload: false`) and is flashed/read with the chip seated. No chip operation (read/write/erase/blank/vpp) was performed against it in plan 10 — it remains untouched, ready for a later chip-level plan.
-Last activity: 2026-08-27 — Phase 160 plan 10 execution complete (BRINGUP-leonardo: Caterina bootloader-entry behaviour measured, read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected, D-03 complete across all three targets, RIG-01 marked Complete). A Rule 1 subprocess-decode-crash bug in probe_board.py/judge_readback.py was found and fixed in-phase.
-Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Plan 11 proceeds next. Plans 11-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Nothing else on the bench may run before this phase closes.
+Plan: 12 of 13
+Status: 160-11 (BRINGUP-wrv) complete — capture_provenance.py run for the first time against a live cell: identity fields captured via a new `--pending-readback` mode BEFORE the v1.33 arm was flashed (RIG-02's ordering, corroborated by `logs/` mtimes), the v1.33 firmware flashed via the PlatformIO upload path and proven by an independent read-back against its OWN hex extent (judged_match=true, judged_span_bytes=22952 — the direct complement of plan 08's cross-flash MISMATCH against the other arm's hex), and `--patch-readback` completing the two readback fields without re-running any identity probe. `gate_record.py --cell` passes on the record and was observed red on a copy with `host_arm_sha` nulled. Five Rule 1 bugs in `capture_provenance.py` and one in `gate_record.py` were found and fixed in-phase (both tools' first-ever live pairing). The W27C512 was then seated and the pot confirmed at 12.0V by exactly one Claude-taken reading (no monitor loop); the operator's "pot set" reply carried no instrument reading of their own, recorded explicitly. **RIG-02 marked Complete.** Wave 9-10 (plans 12-13: write-read-verify on this exact cell, fresh-context record-reconstruction falsification, phase close-out) remain.
+**SAFETY: the currently attached board is the Uno (`/dev/ttyACM0`, ATmega328P) with the Rev 2.0 shield mounted and a W27C512 chip SEATED.** The board was swapped from the Leonardo (used in plan 10) at plan 11's task 1 gate — same node name, different physical board, confirmed by avrdude signature (0x1e950f, not the Leonardo's 0x1e9587) and by node-creation timestamp (07:29:19.24, vs the Leonardo's 07:02:13.94). The Uno IS chip-out-before-sideload class (`rig-pins.json` `targets.uno.chip_out_before_sideload: true`) — its chip-out window closed at the end of plan 11's task 2, before the chip went in at task 3. **No avrdude firmware operation (upload/read-back/signature-probe) may run on this board while the chip is seated.** No chip read/write/erase/blank/vpp-set operation has been performed against the W27C512 — only a VPP rail reading (energize+measure only, no chip access) — it remains untouched, ready for plan 12's write-read-verify.
+Last activity: 2026-08-27 — Phase 160 plan 11 execution complete (BRINGUP-wrv: RIG-02 provenance mechanism proven for the first time on a live cell, v1.33 flashed and proven on the Uno via its own hex extent, six Rule 1 tooling bugs fixed, W27C512 seated and pot confirmed at 12.0V by one reading). RIG-02 marked Complete.
+Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Plan 12 proceeds next (write-read-verify on the already-seated BRINGUP-wrv cell). Plans 12-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
 
@@ -2587,6 +2587,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 160]: run_gates.sh's tool-advertises-a-selftest check greps for the literal double-quoted argparse token "--selftest", not a loose substring — A fixture docstring merely mentioning --selftest in prose was wrongly treated as advertising the mode by a looser grep during this plan's own red-leg authoring
 - [Phase 160]: Resolved rig-pins.json's arm-agnostic hex_span_expected by adding a per-arm hex_span_expected_by_arm map (all three targets); BUILD-MANIFEST.json's per-image hex_span is authoritative. — The plan's own task 2 acceptance criterion and rig-pins.json's flat hex_span_expected both stated the v133 arm's uno span (22952 B) for a quantity that is genuinely arm-dependent (control's own span is 26026 B); judge_readback.py's cross-check would have rejected a correctly-flashed control-arm read-back.
 - [Phase 160]: gate_record.py's check_commands had no allowance for git as an argv0; added git_binary to rig-pins.json and to gate_record.py's allowed set. — PROCEDURE.md's P-04 mandates recording the firmware-arm git checkout in every cell's commands field, which every future EVIDENCE.jsonl row would have failed against gate_record.py without this fix.
+- [Phase 160]: capture_provenance.py's two-phase --pending-readback/--patch-readback split proves RIG-02's before-any-test-step ordering via log timestamps rather than a hardcoded step constant
+- [Phase 160]: The vpp CLI's single confirming reading is the FIRST sample of one invocation, never a second launch -- the command has no single-shot exit mode and exposing one would be a host-app source change outside this phase's D-16 boundary
 
 ## Performance Metrics
 
@@ -2942,11 +2944,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 160 P08 | ~2h | 3 tasks | 35 files |
 | Phase 160 P09 | 23min | 3 tasks | 26 files |
 | Phase 160 P10 | ~20min | 3 tasks | 31 files |
+| Phase 160 P11 | 39min | 3 tasks | 29 files |
 
 ## Session
 
-**Last session:** 2026-08-27T07:24:22.445Z
-**Stopped at:** Completed 160-10-PLAN.md (BRINGUP-leonardo: Caterina/avr109 bootloader-entry behaviour measured live for the read direction (same-node), full 32768 B read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected -- completing D-03 across all three targets). RIG-01 marked Complete. SAFETY: the currently attached Leonardo board (`/dev/ttyACM0`) has a shield mounted and a W27C512 chip seated -- this is expected and safe (chip-out-before-sideload exemption), and no chip operation was performed against it.
+**Last session:** 2026-08-27T08:12:41.639Z
+**Stopped at:** Completed 160-11-PLAN.md (BRINGUP-wrv provenance capture, on-device proof, chip seat + pot confirm; RIG-02 complete)
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
