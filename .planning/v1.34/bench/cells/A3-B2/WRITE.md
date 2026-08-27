@@ -71,3 +71,72 @@
   W27C512 — its condition is **unassessed** (no inspection was sought or given for this chip).
 - **Outcome:** `validated`. Appended to `EVIDENCE.jsonl` as position 10 of 12,
   `render_evidence.py --check` green. No re-seat was needed; no `0x303`-class fault occurred.
+
+## Position 3 — `A3-B2__v133__w27c512`
+
+- **Image:** `gen_addr_image.py --stamp-width 16 65536 26` -> `reads/A3-B2__v133__w27c512/written.bin`,
+  65536 B, sha256 `558decd0795b5d534aece2d94be4c52d62d42aa67a03f72a37f984d0eeadb807`, matches
+  `IMAGE-PLAN.json`'s row (mask 26, stamp 16 — differs by design from position 1's mask 24).
+- **Write:** `v133` arm, `firestarter -p /dev/ttyACM0 write w27c512 written.bin`, under
+  `timeout --signal=INT 165`. Wrapper exit code **0** (log
+  `18_write_v133_w27c512.std{out,err}.log`).
+  - **Wall-clock (judged measure):** **37.118 s**
+  - **App-reported (unjudged datum):** **33.37 s** (`Write to W27C512 successful (33.37s).`,
+    grepped by string — this arm's identical success string sits at `eprom_operations.py:1934`,
+    a different source line than the control arm's `:2045`).
+- **Read set — N=3 read-stability gate (v1.33 arm only, a real gate, not a formality):**
+  `dev consistency-check w27c512 --runs 3 --output-dir reads/A3-B2__v133__w27c512 --keep-files`,
+  whole-invocation wall-clock **32.607 s** (log
+  `19_consistency_check_v133_w27c512.std{out,err}.log`). Per-run app-reported elapsed: run 1
+  10.69 s, run 2 10.57 s, run 3 10.66 s. **All three SHAs agree with each other AND with the
+  written image** (`558decd0...`) — `distinct_read_shas=1`, `n3_disagreement=false`. Command exit
+  code **0** (`--app-verdict`).
+- **Judge:** `judge_wrv.py --expect-size 65536 --app-verdict 0` ->
+  `sha_verdict_judged=match`, `read_count=3`, `distinct_read_shas=1`, `size_violations=[]`,
+  `app_verdict_unjudged=0` agreeing with the judged match.
+- **Relevance to cell A2's open N=3 instability question (position 3,
+  `A2__v133__w27c512`), stated explicitly:** A2 recorded three DISTINCT SHAs on the identical
+  arm (v133) and identical chip (this same physical W27C512, its eighth handling there) on the
+  **uno328pb**, and A2's own control-arm escalation meant to disambiguate it was **blocked**
+  (VPP finding) and left **UNDETERMINED**. This position runs the **same v133 arm, the same
+  physical chip** (its tenth handling overall, ninth-plus-one since the caveat closed), on a
+  **different board** (Leonardo, not uno328pb) — and the three reads here are **perfectly
+  stable**. This is informative in both directions, stated with its limits: it does **not**
+  resolve A2's own instability (a different board, a different real VPP rail — 11.44 V here vs
+  A2's inferred ~11.05 V — and different EEPROM calibration are all simultaneously different
+  between the two cells, so this single stable result cannot isolate which variable mattered
+  there). It **does** show that the same v133-arm / same-chip combination is **not
+  unconditionally unstable** — instability is not an inherent property of this exact chip under
+  the v1.33 arm regardless of rig. Handed to Phase 165 alongside A2's own unresolved record, not
+  as a resolution of it.
+
+### BOARD-04 comparison paragraph — the only valid v1.31 timing comparison in this milestone
+
+**A/B pair, same board same chip same shield same pot, only the arm differs:** this cell's
+control-arm W27C512 write (position 1, `A3-B2__control__w27c512`) was **37.172 s wall / 33.37 s
+app**; this position's v1.33-arm write was **37.118 s wall / 33.37 s app**. **Wall-clock
+difference: 0.054 s; app-reported figures are identical to two decimals (33.37 s both).** This
+tiny difference is the A/B signal this milestone exists to produce for this chip on this rig —
+essentially no behavioural difference between the two arms' write paths for the W27C512 on this
+board, at this real VPP rail.
+
+**v1.31 comparison, on the only rig where it is valid at all, stated with its method difference
+named:** v1.31's **0.37 s** figure is the **spread** (max minus min) across **three** full 64 KiB
+write cycles' app-reported, success-only durations — 106.06 / 105.69 / 106.06 s — measured on
+this exact **Leonardo + Rev 2.0** rig, firmware `ebe9cb3`. It is a spread, not a duration, and
+Phase 145 drew no comparative claim from it. **v1.34 takes one write per position on each arm, so
+there is no v1.34 spread to set against v1.31's** — the honest comparison is the two app-reported
+figures above (control 33.37 s, v133 33.37 s) and their difference (**0.00 s**, to two decimals),
+presented beside v1.31's three-cycle spread of 0.37 s, never as a single v1.34 figure "compared
+to 0.37 s".
+
+**Both v1.34 figures land far below v1.31's ~106 s baseline. This is PR #55's per-byte VPE-settle
+amortisation** (105.9 s to 33.35 s, merged as firmware `3.0.0b22`), which is in **both** the
+control arm's merge base and v1.33's — `rig-pins.json` records the same PR as the reason the
+control hex is the *larger* of the two arms' binaries. **Both arms carry the fix.** Stating these
+figures next to 0.37 s without this sentence would read as a spectacular v1.33 improvement that
+is nothing of the kind; it is not one.
+
+- **Outcome:** `validated`. Appended to `EVIDENCE.jsonl` as position 11 of 12,
+  `render_evidence.py --check` green. No re-seat needed; no `0x303`-class fault occurred; the
+  chip-condition caveat closed at `P-05` held through this position too.
