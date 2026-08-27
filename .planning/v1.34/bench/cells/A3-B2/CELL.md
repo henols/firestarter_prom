@@ -261,3 +261,9 @@ this cell).
 W29C020 stayed seated through that firmware flash rather than being pulled first, per Standing
 bench rule 2. This is the **only cell in the phase** where that exemption applies; A1 and A2 both
 pulled the chip before every flash (Uno-class chip-out rule).
+
+## P-08 (second arm) — swap to W29C020 for position 12 (2026-08-27)
+
+Operator reply, verbatim: "W29C020 seated". W27C512 out, W29C020 (DIP32) re-seated in the Rev 2.0
+socket on the Leonardo at `/dev/ttyACM0`. **Pot untouched** — firmware 12.3 V / operator meter
+11.44 V, in band, unchanged since `P-06`.
