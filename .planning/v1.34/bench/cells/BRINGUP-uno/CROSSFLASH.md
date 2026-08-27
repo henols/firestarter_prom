@@ -138,3 +138,59 @@ correctly normalize `BUILD-MANIFEST.json`'s `images` field (a **list**, not the 
 tool's own pre-existing selftest fixture assumed — a second, related bug fixed alongside the
 first). Every event above judges against the arm-correct span (26026 B for control), not the
 plan's originally-stated 22952 B.
+
+---
+
+## Finding: PlatformIO's avrdude resolution is per-env, not a single choice
+
+Corrected 2026-08-27 per orchestrator spot-check (the first version of this finding, recorded
+in this plan's task-2 commit message and `EVIDENCE.jsonl`, stated it as a general property of
+"PlatformIO's own upload path" for `uno`, which reads as broader than it is — the distinction
+matters most on exactly the target plan 09 flashes next).
+
+Measured from cwd `/workspaces/firestarter`:
+
+| env | `pio pkg list` avrdude | required | protocol |
+|---|---|---|---|
+| `uno` | `tool-avrdude @ 1.60300.200527` (6.3) | `~1.60300.0` | `arduino` |
+| `uno328pb` | `tool-avrdude @ 1.80100.0` (8.1) | `~1.80100.0` | `urclock` |
+| `leonardo` | `tool-avrdude @ 1.60300.200527` (6.3) | `~1.60300.0` | `avr109` |
+
+Capability check (each binary's own `-C` conf supplied explicitly — 6.3's shipped conf path is
+a dead hardcoded path, so `-c '?type'` without `-C` fails for that unrelated reason, not for a
+capability reason):
+
+```
+avrdude 6.3  -c '?type' | grep -c urclock   -> 0   (6.3 has no urclock programmer id at all)
+avrdude 8.1  -c '?type' | grep -c urclock   -> 1
+avrdude 6.3  -c avr109 -p atmega32u4 -P /dev/null -n
+             -> gets past option-parse to a real port-open attempt (fails only because
+                /dev/null isn't a serial device); avrdude.conf:903 defines `id = "avr109"`
+                (6.3's `-c '?type'` SUMMARY listing omits it, but the id is real and accepted)
+```
+
+**Conclusion: there is no target on which PlatformIO hands a protocol to an avrdude build that
+cannot drive it.** PlatformIO resolves 8.1 precisely where `urclock` is required — MiniCore's
+`ATmega328PB.json` declares `"protocol": "urclock"` and its env pins `~1.80100.0` — and
+resolves 6.3 for `uno`/`leonardo`, both of whose protocols (`arduino`, `avr109`) 6.3 is capable
+of driving. `rig-pins.json`'s `forbidden_binaries` entry governs this rig's own **direct**
+avrdude invocations (which `probe_board.py` and `judge_readback.py` correctly honored
+throughout, using the pinned 8.1 binary exclusively) and does not conflict with PlatformIO's
+internal per-env resolution — D-01's separation of the upload and judge code paths still
+holds. **No override of PlatformIO's avrdude resolution is needed on any of the three
+targets** — plan 09 should not spend a cycle forcing 8.1 that `uno328pb` already gets, and
+plan 10 should not read a `leonardo` log's 6.3 as a forbidden-binary violation; it is neither
+forbidden in that context nor incapable of the `avr109` protocol it is asked to drive.
+
+## Bonus fact for plan 10 (leonardo): the 1200-baud touch is PlatformIO's job on the flash path
+
+`~/.platformio/platforms/atmelavr/boards/leonardo.json`'s `upload` block carries
+`"use_1200bps_touch": true` and `"wait_for_upload_port": true` alongside
+`"protocol": "avr109"` — PlatformIO performs the 1200-baud touch and the port
+re-enumeration wait **itself** as part of `pio run -t upload -e leonardo`. `tools/touch_1200.py`
+(authored in wave 2) is therefore needed for the **direct-avrdude read-back** plan 10 runs
+**outside** PlatformIO (the `judge_readback.py` step, which is a separate avrdude invocation
+per D-01 and does not go through PlatformIO's upload machinery), not for the flash step itself.
+This does not contradict `touch_1200.py`'s own standing note that real re-enumeration
+behavior on this specific board is unproven until plan 10 actually runs it — it only narrows
+which step needs the tool.
