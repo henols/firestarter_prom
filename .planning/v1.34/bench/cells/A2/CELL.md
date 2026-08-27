@@ -400,3 +400,12 @@ exists to obtain, and position 1 already showed a control-arm write on this boar
 fails anyway (adding a third partial state as a confound, not removing one). W27C512 seated for
 this escalation is this physical part's **sixth** insertion across A1 and A2; its physical
 condition was again not assessed and is recorded as such, never as sound.
+
+**Escalation step 1 — chip-out confirmation, recorded precisely:** the operator's first reply to
+this gate was the literal text "Remove W27C512" — ambiguous between restating the instruction and
+confirming it done. The orchestrator declined to interpret it and asked for an explicit
+confirmation rather than risk an avrdude flash with silicon seated; the operator then confirmed
+"yes, empty socket". **Recorded as a real limitation of this gate:** the chip-out precondition
+for any avrdude flash rests on operator word alone — there is no non-avrdude way to detect a
+seated chip, and the probe that would detect one is itself the operation the chip-out rule
+forbids. Carried into `SUMMARY.md`.
