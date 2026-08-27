@@ -4,16 +4,16 @@ milestone: v1.34
 milestone_name: — Pre-Merge Hardware Regression Validation
 current_phase: 161
 current_phase_name: BOARD — Board Sweep, Three Boards on Rev 2.0
-status: planning
+status: executing
 stopped_at: Phase 161 context gathered
-last_updated: "2026-08-27T10:13:48.174Z"
+last_updated: "2026-08-27T12:29:53.536Z"
 last_activity: 2026-08-27
-last_activity_desc: Phase 160 complete, transitioned to Phase 161
+last_activity_desc: Phase 161 execution started
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 18
+  completed_plans: 14
   percent: 14
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-25 — v1.34 started)
 authoritative dispatch key end to end. v1.34 does not touch that contract, or any product code, unless
 the bench proves v1.33 broke something. **Prove on silicon that v1.33 changed nothing behavioural, before
 the merge.**
-**Current focus:** Phase 160 — RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
+**Current focus:** Phase 161 — BOARD — Board Sweep, Three Boards on Rev 2.0
 
 **v1.34 Pre-Merge Hardware Regression Validation** — ACTIVATED 2026-08-25. Phases continue at **160**
 (v1.33 ran 154–159; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -187,11 +187,11 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 161 — BOARD — Board Sweep, Three Boards on Rev 2.0
-Plan: Not started
-Status: 160-13 complete — Task 1 ran the D-17 fresh-context reconstruction three times against `BRINGUP-wrv`'s real record (a brand-new, tool-less `claude -p` session each round, given only `provenance.json` + `PROCEDURE.md`): round 1 found a record insufficiency (image `mask`/`stamp_width`/`sha` absent from `provenance.json` though the run needed them), fixed at the tool (`capture_provenance.py` extended with `image_mask`/`image_stamp_width`/`image_sha` + a new `--patch-image-plan` retrofit mode, zero device I/O); round 2 confirmed that fix and found a prescription ambiguity (`PROCEDURE.md` `P-11`'s teardown re-probe had no literal command), fixed by procedure amendment (Amendment 2); round 3 confirmed both closures with zero values sourced outside the two inputs. Task 2 annotated the folded `avrdude-mcu-detection-fallback` todo additively (status/`resolves_phase` unchanged) and filled `160-VALIDATION.md`'s 38-row per-task map, reconciling the Wave 0 tool list to the 12 tools that actually exist. Task 3 assembled `PHASE-160-GATE.md` (three cross-flash falsifications, the 3-round reconstruction, the 12-tool gate-birth ledger, the suite result, the 4-bring-up/0-sweep record state, the non-claims, the rig state) and presented it; **the operator responded "Approved — close Phase 160"**, with the full carried-forward list (the `~/.firestarter` seam-and-log escape, `BRINGUP-wrv`'s un-re-run `P-11` board probe, the sparse argv recording, the 4x arm-agnostic-constant plan-authoring pattern, the Wave 6 superseded false declaration, the ~20 latent-defect finding) explicitly presented and explicitly accepted, not merely disclosed. `PHASE-160-GATE.md` and `.planning/REQUIREMENTS.md` (RIG-05 → Complete) both updated to record the approval. **RIG-05 marked Complete — all five phase requirements (RIG-01…05) are now Complete.** Phase-level completion (`ROADMAP.md`/`STATE.md` phase status, next-phase unlock) is the orchestrator's own next step, not recorded by this plan.
+Phase: 161 (BOARD — Board Sweep, Three Boards on Rev 2.0) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
 **SAFETY: the currently attached board is the Uno (`/dev/ttyACM0`, ATmega328P) with the Rev 2.0 shield mounted and a W27C512 chip SEATED.** No avrdude firmware operation (upload/read-back/signature-probe) may run on this board while the chip is seated, and none did during 160-13 — that plan was host-side only (a fresh-context reconstruction, a todo annotation, a validation map, a gate document; zero device I/O). No chip read/write/erase/blank/vpp-set operation has ever run against this seated W27C512 beyond plan 12's already-recorded write-read-verify. The rig is left exactly as plan 12 and 160-13 found it — v1.33 arm flashed, W27C512 seated, pot at 12.0V, port `/dev/ttyACM0` — for Phase 161's first cell to inherit unchanged. `~/.firestarter` (a stray, gitignored, non-repo directory found at plan 12's teardown) still exists on the container filesystem; it is a disclosed open item, not a blocker, and must not be deleted (sandbox denies it; deleting it would also destroy the finding as evidence).
-Last activity: 2026-08-27 — Phase 160 complete, transitioned to Phase 161
+Last activity: 2026-08-27 — Phase 161 execution started
 Next: **Phase 160 verification and close** — the orchestrator runs phase-level verification and `phase.complete` for Phase 160, then Phase 161 (BOARD — Board Sweep, Three Boards on Rev 2.0) unlocks. Phase 161's first cell inherits the rig exactly as left: Uno + Rev 2.0, v1.33 flashed, W27C512 seated, VPP 12.0V, `/dev/ttyACM0`.
 
 ## Roadmap Summary (v1.34)
@@ -2598,6 +2598,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 160-13]: A second, distinct finding surfaced by the same reconstruction (not fixed, disclosed): BRINGUP-wrv's own actual P-11 teardown (plan 12) never re-ran probe_board.py at all, only the config-dir check -- a genuine compliance gap against the (pre-amendment) prescription, not backfilled now because doing so would require an avrdude signature probe against a board this plan's own constraints forbid touching while a chip is seated
 - [Phase 160-13]: PHASE-160-GATE.md's operator sign-off records that every non-claim and carried-forward item was explicitly PRESENTED and explicitly ACCEPTED by the operator's own verbatim response ("Approved -- close Phase 160"), not merely disclosed in a document -- sections 1-7 of the gate document are unchanged from the version reviewed; only the header and the sign-off section were updated in place to record the approval
 - [Phase 160-13]: RIG-05 marked Complete on this plan's own two-part discharge (the script gate from plan 04/07 proving the record is complete, PLUS this plan's fresh-context reconstruction proving the record is sufficient) -- all five phase requirements (RIG-01...05) are now Complete; phase-level completion and Phase 161's unlock are left to the orchestrator, not recorded here
+- [Phase ?]: append_evidence.py's build_row() split into validate_position()+build_row() (not a single (row,violations) tuple) so the selftest can exercise cross-checks and pure assembly independently
+- [Phase ?]: PROCEDURE.md Amendment 3: evidence-append moves from P-11 into P-07/P-09 (D-06), P-11 gains a cell-agnostic leave-state declaration (D-12), per-position paths become $POSITION_ID-keyed under $CELL_DIR/reads/$POSITION_ID/ (PD-1), and the ~/.firestarter teardown assertion is restated to unchanged-from-baseline since it is a known Phase 160 carry-forward
 
 ## Performance Metrics
 
@@ -2956,10 +2958,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 160 P11 | 39min | 3 tasks | 29 files |
 | Phase 160 P12 | 24min | 3 tasks | 17 files |
 | Phase 160 P13 | ~100min | 3 tasks (task 3 a checkpoint, operator-approved) | 3-round fresh-context reconstruction, capture_provenance.py extended, PROCEDURE.md amended, validation map (38 rows) filled, PHASE-160-GATE.md assembled and signed off |
+| Phase 161 P01 | 55min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-27T10:13:48.041Z
+**Last session:** 2026-08-27T12:29:14.016Z
 **Stopped at:** Phase 161 context gathered
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on

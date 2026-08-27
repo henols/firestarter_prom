@@ -201,7 +201,7 @@ Two chips per arm — **W27C512** (DIP28, `0x07`, 64 KiB / 65536 B) and **W29C02
 | Phase | Name | Requirements | Depends on |
 |-------|------|--------------|------------|
 | 160 | RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure | RIG-01…05 (5) | — |
-| 161 | BOARD — Board Sweep, Three Boards on Rev 2.0 | BOARD-01…04 (4) | 160 |
+| 161 | 1/5 | In Progress|  |
 | 162 | CHIP — 11-Part `dev test` Sweep on the Reference Rig | CHIP-01…05 (5) | 161 |
 | 163 | SHIELD — Shield Sweep, Three Shields on the Leonardo | SHIELD-01…04 (4) | 161, 162 |
 | 164 | REV0 — Modified Rev 0 Rework Trace | REV0-01…03 (3) | 163 (cell B1) |
@@ -301,7 +301,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 161-01-PLAN.md — Wave 0: `append_evidence.py` (D-05) + `PROCEDURE.md` Amendment 3 (D-06/D-12), suite re-gated at 12/12
+- [x] 161-01-PLAN.md — Wave 0: `append_evidence.py` (D-05) + `PROCEDURE.md` Amendment 3 (D-06/D-12), suite re-gated at 12/12
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
