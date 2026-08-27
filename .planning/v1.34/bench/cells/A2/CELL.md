@@ -243,3 +243,29 @@ span (23000) exactly.
 carry `fw_readback_sha_judged == bbf7aa68...`, `captured_at_step` still `2`. The two control
 positions' provenance remain patched to the **control** verdict's SHA (`43dcb663...`) —
 confirmed distinct and unaltered by this step.
+
+## P-07 (v1.33 x W27C512) — position 3 of 4: the A/B half, a rule-8 re-seat, and a different mechanism (2026-08-27)
+
+Full detail in `WRITE.md` ("Position 7 (3 of 4)"). Summary: **attempt 1** failed at INIT with a
+firmware-reported chip-ID mismatch (`0x303` vs expected `0xda08`) — matching this project's own
+standing contact-fault signature. **One clean re-seat performed** under Standing bench rule 8
+(operator reported "reseated," no specific physical defect identified — recorded honestly as
+"suspected," not "confirmed"). This chip's fifth insertion across A1 and A2 by this point.
+
+**Attempt 2 (the one permitted re-run)** got past INIT and the full transfer, then failed with a
+**firmware-diagnosed** program-convergence error at address `0x000179` ("failed to program within
+25 pulses... usually means insufficient program voltage or a worn or failing cell, not a timing
+problem") — wall-clock **10.245 s**. **This is a genuinely different failure mechanism from the
+control-arm baseline** (position 1: host-side comms timeout, no firmware diagnosis, 15.813 s) —
+recorded as different, not softened, with chip/contact wear named honestly as an undismissed
+alternative to a genuine v1.33 firmware-behavior difference; neither is asserted as proven from
+one data point.
+
+**Read set:** three-run `dev consistency-check` **FAILED** — 3 distinct SHAs, no two reads agreed
+(first divergence at offset `0x001A`, 23/65536 bytes divergent run1-vs-run2). `judge_wrv.py`:
+`sha_verdict_judged=disagreement`, `n3_disagreement=true`, `app_verdict_unjudged=1` agreeing.
+
+**N=3 escalation scheduled, not yet run:** because `distinct_read_shas > 1`, a retroactive
+three-run read on the control arm's matching position (`A2__control__w27c512`) is scheduled for
+`P-11`/Task 15, per 161-03-PLAN's shared-conventions escalation rule. `EVIDENCE.jsonl` row
+appended, `outcome=skipped-with-reason`. `render_evidence.py --check`: green.

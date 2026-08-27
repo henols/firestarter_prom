@@ -153,3 +153,111 @@ disagreed.
 compared against A1's healthy 97.937 s write / 73.344 s read baselines as if they were the same
 kind of measurement — both of A2's figures here are failures, not completions, and are recorded
 as such rather than forced into a like-for-like comparison with a completed baseline.
+
+## Position 7 (3 of 4): `A2__v133__w27c512` — the A/B half of the observed W27C512 failure
+
+**This is the position this cell exists for.** Two attempts, both recorded — Standing bench rule 8
+permits exactly one clean re-seat when a failure is attributable to a named physical cause; both
+the discarded attempt and the re-run are recorded, never just the re-run.
+
+### Attempt 1 — chip-ID mismatch at INIT (suspected contact fault, discarded)
+
+**Write** (log `26_write_v133_w27c512`): rc=1, wall-clock 4.077 s.
+```
+Connecting...Connecting... OK      
+Writing .../A2__v133__w27c512/written.bin to W27C512
+ERROR: Chip ID 0x303 does not match expected ID 0xda08
+Programmer error during WRITE: Programmer error during init: Chip ID 0x303 does not match expected ID 0xda08
+Write to W27C512 failed.
+```
+**Read follow-up** (log `27_read_attempt1_v133_w27c512`): rc=1, wall-clock 4.026 s, identical
+INIT-phase chip-ID failure; produced a **0-byte** file (`attempt1_run_01.bin`, kept for the
+record, not counted as a judged read).
+
+**Mechanism: neither a host-side timeout nor a firmware program/verify error — a firmware-reported
+chip-identification failure before either operation began.** `0x303` (`0x0303`) matches this
+project's own standing finding that a reading in this pattern is the signature of a **contact
+fault**, not a rail or electrical fault (this project has hit the identical pattern before in a
+different context — VPP/VPE monitor reads that don't route through the socket). Judged
+attributable to a suspected bad contact under Standing bench rule 8 — **one** clean re-seat was
+performed.
+
+**What the operator reported at the re-seat, stated precisely, not embellished:** "reseated" —
+the chip was removed and re-seated, but **no specific physical defect (bent pin, splayed lead,
+misorientation) was identified or reported by inspection.** The named cause remains "suspected bad
+contact, inferred from the `0x303` signature," not a confirmed/observed defect. **Rig-wear
+context:** this is the same physical W27C512 that had, by this point, been inserted **four times**
+across cells A1 and A2 (A1: control seat, v133 re-seat; A2: control seat, this v133 seat) before
+this rule-8 re-seat made five.
+
+### Attempt 2 (the re-run — Standing bench rule 8's one permitted re-run)
+
+**Write** (log `28_write_v133_w27c512_rerun`): rc=1, wall-clock **10.245 s**.
+```
+Connecting...Connecting... OK      
+Writing .../A2__v133__w27c512/written.bin to W27C512
+ERROR: Byte at 0x000179 failed to program within 25 pulses
+Programmer error during WRITE: Byte at 0x000179 failed to program within 25 pulses -- the write
+aborted at this address: bytes before this block were already programmed, this block is only
+partially programmed, and no later block was attempted. The firmware stops accepting blocks for
+this write and its address counter does not advance, so re-running the write repeats the whole
+file from the start. A byte that will not converge like this usually means insufficient program
+voltage or a worn or failing cell, not a timing problem.
+Write to W27C512 failed.
+```
+
+**This run got PAST the INIT chip-ID check** (the re-seat resolved that specific fault) and past
+the full 65536 B INIT-phase transfer (progress bar 1 reached 100%, `0x10000/0x10000`). The MAIN
+phase's progress bar restarted at 0% and last showed `1%|  | 0x0200/0x10000 bytes` before the
+firmware's own error arrived — but the error message itself is more precise than the progress
+frame: it names the exact failing address, **`0x000179`** (377 decimal, still within the first
+512 B block), and states plainly (firmware's own words) that this looks like "insufficient
+program voltage or a worn or failing cell, not a timing problem."
+
+**Mechanism, and how it differs from the control-arm baseline:**
+
+| | Position 1 (control, baseline) | Position 3 attempt 2 (v133, this run) |
+|---|---|---|
+| Ends via | host-side serial-response timeout (no firmware reply) | **firmware-reported** byte-program-convergence failure |
+| Wall-clock | 15.813 s | **10.245 s** |
+| Stop point | first-block boundary, 0x0200 (512 B) | named exact address **0x000179** (377 B) |
+| On-chip evidence | 431/512 bytes of block 1 actually written | not yet measured (read attempted below) |
+| Read afterward | worked cleanly (rc=0) | see below |
+
+**This is NOT the same failure mode as the control arm's.** The control-arm failure was a
+communication-layer timeout with no firmware diagnosis attached; this run's failure is a
+firmware-*diagnosed* programming-pulse convergence failure with an explicit, named address and an
+explicit hypothesis (insufficient VPP or a worn/failing cell) from the firmware itself. Recorded
+as a genuinely different mechanism, not softened into "the same kind of thing happened." **Caveat,
+stated honestly rather than asserting causation:** this difference cannot be cleanly attributed to
+the v1.33 firmware alone from a single data point — the chip had also just been re-seated a fifth
+time and had accumulated four prior insertions, so chip/contact wear is a live, undismissed
+alternative explanation alongside a genuine firmware-behavior difference. Both possibilities are
+left open for Phase 165, not resolved here.
+
+**Read set** (v1.33 arm's normal three-run form): `dev consistency-check w27c512 --runs 3
+--output-dir reads/A2__v133__w27c512 --keep-files` (log `29_devcheck_v133_w27c512`), rc=1,
+wall-clock 53.716 s (3 runs, ~17.7-17.8 s each). **Result: `Consistency check: FAIL` — 3 distinct
+SHAs, no two reads agreed.** First divergence at offset **0x001A** (26 decimal — inside the same
+first block the write failed in), 23 of 65536 bytes divergent between run 1 and run 2 (0.0% by
+proportion, but a real, non-zero instability). This is a genuinely new observation: **the chip's
+own read-back is unstable** on this position, consistent with (though not proof of) the firmware's
+own "worn or failing cell" hypothesis for the write failure.
+
+**Judged verdict** (`judge_wrv.py`, `WRV-VERDICT_A2__v133__w27c512.json`): `sha_verdict_judged ==
+"disagreement"` (`n3_disagreement == true`, `distinct_read_shas == 3`); `app_verdict_unjudged ==
+1` (the app's own consistency-check FAIL) — **agrees** with the judged disagreement
+(`verdict_disagreement == false`).
+
+**Escalation rule (per 161-03-PLAN's shared conventions):** because `distinct_read_shas > 1`, a
+retroactive three-run `dev consistency-check` on the **control arm's** matching position
+(`A2__control__w27c512`) is **scheduled for `P-11`/Task 15**, to arbitrate whether this instability
+is new (this position/chip-wear specific) or was always present and simply never surfaced because
+position 1 only ever took a single read. Not run here — no second row is ever written for an
+existing `position_id`; the escalation, if it fires, produces a separate artifact
+(`WRV-VERDICT_A2__control__w27c512__escalated.json`) at teardown.
+
+**Comparison basis:** neither of this position's two write attempts (4.077 s / 10.245 s) nor its
+failed read set (53.716 s wall-clock across 3 attempts, none completing cleanly) is compared
+against A1's or this cell's own healthy baselines as if it were a completed measurement — all are
+failures, recorded as such.
