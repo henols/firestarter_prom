@@ -299,11 +299,26 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 161-01-PLAN.md — Wave 0: `append_evidence.py` (D-05) + `PROCEDURE.md` Amendment 3 (D-06/D-12), suite re-gated at 12/12
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 161-02-PLAN.md — Bench pre-proofs: uno328pb v1.33 read-back (D-10) and the Leonardo `capture_provenance.py` sequence
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 161-03-PLAN.md — Cell A1 (Uno / Rev 2.0), 4 positions, W29C020 first silicon + derived stall ceiling — BOARD-01
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 161-04-PLAN.md — Cell A2 (uno328pb / Rev 2.0), 4 positions, failure observed on both arms — BOARD-02
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 161-05-PLAN.md — Cell A3/B2 (Leonardo / Rev 2.0), 4 positions, executed once, rig handed to Phase 162 — BOARD-03, BOARD-04
+
 **UI hint**: no
 
 ### Phase 162: CHIP — 11-Part `dev test` Sweep on the Reference Rig
