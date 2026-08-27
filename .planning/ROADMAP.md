@@ -317,7 +317,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 161-05-PLAN.md — Cell A3/B2 (Leonardo / Rev 2.0), 4 positions, executed once, rig handed to Phase 162 — BOARD-03, BOARD-04
+- [x] 161-05-PLAN.md — Cell A3/B2 (Leonardo / Rev 2.0), 4 positions, executed once, rig handed to Phase 162 — BOARD-03, BOARD-04
 
 **UI hint**: no
 
