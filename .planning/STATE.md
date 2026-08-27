@@ -5,16 +5,16 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: "Completed 160-07-PLAN.md (evidence substrate: EVIDENCE.jsonl schema, render_evidence.py, EVIDENCE.md, run_gates.sh)"
-last_updated: "2026-08-26T23:40:12.328Z"
-last_activity: 2026-08-26
-last_activity_desc: "Phase 160 plan 06 execution complete (PROCEDURE.md, tools/render_steps.py, RIG-03/SC#3 closed)"
+stopped_at: "Completed 160-08-PLAN.md (BRINGUP-uno: uno flash+read-back chain proven, D-03 cross-flash MISMATCH observed and corrected)"
+last_updated: "2026-08-27T06:03:36.611Z"
+last_activity: 2026-08-27
+last_activity_desc: "Phase 160 plan 08 execution complete (BRINGUP-uno: signature probe, control-arm flash, independent read-back judged match, deliberate v133 cross-flash judged MISMATCH observed, correction re-verified; 6 rig-tooling bugs fixed in-phase with new selftest coverage)."
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 7
-  percent: 0
+  completed_plans: 8
+  percent: 62
 ---
 
 # Project State
@@ -188,10 +188,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
-Plan: 8 of 13
-Status: Blocked on operator — waves 5-10 are on-device and no board is attached
-Last activity: 2026-08-26 — Phase 160 waves 1-4 complete (plans 01-07, all host-side tooling). HALTED at wave 5: plan 160-08 task 1 is an operator-physical gate and no board is attached (/dev/ttyACM* absent).
-Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Waves 1-4 are host-side tooling under `.planning/v1.34/` (no product code); waves 5-10 are on-device, so plans 08-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Bring-up proves the read-back reader per target cheapest-first `uno` -> `uno328pb` -> `leonardo` BEFORE D-03's deliberate wrong-arm cross-flash depends on it; the three on-device read chains are the phase's one LOW-confidence mechanism (`flash:r` has never been invoked in this project's history). Nothing else on the bench may run before this phase closes.
+Plan: 9 of 13
+Status: 160-08 (BRINGUP-uno) complete — uno flash+read-back chain proven on a real device, D-03 cross-flash MISMATCH observed and corrected; waves 6-10 (plans 09-13, uno328pb/leonardo bring-up + sweep) remain on-device
+Last activity: 2026-08-27 — Phase 160 plan 08 execution complete (BRINGUP-uno: signature probe, control-arm flash, independent read-back judged match, deliberate v133 cross-flash judged MISMATCH observed, correction re-verified; 6 rig-tooling bugs fixed in-phase with new selftest coverage).
+Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Plan 09 (`uno328pb`) proceeds next, inheriting 160-08's `rig-pins.json` fix (`hex_span_expected_by_arm`) and `gate_record.py` fix (`git_binary` argv0 allowance); plan 09 must still separately resolve `uno328pb`'s own `judged_span_policy: PENDING-xshowvector` placeholder. Plans 09-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
 
@@ -2584,6 +2584,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 160]: render_steps.py flattens each step's full body (not just its heading) into its emitted render line, so literal command-shape tokens like $ARM_BIN are visible in the diffed output rather than only in prose the gate never touches
 - [Phase 160]: EVIDENCE.jsonl header carries both outcome_domain (D-15 pinned name) and outcome_values (gate_record.py's actual field name), identical two-value lists — Without outcome_values, gate_record.py --jsonl would flag every future row's outcome field as unjudgeable the moment Phase 161 appends its first row
 - [Phase 160]: run_gates.sh's tool-advertises-a-selftest check greps for the literal double-quoted argparse token "--selftest", not a loose substring — A fixture docstring merely mentioning --selftest in prose was wrongly treated as advertising the mode by a looser grep during this plan's own red-leg authoring
+- [Phase 160]: Resolved rig-pins.json's arm-agnostic hex_span_expected by adding a per-arm hex_span_expected_by_arm map (all three targets); BUILD-MANIFEST.json's per-image hex_span is authoritative. — The plan's own task 2 acceptance criterion and rig-pins.json's flat hex_span_expected both stated the v133 arm's uno span (22952 B) for a quantity that is genuinely arm-dependent (control's own span is 26026 B); judge_readback.py's cross-check would have rejected a correctly-flashed control-arm read-back.
+- [Phase 160]: gate_record.py's check_commands had no allowance for git as an argv0; added git_binary to rig-pins.json and to gate_record.py's allowed set. — PROCEDURE.md's P-04 mandates recording the firmware-arm git checkout in every cell's commands field, which every future EVIDENCE.jsonl row would have failed against gate_record.py without this fix.
 
 ## Performance Metrics
 
@@ -2936,11 +2938,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 160 P02 | 50min | 3 tasks | 10 files |
 | Phase 160 P06 | 65min | 2 tasks | 3 files |
 | Phase 160 P07 | 70min | 3 tasks | 4 files |
+| Phase 160 P08 | ~2h | 3 tasks | 35 files |
 
 ## Session
 
-**Last session:** 2026-08-26T23:39:50.067Z
-**Stopped at:** Completed 160-07-PLAN.md (evidence substrate: EVIDENCE.jsonl schema, render_evidence.py, EVIDENCE.md, run_gates.sh)
+**Last session:** 2026-08-27T06:03:36.483Z
+**Stopped at:** Completed 160-08-PLAN.md (BRINGUP-uno: uno flash+read-back chain proven, D-03 cross-flash MISMATCH observed and corrected)
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A

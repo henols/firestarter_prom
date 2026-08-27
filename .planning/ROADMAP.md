@@ -259,7 +259,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 160-08-PLAN.md — On-device bring-up on `uno`: prove the read chain, then the deliberate wrong-arm cross-flash with the MISMATCH observed and recorded
+- [x] 160-08-PLAN.md — On-device bring-up on `uno`: prove the read chain, then the deliberate wrong-arm cross-flash with the MISMATCH observed and recorded
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
