@@ -334,7 +334,49 @@ Plans:
   4. A control-arm re-run exists for **every** part marked `diverges` and for **no** part marked `same`; the total run count is stated as `11 + <divergence count>` and the arithmetic is shown, so an unbudgeted extra run or a skipped arbitration is visible.
   5. W27E512 (stuck erase bit @0x3d), W27E040 (@0x7db), W29C040 (permanently locked §6.6 boot block, CR-01) and AM27C020 (non-deterministic: write#1 60/64, write#2 0/64) each carry their prior disposition **cited inline in their own row** and are labelled known-carried in this phase's table — so their reds cannot enter the Phase 165 failure set or the Phase 166 findings list as v1.34 discoveries.
 
-**Plans**: TBD
+**Plans**: 10 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 162-01-PLAN.md — Wave 0a: `rig-pins.json` chips map to 11 parts, `capture_provenance.py` unblocked, and the desk-provable R2/R5 records + pre-phase snapshots
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 162-02-PLAN.md — Wave 0b: `CHIP-EVIDENCE.jsonl` `_schema` (9 locked + 62 extension) and `append_chip_evidence.py` with copy-out-then-remove
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 162-03-PLAN.md — Wave 0c: `render_chip_evidence.py --check`, two new live gates, suite measured at 14/14 + 7/7
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 162-04-PLAN.md — Wave 0d: `render_steps.py --section`, `PROCEDURE.md` Amendment 4 with `C-01…C-09`, `~/.firestarter` mtime re-pin
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 162-05-PLAN.md — Pre-flight `fw_board_identity` + positions 1–2 (W27C512, W27E512), DIP28 / 12 V — CHIP-02, CHIP-05
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 162-06-PLAN.md — Positions 3–4 (SST27SF512, FM1608), DIP28 / 12 V, first control arbitration — CHIP-04, CHIP-05
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 162-07-PLAN.md — Positions 5–6 (SST39SF040, W27E040) after the 5/6 swap, JP4 → 32-pin, 512 KiB ceiling measured — CHIP-05
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 162-08-PLAN.md — Positions 7–8 (W29C040, W29C020), DIP32 / 12 V, 256 KiB ceiling measured — CHIP-04, CHIP-05
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 162-09-PLAN.md — Positions 9–10 (AM27C020, ST M27C512), the one pot move and the second JP4 change, UV masked-slot writes — CHIP-04, CHIP-05
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [ ] 162-10-PLAN.md — Close: the 2516 named absence, SC#1–SC#5 proven as arithmetic over rows, backlog filings, teardown — CHIP-01, CHIP-02, CHIP-03, CHIP-04, CHIP-05
+
 **UI hint**: no
 
 ### Phase 163: SHIELD — Shield Sweep, Three Shields on the Leonardo
