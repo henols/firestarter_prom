@@ -149,18 +149,40 @@ def judge_span_bytes(
 
 
 def cross_check_hex_span(
-    span: int, target_cfg: dict, manifest: dict, hex_path: Path
+    span: int, target_cfg: dict, manifest: dict, hex_path: Path, expect_arm: str | None = None
 ) -> tuple[bool, str]:
     """Cross-check the objcopy output size against rig-pins.json's hex_span_expected and
-    BUILD-MANIFEST.json's per-image hex_span (when a manifest entry exists for this hex)."""
-    expected_span = target_cfg.get("hex_span_expected")
+    BUILD-MANIFEST.json's per-image hex_span (when a manifest entry exists for this hex).
+
+    hex_span is genuinely arm-dependent (measured, BUILD-MANIFEST.json
+    measured_divergence_finding: the control and v133 arms diverge by ~3 KB per target).
+    rig-pins.json's `hex_span_expected` is kept as a legacy flat scalar (documented as
+    stale for the control arm) for any reader that still consults it; the authoritative,
+    arm-aware value is `hex_span_expected_by_arm`, consulted here first when `expect_arm`
+    is given and the map has an entry for it.
+    """
+    per_arm = target_cfg.get("hex_span_expected_by_arm")
+    if isinstance(per_arm, dict) and expect_arm is not None and expect_arm in per_arm:
+        expected_span = per_arm[expect_arm]
+    else:
+        expected_span = target_cfg.get("hex_span_expected")
     if expected_span is not None and span != expected_span:
         return False, (
-            f"objcopy output is {span} B but rig-pins.json hex_span_expected is "
+            f"objcopy output is {span} B but the expected span for arm {expect_arm!r} is "
             f"{expected_span} B for this target -- the image is not the artifact the "
             "manifest describes"
         )
     images = manifest.get("images", {}) if isinstance(manifest, dict) else {}
+    if isinstance(images, list):
+        # Real BUILD-MANIFEST.json's "images" is a LIST of per-image dicts keyed by their
+        # own "file" field, not a dict keyed by filename -- normalize here rather than
+        # crash on .get() against a list. (Bug: the original selftest fixture only ever
+        # exercised the dict shape, so this never surfaced until run against the real file.)
+        images = {
+            entry.get("file"): entry
+            for entry in images
+            if isinstance(entry, dict) and entry.get("file")
+        }
     entry = images.get(hex_path.name)
     if entry is not None:
         manifest_span = entry.get("hex_span")
@@ -193,20 +215,26 @@ def run_avrdude_read(
         "-A",
         "-U", f"flash:r:{out_bin}:r",
     ]
+    # cwd is recorded as the ACTUAL invocation cwd (Path.cwd(), not a hardcoded None) --
+    # a Rule 1 bug fixed during 160-08's live bring-up: "the literal argv plus working
+    # directory of each is recorded" (PROCEDURE.md Recording discipline) cannot hold
+    # against a field that is always null regardless of where the process actually ran.
+    cwd = str(Path.cwd())
     try:
         done = subprocess.run(argv, capture_output=True, text=True, check=False, shell=False)
     except OSError as exc:
-        return 1, "", f"avrdude failed to execute: {exc}", [{"argv": argv, "cwd": None}]
-    return done.returncode, done.stdout, done.stderr, [{"argv": argv, "cwd": None}]
+        return 1, "", f"avrdude failed to execute: {exc}", [{"argv": argv, "cwd": cwd}]
+    return done.returncode, done.stdout, done.stderr, [{"argv": argv, "cwd": cwd}]
 
 
 def run_objcopy_normalize(objcopy: str, hex_path: Path, out_bin: Path) -> tuple[int, str, str, list]:
     argv = [objcopy, "-I", "ihex", "-O", "binary", str(hex_path), str(out_bin)]
+    cwd = str(Path.cwd())
     try:
         done = subprocess.run(argv, capture_output=True, text=True, check=False, shell=False)
     except OSError as exc:
-        return 1, "", f"avr-objcopy failed to execute: {exc}", [{"argv": argv, "cwd": None}]
-    return done.returncode, done.stdout, done.stderr, [{"argv": argv, "cwd": None}]
+        return 1, "", f"avr-objcopy failed to execute: {exc}", [{"argv": argv, "cwd": cwd}]
+    return done.returncode, done.stdout, done.stderr, [{"argv": argv, "cwd": cwd}]
 
 
 # ---------------------------------------------------------------------------
@@ -352,7 +380,7 @@ def main() -> int:
     expected_bytes = expected_bin_path.read_bytes()
     span = len(expected_bytes)
 
-    ok, detail = cross_check_hex_span(span, target_cfg, manifest, hex_path)
+    ok, detail = cross_check_hex_span(span, target_cfg, manifest, hex_path, args.expect_arm)
     if not ok:
         print(f"FAIL: {detail}", file=sys.stderr)
         return 1
@@ -399,9 +427,22 @@ def main() -> int:
     tmp_json.write_text(json.dumps(verdict, indent=2, sort_keys=True), encoding="utf-8")
     tmp_json.replace(out_json)
 
+    # judged_span.bin is written to disk as a REAL file (Rule 1 bug fix, found live at
+    # 160-08 bring-up): the prior version of SHA256SUMS.txt named a file that was never
+    # written, and put an explanatory annotation inside the whole-flash line's filename
+    # column -- both of which make `sha256sum -c` fail outright rather than verify. The
+    # annotation is preserved as a '#' comment line (sha256sum -c ignores '#' lines);
+    # the two data lines below name only real, already-present files.
+    judged_span_path = out_dir / "judged_span.bin"
+    judged_span_path.write_bytes(actual_span)
     sums_path = out_dir / "SHA256SUMS.txt"
     sums_path.write_text(
-        f"{sha_actual}  judged_span.bin\n{sha_whole}  flash_readback.bin (UNJUDGED - whole flash)\n",
+        "# judged_span.bin -- the judged [0, judged_span_bytes) prefix of the read-back,\n"
+        "# compared against the flashed arm's own hex extent (D-02).\n"
+        f"{sha_actual}  judged_span.bin\n"
+        "# flash_readback.bin -- the full read-back; UNJUDGED whole-flash datum, never\n"
+        "# consumed in the judged_match decision (D-02).\n"
+        f"{sha_whole}  flash_readback.bin\n",
         encoding="utf-8",
     )
 
@@ -551,6 +592,55 @@ def _run_selftest() -> int:
                 "negative 5: objcopy output size disagreeing with BUILD-MANIFEST.json hex_span is caught",
                 not ok5,
                 detail5,
+            )
+
+            # --- positive 4: manifest "images" is a LIST (real BUILD-MANIFEST.json's actual
+            # shape), keyed by each entry's own "file" field -- not a dict. This is the shape
+            # the original fixture (a dict) never exercised, and .get() against a bare list
+            # would raise AttributeError rather than return a controlled FAIL. ---
+            list_shaped_manifest = {
+                "images": [
+                    {"file": hex_path.name, "hex_span": span_len},
+                    {"file": "unrelated_other.hex", "hex_span": 999},
+                ]
+            }
+            ok6, detail6 = cross_check_hex_span(
+                len(normalized), target_cfg_hexextent, list_shaped_manifest, hex_path
+            )
+            report(
+                "positive: list-shaped BUILD-MANIFEST.json 'images' (the real file's actual "
+                "shape) is normalized and matched by 'file', not crashed on",
+                ok6,
+                detail6,
+            )
+
+            # --- positive 5: hex_span_expected_by_arm is consulted per expect_arm, overriding
+            # a stale flat hex_span_expected (the arm-dependence defect this tool must not
+            # silently paper over: control and v133 hex spans differ by ~3 KB per target) ---
+            per_arm_target_cfg = {
+                "flash_size": flash_size,
+                "hex_span_expected": span_len + 1,  # deliberately WRONG flat legacy value
+                "hex_span_expected_by_arm": {"control": span_len, "v133": span_len + 1},
+                "judged_span_policy": "hex-extent",
+                "vector_exclusions": [],
+            }
+            ok7, detail7 = cross_check_hex_span(
+                len(normalized), per_arm_target_cfg, {}, hex_path, expect_arm="control"
+            )
+            report(
+                "positive: hex_span_expected_by_arm[expect_arm] overrides a stale flat "
+                "hex_span_expected for the arm actually being judged",
+                ok7,
+                detail7,
+            )
+            ok8, detail8 = cross_check_hex_span(
+                len(normalized), per_arm_target_cfg, {}, hex_path, expect_arm="v133"
+            )
+            report(
+                "negative 7: hex_span_expected_by_arm still catches a genuine mismatch for "
+                "the OTHER arm's expected span",
+                not ok8,
+                detail8,
             )
         else:
             report(

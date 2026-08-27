@@ -64,6 +64,22 @@ _ROUTE1_RE = re.compile(r"connected part (\w+)")
 _ROUTE2_SIG_RE = re.compile(r"device signature = (0x[0-9a-fA-F]+)")
 _ROUTE2_GUESS_RE = re.compile(r"\(probably (\w+)\)")
 
+# avrdude 8.1's ACTUAL message format (measured live on this rig's pinned binary,
+# 2026-08-27, on the operator's Uno) -- differs from the wording the docstring's
+# 2026-05-21/2026-08-19 bench notes recorded (that mechanism was bench-verified against
+# a different avrdude build). 8.1 prints one line, on BOTH the deliberately-wrong -p
+# route and the correct -p route, regardless of match:
+#     "Device signature = 1E 95 0F (ATmega328P, ATA6614Q, LGT8F328P)"
+# and, only on a mismatch, an additional line naming the expected signature for the
+# wrong part supplied (ignored here -- the signature line alone is sufficient). Neither
+# _ROUTE1_RE nor the old _ROUTE2_SIG_RE/_ROUTE2_GUESS_RE pair matches this wording at
+# all, which would have made this tool a hard rig failure on its very first live
+# invocation (Rule 1 bug, fixed in-phase per PROCEDURE.md P-H1).
+_SIG81_RE = re.compile(
+    r"Device signature = ([0-9A-Fa-f]{2}) ([0-9A-Fa-f]{2}) ([0-9A-Fa-f]{2})"
+    r"(?:\s*\(([^)]*)\))?"
+)
+
 _SIGNATURE_TO_MCU = {
     "0x1e950f": "atmega328p",
     "0x1e9516": "atmega328pb",
@@ -80,18 +96,48 @@ _URCLOCK_PROBES = ["-xshowall", "-xshowvector", "-xshowbootsize", "-xshowversion
 # ---------------------------------------------------------------------------
 
 
-def parse_route1(stderr_text: str) -> str | None:
+def _parse_sig81(stderr_text: str) -> tuple[str | None, str | None]:
+    """Parse avrdude 8.1's 'Device signature = XX XX XX (Name1, Name2, ...)' line.
+
+    Returns (part_guess, signature_hex). part_guess is the first parenthesised name
+    when present, else looked up from the measured hex triplet via _SIGNATURE_TO_MCU.
+    """
+    m = _SIG81_RE.search(stderr_text)
+    if not m:
+        return None, None
+    b1, b2, b3, paren = m.group(1), m.group(2), m.group(3), m.group(4)
+    sig_hex = f"0x{b1.lower()}{b2.lower()}{b3.lower()}"
+    part_guess = None
+    if paren:
+        names = [n.strip() for n in paren.split(",") if n.strip()]
+        if names:
+            part_guess = names[0]
+    if part_guess is None:
+        part_guess = _SIGNATURE_TO_MCU.get(sig_hex)
+    return part_guess, sig_hex
+
+
+def parse_route1(stderr_text: str) -> tuple[str | None, str | None]:
+    """Returns (connected_part_raw, signature_hex). signature_hex is None under the
+    older 'connected part ... differs in signature' wording (which carries no hex
+    triplet of its own); it is populated directly from a live measurement under
+    avrdude 8.1's wording, which does."""
     m = _ROUTE1_RE.search(stderr_text)
-    return m.group(1) if m else None
+    if m:
+        return m.group(1), None
+    return _parse_sig81(stderr_text)
 
 
 def parse_route2(stderr_text: str) -> tuple[str | None, str | None]:
     sig_m = _ROUTE2_SIG_RE.search(stderr_text)
     guess_m = _ROUTE2_GUESS_RE.search(stderr_text)
-    return (
-        sig_m.group(1).lower() if sig_m else None,
-        guess_m.group(1) if guess_m else None,
-    )
+    if sig_m or guess_m:
+        return (
+            sig_m.group(1).lower() if sig_m else None,
+            guess_m.group(1) if guess_m else None,
+        )
+    part_guess, sig_hex = _parse_sig81(stderr_text)
+    return sig_hex, part_guess
 
 
 def normalize_mcu_name(name: str) -> str:
@@ -112,9 +158,9 @@ def decide_identity(
     Returns (ok, route, connected_part_raw, signature_hex, detail). ok=False means
     neither route parsed -- a hard failure, never a null identity.
     """
-    part_raw = parse_route1(stderr1)
+    part_raw, sig_hex1 = parse_route1(stderr1)
     if part_raw:
-        return True, "route1", part_raw, None, ""
+        return True, "route1", part_raw, sig_hex1, ""
     if stderr2:
         sig_hex, guess = parse_route2(stderr2)
         if sig_hex or guess:
@@ -318,6 +364,19 @@ _FIXTURE_ROUTE1 = "avrdude error: connected part ATmega328PB differs in signatur
 _FIXTURE_ROUTE2 = "avrdude: device signature = 0x1e9516 (probably m328pb)\n"
 _FIXTURE_GARBAGE = "avrdude: some unrelated diagnostic text with no signature information\n"
 
+# Real avrdude 8.1 wording (verbatim capture, this rig's pinned binary, 2026-08-27, live
+# Uno on /dev/ttyACM0) -- the wording _ROUTE1_RE/_ROUTE2_SIG_RE/_ROUTE2_GUESS_RE never
+# match, which is exactly the bug this plan's bring-up found and fixed in-phase.
+_FIXTURE_SIG81_MISMATCH = (
+    "Device signature = 1E 95 0F (ATmega328P, ATA6614Q, LGT8F328P)\n"
+    "Error: expected signature for ATmega2560 is 1E 98 01\n"
+    "  - double check chip or use -F to carry on regardless\n"
+)
+_FIXTURE_SIG81_MATCH = (
+    "AVR device initialized and ready to accept instructions\n"
+    "Device signature = 1E 95 0F (ATmega328P, ATA6614Q, LGT8F328P)\n"
+)
+
 
 def _run_selftest() -> int:
     ok_overall = True
@@ -343,6 +402,26 @@ def _run_selftest() -> int:
     report(
         "positive: route2 parses signature line and part guess",
         ok and route == "route2" and part_raw == "m328pb" and sig_hex == "0x1e9516",
+        detail,
+    )
+
+    # --- positive 2b: route1 on avrdude 8.1's REAL wording (the deliberately-wrong -p
+    # attempt), which carries the signature triplet AND a parenthesised name list, no
+    # "connected part" phrase at all ---
+    ok, route, part_raw, sig_hex, detail = decide_identity(_FIXTURE_SIG81_MISMATCH, None)
+    report(
+        "positive: route1 parses avrdude 8.1's real 'Device signature = ... (Name, ...)' "
+        "wording on the wrong-partno attempt (the actual live-device bug this bring-up found)",
+        ok and route == "route1" and part_raw == "ATmega328P" and sig_hex == "0x1e950f",
+        detail,
+    )
+
+    # --- positive 2c: the same avrdude 8.1 wording also appears on the MATCHING -p
+    # attempt (no "Error: expected signature" line at all) and parses identically ---
+    ok, route, part_raw, sig_hex, detail = decide_identity(_FIXTURE_SIG81_MATCH, None)
+    report(
+        "positive: route1 parses avrdude 8.1's real wording on a matching -p attempt too",
+        ok and route == "route1" and part_raw == "ATmega328P" and sig_hex == "0x1e950f",
         detail,
     )
 
