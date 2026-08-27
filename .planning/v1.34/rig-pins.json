@@ -110,9 +110,9 @@
       "hex_span_expected_by_arm": {"control": 26074, "v133": 23000},
       "hex_span_expected_note": "Same arm-dependence defect as targets.uno.hex_span_expected_note (measured from BUILD-MANIFEST.json: control=26074 B, v133=23000 B). Fixed here in 160-08 alongside the uno entry so plan 09 inherits a correct value rather than re-discovering the same gap; plan 09 must still resolve judged_span_policy's own PENDING-xshowvector placeholder separately -- that is a different field, untouched by this fix.",
       "bootloader": "urboot 384 B",
-      "judged_span_policy": "PENDING-xshowvector",
+      "judged_span_policy": "vector-exclusion",
       "judged_span_policy_note": "Deliberate placeholder. Plan 09 replaces this with a policy derived from the recorded `-xshowvector` output (Pitfall 3: urclock may patch the reset vector + one interrupt vector on a vector bootloader, producing a false RED at 0x0000 on every flash). Every tool must refuse to judge this target while this value is still PENDING-xshowvector.",
-      "vector_exclusions": [],
+      "vector_exclusions": [{"offset": 0, "length": 4, "reason": "reset vector (vector 0): urclock's -xshowvector reported this bootloader is a VECTOR bootloader (vector 25, SPM_Ready); measured live on the control-arm flash (BRINGUP-uno328pb/BOOTLOADER.md): expected bytes 0c 94 cf 01, actual (post-flash read-back) 3f cf 75 72 -- all 4 bytes of this JMP-encoded vector slot differ, as expected since urclock redirects RESET into the urboot bootloader"}, {"offset": 100, "length": 4, "reason": "designated interrupt vector 25 (SPM_Ready), the vector -xshowvector named; offset = vector_number * 4 bytes (JMP-based vector table, RESET=vector 0) = 25*4 = 100, measured live: expected bytes 0c 94 f7 01, actual 0c 94 cf 01 -- 1 of 4 bytes differs (offset 102), because urclock stores a copy of the application's original reset target in this slot"}],
       "needs_1200_touch": false,
       "chip_out_before_sideload": true
     },

@@ -1,0 +1,33 @@
+{
+  "avrdude_binary": "/home/vscode/.platformio/packages/tool-avrdude/avrdude",
+  "avrdude_conf": "/home/vscode/.platformio/packages/tool-avrdude/avrdude.conf",
+  "avrdude_version": "8.1",
+  "board_signature": "0x1e9516",
+  "connected_part": "atmega328pb",
+  "mcu_expected": "atmega328pb",
+  "mcu_matches": true,
+  "raw_stderr_path": ".planning/v1.34/bench/cells/BRINGUP-uno328pb/probe.json.stderr.log",
+  "signature_route": "route1",
+  "urclock_probes": {
+    "-xshowall": {
+      "returncode": 0,
+      "stderr": "\nAvrdude done.  Thank you.\n",
+      "stdout": "ffffffffffff 2026-08-21 20.05 firestarter_uno328pb.hex 25598 store 6750 meta 36 boot 384 u7.7 weu-jPrac vector 25 (SPM_Ready) ATmega328PB\n"
+    },
+    "-xshowboot": {
+      "returncode": 0,
+      "stderr": "\nAvrdude done.  Thank you.\n",
+      "stdout": "384\n"
+    },
+    "-xshowvector": {
+      "returncode": 0,
+      "stderr": "\nAvrdude done.  Thank you.\n",
+      "stdout": "vector 25 (SPM_Ready)\n"
+    },
+    "-xshowversion": {
+      "returncode": 0,
+      "stderr": "\nAvrdude done.  Thank you.\n",
+      "stdout": "u7.7 weu-jPrac\n"
+    }
+  }
+}

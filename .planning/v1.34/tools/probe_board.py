@@ -87,7 +87,15 @@ _SIGNATURE_TO_MCU = {
 }
 _MCU_TO_SIGNATURE = {v: k for k, v in _SIGNATURE_TO_MCU.items()}
 
-_URCLOCK_PROBES = ["-xshowall", "-xshowvector", "-xshowbootsize", "-xshowversion"]
+# Rule 1 fix (found live, 160-09 bring-up on the real ATmega328PB board): the option
+# below was originally "-xshowbootsize", copied from 160-RESEARCH.md's own speculative
+# Code Example 5 (recorded there as "NOT RUN -- no board attached"). avrdude's REAL
+# urclock extended-option name is "showboot" (measured live: "-xshowbootsize" fails with
+# "Error: invalid extended parameter -x showbootsize", and the printed -x help menu lists
+# only "showboot  Show bootloader size and exit" -- no "showbootsize" variant exists at
+# all). Corrected here so the boot-size query in --show-urclock's four-probe set actually
+# returns data instead of an option-parse error on every future invocation of this mode.
+_URCLOCK_PROBES = ["-xshowall", "-xshowvector", "-xshowboot", "-xshowversion"]
 
 
 # ---------------------------------------------------------------------------
