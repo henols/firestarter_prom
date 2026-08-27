@@ -5,16 +5,16 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: "Completed 160-08-PLAN.md (BRINGUP-uno: uno flash+read-back chain proven, D-03 cross-flash MISMATCH observed and corrected)"
-last_updated: "2026-08-27T06:03:36.611Z"
+stopped_at: "Completed 160-09-PLAN.md (BRINGUP-uno328pb: vector-bootloader judged-span policy resolved, read chain proven, D-03 cross-flash MISMATCH observed and corrected; false task-1 socket declaration corrected post-closeout)"
+last_updated: "2026-08-27T06:46:18.670Z"
 last_activity: 2026-08-27
-last_activity_desc: "Phase 160 plan 08 execution complete (BRINGUP-uno: signature probe, control-arm flash, independent read-back judged match, deliberate v133 cross-flash judged MISMATCH observed, correction re-verified; 6 rig-tooling bugs fixed in-phase with new selftest coverage)."
+last_activity_desc: "Phase 160 plan 09 execution complete (BRINGUP-uno328pb: -xshowvector interrogation resolved the vector-exclusion judged-span policy, read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected) plus a post-closeout record correction (task-1 socket declaration was false; corrected in EVIDENCE.jsonl/probe.json/CROSSFLASH.md/SUMMARY). Chip currently seated in the attached uno328pb board's socket -- unsafe to drive until removed."
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 8
-  percent: 62
+  completed_plans: 9
+  percent: 69
 ---
 
 # Project State
@@ -188,10 +188,11 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
-Plan: 9 of 13
-Status: 160-08 (BRINGUP-uno) complete — uno flash+read-back chain proven on a real device, D-03 cross-flash MISMATCH observed and corrected; waves 6-10 (plans 09-13, uno328pb/leonardo bring-up + sweep) remain on-device
-Last activity: 2026-08-27 — Phase 160 plan 08 execution complete (BRINGUP-uno: signature probe, control-arm flash, independent read-back judged match, deliberate v133 cross-flash judged MISMATCH observed, correction re-verified; 6 rig-tooling bugs fixed in-phase with new selftest coverage).
-Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Plan 09 (`uno328pb`) proceeds next, inheriting 160-08's `rig-pins.json` fix (`hex_span_expected_by_arm`) and `gate_record.py` fix (`git_binary` argv0 allowance); plan 09 must still separately resolve `uno328pb`'s own `judged_span_policy: PENDING-xshowvector` placeholder. Plans 09-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Nothing else on the bench may run before this phase closes.
+Plan: 10 of 13
+Status: 160-09 (BRINGUP-uno328pb) complete — uno328pb vector-bootloader judged-span policy resolved from a live -xshowvector interrogation, read chain proven, D-03 cross-flash MISMATCH observed and corrected; a post-closeout record correction fixed a false task-1 socket declaration (no shield was actually fitted during the run — see 160-09-SUMMARY.md Deviation 4); waves 7-10 (plans 10-13, leonardo bring-up + sweep) remain on-device.
+**SAFETY: the currently attached board (`/dev/ttyUSB0`, ATmega328PB) HAS A CHIP SEATED IN THE SOCKET right now** — the shield was fitted and a chip inserted immediately after 160-09's last flash (~06:34:40Z, operator-confirmed). This board is Uno-class, so it is UNSAFE to drive (no avrdude/pio upload/read) until the chip is removed and confirmed empty. A resumed session must re-run the chip-out step before any further device I/O on this board.
+Last activity: 2026-08-27 — Phase 160 plan 09 execution complete (BRINGUP-uno328pb: bootloader interrogation resolved the vector-exclusion judged-span policy, read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected) plus a same-day record correction (operator's task-1 socket declaration was false; corrected in EVIDENCE.jsonl, probe.json, CROSSFLASH.md and the SUMMARY).
+Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Plan 10 (`leonardo`) proceeds next. Before any device I/O on the currently attached uno328pb board, the chip seated in its socket must be removed and confirmed empty. Plans 10-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
 
@@ -2939,11 +2940,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 160 P06 | 65min | 2 tasks | 3 files |
 | Phase 160 P07 | 70min | 3 tasks | 4 files |
 | Phase 160 P08 | ~2h | 3 tasks | 35 files |
+| Phase 160 P09 | 23min | 3 tasks | 26 files |
 
 ## Session
 
-**Last session:** 2026-08-27T06:03:36.483Z
-**Stopped at:** Completed 160-08-PLAN.md (BRINGUP-uno: uno flash+read-back chain proven, D-03 cross-flash MISMATCH observed and corrected)
+**Last session:** 2026-08-27T06:46:18.670Z
+**Stopped at:** Completed 160-09-PLAN.md (BRINGUP-uno328pb: vector-bootloader judged-span policy resolved from a live -xshowvector interrogation, read chain proven, D-03 cross-flash MISMATCH observed and corrected); a post-closeout record correction fixed a false task-1 socket declaration (no shield was actually fitted during the run -- see 160-09-SUMMARY.md Deviation 4). SAFETY: the currently attached uno328pb board (`/dev/ttyUSB0`) has a chip seated in its socket right now -- unsafe to drive until removed and confirmed empty.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A

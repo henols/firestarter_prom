@@ -263,7 +263,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 160-09-PLAN.md — On-device bring-up on `uno328pb`: record the bootloader interrogation before arming the comparator, derive the judged-span policy, then the cross-flash
+- [x] 160-09-PLAN.md — On-device bring-up on `uno328pb`: record the bootloader interrogation before arming the comparator, derive the judged-span policy, then the cross-flash
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
