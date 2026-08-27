@@ -205,3 +205,41 @@ disagreement. `EVIDENCE.jsonl` row appended, `outcome=skipped-with-reason`. `ren
 serial-response timeout (W27C512) and a firmware-reported verify timeout (W29C020) — neither a
 clean electrical brownout with zero response, both bounded well under their respective D-08
 ceilings.
+
+## P-10/P-04 (v1.33) — arm switch, preserve control read-back, flash v1.33, judge (2026-08-27)
+
+**Control read-back set preserved** into `readback_control/` (all six cell-root artifacts,
+copied — not moved — before the v133 flash overwrites them), mirroring cell A1's own precedent.
+
+**Firmware checkout:** `git -C /workspaces/firestarter checkout 5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`
+— pre-checkout HEAD `8695ee52...` (control); post-checkout HEAD `5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`,
+equal to `arms.v133.fw_sha`; porcelain empty both before and after.
+
+**Flash** (`pio run -t upload -e uno328pb --upload-port /dev/ttyUSB0`, cwd
+`/workspaces/firestarter`, log `22_pio_upload_v133`): rc=0, "1 succeeded in 00:00:08.124". Build
+report: `Flash: 70.2% (used 23000 bytes from 32768 bytes)` — matches the v133 arm's expected hex
+span (23000) exactly.
+
+**Independent read-back judge** (`judge_readback.py --target uno328pb --port /dev/ttyUSB0
+--flashed-arm v133 --expect-arm v133 --out-dir $CELL_DIR --pins rig-pins.json`, log
+`23_judge_readback_v133`): rc=0.
+
+- `judged_match`: **true**
+- `judged_span_bytes`: **23000**, read at assertion time from `hex_span_expected_by_arm.v133` —
+  **not** the legacy scalar `hex_span_expected` (which for this target numerically **equals**
+  23000, the specific trap this target carries — using it would have silently passed a
+  wrong-arm judgement on the control side; it was not used)
+- `vector_exclusions_applied`: both entries present, unchanged
+- `sha_actual_judged` (`bbf7aa68...`): **exact match** to plan 161-02's D-10 pre-proof
+  (`BRINGUP-uno328pb-v133/PREPROOF.md`, same value) — an independent consistency confirmation
+  that this cell's v133 flash reproduces the already-proven pre-proof result byte-for-byte.
+  `sha_expected_judged` (`75382672...`): recorded, **never compared** to `sha_actual_judged` (this
+  target's expected inequality on a correct flash, per Pitfall 4)
+- **D-10 is closed** (plan 161-02): a v1.33 flash on an ATmega328PB judging a match at span 23000
+  is already proven. This flash **reproduces** that result exactly — consistent with a correct
+  flash, not merely an untested tool passing by chance.
+
+**Provenance patched, v1.33 positions only:** `A2__v133__w27c512` and `A2__v133__w29c020` now
+carry `fw_readback_sha_judged == bbf7aa68...`, `captured_at_step` still `2`. The two control
+positions' provenance remain patched to the **control** verdict's SHA (`43dcb663...`) —
+confirmed distinct and unaltered by this step.
