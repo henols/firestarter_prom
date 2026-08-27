@@ -135,6 +135,16 @@ def _allowed_argv0_set(pins: dict) -> set[str]:
         vb = arm.get("venv_bin")
         if vb:
             allowed.add(vb)
+        # Rule 1 fix (found live, 160-11 BRINGUP-wrv bring-up -- this record's first-ever
+        # real gate_record.py --cell run): capture_provenance.py legitimately invokes each
+        # arm's own pinned venv_python directly (the git-HEAD/porcelain probe delegation,
+        # the __file__ probe, and the bare `--version` interpreter probe) -- a second,
+        # equally-pinned executable per arm, distinct from venv_bin but never added to
+        # this allow-list before. Every real command this rig's own tooling produces using
+        # it was therefore rejected as an unrecognized binary, unconditionally.
+        vp = arm.get("venv_python")
+        if vp:
+            allowed.add(vp)
     av = pins.get("avrdude", {}).get("binary")
     if av:
         allowed.add(av)
@@ -479,8 +489,14 @@ def _run_selftest() -> int:
 
     pins = {
         "arms": {
-            "control": {"venv_bin": "/fake/arms/control/.venv/bin/firestarter"},
-            "v133": {"venv_bin": "/fake/arms/v133/.venv/bin/firestarter"},
+            "control": {
+                "venv_bin": "/fake/arms/control/.venv/bin/firestarter",
+                "venv_python": "/fake/arms/control/.venv/bin/python",
+            },
+            "v133": {
+                "venv_bin": "/fake/arms/v133/.venv/bin/firestarter",
+                "venv_python": "/fake/arms/v133/.venv/bin/python",
+            },
         },
         "avrdude": {"binary": "/fake/avrdude", "conf": "/fake/avrdude.conf"},
         "pio_binary": "/fake/pio",
@@ -531,6 +547,23 @@ def _run_selftest() -> int:
         p.write_text(json.dumps(git_record), encoding="utf-8")
         v = validate_cell_file(p, pins)
         report("positive: a pinned git_binary checkout command is allowed by argv0", not v, "; ".join(v))
+
+        # --- positive: a pinned arm venv_python command (capture_provenance.py's
+        # __file__/--version/git-delegation probes) is allowed by argv0, not rejected
+        # (Rule 1 fix, 160-11 BRINGUP-wrv: venv_python was missing from the allow-list
+        # entirely, distinct from venv_bin) ---
+        venv_python = pins["arms"]["v133"]["venv_python"]
+        venv_python_record = good_record(
+            commands=[
+                {"argv": [venv_python, "-P", "-c", "import firestarter; print(firestarter.__file__)"], "cwd": "/fake"},
+                {"argv": [venv_python, "--version"], "cwd": "/fake"},
+                {"argv": [arm_bin, "write", "w27c512", "/tmp/x.bin"], "cwd": "/tmp"},
+            ]
+        )
+        p = tmp / "venv_python_ok.json"
+        p.write_text(json.dumps(venv_python_record), encoding="utf-8")
+        v = validate_cell_file(p, pins)
+        report("positive: a pinned arm venv_python command is allowed by argv0", not v, "; ".join(v))
 
         # --- positive: two-row jsonl with a valid header ---
         header = {"_schema": good_schema}

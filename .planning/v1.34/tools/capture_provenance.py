@@ -97,6 +97,13 @@ RECORD_KEYS = [
 # there, before any flash/write/read step (RIG-02's "before any test step executes").
 CAPTURED_AT_STEP = 2
 
+# D-18's two-state outcome domain (PROCEDURE.md "Outcome taxonomy") -- this record carries
+# no "outcome" field of its own (that belongs to judge_wrv.py's per-position verdict), but
+# gate_record.py's --cell mode requires a "_schema.outcome_values" list to exist structurally
+# regardless, so the domain is declared here once, consistently with every other record this
+# milestone writes.
+OUTCOME_VALUES = ["validated", "skipped-with-reason"]
+
 
 def _cell_id_type(value: str) -> str:
     if not _CELL_ID_RE.match(value):
@@ -123,6 +130,27 @@ def build_argparser() -> argparse.ArgumentParser:
     )
     ap.add_argument("--pins", default=str(_DEFAULT_PINS))
     ap.add_argument("--out")
+    ap.add_argument(
+        "--pending-readback",
+        action="store_true",
+        help=(
+            "identity-only capture, run BEFORE the flash and read-back exist for this "
+            "cell (RIG-02's 'before any test step' ordering): skip the readback-verdict "
+            "probe and write the two fw_readback_sha_* fields as an explicit "
+            "not-measured-pending placeholder instead of hard-refusing. A later "
+            "--patch-readback invocation completes them once judge_readback.py has run."
+        ),
+    )
+    ap.add_argument(
+        "--patch-readback",
+        action="store_true",
+        help=(
+            "patch-only mode: load the EXISTING record at --out, read this cell's now-"
+            "real READBACK-VERDICT.json, and rewrite only the two fw_readback_sha_* "
+            "fields atomically. Runs no device or git probes, so the identity fields' "
+            "original (pre-flash) log timestamps are preserved untouched."
+        ),
+    )
     ap.add_argument("--selftest", action="store_true")
     return ap
 
@@ -184,17 +212,44 @@ def probe_board_signature(
 # ---------------------------------------------------------------------------
 
 
+_HW_NOT_MEASURED_REASON = (
+    "not measured — the `hw` CLI subcommand's handler (firestarter_app/firestarter/"
+    "cli_handlers.py, _build_op_flags() called with zero kwargs) never forwards the CLI's "
+    "-v/--verbose into the wire command's `flags` field, so FLAG_VERBOSE is never set on "
+    "the command `hw` sends; firmware's MSG_INFO_FW echo line is therefore never emitted "
+    "by `hw`, regardless of CLI verbosity or which arm's firmware is running. Measured live "
+    "twice already (BRINGUP-uno, 160-08, pre- and post-flash) and re-confirmed here "
+    "(BRINGUP-wrv, 160-11) -- a genuine host-app limitation, out of scope for this phase to "
+    "fix (D-16 boundary: no product-code changes)."
+)
+
+
 def _interpret_hw_probe(returncode: int, stdout: str, stderr: str) -> tuple[bool, str | None, str | None, str]:
     combined = (stdout or "") + (stderr or "")
     fw_m = _FW_LINE_RE.search(combined)
-    if not fw_m:
+    hwrev_m = _HWREV_LINE_RE.search(combined)
+    hwrev = hwrev_m.group(1).strip() if hwrev_m else None
+    if fw_m:
+        return True, fw_m.group(1).strip(), hwrev, ""
+    if returncode != 0:
+        # A genuine execution failure (bad port, no device, contact fault) is never
+        # papered over as "not measured" -- only the specific, already-measured
+        # verbose-flag limitation below is.
         return False, None, None, (
             f"controller: string not found in `hw` output (exit {returncode}): "
             f"{combined.strip()[:500]!r}"
         )
-    hwrev_m = _HWREV_LINE_RE.search(combined)
-    hwrev = hwrev_m.group(1).strip() if hwrev_m else None
-    return True, fw_m.group(1).strip(), hwrev, ""
+    # Rule 1 fix (found live, 160-11 BRINGUP-wrv bring-up): the prior version of this
+    # function treated the absent "I: FW: " line as an unconditional hard failure, but
+    # BRINGUP-uno (160-08) already measured -- on a real device, `hw` succeeding (exit 0)
+    # -- that this line is NEVER emitted by any arm's `hw` invocation, for the reason
+    # recorded in _HW_NOT_MEASURED_REASON. This tool's first-ever real invocation
+    # (capture_provenance.py was never run against a live device before this plan) would
+    # otherwise have hard-failed on every single cell, unconditionally, for a reason with
+    # no fix available inside this phase's D-16 boundary. Recorded per this project's
+    # anti-fabrication convention: a not-measured value with its reason on the same line,
+    # never a blank and never a false claim of failure.
+    return True, _HW_NOT_MEASURED_REASON, hwrev, ""
 
 
 def probe_controller_string(arm_bin: str, port: str) -> tuple[bool, str | None, str | None, str, list[str]]:
@@ -213,7 +268,17 @@ def probe_controller_string(arm_bin: str, port: str) -> tuple[bool, str | None, 
 
 
 def read_readback_verdict(bench_dir: Path, cell_slug: str) -> tuple[bool, dict | None, str]:
-    verdict_path = bench_dir / "cells" / cell_slug / "readback_verdict.json"
+    # Rule 1 fix (found live, 160-11 BRINGUP-wrv bring-up -- this tool's first-ever real
+    # invocation): this docstring/function originally named a filename and key pair
+    # ("readback_verdict.json" / "judged_sha256"+"whole_flash_sha256") that judge_readback.py
+    # (authored in a LATER plan, 160-08) never actually produced. judge_readback.py's real
+    # output is "READBACK-VERDICT.json" carrying "sha_actual_judged" and
+    # "sha_whole_flash_unjudged" (see judge_readback.py main(), the `verdict = {...}` block
+    # and its `out_json = out_dir / "READBACK-VERDICT.json"` write). The mismatch was never
+    # caught because no prior plan (160-08/09/10) ever ran capture_provenance.py against a
+    # live cell -- each proved only probe_board.py / judge_readback.py in isolation. Fixed
+    # here to the tool's actual, measured on-disk shape.
+    verdict_path = bench_dir / "cells" / cell_slug / "READBACK-VERDICT.json"
     if not verdict_path.exists():
         return False, None, (
             f"readback verdict artifact not found at {verdict_path} -- judge_readback.py "
@@ -223,12 +288,12 @@ def read_readback_verdict(bench_dir: Path, cell_slug: str) -> tuple[bool, dict |
         data = json.loads(verdict_path.read_text())
     except (OSError, json.JSONDecodeError) as exc:
         return False, None, f"readback verdict artifact unreadable: {exc}"
-    judged = data.get("judged_sha256")
-    whole = data.get("whole_flash_sha256")
+    judged = data.get("sha_actual_judged")
+    whole = data.get("sha_whole_flash_unjudged")
     if not judged or not whole:
         return False, None, (
-            f"readback verdict artifact at {verdict_path} is missing judged_sha256/"
-            f"whole_flash_sha256: {data!r}"
+            f"readback verdict artifact at {verdict_path} is missing sha_actual_judged/"
+            f"sha_whole_flash_unjudged: {data!r}"
         )
     return True, {"judged": judged, "whole": whole}, ""
 
@@ -286,11 +351,51 @@ def probe_dep_freeze_sha(ca_mod, venv_python: str, uv_cache_dir: str) -> tuple[b
 
 
 def write_record_atomic(record: dict, out_path: Path) -> None:
+    # Rule 1 fix (found live, 160-11 BRINGUP-wrv bring-up -- this tool's first-ever real
+    # invocation, and the first time its output was ever run through gate_record.py
+    # against a real record): gate_record.py's --cell mode hard-requires a top-level
+    # "_schema" key (record_keys + outcome_values, "the same shape as an EVIDENCE.jsonl
+    # header" per its own docstring). This tool never wrote one, so gate_record.py --cell
+    # could not have passed against ANY record this tool ever produced -- a gap invisible
+    # to both tools' own --selftest modes, since neither one's fixtures ever ran the
+    # other's real output through it.
+    ordered = {
+        "_schema": {"record_keys": RECORD_KEYS, "outcome_values": OUTCOME_VALUES},
+        **{key: record[key] for key in RECORD_KEYS},
+    }
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    ordered = {key: record[key] for key in RECORD_KEYS}
     tmp_path = out_path.with_name(out_path.name + ".tmp")
     tmp_path.write_text(json.dumps(ordered, indent=2, sort_keys=False) + "\n", encoding="utf-8")
     os.replace(tmp_path, out_path)
+
+
+def patch_readback_fields(out_path: Path, bench_dir: Path, cell_slug: str) -> int:
+    """--patch-readback mode: complete the two fw_readback_sha_* fields on an EXISTING
+    record (written earlier by --pending-readback), from this cell's now-real
+    READBACK-VERDICT.json. Runs no device/git probe -- every other field, and critically
+    every earlier commands[] log entry's own timestamp, is left untouched, so the record
+    keeps honest evidence that identity was captured before the flash (RIG-02)."""
+    if not out_path.exists():
+        print(
+            f"FAIL: --patch-readback requires an existing record at {out_path} "
+            "(run --pending-readback first)",
+            file=sys.stderr,
+        )
+        return 1
+    try:
+        record = json.loads(out_path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"FAIL: could not read existing record at {out_path}: {exc}", file=sys.stderr)
+        return 1
+    ok, readback, detail = read_readback_verdict(bench_dir, cell_slug)
+    if not ok:
+        print(f"FAIL: readback-verdict probe: {detail}", file=sys.stderr)
+        return 1
+    record["fw_readback_sha_judged"] = readback["judged"]
+    record["fw_readback_sha_whole_flash"] = readback["whole"]
+    write_record_atomic(record, out_path)
+    print(f"OK: readback fields patched for {out_path}")
+    return 0
 
 
 # ---------------------------------------------------------------------------
@@ -328,6 +433,9 @@ def main() -> int:
         print(f"FAIL: {detail}", file=sys.stderr)
         return 1
 
+    if args.patch_readback:
+        return patch_readback_fields(out_path, _MILESTONE_DIR / "bench", cell_slug)
+
     try:
         arm_cfg = pins["arms"][args.arm]
         chip_cfg = pins["chips"][args.chip]
@@ -361,21 +469,51 @@ def main() -> int:
         print(f"FAIL: controller-string probe: {detail}", file=sys.stderr)
         return 1
 
-    ok, readback, detail = read_readback_verdict(_MILESTONE_DIR / "bench", cell_slug)
-    if not ok:
-        print(f"FAIL: readback-verdict probe: {detail}", file=sys.stderr)
-        return 1
+    if args.pending_readback:
+        # RIG-02 identity-only capture, run BEFORE this cell's flash/read-back exist.
+        # --patch-readback completes these two fields later without re-running any probe
+        # above, so their log timestamps stay honest evidence of a pre-flash capture.
+        readback = {
+            "judged": (
+                "not measured — pending flash and read-back for this cell; captured "
+                "with --pending-readback before the test step per RIG-02's ordering "
+                "requirement, to be completed by a --patch-readback invocation once "
+                "judge_readback.py has run"
+            ),
+            "whole": (
+                "not measured — pending flash and read-back for this cell; captured "
+                "with --pending-readback before the test step per RIG-02's ordering "
+                "requirement, to be completed by a --patch-readback invocation once "
+                "judge_readback.py has run"
+            ),
+        }
+    else:
+        ok, readback, detail = read_readback_verdict(_MILESTONE_DIR / "bench", cell_slug)
+        if not ok:
+            print(f"FAIL: readback-verdict probe: {detail}", file=sys.stderr)
+            return 1
 
     ca_mod = _load_check_arms()
 
-    ok, head, detail = ca_mod.check_head(arm_cfg["worktree"], arm_cfg["app_sha"])
-    _log(["git", "-C", arm_cfg["worktree"], "rev-parse", "HEAD"])
+    # Rule 1 fix (found live, 160-11 BRINGUP-wrv bring-up -- this tool's first-ever real
+    # invocation): check_arms.py's check_head() returns a 2-tuple (ok, detail), where
+    # `detail` carries the resolved SHA on success and the failure message on failure --
+    # it never returns a 3-tuple. The 3-way unpack below raised ValueError on every real
+    # call, unconditionally, before this fix.
+    # Rule 1 fix (found live, 160-11 BRINGUP-wrv bring-up): the two _log() calls below
+    # recorded a bare "git" argv0 -- gate_record.py's check_commands() rejects any argv0
+    # that is not an absolute path, and this project's standing convention (rig-pins.json
+    # git_binary, "measured via `which git`") is to record the pinned absolute path, never
+    # a PATH-resolved bare name, for exactly the reason every other binary here is pinned.
+    git_binary = pins.get("git_binary", "git")
+    ok, head = ca_mod.check_head(arm_cfg["worktree"], arm_cfg["app_sha"])
+    _log([git_binary, "-C", arm_cfg["worktree"], "rev-parse", "HEAD"])
     if not ok:
-        print(f"FAIL: host-arm HEAD probe: {detail}", file=sys.stderr)
+        print(f"FAIL: host-arm HEAD probe: {head}", file=sys.stderr)
         return 1
 
     ok, porc_detail = ca_mod.check_porcelain(arm_cfg["worktree"])
-    _log(["git", "-C", arm_cfg["worktree"], "status", "--porcelain"])
+    _log([git_binary, "-C", arm_cfg["worktree"], "status", "--porcelain"])
     if not ok:
         print(f"FAIL: host-arm porcelain probe: {porc_detail}", file=sys.stderr)
         return 1
@@ -395,10 +533,12 @@ def main() -> int:
         print(f"FAIL: config-dir-sha probe: {detail}", file=sys.stderr)
         return 1
 
-    ok, interpreter, detail = ca_mod.get_python_version(arm_cfg["venv_python"])
+    # Rule 1 fix (found live, 160-11 BRINGUP-wrv bring-up): same 2-tuple-vs-3-unpack defect
+    # as check_head() above -- check_arms.py's get_python_version() returns (bool, str).
+    ok, interpreter = ca_mod.get_python_version(arm_cfg["venv_python"])
     _log([arm_cfg["venv_python"], "--version"])
     if not ok:
-        print(f"FAIL: interpreter probe: {detail}", file=sys.stderr)
+        print(f"FAIL: interpreter probe: {interpreter}", file=sys.stderr)
         return 1
 
     ok, dep_freeze_sha, detail = probe_dep_freeze_sha(ca_mod, arm_cfg["venv_python"], pins["uv_cache_dir"])
@@ -576,6 +716,111 @@ def _run_selftest() -> int:
         )
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+    # --- Rule 1 fix coverage (160-11 BRINGUP-wrv, this tool's first-ever real
+    # invocation found both bugs below live) ---
+
+    # positive: a real `hw` exit-0 session with no "I: FW: " line (the measured,
+    # unconditional live behaviour on this rig, per BRINGUP-uno 160-08 and re-confirmed
+    # at BRINGUP-wrv 160-11) is recorded as a not-measured datum, never a hard failure.
+    real_hw_no_fw_line = (
+        "DEBUG  :Config       : 116: ConfigManager initialized for /x/config.json.\n"
+        "DEBUG  :Database     : 160: EpromDatabase initialized.\n"
+        "INFO   :Hardware     : 128: Reading hardware revision...\n"
+        "DEBUG  :RURP         : 325: OK: Rev 2.0-class, Override HW: Rev 2.0-class\n"
+        "INFO   :Hardware     : 139: Hardware revision: Rev 2.0-class, Override HW: Rev 2.0-class\n"
+    )
+    ok, controller, hwrev, detail = _interpret_hw_probe(0, real_hw_no_fw_line, "")
+    report(
+        "positive: exit-0 `hw` output with no 'I: FW:' line is not-measured, not a hard failure",
+        ok and isinstance(controller, str) and controller.startswith("not measured"),
+        detail,
+    )
+
+    # negative: a genuine execution failure (non-zero exit) is still a hard failure, never
+    # papered over by the not-measured allowance above.
+    ok, controller, hwrev, detail = _interpret_hw_probe(1, "", "could not open port /dev/ttyACM0")
+    report(
+        "negative: a genuine `hw` execution failure (nonzero exit) is still a hard failure",
+        not ok,
+        detail,
+    )
+
+    # positive: a real "I: FW: " line is still parsed normally (unchanged behaviour).
+    ok, controller, hwrev, detail = _interpret_hw_probe(0, "I: FW: 3.0.0b22:uno\n", "")
+    report(
+        "positive: a genuine 'I: FW:' line is still parsed when present",
+        ok and controller == "3.0.0b22:uno",
+        detail,
+    )
+
+    # positive/negative: read_readback_verdict now reads judge_readback.py's REAL on-disk
+    # shape (READBACK-VERDICT.json / sha_actual_judged / sha_whole_flash_unjudged), not the
+    # aspirational shape this tool's docstring originally named.
+    tmp2 = Path(tempfile.mkdtemp(prefix="capture_provenance_selftest_readback_"))
+    try:
+        cell_dir = tmp2 / "cells" / "_selftest_readback"
+        cell_dir.mkdir(parents=True)
+        (cell_dir / "READBACK-VERDICT.json").write_text(
+            json.dumps({
+                "sha_actual_judged": hashlib.sha256(b"judged").hexdigest(),
+                "sha_whole_flash_unjudged": hashlib.sha256(b"whole").hexdigest(),
+            }),
+            encoding="utf-8",
+        )
+        ok, readback, detail = read_readback_verdict(tmp2, "_selftest_readback")
+        report(
+            "positive: read_readback_verdict reads judge_readback.py's real "
+            "READBACK-VERDICT.json filename and sha_actual_judged/sha_whole_flash_unjudged keys",
+            ok and readback == {
+                "judged": hashlib.sha256(b"judged").hexdigest(),
+                "whole": hashlib.sha256(b"whole").hexdigest(),
+            },
+            detail,
+        )
+
+        # negative: the OLD aspirational filename is not what this tool reads any more --
+        # a directory carrying only the old name must still be reported as not-found.
+        cell_dir2 = tmp2 / "cells" / "_selftest_readback_old_name_only"
+        cell_dir2.mkdir(parents=True)
+        (cell_dir2 / "readback_verdict.json").write_text(
+            json.dumps({"judged_sha256": "x", "whole_flash_sha256": "y"}), encoding="utf-8"
+        )
+        ok, readback, detail = read_readback_verdict(tmp2, "_selftest_readback_old_name_only")
+        report(
+            "negative: the old aspirational filename/keys are no longer what this tool "
+            "reads (confirms the fix is against judge_readback.py's real shape, not a "
+            "second guess at it)",
+            not ok,
+            detail,
+        )
+
+        # positive: --pending-readback + --patch-readback round-trip. A record written with
+        # a not-measured placeholder for the two readback fields is later completed, in
+        # place, once the real verdict exists -- without touching any other field.
+        out_path = tmp2 / "provenance_patch_test.json"
+        pending_record = {k: "x" for k in RECORD_KEYS}
+        pending_record["fw_readback_sha_judged"] = "not measured — pending flash and read-back"
+        pending_record["fw_readback_sha_whole_flash"] = "not measured — pending flash and read-back"
+        pending_record["commands"] = [{"argv": ["/fake/bin"], "cwd": "/tmp"}]
+        write_record_atomic(pending_record, out_path)
+        rc = patch_readback_fields(out_path, tmp2, "_selftest_readback")
+        patched = json.loads(out_path.read_text())
+        report(
+            "positive: --patch-readback completes only the two readback fields on an "
+            "existing --pending-readback record, leaving every other field untouched",
+            rc == 0
+            and patched["fw_readback_sha_judged"] == hashlib.sha256(b"judged").hexdigest()
+            and patched["fw_readback_sha_whole_flash"] == hashlib.sha256(b"whole").hexdigest()
+            and patched["cell_id"] == "x"
+            and patched["commands"] == [{"argv": ["/fake/bin"], "cwd": "/tmp"}],
+        )
+
+        # negative: --patch-readback with no prior record to patch is a hard failure.
+        rc = patch_readback_fields(tmp2 / "does-not-exist.json", tmp2, "_selftest_readback")
+        report("negative: --patch-readback with no existing record is a hard failure", rc != 0)
+    finally:
+        shutil.rmtree(tmp2, ignore_errors=True)
 
     return 0 if ok_overall else 1
 
