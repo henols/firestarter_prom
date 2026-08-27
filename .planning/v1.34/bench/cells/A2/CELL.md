@@ -418,3 +418,38 @@ overwritten): `judged_match=true`, `judged_span_bytes=26074`, both vector exclus
 `sha_actual_judged=43dcb663...` — **byte-identical** to position 1's original control flash
 (`flash_readback.bin` MD5-matches `readback_control/flash_readback.bin` exactly). Confirms the
 control arm is genuinely re-flashed and correct before the escalation's read-only measurement.
+
+## Escalation step 4 — BLOCKED: VPP guard now fires HIGH, unexpectedly
+
+**All three attempted reads under the control arm failed identically at INIT**, before any bytes
+were read (0-byte `run_01.bin`/`run_02.bin`/`run_03.bin`, logs `43-45_escalation_read_{1,2,3}`):
+```
+ERROR: VPP is high: 12.5V > 12.0V
+Programmer error during READ: Programmer error during init: VPP is high: 12.5V > 12.0V
+```
+All three attempts (~3.7 s each) failed with the **identical** message.
+
+**A single confirming `vpp` read taken afterward** (log `46_vpp_escalation_check`, one read per
+Standing bench rule 4): **`VPP: 12.5V, Internal VCC: 5.3V`**, stable across five consecutive
+frames in the brief capture (unlike Task 4's original 11.8-11.9V jitter, this reading held
+steady at exactly 12.5V).
+
+**This is a genuine, unexpected finding, recorded plainly rather than smoothed over:** the pot
+has not been touched by anyone since Task 4's single confirming read of **11.9 V** — every
+intervening checkpoint recorded "pot not touched" and no `vpp`-adjusting action was ever
+requested or performed. Yet the measured VPP has now shifted from 11.9 V (in band, LOW side) to
+12.5 V (at or just past the HIGH edge of the firmware guard window `[11.4, 12.5]` V — the guard
+condition is `vpp_mv > target_mv + 500`, strictly greater than 12500 mV, and it fired on all
+three attempts, so the true raw value is just above 12500 mV even though it displays as "12.5V"
+at one-decimal precision).
+
+**No forbidden flag used, guard never bypassed.** Per Phase 145 D-17 and this plan's own
+prohibitions, the guard is never pushed past with `--force`. This blocks the escalation's
+read-only measurement entirely until VPP is brought back in band — this is the same "guard
+fires, pot is adjusted until in band, the step restarts clean" provision `P-06` itself names for
+the historical `VPP is high` scenario, applied here mid-escalation rather than at the original
+`P-06`.
+
+**Not chased as a contact-fault question (rule 5 does not apply here)** — rule 5's `0x303`/blank
+signature is a distinct symptom class from a real, in-range-looking, stable 12.5 V reading; this
+is treated as a genuine (if unexplained) VPP measurement, not a contact artifact.
