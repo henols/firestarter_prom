@@ -123,6 +123,20 @@
         "--version"
       ],
       "cwd": "/workspaces"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "/workspaces/.planning/v1.34/tools/check_arms.py",
+        "--pins",
+        "/workspaces/.planning/v1.34/rig-pins.json",
+        "--expect-config-sha",
+        "77adfdd26ed8710c4a70882e6dc9ee7bb494286fe225000d581f9e730dd77ad0",
+        "--out",
+        "/workspaces/.planning/v1.34/bench/cells/BRINGUP-wrv/check_arms_teardown.json"
+      ],
+      "cwd": "/workspaces",
+      "note": "P-11 teardown (plan 12, task 3), both assertions in order per PROCEDURE.md's 'two assertions, in order -- not one': (1) FIRST asserted ~/.firestarter still does not exist -- FOUND IT TO EXIST (a directory, birth/mtime 2026-08-27T07:59:25Z, containing only config.json = {\"port\": \"/dev/ttyACM0\"}). This is standing bench rule 9's own predicted P-H1 rig failure (\"the seam this rule exists to prove was not actually used by at least one invocation\"). Root-cause: the timestamp (07:59:25Z) and content (a bare port setting, nothing else) match exactly what POT.md's own disclosed deviation describes -- an UNLOGGED first vpp invocation in plan 11 task 3 that ran without a --timeout option and was killed by the surrounding shell's own 120s command timeout; 07:57:25Z (120s before the observed birth time) to 07:59:25Z is consistent with that invocation's window. This was never logged as a numbered artifact in plan 11's logs/, so the causal chain is circumstantial (timing + content correlation), not a proven trace, and is stated as such. This plan's own two write/read invocations (task 1 write, task 2 dev consistency-check) both set FIRESTARTER_CONFIG_DIR inline and neither touched ~/.firestarter (its mtime is unchanged from 07:59:25Z across this entire plan's session). Removal (rm -f the file, then rmdir the directory) was attempted and denied by this session's own sandbox policy (a home-directory deletion outside the repo) -- the contamination is therefore recorded, not silently cleaned, and is carried forward as an open item for a session with the needed permission or for the operator to clear by hand. (2) ONLY THEN, per the procedure's own ordering, ran the second assertion below (check_arms.py --expect-config-sha) against the FROZEN FIRESTARTER_CONFIG_DIR -- a different, unrelated directory from ~/.firestarter above -- which is UNCHANGED: exit 0, config_dir_sha matched the value recorded in this record's own config_dir_sha field, and both arms plus their full CLI surface re-verified clean. D-07 holds: neither arm wrote to the shared frozen config directory during this cell, regardless of finding (1)."
     }
   ]
 }
