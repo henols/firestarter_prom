@@ -29,25 +29,25 @@
         "ihex",
         "-O",
         "binary",
-        "/workspaces/.planning/v1.34/images/firestarter_leonardo.v133.hex",
+        "/workspaces/.planning/v1.34/images/firestarter_leonardo.control.hex",
         ".planning/v1.34/bench/cells/A3-B2/expected_span.bin"
       ],
       "cwd": "/workspaces"
     }
   ],
-  "expect_arm": "v133",
-  "flashed_arm": "v133",
-  "hex_path": "/workspaces/.planning/v1.34/images/firestarter_leonardo.v133.hex",
+  "expect_arm": "control",
+  "flashed_arm": "control",
+  "hex_path": "/workspaces/.planning/v1.34/images/firestarter_leonardo.control.hex",
   "judged_match": true,
-  "judged_span_bytes": 25098,
+  "judged_span_bytes": 28170,
   "judged_span_policy": "hex-extent",
   "objcopy": "/home/vscode/.platformio/packages/toolchain-atmelavr/bin/avr-objcopy",
   "port": "/dev/ttyACM0",
   "raw_stderr_path": ".planning/v1.34/bench/cells/A3-B2/avrdude_read.stderr.log",
   "readback_size_bytes": 32768,
-  "sha_actual_judged": "f032843d209019355237677110c48acdcaa562f3d523d1cba1a6aaf3b2363fc7",
-  "sha_expected_judged": "f032843d209019355237677110c48acdcaa562f3d523d1cba1a6aaf3b2363fc7",
-  "sha_whole_flash_unjudged": "7bfb041c9ed1349a14b0922c482a1495de458d5ec882696e79cc34808eb0cd6a",
+  "sha_actual_judged": "d734ad490329d5307f4760d7525b045f78d0f61168868e9c36f1956519439820",
+  "sha_expected_judged": "d734ad490329d5307f4760d7525b045f78d0f61168868e9c36f1956519439820",
+  "sha_whole_flash_unjudged": "334f9144d44a4e53cae73e86ef185c53e0170cc519166e6e692313b97e7db0d6",
   "target": "leonardo",
   "vector_exclusions_applied": []
 }

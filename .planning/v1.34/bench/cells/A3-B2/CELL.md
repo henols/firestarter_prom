@@ -215,3 +215,37 @@ setting (firmware 12.3 V / operator-meter 11.44 V, in band). No further `vpp` re
 swap, per Standing bench rule 4's single-confirming-read-per-cell discipline. This W29C020's
 physical condition is **unassessed** — the operator inspection that closed the W27C512's caveat at
 `P-05` says nothing about this different, physical chip.
+
+## P-10 to P-04 (v1.33) — preserve control read-back, re-flash with chip seated (2026-08-27)
+
+**No chip-out gate.** `P-10` returns the cell to `P-03`, which on this board is a no-op: Standing
+bench rule 2 exempts the Leonardo — flashed and read back with the chip **seated**. The W29C020
+stayed in the socket throughout this task.
+
+**Preserved before flashing:** the six control read-back artifacts copied (not moved) into
+`readback_control/` — `READBACK-VERDICT.json` (`judged_span_bytes=28170`), `flash_readback.bin`
+(32768 B), `expected_span.bin`, `judged_span.bin`, `SHA256SUMS.txt`, `avrdude_read.stderr.log` —
+before the v133 flash overwrote all six at the cell root.
+
+**Flash:** `git -C firestarter checkout 5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463` (empty
+porcelain, `rev-parse HEAD` confirmed equal to `arms.v133.fw_sha`), then `pio run -t upload -e
+leonardo`, cwd `/workspaces/firestarter` (log `15_pio_upload_v133`). PlatformIO report:
+`Flash: 76.6% (used 25098 bytes from 32768 bytes)`, `[SUCCESS] Took 7.77 seconds`.
+
+**Independent read-back proof:** bare settle-only `touch_1200.py` (log `16_touch_for_read_v133`,
+no `--wait-new-port`) then `judge_readback.py --flashed-arm v133 --expect-arm v133` (log
+`17_judge_readback_v133`) — **clean on the first attempt**, no transient race this time.
+`judged_match=true`, `judged_span_bytes=25098` — read at assertion time from
+`hex_span_expected_by_arm.v133`, equal here to the legacy scalar by coincidence (this is the one
+target/arm pair where they agree), read from the named field regardless, per the standing warning
+against a leg that reads the scalar generalizing badly. `sha_actual_judged=f032843d...`, distinct
+from the preserved control read's `d734ad49...` — the two arms are independently distinguishable,
+as `judged_span_bytes` (28170 vs 25098) already showed.
+
+Both v133 positions' provenance patched with `--patch-readback`; the two control positions'
+`fw_readback_sha_judged` re-confirmed unchanged (still the preserved control read's SHA) —
+neither pair was cross-contaminated.
+
+**The v1.33 arm is on the Leonardo, proven against its own 25098-byte span**, flashed with the
+chip seated exactly as the standing rule allows, with the control arm's read-back binaries
+preserved and untouched.
