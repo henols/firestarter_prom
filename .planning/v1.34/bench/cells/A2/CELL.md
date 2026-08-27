@@ -151,3 +151,21 @@ silently rewritten, in `POT.md`. `--force used? No.`
 **Avrdude window now closed:** the W27C512 is seated. From this point no avrdude operation of any
 kind (upload, read-back, or signature probe) may run on this board until the chip comes out again
 at Task 6's swap (`P-08`).
+
+## P-07 (control x W27C512) — position 1 of 4: observed, not asserted (2026-08-27)
+
+Full detail in `WRITE.md` ("Position 5 (1 of 4)"). Summary: the write's INIT phase completed
+(65536/65536 B queued), but the MAIN (chip-program) phase stopped at the exact first-block
+boundary (0x0200/512 B) and the app's own internal serial-response timeout fired — wall-clock
+**15.813 s**, wrapper exit code **1** (not 124 — the D-08 165 s ceiling was never approached). A
+subsequent read succeeded (rc=0) and shows exactly 431/512 bytes of the first block were actually
+programmed before the stall, everything from the second block onward reading fully erased.
+
+**Matches Backlog 999.2's block-position prediction** (stops on the first program block) while
+being materially more precise (bounded by the app's own ~15.8 s internal timeout, not an
+unbounded hang; measured at 431/512 bytes into that block, not just "the block").
+
+`judge_wrv.py`: `sha_verdict_judged=mismatch` (expected), `verdict_disagreement=true` (the read
+command's own exit code 0 disagrees with the judged mismatch — recorded as a finding, not
+resolved). `EVIDENCE.jsonl` row appended, `outcome=skipped-with-reason` (computed, not hand-set).
+`render_evidence.py --check`: green.
