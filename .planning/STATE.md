@@ -5,7 +5,7 @@ milestone_name: — Pre-Merge Hardware Regression Validation
 current_phase: 161
 current_phase_name: BOARD — Board Sweep, Three Boards on Rev 2.0
 status: executing
-stopped_at: Phase 161 plan 161-01 complete, wave 2 pending
+stopped_at: Phase 161 plans 161-01 and 161-02 complete, wave 3 (cell A1) pending
 last_updated: "2026-08-27T12:29:53.536Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 161 execution started
@@ -188,7 +188,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 161 (BOARD — Board Sweep, Three Boards on Rev 2.0) — EXECUTING
-Plan: 2 of 5 — 161-02 complete
+Plan: 3 of 5
 Status: Ready to execute
 **SAFETY (end of plan 161-02, 2026-08-27): the chipped Uno (Rev 2.0 shield mounted, W27C512 SEATED, v1.33 flashed, pot at 12.0V) is DISCONNECTED and off the bus** — confirmed by descriptor absence at the Task 3 checkpoint measurement (its former node, `/dev/ttyACM1`, is absent). It sits untouched on the bench for plan 161-03 (cell A1) to reconnect; **A1's own `P-01` must remove the chip as part of that same handover**, because A1's `P-02` runs an avrdude signature probe and the Uno-class chip-out rule covers signature probes, not only writes. **Two OTHER boards are currently attached, both bare/no-chip:** the **Leonardo** on `/dev/ttyACM0` (`2341:8036`, Rev 2.2 shield fitted as a pre-proof carrier only — not a Rev 2.0/SHIELD-04 datum; last flash on it: none, v1.33 arm probed only) and the **uno328pb** on `/dev/ttyUSB0` (`1a86:7523` CH340, bare board, no shield, no chip, v1.33 arm flashed and read-back judged — see `BRINGUP-uno328pb-v133/READBACK-VERDICT.json`). No avrdude firmware operation ran against a seated chip anywhere in plan 161-02 (none was ever seated on the two attached boards, and no operation touched the disconnected Uno). `~/.firestarter` still exists, unchanged from the Amendment 3 baseline (re-verified this plan); must not be deleted. **Treat every recorded node in this file as a hint, never an identity** — re-derive per task from the descriptor or a `controller:`/signature probe; nodes have shuffled twice already this phase.
 Last activity: 2026-08-27 — Phase 161 plan 161-02 (Wave 2, bring-up pre-proofs) complete

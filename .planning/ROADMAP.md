@@ -305,7 +305,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 161-02-PLAN.md — Bench pre-proofs: uno328pb v1.33 read-back (D-10) and the Leonardo `capture_provenance.py` sequence
+- [x] 161-02-PLAN.md — Bench pre-proofs: uno328pb v1.33 read-back (D-10) and the Leonardo `capture_provenance.py` sequence
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
