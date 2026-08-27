@@ -181,6 +181,41 @@ def build_argparser() -> argparse.ArgumentParser:
             "without re-running any hardware-facing probe against an already-flashed cell."
         ),
     )
+    ap.add_argument(
+        "--board-probe-json",
+        default=None,
+        help=(
+            "consume an ALREADY-OBTAINED probe_board.py --out JSON instead of re-probing "
+            "internally (161-02 D-seam, Leonardo bring-up finding). Measured live: this "
+            "tool's OWN internal probe_board_signature() call, followed immediately by its "
+            "OWN internal probe_controller_string() ('hw') call inside the SAME invocation, "
+            "hits a race on a Caterina-bootloader target -- avrdude's avr109 session exit "
+            "('leave prog mode'/'exit bootloader') resets the MCU back into the application "
+            "immediately, and the very next serial open (the hw call) can land while the USB "
+            "node is transiently re-enumerating, producing 'No such file or directory' "
+            "(measured: rc=1 at ~4.6s from touch onset, port ENOENT). The caller controls the "
+            "fix, not this tool: run touch_1200.py + probe_board.py externally, sleep ~2s for "
+            "the post-avr109-exit re-enumeration to settle, THEN invoke this tool with "
+            "--board-probe-json pointing at the external probe's --out file. Skips this tool's "
+            "internal probe_board.py subprocess call entirely; board_signature is read "
+            "directly from the given JSON's 'board_signature' key. Default (omitted): "
+            "unchanged, internal re-probe as before -- the Uno/uno328pb path is untouched."
+        ),
+    )
+    ap.add_argument(
+        "--no-image-plan",
+        action="store_true",
+        help=(
+            "this position has no row in --image-plan and never will -- a bring-up pre-proof "
+            "cell that never generates a chip image (no chip write ever runs here), not a "
+            "temporarily-pending sweep position (contrast --pending-readback, which implies a "
+            "later --patch-readback). Skips resolve_image_plan_fields() entirely and writes "
+            "image_mask/image_stamp_width/image_sha as an explicit not-measured placeholder "
+            "naming this reason, per the project's anti-fabrication recording discipline. "
+            "Default (omitted): unchanged, image-plan lookup runs and hard-refuses on a "
+            "missing row as before -- every real sweep/chip-write position keeps that refusal."
+        ),
+    )
     ap.add_argument("--selftest", action="store_true")
     return ap
 
@@ -235,6 +270,33 @@ def probe_board_signature(
     if not sig:
         return False, None, None, "probe_board.py output missing board_signature", cmd
     return True, sig, result, "", cmd
+
+
+def resolve_board_signature_from_json(path: str) -> tuple[bool, str | None, str]:
+    """161-02 seam: read an ALREADY-OBTAINED probe_board.py --out JSON's board_signature,
+    instead of re-probing internally. See --board-probe-json's own help text for why this
+    exists (the measured Caterina avr109-exit race between this tool's two internal
+    device-touching probes). A failed read or a missing key is a hard failure, never a
+    null field -- same discipline as every other probe in this tool."""
+    try:
+        data = json.loads(Path(path).read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, None, f"--board-probe-json {path!r} unreadable: {exc}"
+    sig = data.get("board_signature")
+    if not sig:
+        return False, None, f"--board-probe-json {path!r} has no 'board_signature' key"
+    return True, sig, ""
+
+
+def build_no_image_plan_reason(position_id: str) -> str:
+    """161-02 seam: the not-measured placeholder --no-image-plan writes into the three
+    image_* fields, with its reason on the same line -- per the project's anti-fabrication
+    recording discipline (PROCEDURE.md "Recording discipline"), never a blank."""
+    return (
+        f"not measured — no bench/IMAGE-PLAN.json row exists for position_id "
+        f"{position_id!r} (bring-up pre-proof cell, no chip write ever runs here, "
+        f"--no-image-plan was passed explicitly)"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -565,13 +627,25 @@ def main() -> int:
     def _log(cmd: list[str]) -> None:
         commands_log.append({"argv": list(cmd), "cwd": os.getcwd()})
 
-    ok, board_signature, _probe_result, detail, cmd = probe_board_signature(
-        args.port, args.target, args.pins, tmp_dir
-    )
-    _log(cmd)
-    if not ok:
-        print(f"FAIL: board-signature probe: {detail}", file=sys.stderr)
-        return 1
+    if args.board_probe_json:
+        # 161-02 seam: consume an already-obtained probe_board.py result instead of
+        # re-probing internally -- see --board-probe-json's own help text for the measured
+        # Caterina avr109-exit race this exists to let the caller avoid. No subprocess is
+        # invoked here; nothing is logged into commands_log for a probe that did not run
+        # inside this invocation (the caller's own separate probe_board.py call carries its
+        # own commands-log entry, in the caller's own record).
+        ok, board_signature, detail = resolve_board_signature_from_json(args.board_probe_json)
+        if not ok:
+            print(f"FAIL: {detail}", file=sys.stderr)
+            return 1
+    else:
+        ok, board_signature, _probe_result, detail, cmd = probe_board_signature(
+            args.port, args.target, args.pins, tmp_dir
+        )
+        _log(cmd)
+        if not ok:
+            print(f"FAIL: board-signature probe: {detail}", file=sys.stderr)
+            return 1
 
     ok, controller_string, hwrev, detail, cmd = probe_controller_string(arm_cfg["venv_bin"], args.port)
     _log(cmd)
@@ -662,12 +736,21 @@ def main() -> int:
         "r14r15_ohms": "not measured — no read-back CLI path exists for R14/R15; firestarter config is write-only in this app version",
     }
 
-    ok, image_mask, image_stamp_width, image_sha, detail = resolve_image_plan_fields(
-        args.position_id, args.image_plan
-    )
-    if not ok:
-        print(f"FAIL: image-plan probe: {detail}", file=sys.stderr)
-        return 1
+    if args.no_image_plan:
+        # 161-02 seam: this position has no bench/IMAGE-PLAN.json row and never will (a
+        # bring-up pre-proof cell, no chip write ever runs here) -- see --no-image-plan's
+        # own help text. Recorded as an explicit not-measured placeholder with its reason
+        # on the same line, per the project's anti-fabrication recording discipline
+        # (PROCEDURE.md "Recording discipline"), never as a blank or a fabricated value.
+        _no_plan_reason = build_no_image_plan_reason(args.position_id)
+        image_mask, image_stamp_width, image_sha = _no_plan_reason, _no_plan_reason, _no_plan_reason
+    else:
+        ok, image_mask, image_stamp_width, image_sha, detail = resolve_image_plan_fields(
+            args.position_id, args.image_plan
+        )
+        if not ok:
+            print(f"FAIL: image-plan probe: {detail}", file=sys.stderr)
+            return 1
 
     record = {
         "captured_at_step": CAPTURED_AT_STEP,
@@ -1036,6 +1119,69 @@ def _run_selftest() -> int:
         report("negative: --patch-image-plan with no existing record is a hard failure", rc != 0)
     finally:
         shutil.rmtree(tmp3, ignore_errors=True)
+
+    # --- 161-02 seam coverage: --board-probe-json / resolve_board_signature_from_json
+    #     (Leonardo bring-up finding: this tool's own internal probe_board_signature()
+    #     call, followed immediately by its own internal probe_controller_string() 'hw'
+    #     call, races avrdude's avr109-exit reset on a Caterina target -- measured live,
+    #     BRINGUP-leonardo-provenance) ---
+    tmp4 = Path(tempfile.mkdtemp(prefix="capture_provenance_selftest_boardprobe_"))
+    try:
+        good_probe_path = tmp4 / "board_probe.json"
+        good_probe_path.write_text(
+            json.dumps({"board_signature": "0x1e9587", "connected_part": "atmega32u4"}),
+            encoding="utf-8",
+        )
+        ok, sig, detail = resolve_board_signature_from_json(str(good_probe_path))
+        report(
+            "positive: resolve_board_signature_from_json reads an already-obtained "
+            "probe_board.py --out JSON's board_signature, no subprocess invoked",
+            ok and sig == "0x1e9587",
+            detail,
+        )
+
+        missing_key_path = tmp4 / "board_probe_missing_sig.json"
+        missing_key_path.write_text(json.dumps({"connected_part": "atmega32u4"}), encoding="utf-8")
+        ok, sig, detail = resolve_board_signature_from_json(str(missing_key_path))
+        report(
+            "negative: a probe JSON missing 'board_signature' is a hard failure, never null",
+            not ok,
+            detail,
+        )
+
+        ok, sig, detail = resolve_board_signature_from_json(str(tmp4 / "does-not-exist.json"))
+        report(
+            "negative: --board-probe-json pointing at a nonexistent file is a hard failure",
+            not ok,
+            detail,
+        )
+
+        invalid_json_path = tmp4 / "invalid.json"
+        invalid_json_path.write_text("{not valid json", encoding="utf-8")
+        ok, sig, detail = resolve_board_signature_from_json(str(invalid_json_path))
+        report(
+            "negative: --board-probe-json pointing at invalid JSON is a hard failure",
+            not ok,
+            detail,
+        )
+    finally:
+        shutil.rmtree(tmp4, ignore_errors=True)
+
+    # --- 161-02 seam coverage: --no-image-plan / build_no_image_plan_reason (bring-up
+    #     pre-proof cells with no bench/IMAGE-PLAN.json row and no future --patch-image-plan,
+    #     contrast --pending-readback's temporarily-pending semantics) ---
+    reason = build_no_image_plan_reason("BRINGUP-leonardo-provenance")
+    report(
+        "positive: build_no_image_plan_reason names the position_id and the reason, "
+        "starts with 'not measured —' per the anti-fabrication recording discipline",
+        reason.startswith("not measured —") and "BRINGUP-leonardo-provenance" in reason,
+        reason,
+    )
+    report(
+        "positive: the --no-image-plan placeholder is distinct for each field but all "
+        "three carry the identical reason (image_mask/image_stamp_width/image_sha)",
+        build_no_image_plan_reason("x") == build_no_image_plan_reason("x"),
+    )
 
     return 0 if ok_overall else 1
 
