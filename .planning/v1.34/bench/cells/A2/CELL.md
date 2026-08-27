@@ -337,3 +337,56 @@ VPP/VCC **under load** is unmeasured on this rig (the Phase-97 DTR-reset-on-clos
 which is exactly why v1.34 makes no electrical claim anywhere in its record. This is named as a
 **standing, unconfirmed Phase 165 hypothesis**, not a finding — framed inside that disclosed
 blind spot, not as a claim this cell's own tooling could actually measure.
+
+## P-11 — Teardown (in progress, 2026-08-27)
+
+**v1.33 read-back set preserved** into `readback_v133/` (all six cell-root artifacts), mirroring
+`readback_control/` — both arms' firmware evidence now survive side by side, distinguishable
+(control span 26074 vs v133 span 23000, confirmed distinct).
+
+**Teardown signature probe** (`board_probe_teardown.json`, a distinct path from `P-02`'s
+`board_probe.json`): `connected_part=atmega328pb`, `board_signature=0x1e9516` — **unchanged**
+from `P-02`. Board identity stable across the whole cell.
+
+**Config-dir check, two assertions in order:**
+
+1. **`~/.firestarter` — CHANGED — P-H1, a SECOND recurrence.** Measured: `config.json` mtime
+   advanced from the Amendment 3 pinned baseline's `1787817565` (2026-08-27T07:59:25Z) to
+   `1787849229.89...` (2026-08-27T22:47:09Z-equivalent epoch, i.e. later in this same session);
+   content is now `{"port": "/dev/ttyUSB0"}` (sha256
+   `e76bb5291979292eef9119cfc449c034dbcbcaef1b8c66357fa698c86244b261`), differing from the pinned
+   baseline. File count remains exactly one (`config.json`) — a content change, not a new/removed
+   file. **No deletion was attempted.** This is the **same class of finding** cell A1 recorded
+   (mirrors `bench/cells/A1/CELL.md`'s identical P-H1, itself a recurrence of the still-unresolved
+   Phase 160 Plan 12 finding) — a **second recurrence within this same milestone**, strengthening
+   the case that this is a systemic `firestarter_app` behavior rather than session noise. Every
+   direct CLI invocation in this cell carried an explicit `-p`/`--port` and an inline
+   `FIRESTARTER_CONFIG_DIR=` prefix; no in-scope bench-tool source explains a non-transient
+   `remember_port()`-style write to the default config dir. Not root-caused further here — D-16
+   boundary, product code, handed to Phase 165.
+2. **Frozen `FIRESTARTER_CONFIG_DIR` content SHA — unchanged, confirmed.**
+   `check_arms.py --expect-config-sha 77adfdd26ed8710c4a70882e6dc9ee7bb494286fe225000d581f9e730dd77ad0`
+   -> matched (`check_arms_teardown.json`). All four A2 provenance records carry a non-null,
+   matching `config_dir_sha` (`77adfdd2...`).
+
+**Completeness assertion:** all four `position_id`s present in `bench/EVIDENCE.jsonl`, each
+exactly once, `cell_id == "A2"`, `outcome` in `{validated, skipped-with-reason}` (all four
+`skipped-with-reason`), each with a non-null `write_duration_wallclock_s`.
+
+## N=3 escalation — SCHEDULED, blocked on a physical chip-seat
+
+Position 3 (`A2__v133__w27c512`) recorded `distinct_read_shas == 3` — a genuine N=3
+disagreement, per the escalation rule (161-03-PLAN's shared conventions). The retroactive
+control-arm escalation requires **re-flashing the control arm and re-writing
+`A2__control__w27c512`'s own image**, then taking a three-run read — both a write and a read
+require a chip **seated**, and this Uno-class board's socket was emptied at Task 14 specifically
+for the (now-completed) teardown signature probe. **No chip is currently seated.**
+
+**Cost of running this escalation, stated before doing it (per 161-03-PLAN's own instruction):**
+one firmware checkout+flash (control), one full write attempt (expected, based on this cell's own
+record, to fail somewhere in the program path — consistent with every other control-arm result in
+this cell), one three-run read regardless of write outcome, one judge, then a firmware
+checkout+flash back to v1.33 to restore the required cell-end arm state. This is a real physical
+operation, not a formality — it is, per the orchestrator's own framing, the only measurement that
+separates "v1.33 reads unstably on this board" from "this board reads unstably on both arms," and
+that distinction is left **genuinely undetermined** until it runs.
