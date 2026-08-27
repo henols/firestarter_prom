@@ -141,6 +141,14 @@ def _allowed_argv0_set(pins: dict) -> set[str]:
     pio = pins.get("pio_binary")
     if pio:
         allowed.add(pio)
+    # Rule 2 fix (found live, 160-08): PROCEDURE.md P-04's own literal command block
+    # requires recording `git -C <pio_project_dir> checkout <fw_sha>` in every cell's
+    # `commands` field (the firmware-arm checkout), but this set had no allowance for
+    # `git` at all -- every future EVIDENCE.jsonl row that followed P-04 literally would
+    # have failed this check. Pinned from rig-pins.json's `git_binary`, never PATH.
+    git = pins.get("git_binary")
+    if git:
+        allowed.add(git)
     return allowed
 
 
@@ -461,6 +469,7 @@ def _run_selftest() -> int:
         "avrdude": {"binary": "/fake/avrdude", "conf": "/fake/avrdude.conf"},
         "pio_binary": "/fake/pio",
         "pio_project_dir": "/fake/firestarter",
+        "git_binary": "/fake/git",
         "forbidden_flags": ["--force", "-f", "-b", "--no-blank-check", "--skip-erase"],
         "config_dir": None,
     }
@@ -493,6 +502,19 @@ def _run_selftest() -> int:
         p.write_text(json.dumps(good_record()), encoding="utf-8")
         v = validate_cell_file(p, pins)
         report("positive: complete self-consistent record passes", not v, "; ".join(v))
+
+        # --- positive: a git checkout command (PROCEDURE.md P-04's own recorded
+        # invocation) is allowed by argv0, not rejected as an unrecognized binary ---
+        git_record = good_record(
+            commands=[
+                {"argv": [pins["git_binary"], "-C", "/fake/firestarter", "checkout", "deadbeef"], "cwd": "/fake"},
+                {"argv": [arm_bin, "write", "w27c512", "/tmp/x.bin"], "cwd": "/tmp"},
+            ]
+        )
+        p = tmp / "git_ok.json"
+        p.write_text(json.dumps(git_record), encoding="utf-8")
+        v = validate_cell_file(p, pins)
+        report("positive: a pinned git_binary checkout command is allowed by argv0", not v, "; ".join(v))
 
         # --- positive: two-row jsonl with a valid header ---
         header = {"_schema": good_schema}
