@@ -5,8 +5,8 @@ milestone_name: — Pre-Merge Hardware Regression Validation
 current_phase: 162
 current_phase_name: CHIP — 11-Part `dev test` Sweep on the Reference Rig
 status: completed
-stopped_at: Phase 161 COMPLETE — 12/12 sweep positions, verification passed 11/11; Phase 162 unlocked
-last_updated: "2026-08-27T19:02:48.825Z"
+stopped_at: Phase 162 context gathered
+last_updated: "2026-08-27T20:46:54.187Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 161 complete, transitioned to Phase 162
 progress:
@@ -2963,8 +2963,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-27T12:29:14.016Z
-**Stopped at:** Phase 161 context gathered
+**Last session:** 2026-08-27T20:46:54.108Z
+**Stopped at:** Phase 162 context gathered
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
@@ -3000,7 +3000,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/161-board-board-sweep-three-boards-on-rev-2-0/161-CONTEXT.md
+**Resume file:** .planning/phases/162-chip-11-part-dev-test-sweep-on-the-reference-rig/162-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
