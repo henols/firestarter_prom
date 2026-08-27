@@ -81,3 +81,62 @@ asked, and threw a 0x303 contact fault in A2 requiring a rule-8 re-seat. This ce
 standing **uncertainty**, never as clearance. If a 0x303-class contact fault appears here, one
 clean re-seat and one re-run are permitted per position, with both the discarded attempt and the
 re-run recorded.
+
+## P-02 — Board identity + four pending provenance records (2026-08-27)
+
+**Followed `bench/cells/BRINGUP-leonardo-provenance/PREPROOF.md`'s final working sequence
+verbatim** — external `touch_1200.py` (bare, settle-only) + external `probe_board.py`, a 2 s
+settle for the post-avr109-exit USB re-enumeration, then `capture_provenance.py` with
+`--board-probe-json` pointing at the external probe's own `--out` file. This is deliberately
+**not** a copy of A1's `P-02` (which relies on `capture_provenance.py`'s own internal
+`probe_board.py` subprocess call, refuted on this board) — per delta 2, an A3/B2 `P-02` shaped
+like A1's is the documented warning sign.
+
+**Touch** (log `01_touch`, `--settle-s 2.0`, no `--wait-new-port` token anywhere in the recorded
+argv): rc=0, `touch.json` records `changed: false`,
+`devices_before == devices_after == ["/dev/ttyACM0"]` — the Leonardo's node does not change.
+
+**Board probe — one genuine transient race, then success on immediate retry (Rule 3, blocking
+issue auto-fixed):** the first `probe_board.py` attempt immediately after the touch (log
+`02_probe_board`, first run) failed, rc=1: avrdude's stderr read `OS error: cannot open port
+/dev/ttyACM0: Input/output error` / `No such file or directory` — the port was mid-re-enumeration,
+consistent with the Caterina-entry transition PREPROOF documents for the post-avr109-exit case,
+here evidently also possible on the touch-to-bootloader-entry side. `ls /dev/ttyACM0` immediately
+after confirmed the node was present again with an advanced mtime. Re-ran the identical
+touch+probe pair (log `01_touch` / `02_probe_board`, final, overwriting the failed attempt's
+logs): touch rc=0 at `17:43:46Z`, probe rc=0 at `17:43:49Z` — **3 s elapsed**, inside the measured
+3.487 s touch-to-responsive-programmer window. `board_probe.json`: `connected_part=atmega32u4`,
+`board_signature=0x1e9587`, `mcu_matches=true`, `signature_route=route1` — matches the known-good
+Leonardo signature and the operator's declaration exactly. This retry is a hardware-timing race,
+not a defect in the command sequence or its ordering; the *first* attempt's failed log pair was
+overwritten by the retry's successful pair, and this paragraph is the record of that discarded
+attempt, per the same discipline the plan requires for a chip contact-fault re-seat.
+
+**2 s settle** applied after the probe and before the first `capture_provenance.py` call, per the
+seam PREPROOF establishes (avr109 session exit resets the MCU back into the application; the
+tool's own next live-port action — the `hw` probe inside `capture_provenance.py` — needs that
+re-enumeration to have settled first).
+
+**Provenance captured for all four positions**, each with `--pending-readback`,
+`--board-probe-json $CELL_DIR/board_probe.json` (Seam 1 — skips the tool's own internal
+`probe_board.py` call entirely, consuming the already-obtained result above instead), its own
+`--arm`/`--chip`/`--out`, `--cell-id A3/B2` (with the slash — the tool derives the `A3-B2` slug
+itself), `--target leonardo`, `--port /dev/ttyACM0`, `--shield-rev "Rev 2.0"`. `--no-image-plan`
+was **not** passed — every real sweep position resolves a genuine `IMAGE-PLAN.json` row, per the
+plan's own prohibition; that flag is bring-up-only.
+
+| `position_id` | file | rc | `captured_at_step` | log |
+|---|---|---|---|---|
+| `A3-B2__control__w27c512` | `provenance_A3-B2__control__w27c512.json` | 0 | 2 | `03_capture_provenance_A3-B2__control__w27c512` |
+| `A3-B2__control__w29c020` | `provenance_A3-B2__control__w29c020.json` | 0 | 2 | `04_capture_provenance_A3-B2__control__w29c020` |
+| `A3-B2__v133__w27c512` | `provenance_A3-B2__v133__w27c512.json` | 0 | 2 | `05_capture_provenance_A3-B2__v133__w27c512` |
+| `A3-B2__v133__w29c020` | `provenance_A3-B2__v133__w29c020.json` | 0 | 2 | `06_capture_provenance_A3-B2__v133__w29c020` |
+
+Verified by script: `board_probe.json`'s `connected_part`/`board_signature` match
+`rig-pins.json`'s `targets.leonardo` values exactly; exactly four
+`provenance_A3-B2__*.json` files exist with no default `provenance.json` collision; each record's
+`captured_at_step==2`, `cell_id=="A3/B2"`, `cell_slug=="A3-B2"`, `target_env=="leonardo"`; each
+record's `arm`/`chip` match its own `position_id`; each record's `image_mask`/`image_stamp_width`/
+`image_sha` equal `IMAGE-PLAN.json`'s row (masks 24/25/26/27); each record's `fw_sha`/
+`host_arm_sha` equal `rig-pins.json`'s pinned values for its own arm; `touch.json`'s recorded argv
+carries no `--wait-new-port` token.
