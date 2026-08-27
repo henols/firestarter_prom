@@ -140,3 +140,60 @@ record's `arm`/`chip` match its own `position_id`; each record's `image_mask`/`i
 `image_sha` equal `IMAGE-PLAN.json`'s row (masks 24/25/26/27); each record's `fw_sha`/
 `host_arm_sha` equal `rig-pins.json`'s pinned values for its own arm; `touch.json`'s recorded argv
 carries no `--wait-new-port` token.
+
+## P-03 / P-04 (control) — no chip-out gate, flash + independent read-back proof (2026-08-27)
+
+**No `P-03` gate.** Standing bench rule 2 exempts the Leonardo: it is flashed and read back with
+the chip **seated**. The socket was also still empty at this point regardless (no chip has been
+seated in this cell yet), but the absent gate is explained by the rule, not by the empty socket
+being a coincidence.
+
+**Flash — executed by a PRIOR agent instance, before a user interrupt (2026-08-27T17:45:54Z).**
+`git -C /workspaces/firestarter checkout 8695ee52c27a4bee4387c5c489afd5f3d7275e8a` (empty
+porcelain, `rev-parse HEAD` confirmed equal to `arms.control.fw_sha`), then
+`pio run -t upload -e leonardo`, cwd `/workspaces/firestarter`
+(log `07_pio_upload_control.std{out,err}.log`, both untracked at the point this executor resumed
+and committed with this task). PlatformIO report: `Flash: 86.0% (used 28170 bytes from 32768
+bytes)`, `[SUCCESS] Took 8.08 seconds`. avrdude (Caterina, `CATERIN` programmer, device signature
+`0x1e9587`): `28170 bytes of flash written`, `28170 bytes of flash verified`. **This
+upload-time avrdude verify is explicitly NOT the project's proof oracle (D-01)** — it establishes
+only that the flash step itself completed and self-reported clean before the interrupt landed;
+the independent read-back below is the actual proof.
+
+**This executor resumed after the interrupt, verified the flash's own logs first, and did NOT
+re-run `pio run -t upload`.** `git -C firestarter status --porcelain` was empty and
+`rev-parse HEAD` still equalled `arms.control.fw_sha` at resume, confirming the gitlink is still
+sitting exactly where the flash left it — no intervening state change. Proceeded straight to the
+independent read-back proof this task actually needed.
+
+**Independent read-back proof (`judge_readback.py`, never the uploader's own verify):**
+```
+python3 .planning/v1.34/tools/touch_1200.py --port /dev/ttyACM0 --settle-s 2.0 \
+  --out $CELL_DIR/touch_for_read_control.json
+python3 .planning/v1.34/tools/judge_readback.py --target leonardo --port /dev/ttyACM0 \
+  --flashed-arm control --expect-arm control \
+  --out-dir $CELL_DIR --pins .planning/v1.34/rig-pins.json
+```
+**First attempt (log `08_touch_for_read_control` / `09_judge_readback_control`, discarded,
+overwritten by the retry below):** touch rc=0; `judge_readback.py` rc=1,
+`FAIL: avrdude read failed (rc=1): OS error: cannot open port /dev/ttyACM0: Input/output error`
+— the identical transient post-touch USB re-enumeration race `BRINGUP-leonardo-provenance/
+PREPROOF.md` already documented for this exact board (a `probe_board.py` attempt landing while
+the port is mid-re-enumeration). **Rule 1/Rule 3 auto-fix — a genuine hardware-timing race, not a
+defect in the command sequence:** re-ran the identical touch-then-judge pair immediately
+(`/dev/ttyACM0` confirmed still present, advanced mtime). **Retry (final, kept):** touch rc=0;
+`judge_readback.py` rc=0, `judged_match=True`, `judged_span_bytes=28170`. This discarded first
+attempt is recorded here per the same discipline this cell applies to a chip contact-fault
+re-seat — not papered over.
+
+`READBACK-VERDICT.json`: `target=leonardo`, `flashed_arm=expect_arm=control`,
+`judged_match=true`, `judged_span_bytes=28170` — read at assertion time from
+`rig-pins.json`'s `hex_span_expected_by_arm.control`, **never** the legacy scalar (25098).
+`sha_actual_judged == sha_expected_judged` = `d734ad49...` (exact match, `hex-extent` policy, no
+vector exclusions). `readback_size_bytes=32768` (`flash_readback.bin`, whole-flash SHA
+`334f9144...` recorded as the unjudged datum, D-02). Both control positions' provenance were
+patched with `--patch-readback`; the v133 records are untouched.
+
+**The control arm is on the Leonardo and proven by an independent avr109 read-back**, judged
+against its own 28170-byte span — the flash (run before the interrupt) and its proof (run after)
+are two separate events, both now on the record, with no re-flash performed.
