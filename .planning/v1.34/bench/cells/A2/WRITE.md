@@ -261,3 +261,90 @@ existing `position_id`; the escalation, if it fires, produces a separate artifac
 failed read set (53.716 s wall-clock across 3 attempts, none completing cleanly) is compared
 against A1's or this cell's own healthy baselines as if it were a completed measurement — all are
 failures, recorded as such.
+
+## Position 8 (4 of 4): `A2__v133__w29c020` — closing the A/B square
+
+**Command:** `timeout --signal=INT 392 env FIRESTARTER_CONFIG_DIR=/workspaces/.planning/v1.34/config
+/workspaces/.v1.34-arms/v133/.venv/bin/firestarter -p /dev/ttyUSB0 write w29c020
+reads/A2__v133__w29c020/written.bin` (log `33_write_v133_w29c020`).
+
+**Ceiling:** 391.748 s (derived, 4x A1's 97.937 s). **Not needed** — wall-clock **14.288 s**,
+wrapper exit code **1** (never 124).
+
+**A FOURTH, distinct mechanism — earlier than any prior position.** This write failed before
+reaching even the INIT phase's device handshake — a bare **connect** failure:
+```
+Connecting...
+Timeout waiting for a response from /dev/ttyUSB0.
+Connecting... Failed  
+Failed to setup operation WRITE for w29c020: No compatible programmer answered on /dev/ttyUSB0.
+If a board is attached there, its firmware may predate the current command framing, which makes
+it answer 'Bad JSON' instead of an ack -- every 2.x release, and 3.0.0 pre-releases before b8.
+Such a board can still be reflashed directly: firestarter --port /dev/ttyUSB0 fw --board <board>
+--install
+```
+No progress bar of any kind appeared (stderr empty) — the failure is earlier than position 3
+attempt 1's chip-ID mismatch (which at least completed the connect handshake before failing on the
+chip probe).
+
+**Immediately checked afterward:** a plain `hw` command (no chip operation) against the same board
+succeeded cleanly (log `34_hw_probe_after_connect_fail`, rc=0, `Hardware revision: Rev 2.0-class`)
+— the board itself was not wedged; the failure was specific to the `write` command's own setup
+handshake at that moment, not a lasting connection loss. **No re-run was performed** — Standing
+bench rule 8's one-clean-re-seat allowance is specific to a suspected chip-contact fault and was
+already spent on position 3; nothing here points at the chip (no chip-ID probe was even reached),
+and no other rule in this procedure licenses a retry of a transient connect failure. Recorded as
+observed, not chased.
+
+**App-reported figure:** `not measured — the write failed before establishing a connection, let
+alone emitting a success line`.
+
+**Read attempted anyway** (v1.33 arm's normal three-run form): `dev consistency-check w29c020
+--runs 3 --output-dir reads/A2__v133__w29c020 --keep-files` (log `35_devcheck_v133_w29c020`),
+rc=**2**, wall-clock 14.697 s. **Run 1 of 3 failed with a communication timeout partway through**
+(`Timeout waiting for a response... Run 1: hardware/serial error -- read incomplete`) — the tool
+aborted after the first run's own hard failure, never attempting runs 2 or 3. Last progress frame:
+`2%|▏  | 0x1000/0x40000 bytes` (4096 of 262144 bytes) before the timeout. The read produced a
+**partial 4096-byte file**, not the full 262144, not an empty directory.
+
+**What the partial read-back shows:** of 4096 bytes, only 16 are `0xFF` — overwhelmingly
+non-blank. Diffed against a freshly-generated copy of **`A1__v133__w29c020`'s own image** (mask
+`0x13`/19 — the same value position 2's stop-byte matched): **4061 of 4096 bytes identical
+(99.1%)**. This is a materially stronger correlation than position 2's ~65% (which was likely
+diluted by that read's own mid-transfer corruption) and further reinforces — without proving —
+that this physical W29C020 chip still carries content from its earlier use in cell A1, essentially
+untouched, because none of A2's own three write attempts on this chip (control mask 0x15, this
+position mask 0x17) has gotten far enough to overwrite more than a handful of bytes. **Still
+recorded as an observation for Phase 165, not a confirmed root cause** — a partial read's own
+corruption from its own timeout remains an unexcluded confound, even at 99.1%.
+
+**Judged verdict** (`judge_wrv.py`, `WRV-VERDICT_A2__v133__w29c020.json`): `sha_verdict_judged ==
+"incomplete-read-set"` (only 1 of the intended 3 reads landed, `distinct_read_shas == 1` because
+there is only one file to compare); `size_violations` non-empty (4096 bytes, not 262144);
+`app_verdict_unjudged == 2` (the app's own consistency-check hard-error code) — **agrees** with
+the judged incomplete-read-set (`verdict_disagreement == false`). **No N=3 disagreement to record
+here** — the read set never reached three files, so this position does not itself trigger the
+escalation rule (unlike position 3); it is a different failure shape (incompleteness, not
+disagreement among complete reads).
+
+### Closing the square — all four A2 positions, mechanism by mechanism
+
+| # | Position | Mechanism | Wall-clock (write) | Stop point |
+|---|---|---|---|---|
+| 5 | `A2__control__w27c512` | host-side serial-response timeout, no firmware reply | 15.813 s | first-block boundary (0x0200); 431/512 B of block 1 actually written |
+| 6 | `A2__control__w29c020` | **firmware-reported** verify-timeout (data-poll) | 4.019 s | byte 0x7f (page-write verify) |
+| 7 | `A2__v133__w27c512` | attempt 1: chip-ID mismatch at INIT (contact fault); attempt 2 (rule-8 re-run): **firmware-reported** program-convergence failure | 4.077 s / 10.245 s | attempt 2: byte 0x000179 |
+| 8 | `A2__v133__w29c020` | **connect-level** failure — no device handshake reached at all | 14.288 s | never reached INIT/chip-ID |
+
+**No two of the four positions failed by the identical mechanism.** Every one of A2's four
+positions **did stop the chip-program path**, consistent with Backlog 999.2's overall prediction
+that this board cannot complete a program — but the specific point and manner of failure varied
+position to position, which is itself the more precise, more useful record than "it hangs" alone.
+**No completion occurred on either arm** — Backlog 999.2 is not contradicted by an unexpected
+success anywhere in this cell.
+
+**VPP note, carried from Task 12's record:** position 3's firmware diagnosis named "insufficient
+program voltage or a worn or failing cell" as a candidate. This position's own failure (a
+connect-level timeout) offers no independent evidence either way on VPP specifically — it is
+recorded as a **separate, named Phase 165 hypothesis** (see `CELL.md`), not resolved by this
+position.

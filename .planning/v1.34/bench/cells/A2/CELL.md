@@ -292,3 +292,48 @@ than measuring one). Task 4's "in band" ruling (11.9 V inside the firmware guard
 the firmware's own init check did not trip; it says nothing about whether 11.9 V is sufficient
 for reliable programming margin. This distinction is recorded explicitly so the earlier in-band
 ruling is never read as a clearance that VPP is fine.
+
+## P-09 (v1.33 x W29C020) — position 4 of 4: closing the A/B square (2026-08-27)
+
+Full detail in `WRITE.md` ("Position 8 (4 of 4)"). Summary: a **fourth, distinct** failure
+mechanism — a bare **connect-level** timeout ("No compatible programmer answered") before even
+the INIT/chip-ID handshake was reached, wall-clock **14.288 s** (391.748 s ceiling never
+approached). A `hw` probe immediately after succeeded cleanly, confirming the board was not
+wedged. **No re-run performed** — Standing bench rule 8's allowance was already spent on position
+3, and no other rule licenses retrying a transient connect failure.
+
+Follow-up read failed on its first of three attempts (communication timeout, 4096/262144 B),
+producing a partial file. That partial read is **99.1% (4061/4096 B) identical** to a
+freshly-generated copy of `A1__v133__w29c020`'s own image (mask `0x13`) — materially stronger
+than position 2's ~65% correlation, further reinforcing (not proving) that this physical chip
+still carries substantial residual content from cell A1. `judge_wrv.py`:
+`sha_verdict_judged=incomplete-read-set`, `size_violations` non-empty, `app_verdict_unjudged=2`
+agreeing. `EVIDENCE.jsonl` row appended, `outcome=skipped-with-reason`. `render_evidence.py
+--check`: green.
+
+**All four A2 positions now recorded. No two failed by the identical mechanism** (host comms
+timeout / firmware verify timeout / chip-ID mismatch + firmware pulse-convergence / bare connect
+failure). Every position stopped the chip-program path — consistent with Backlog 999.2's overall
+prediction — but with materially more precision than the backlog itself carries. **No completion
+occurred on either arm anywhere in this cell** — 999.2 is not contradicted by an unexpected
+success.
+
+## Standing Phase 165 hypothesis, named and left open (not resolved here)
+
+**Low VPP as a candidate contributing cause for A2's convergence failures** — named explicitly by
+position 3's own firmware diagnosis ("insufficient program voltage or a worn or failing cell, not
+a timing problem"). This cell's single confirming read measured **11.9 V**, in band against the
+firmware guard window `[11.4, 12.5]` V (Task 4/`POT.md`) but not string-equal to the 12.0 V
+target. **The comparison and its confound, stated plainly:** cell A1 measured 12.0 V and passed
+all four of its positions; this cell measures 11.9 V and has failed three of four by
+program/verify mechanisms (the fourth, position 4, failed at connect level before VPP could even
+be relevant). But it is the **same physical pot on the same shield**, moved from the Uno to the
+uno328pb between cells — the 0.1 V delta may reflect per-board ADC/EEPROM calibration rather than
+a real difference in the rail actually delivered under load. **This confound is not resolved
+here — it cannot be, from this cell's own data.**
+
+**This hypothesis sits inside the milestone's own acknowledged blind spot:** program-window
+VPP/VCC **under load** is unmeasured on this rig (the Phase-97 DTR-reset-on-close tooling gap),
+which is exactly why v1.34 makes no electrical claim anywhere in its record. This is named as a
+**standing, unconfirmed Phase 165 hypothesis**, not a finding — framed inside that disclosed
+blind spot, not as a claim this cell's own tooling could actually measure.
