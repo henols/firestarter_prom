@@ -249,3 +249,15 @@ neither pair was cross-contaminated.
 **The v1.33 arm is on the Leonardo, proven against its own 25098-byte span**, flashed with the
 chip seated exactly as the standing rule allows, with the control arm's read-back binaries
 preserved and untouched.
+
+## P-05 (second arm) — swap back to W27C512 (2026-08-27)
+
+Operator reply, verbatim: "W27C512 seated". W29C020 removed, W27C512 (DIP28) re-seated in the
+Rev 2.0 socket on the Leonardo at `/dev/ttyACM0`. **Pot untouched** — firmware 12.3 V / operator
+meter 11.44 V, in band, unchanged since `P-06`. No further `vpp` read taken (`P-06` ran once for
+this cell).
+
+**The Leonardo chip-out exemption was exercised through the `P-10`/`P-04` v1.33 flash** — the
+W29C020 stayed seated through that firmware flash rather than being pulled first, per Standing
+bench rule 2. This is the **only cell in the phase** where that exemption applies; A1 and A2 both
+pulled the chip before every flash (Uno-class chip-out rule).
