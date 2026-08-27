@@ -275,7 +275,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 160-12-PLAN.md — Exercise the oracle on silicon: write this position's own image, three independent reads, judged by SHA over the full device size with the app's verdict recorded unjudged
+- [x] 160-12-PLAN.md — Exercise the oracle on silicon: write this position's own image, three independent reads, judged by SHA over the full device size with the app's verdict recorded unjudged
 
 **Wave 10** *(blocked on Wave 9 completion)*
 

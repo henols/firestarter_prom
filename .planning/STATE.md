@@ -5,16 +5,16 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: "Completed 160-11-PLAN.md (BRINGUP-wrv: RIG-02 provenance mechanism proven on a live cell for the first time, v1.33 flashed and proven on the Uno via its own hex extent, W27C512 seated and pot confirmed at 12.0V by one reading; RIG-02 marked complete)"
-last_updated: "2026-08-27T08:12:41.735Z"
+stopped_at: "Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time, clean SHA match over the full 65536B device size against the written image; RIG-04 marked complete)"
+last_updated: "2026-08-27T08:34:00.000Z"
 last_activity: 2026-08-27
-last_activity_desc: "Phase 160 plan 11 execution complete (BRINGUP-wrv: RIG-02 provenance mechanism proven for the first time on a live cell, v1.33 flashed and proven on the Uno via its own hex extent, six Rule 1 tooling bugs fixed, W27C512 seated and pot confirmed at 12.0V by one reading). RIG-02 marked Complete."
+last_activity_desc: "Phase 160 plan 12 execution complete (BRINGUP-wrv: RIG-04 write-read-verify oracle exercised for the first time on real silicon -- image regenerated and verified against its recorded hash, written with no forbidden flag, three independent v1.33-arm reads judged by full-device SHA against the written image, clean match with no verdict disagreement; a plan-authoring verify-leg defect found and worked around; a P-H1 ~/.firestarter finding recorded). RIG-04 marked Complete."
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 13
-  completed_plans: 11
-  percent: 85
+  completed_plans: 12
+  percent: 92
 ---
 
 # Project State
@@ -191,7 +191,7 @@ Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 Plan: 12 of 13
 Status: 160-11 (BRINGUP-wrv) complete — capture_provenance.py run for the first time against a live cell: identity fields captured via a new `--pending-readback` mode BEFORE the v1.33 arm was flashed (RIG-02's ordering, corroborated by `logs/` mtimes), the v1.33 firmware flashed via the PlatformIO upload path and proven by an independent read-back against its OWN hex extent (judged_match=true, judged_span_bytes=22952 — the direct complement of plan 08's cross-flash MISMATCH against the other arm's hex), and `--patch-readback` completing the two readback fields without re-running any identity probe. `gate_record.py --cell` passes on the record and was observed red on a copy with `host_arm_sha` nulled. Five Rule 1 bugs in `capture_provenance.py` and one in `gate_record.py` were found and fixed in-phase (both tools' first-ever live pairing). The W27C512 was then seated and the pot confirmed at 12.0V by exactly one Claude-taken reading (no monitor loop); the operator's "pot set" reply carried no instrument reading of their own, recorded explicitly. **RIG-02 marked Complete.** Wave 9-10 (plans 12-13: write-read-verify on this exact cell, fresh-context record-reconstruction falsification, phase close-out) remain.
 **SAFETY: the currently attached board is the Uno (`/dev/ttyACM0`, ATmega328P) with the Rev 2.0 shield mounted and a W27C512 chip SEATED.** The board was swapped from the Leonardo (used in plan 10) at plan 11's task 1 gate — same node name, different physical board, confirmed by avrdude signature (0x1e950f, not the Leonardo's 0x1e9587) and by node-creation timestamp (07:29:19.24, vs the Leonardo's 07:02:13.94). The Uno IS chip-out-before-sideload class (`rig-pins.json` `targets.uno.chip_out_before_sideload: true`) — its chip-out window closed at the end of plan 11's task 2, before the chip went in at task 3. **No avrdude firmware operation (upload/read-back/signature-probe) may run on this board while the chip is seated.** No chip read/write/erase/blank/vpp-set operation has been performed against the W27C512 — only a VPP rail reading (energize+measure only, no chip access) — it remains untouched, ready for plan 12's write-read-verify.
-Last activity: 2026-08-27 — Phase 160 plan 11 execution complete (BRINGUP-wrv: RIG-02 provenance mechanism proven for the first time on a live cell, v1.33 flashed and proven on the Uno via its own hex extent, six Rule 1 tooling bugs fixed, W27C512 seated and pot confirmed at 12.0V by one reading). RIG-02 marked Complete.
+Last activity: 2026-08-27 — Phase 160 plan 12 execution complete (BRINGUP-wrv: RIG-04 write-read-verify oracle exercised for the first time on real silicon -- clean full-device SHA match, three v1.33-arm reads agreeing with each other and with the written image, app's unjudged verdict agreeing too). RIG-04 marked Complete.
 Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Plan 12 proceeds next (write-read-verify on the already-seated BRINGUP-wrv cell). Plans 12-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
@@ -2589,6 +2589,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 160]: gate_record.py's check_commands had no allowance for git as an argv0; added git_binary to rig-pins.json and to gate_record.py's allowed set. — PROCEDURE.md's P-04 mandates recording the firmware-arm git checkout in every cell's commands field, which every future EVIDENCE.jsonl row would have failed against gate_record.py without this fix.
 - [Phase 160]: capture_provenance.py's two-phase --pending-readback/--patch-readback split proves RIG-02's before-any-test-step ordering via log timestamps rather than a hardcoded step constant
 - [Phase 160]: The vpp CLI's single confirming reading is the FIRST sample of one invocation, never a second launch -- the command has no single-shot exit mode and exposing one would be a host-app source change outside this phase's D-16 boundary
+- [Phase 160-12]: RIG-04's write-read-verify oracle exercised on real silicon (BRINGUP-wrv, W27C512): clean full-device SHA match, judge_wrv.py's SHA verdict AND dev consistency-check's own exit-code verdict AGREE (verdict_disagreement=false) -- this run did not need to exercise the Pitfall-6 false-green path, only prove the judge works on real reads
+- [Phase 160-12]: 160-12-PLAN.md's own Task 2 second verify leg greps logs for the literal string "consistency-check" (hyphenated), but the app's real printed verdict-block string is "Consistency check: PASS" (capitalized, spaced) -- a plan-authoring defect of the measurement-trap class named for plans 08-10's span literals. Corrected, case-insensitive assertion run instead; no measurement was adjusted to force a green, only the check's own pattern
+- [Phase 160-12]: ~/.firestarter was found to exist at this plan's P-11 teardown check (a P-H1 rig finding standing bench rule 9 itself predicts) -- traced circumstantially (timing + content correlation, not a proven trace) to an unlogged, shell-timeout-killed first `vpp` invocation in plan 11 task 3. This plan's own two chip-facing invocations both set FIRESTARTER_CONFIG_DIR inline and never touched it (mtime unchanged all session); the FROZEN FIRESTARTER_CONFIG_DIR is independently confirmed unchanged (check_arms.py --expect-config-sha exit 0, D-07 holds). Removal was attempted and denied by this session's sandbox (home-directory deletion outside the repo) -- recorded as an open item rather than hidden, not fixed in-session
 
 ## Performance Metrics
 
@@ -2945,11 +2948,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 160 P09 | 23min | 3 tasks | 26 files |
 | Phase 160 P10 | ~20min | 3 tasks | 31 files |
 | Phase 160 P11 | 39min | 3 tasks | 29 files |
+| Phase 160 P12 | 24min | 3 tasks | 17 files |
 
 ## Session
 
-**Last session:** 2026-08-27T08:12:41.639Z
-**Stopped at:** Completed 160-11-PLAN.md (BRINGUP-wrv provenance capture, on-device proof, chip seat + pot confirm; RIG-02 complete)
+**Last session:** 2026-08-27T08:34:00.000Z
+**Stopped at:** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Bench left as-is: Uno (ATmega328P) + Rev 2.0 shield, v1.33 arm flashed and proven, W27C512 SEATED, pot at 12.0V, port /dev/ttyACM0 -- safe to drive again without reconfiguration. Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
