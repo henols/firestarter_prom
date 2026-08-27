@@ -91,3 +91,47 @@ Verified: `board_signature` matches `rig-pins.json`'s `targets.uno328pb.mcu`; ex
 match its own `position_id`; each record's `image_mask`/`image_stamp_width`/`image_sha` equal
 `IMAGE-PLAN.json`'s row (masks 20/21/22/23); each record's `fw_sha`/`host_arm_sha` equal
 `rig-pins.json`'s pinned values for its own arm.
+
+## P-03 (control pass) — satisfied by P-01, no second gate
+
+Already recorded above: the socket-empty confirmation established at `P-01` covers this pass.
+
+## P-04 (control) — flash + independent read-back judge (2026-08-27)
+
+**Firmware checkout** (log `07_pio_upload_control` covers steps 2-3): `git -C
+/workspaces/firestarter checkout 8695ee52c27a4bee4387c5c489afd5f3d7275e8a` — pre-checkout HEAD was
+`5759dc8d...` (v133, A1's leave-state); post-checkout HEAD `8695ee52c27a4bee4387c5c489afd5f3d7275e8a`,
+equal to `arms.control.fw_sha`; porcelain empty both before and after.
+
+**Flash** (`pio run -t upload -e uno328pb --upload-port /dev/ttyUSB0`, cwd
+`/workspaces/firestarter`): rc=0, "1 succeeded in 00:00:09.288". Build report: `Flash: 79.6% (used
+26074 bytes from 32768 bytes)` — matches the control arm's expected hex span (26074) exactly.
+PlatformIO resolved `urclock`/avrdude 8.1 and supplied its own flags; the host app's own
+firmware-install path was never used.
+
+**Independent read-back judge** (`judge_readback.py --target uno328pb --port /dev/ttyUSB0
+--flashed-arm control --expect-arm control --out-dir $CELL_DIR --pins rig-pins.json`, log
+`08_judge_readback_control`): rc=0.
+
+- `judged_match`: **true**
+- `judged_span_bytes`: **26074**, read at assertion time from `hex_span_expected_by_arm.control`
+  — **not** the legacy scalar 23000 (`targets.uno328pb.hex_span_expected`)
+- `vector_exclusions_applied`: both entries present (offset 0 length 4 — reset vector; offset 100
+  length 4 — SPM_Ready/vector 25), unchanged from the control-arm-derived `-xshowvector`
+  interrogation recorded in `rig-pins.json`
+- `readback_size_bytes`: 32768; `flash_readback.bin` on disk: 32768 bytes — matches
+- `sha_actual_judged` (`43dcb663...`) and `sha_expected_judged` (`b18a7151...`): recorded, **never
+  compared** — this target's 8 excluded bytes (`[0,4)`, `[100,104)`, both in the vector table) make
+  the two raw-span SHAs unequal on a *correct* flash; comparing them would be the exact false-RED
+  Pitfall 4 names, and this task did not do it.
+
+**Standing disclosed non-claim (carried, not raised as a new A2 finding):** the 8-byte
+vector-exclusion blind spot (`[0,4)` + `[100,104)`, 8 of 26074 judged bytes on this arm) means a
+fault confined entirely to those 8 bytes is invisible to A2's judged verdict. This is a Phase 160
+§6 disclosed limit, proven live already on this exact silicon (`BRINGUP-uno328pb-v133/PREPROOF.md`,
+plan 161-02) — carried here unchanged, not re-raised.
+
+**Provenance patched, control positions only:** `A2__control__w27c512` and `A2__control__w29c020`
+now carry `fw_readback_sha_judged == 43dcb663...` (the control verdict's `sha_actual_judged`),
+`captured_at_step` still `2`. The two v1.33 positions' provenance are **untouched** — both still
+carry the `--pending-readback` placeholder, confirmed above.
