@@ -409,3 +409,12 @@ confirmation rather than risk an avrdude flash with silicon seated; the operator
 for any avrdude flash rests on operator word alone — there is no non-avrdude way to detect a
 seated chip, and the probe that would detect one is itself the operation the chip-out rule
 forbids. Carried into `SUMMARY.md`.
+
+**Escalation step 2 — control arm re-flashed** (`pio run -t upload -e uno328pb --upload-port
+/dev/ttyUSB0`, log `41_pio_upload_control_escalation`): rc=0, `26074/32768 B`. Independent
+read-back judge (log `42_judge_readback_escalation`, out-dir
+`ESCALATION_A2__control__w27c512/`, distinct from the cell-root and both `readback_*/` sets, none
+overwritten): `judged_match=true`, `judged_span_bytes=26074`, both vector exclusions applied,
+`sha_actual_judged=43dcb663...` — **byte-identical** to position 1's original control flash
+(`flash_readback.bin` MD5-matches `readback_control/flash_readback.bin` exactly). Confirms the
+control arm is genuinely re-flashed and correct before the escalation's read-only measurement.
