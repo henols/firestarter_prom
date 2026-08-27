@@ -4,15 +4,15 @@ milestone: v1.34
 milestone_name: — Pre-Merge Hardware Regression Validation
 current_phase: 162
 current_phase_name: CHIP — 11-Part `dev test` Sweep on the Reference Rig
-status: completed
-stopped_at: Phase 162 context gathered
-last_updated: "2026-08-27T20:46:54.187Z"
+status: planned
+stopped_at: Phase 162 planned — 10 plans, ready to execute
+last_updated: "2026-08-27T22:55:00.000Z"
 last_activity: 2026-08-27
-last_activity_desc: Phase 161 complete, transitioned to Phase 162
+last_activity_desc: Phase 162 planned — 10 plans across 10 waves, ready to execute
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 18
+  total_plans: 28
   completed_plans: 18
   percent: 29
 ---
@@ -188,10 +188,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 162 — CHIP — 11-Part `dev test` Sweep on the Reference Rig
-Plan: Not started
-Status: 161-05 (cell A3/B2) complete — all four positions validated (clean SHA-judged matches, two N=3-stable v1.33 reads), all twelve sweep positions of Phase 161 now exist across A1/A2/A3-B2 with no duplicate position_id, ratiometric VPP-ADC headline finding recorded (revises A2's low-VPP hypothesis forward, does not edit 161-04's record), run_gates.sh 12/12 selftests + 5/5 live gates exit 0. Phase-level completion (ROADMAP.md checkbox, next-phase unlock) is the orchestrator's own next step.
+Plan: Not started — 10 plans ready (162-01…162-10, waves 1–10)
+Status: Ready to execute — Phase 162 planned: 10 plans, 10 sequential waves (two bench plans can never run in parallel on one rig). Waves 1–4 are desk-only Wave-0 rig work (`autonomous: true`) that must land before any part is seated: they fix the four rig defects RESEARCH found — `dev test` writing its report inside the frozen config dir and breaking the rig's own SHA assertion (fix = copy-out THEN remove); `capture_provenance.py` rejecting nine of ten parts at argparse exit 2 before `rig-pins.json` is read; `C-NN` step IDs being unable to live in `## Step list` because `render_steps.py`'s `_STEP_ID_RE` is `^P-\d\d$`; and `~/.firestarter/config.json`'s mtime having already drifted (1787817565 → 1787854674), which would book a false `P-H1` at every position. Waves 5–9 are the ten-part sweep in pot/JP4 groups (`autonomous: false`, 9 chip-swap checkpoints, one pot move, two JP4 changes); wave 10 closes it. Sweep is 10 parts + 1 named absence (2516, unsupported on Rev 2.0), so SC#4 arithmetic is `10 + N`, not the roadmap's `11 + N`; N ≥ 4 is booked before the bench. Plan gates all green: plan-checker VERIFICATION PASSED, requirements 5/5 (CHIP-01…05), decision coverage 18/18.
 **SAFETY (end of plan 161-05, 2026-08-27): cell A3/B2 CLOSED — ALL TWELVE SWEEP POSITIONS OF PHASE 161 NOW EXIST. The Leonardo (Rev 2.0 shield mounted) is CONNECTED at `/dev/ttyACM0` (`2341:8036`), W27C512 (DIP28) SEATED (the only cell in the phase ending with a chip in), v1.33 arm flashed (fw `5759dc8d`), gitlink clean. Pot NOT adjusted since P-06's ruling — firmware reads 12.3V, a multimeter simultaneously reads 11.44V (in band per eprom.cpp:713/:736, target window 11.4-12.5V). DO NOT "correct" the pot down toward 12.0V against the firmware's own reading — the on-board ADC reads roughly 7.5% HIGH (see HEADLINE below), so a firmware-chasing correction would drive the REAL rail toward ~11.2V and make the rig worse while looking like a fix. If a future session needs a different real rail, set it from a multimeter reading, never from the firmware's own vpp figure.** All four A3/B2 positions (`A3-B2__{control,v133}__{w27c512,w29c020}`) are `validated` — clean SHA-judged matches, including two N=3-stable v1.33 reads (`distinct_read_shas=1` on both) — appended to `EVIDENCE.jsonl`, `run_gates.sh` 12/12 selftests + 5/5 live gates exit 0, `gate_record.py` 0 violations. **HEADLINE FINDING, ESCALATED BEYOND A2: the VPP ADC error is RATIOMETRIC (~+7.5%, range 6.8-8.3%), consistent with (not proven as) a shield-wide gain/divider fault rather than a board-specific EEPROM miscalibration** — three paired firmware-vs-meter readings across two independently-calibrated boards (A2 uno328pb 12.5/11.70; this Leonardo 12.9-13.0/12.00 and 12.3/11.44) all cluster near the same ratio. This REVISES A2's leading low-VPP hypothesis for its four write failures: if the error is shield-wide, A1's firmware 12.0V also meant a real rail near ~11.0-11.2V, and A1 PASSED all four positions there — substantially weakening low-VPP as A2's explanation. Full reasoning in `bench/cells/A3-B2/POT.md`, `CELL.md`, and `161-05-SUMMARY.md`; `161-04-SUMMARY.md` is NOT edited, this is a forward supersession for Phase 165. **The N=3 read-instability question from A2 position 3 (same physical W27C512, same v133 arm, 3 distinct SHAs there, escalation blocked/UNDETERMINED) got a relevant but non-resolving data point here: this cell's same arm/chip pairing read perfectly STABLE on a different board** — points away from the chip, toward the uno328pb or its state; still UNDETERMINED for A2 itself. **`~/.firestarter/config.json` CHANGED again (mtime only, content byte-identical to baseline)** — a THIRD recurrence of the same P-H1 finding (A1, A2, now A3/B2), not fixed here (D-16 boundary, handed to Phase 165). **The shared W27C512's condition caveat (never assessed across eight handlings in A1/A2) is now CLOSED** — operator inspection at handling nine reported "nothing looks of[f]"; this is a visual check, not a measurement, and is NOT retroactive clearance for A2's own `0x303` fault. **Treat every recorded node in this file as a hint, never an identity** — re-derive per task from the descriptor or a `controller:`/signature probe; nodes have shuffled multiple times this phase.
-Last activity: 2026-08-27 — Phase 161 complete, transitioned to Phase 162
+Last activity: 2026-08-27 — Phase 162 planned (10 plans, 10 waves); research, pattern map and validation strategy written
 Next: **Phase 161 CLOSE / Phase 162** — all three cells (A1, A2, A3/B2) are closed and all twelve sweep positions exist; Phase 162 inherits the rig standing exactly as it needs it (Leonardo, Rev 2.0, v1.33 arm, W27C512 seated, pot in-band) and needs no reconfiguration or re-flash for its 11-part `dev test` sweep. Phase 163 will CITE (not re-run) all four A3/B2 rows. Carries forward: the ratiometric VPP-ADC finding (see SAFETY above) and its A2-hypothesis revision, the third `~/.firestarter/config.json` mtime recurrence, and the still-UNDETERMINED A2 N=3 instability question (now with one non-resolving data point against it). See SAFETY above for current bus/board state.
 
 ## Roadmap Summary (v1.34)
@@ -2963,8 +2963,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-27T20:46:54.108Z
-**Stopped at:** Phase 162 context gathered
+**Last session:** 2026-08-27T22:55:00.000Z
+**Stopped at:** Phase 162 planned — 10 plans across 10 waves, all plan gates green (plan-checker PASSED, requirements 5/5, decision coverage 18/18); nothing executed, no part seated, rig untouched since Phase 161
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
