@@ -36,3 +36,38 @@
   clearance. No `0x303`-class fault occurred on this write; no re-seat was needed.
 - **Outcome:** `validated`. Appended to `EVIDENCE.jsonl` as position 9 of 12,
   `render_evidence.py --check` green.
+
+## Position 2 — `A3-B2__control__w29c020`
+
+- **No D-09 smoke check.** That was a one-time, A1-control-only addressability datum, outside the
+  `P-01`..`P-11` step list; repeating it here would break positional symmetry across the twelve
+  sweep positions (A2 correctly skipped it too).
+- **Image:** `gen_addr_image.py --stamp-width 32 262144 25` -> `reads/A3-B2__control__w29c020/written.bin`,
+  262144 B, sha256 `01bab1275e83430c4a33e77c04c369e086dc57857ed003d35a207023a1b60dd0`, matches
+  `IMAGE-PLAN.json`'s row (mask 25, stamp 32).
+- **Write:** `control` arm, `firestarter -p /dev/ttyACM0 write w29c020 written.bin`, under
+  `timeout --signal=INT 391.748` — the **DERIVED** ceiling (4x A1's measured control-arm W29C020
+  wall-clock, 97.937 s, from `161-03-SUMMARY.md`; the 600 s absolute fallback was **not** used).
+  Wrapper exit code **0** — the ceiling did not fire, not approached (log
+  `13_write_control_w29c020.std{out,err}.log`).
+  - **Wall-clock (judged measure):** **66.671 s**
+  - **App-reported (unjudged datum):** **62.99 s** (`Write to W29C020 successful (62.99s).`,
+    grepped by string).
+- **Read:** control arm, single read, `firestarter -p /dev/ttyACM0 read w29c020 run_01.bin`, exit
+  code **0** (`--app-verdict`), log `14_read_control_w29c020.std{out,err}.log`.
+  - **Read wall-clock (this task's own cross-board datum):** **45.756 s** (app-reported: 41.87 s).
+  - **Cross-board comparison, buffer difference named:** A1's control-arm 262144 B read baseline
+    (`161-03-SUMMARY.md`) was **73.344 s**. This cell's read (45.756 s) is markedly faster —
+    **consistent with, not proof beyond**, the Leonardo moving 1024-byte chunks per transfer where
+    the Uno-class boards move 512; this is a comparison point, not a portable per-byte budget for
+    this board (the board's own buffer size is the named variable, per `/workspaces/CLAUDE.md`'s
+    board-buffer note).
+- **Judge:** `judge_wrv.py --expect-size 262144 --app-verdict 0` ->
+  `sha_verdict_judged=match`, `read_count=1`, `distinct_read_shas=1`, `size_violations=[]`,
+  `app_verdict_unjudged=0` agreeing.
+- **Real VPP context:** unchanged from position 1 — firmware 12.3 V / operator meter 11.44 V, pot
+  untouched at `P-08` per instruction.
+- **Chip-condition context:** this is a **different, physical W29C020**, unlike the shared
+  W27C512 — its condition is **unassessed** (no inspection was sought or given for this chip).
+- **Outcome:** `validated`. Appended to `EVIDENCE.jsonl` as position 10 of 12,
+  `render_evidence.py --check` green. No re-seat was needed; no `0x303`-class fault occurred.
