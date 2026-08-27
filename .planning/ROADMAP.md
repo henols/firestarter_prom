@@ -313,7 +313,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 161-04-PLAN.md — Cell A2 (uno328pb / Rev 2.0), 4 positions, failure observed on both arms — BOARD-02
+- [x] 161-04-PLAN.md — Cell A2 (uno328pb / Rev 2.0), 4 positions, failure observed on both arms — BOARD-02
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

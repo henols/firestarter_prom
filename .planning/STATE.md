@@ -5,7 +5,7 @@ milestone_name: — Pre-Merge Hardware Regression Validation
 current_phase: 161
 current_phase_name: BOARD — Board Sweep, Three Boards on Rev 2.0
 status: executing
-stopped_at: Phase 161 cell A1 CLOSED (4/12 positions); wave 4 (cell A2, uno328pb) pending
+stopped_at: Phase 161 cells A1+A2 CLOSED (8/12 positions); wave 5 (cell A3/B2, Leonardo) pending
 last_updated: "2026-08-27T12:29:53.536Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 161 execution started
