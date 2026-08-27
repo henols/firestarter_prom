@@ -269,3 +269,26 @@ one data point.
 three-run read on the control arm's matching position (`A2__control__w27c512`) is scheduled for
 `P-11`/Task 15, per 161-03-PLAN's shared-conventions escalation rule. `EVIDENCE.jsonl` row
 appended, `outcome=skipped-with-reason`. `render_evidence.py --check`: green.
+
+## P-08 (second arm) — Swap to W29C020 (2026-08-27, operator)
+
+Operator, verbatim: "W29C020 seated". W27C512 removed, W29C020 (DIP32) seated on the uno328pb at
+`/dev/ttyUSB0`. **D-07 safety judgement: operator inspected and proceeded, raising no concern —
+an affirmative clearance given at this gate.** The operator was also asked directly about the
+W27C512's physical condition after its five insertions (including the rule-8 re-seat) and did not
+report on it — **recorded as NOT assessed**, not as "found sound." This matters directly for
+plan 161-05 (cell A3/B2), which reuses this same physical part.
+
+**Pot not touched** — Task 4's single confirming read (11.9 V) stands for the whole cell; no
+second `vpp` invocation for this swap.
+
+**VPP note carried into position 4, stated explicitly rather than left implicit:** position 3's
+re-run failed with the firmware's own diagnosis naming "insufficient program voltage or a worn or
+failing cell" as the likely cause — nominating low VPP as a candidate. The pot is **not**
+adjusted for position 4 regardless: `P-06` sets VPP once per cell (comparability across all four
+positions would break if changed mid-cell, and adjusting now would be chasing a success rather
+than measuring one). Task 4's "in band" ruling (11.9 V inside the firmware guard window
+`[11.4, 12.5]` V) is **not** the same claim as "VPP is optimal" — the guard not firing only means
+the firmware's own init check did not trip; it says nothing about whether 11.9 V is sufficient
+for reliable programming margin. This distinction is recorded explicitly so the earlier in-band
+ruling is never read as a clearance that VPP is fine.
