@@ -390,3 +390,13 @@ checkout+flash back to v1.33 to restore the required cell-end arm state. This is
 operation, not a formality — it is, per the orchestrator's own framing, the only measurement that
 separates "v1.33 reads unstably on this board" from "this board reads unstably on both arms," and
 that distinction is left **genuinely undetermined** until it runs.
+
+**Escalation method correction, recorded before running:** the retroactive control-arm escalation
+runs **read-only** — no re-write. The escalation question is read stability, not write success;
+three reads of the content currently on the chip (the residue of position 3's failed v1.33 write)
+under the control arm is a direct, controlled comparison — same silicon, same content, only the
+arm differs. Re-writing would replace that content and destroy the comparability the escalation
+exists to obtain, and position 1 already showed a control-arm write on this board most likely
+fails anyway (adding a third partial state as a confound, not removing one). W27C512 seated for
+this escalation is this physical part's **sixth** insertion across A1 and A2; its physical
+condition was again not assessed and is recorded as such, never as sound.
