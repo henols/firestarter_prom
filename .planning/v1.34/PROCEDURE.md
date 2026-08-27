@@ -34,8 +34,11 @@ These bind every step below; they are restated here as rules, not preferences, a
 them is new to this milestone — most are standing project memory this procedure is required to
 honor.
 
-1. **Port identity is re-verified for every cell, never inherited.** `/dev/ttyACM*` numbering
-   shuffles across replug, so the port used by a previous cell (or a previous session) is never
+1. **Port identity is re-verified for every cell, never inherited.** `/dev/ttyACM*` **and
+   `/dev/ttyUSB*`** numbering shuffles across replug (160-09's `uno328pb` bring-up board
+   enumerates as `ttyUSB*` — a CH340 USB-serial bridge, not the ATmega16U2 that gives a genuine
+   Uno its ACM node — so both node classes are in scope for this rule, not only `ttyACM*`), so
+   the port used by a previous cell (or a previous session) is never
    assumed for this one.
 2. **Chip-out-before-sideload is Uno-class only.** On `uno` and `uno328pb`, the chip must be
    out of its socket before any avrdude invocation that touches the bootloader — a flash **and**
@@ -104,7 +107,7 @@ regardless of which arm is running:
 
 | Token | Meaning |
 |---|---|
-| `$PORT` | the device node for this cell (e.g. `/dev/ttyACM0`), re-verified per Rule 1 above |
+| `$PORT` | the device node for this cell (e.g. `/dev/ttyACM0` or `/dev/ttyUSB0` — the `uno328pb` bring-up board enumerates via a CH340 bridge as the latter, 160-09), re-verified per Rule 1 above |
 | `$CELL_ID` | `A1`, `A2`, `A3/B2`, `B1`, `B3`, or `BRINGUP-wrv` |
 | `$POSITION_ID` | `<cell_slug>__<arm>__<chip>`, the `bench/IMAGE-PLAN.json` primary key |
 | `$SHIELD_REV` | the operator-declared silkscreen value: `Rev 2.0` / `Rev 2.2` / `Modified Rev 0` |
@@ -477,4 +480,13 @@ binding rule for this procedure rather than a norm:
 
 ---
 
-*Procedure defined: 2026-08-26, Phase 160 Plan 06. No amendments recorded yet.*
+*Procedure defined: 2026-08-26, Phase 160 Plan 06.*
+
+**Amendment 1 — 2026-08-27, Phase 160 Plan 09:** (a) Standing bench rule 1 and the `$PORT`
+token row were widened from `/dev/ttyACM*`-only wording to also name `/dev/ttyUSB*`. (b) The
+`uno328pb` bring-up board (this plan) enumerates via a CH340 USB-serial bridge as `ttyUSB0`,
+not `ttyACM*` — the rule's substance (never inherit a port across cells/sessions) was already
+node-class-agnostic, only the illustrative wording named one class. No mechanical step changed
+and no `## Step list` text moved, so this amendment does not affect the SC#3 empty-diff render
+gate. (c) Every bring-up cell before this one (`BRINGUP-uno`, plan 08) ran under the old
+wording; no real sweep cell (`A1`/`A2`/`A3-B2`/`B1`/`B3`) has run yet under either wording.
