@@ -72,3 +72,12 @@ at Task 6's swap (`P-08`).
 Operator: "W29C020 seated". W27C512 (DIP28) removed, W29C020 (DIP32) seated on the Uno at
 `/dev/ttyACM1`. **Pot not touched** — `P-06`'s single confirming read (12.0 V) stands for the
 whole cell; no second `vpp` invocation was run for this swap.
+
+## P-05 (second arm) — Seat W27C512 again (2026-08-27, operator)
+
+Operator: "W27C512 seated". W27C512 (DIP28) re-seated on the Uno at `/dev/ttyACM1` for the v1.33
+arm's two positions. **Pot not touched** — `P-06`'s single confirming read (12.0 V) continues to
+stand for the whole cell; no second `vpp` invocation.
+
+**Avrdude window closed again** from this confirmation: no upload, read-back or signature probe
+may run on this board until the chip comes out at Task 12's swap (`P-08`, second arm).

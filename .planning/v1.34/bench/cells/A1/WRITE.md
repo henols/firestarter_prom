@@ -55,3 +55,25 @@
   pre-write blank check on this part at all.
 - **Outcome:** `validated`. Appended to `EVIDENCE.jsonl`, `render_evidence.py --check` green.
 - No re-seat was needed.
+
+## Position 3 — `A1__v133__w27c512` — v1.33 arm, three-read consistency set
+
+- **Image:** `gen_addr_image.py --stamp-width 16 65536 18` -> `reads/A1__v133__w27c512/written.bin`,
+  65536 B, sha256 `49476bbd2250ddb0b8d7ad5a44672151b5c7cf1571d4df9906722792ed9e123f`, mask **18**
+  (distinct from position 1's mask 16 — D-12), matches `IMAGE-PLAN.json` by runtime lookup.
+- **Write:** `v133` arm, under the 165 s W27C512 ceiling. Wrapper exit code **0** — did not fire.
+  - **Wall-clock (judged measure):** **41.037 s**
+  - **App-reported (unjudged datum):** **37.48 s**
+- **Read set:** v1.33 arm, three independent reads via `dev consistency-check w27c512 --runs 3
+  --output-dir ... --keep-files`, exit code **0**. Whole-invocation wall-clock **53.571 s**
+  (app's own per-run elapsed 17.62 s x3), compared against `BRINGUP-wrv`'s 53.437 s baseline for
+  the same chip/board class — consistent, not a regression.
+- **Judge:** `judge_wrv.py --expect-size 65536 --app-verdict 0` -> `sha_verdict_judged=match`,
+  `read_count=3`, `distinct_read_shas=1`, `size_violations=[]`, `app_verdict_unjudged=0`,
+  `verdict_disagreement=false`. **No disagreement** — all three reads agreed with each other and
+  with the written image on the first attempt. No retroactive three-run escalation is owed to
+  the control arm's matching position (`A1__control__w27c512`).
+- **Blank state:** not measured — same reasoning as position 1 (blank check runs internally
+  inside the write path, no standalone observation taken here).
+- **Outcome:** `validated`. Appended to `EVIDENCE.jsonl`, `render_evidence.py --check` green.
+- No re-seat was needed.
