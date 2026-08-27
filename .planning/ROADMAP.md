@@ -296,7 +296,14 @@ Plans:
   4. Each of the 12 positions records a **measured write duration**, and the W27C512 figures are stated next to v1.31's 0.37 s consistency figure taken on this same Leonardo + Rev 2.0 rig — so a timing regression is visible as a number, and the comparison is only drawn on the rig where it is valid.
   5. Cell A3/B2 is executed exactly once in this milestone, here: across the whole v1.34 evidence set there is exactly **one** result row and **one** write-duration figure per (arm × chip) position bearing the `A3/B2` cell id, and Phase 163 will cite these rows rather than produce new ones.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 161-01-PLAN.md — Wave 0: `append_evidence.py` (D-05) + `PROCEDURE.md` Amendment 3 (D-06/D-12), suite re-gated at 12/12
+- [ ] 161-02-PLAN.md — Bench pre-proofs: uno328pb v1.33 read-back (D-10) and the Leonardo `capture_provenance.py` sequence
+- [ ] 161-03-PLAN.md — Cell A1 (Uno / Rev 2.0), 4 positions, W29C020 first silicon + derived stall ceiling — BOARD-01
+- [ ] 161-04-PLAN.md — Cell A2 (uno328pb / Rev 2.0), 4 positions, failure observed on both arms — BOARD-02
+- [ ] 161-05-PLAN.md — Cell A3/B2 (Leonardo / Rev 2.0), 4 positions, executed once, rig handed to Phase 162 — BOARD-03, BOARD-04
 **UI hint**: no
 
 ### Phase 162: CHIP — 11-Part `dev test` Sweep on the Reference Rig
