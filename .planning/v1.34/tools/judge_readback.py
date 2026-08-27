@@ -221,7 +221,13 @@ def run_avrdude_read(
     # against a field that is always null regardless of where the process actually ran.
     cwd = str(Path.cwd())
     try:
-        done = subprocess.run(argv, capture_output=True, text=True, check=False, shell=False)
+        # Rule 1 fix (found live, 160-10 leonardo bring-up, same defect as probe_board.py's
+        # run_avrdude): errors="replace" so a device that answers with non-UTF-8 bytes (e.g.
+        # a Leonardo not yet in its Caterina bootloader) cannot crash this function with a
+        # raw UnicodeDecodeError instead of a reported avrdude failure.
+        done = subprocess.run(
+            argv, capture_output=True, text=True, errors="replace", check=False, shell=False
+        )
     except OSError as exc:
         return 1, "", f"avrdude failed to execute: {exc}", [{"argv": argv, "cwd": cwd}]
     return done.returncode, done.stdout, done.stderr, [{"argv": argv, "cwd": cwd}]
@@ -231,7 +237,9 @@ def run_objcopy_normalize(objcopy: str, hex_path: Path, out_bin: Path) -> tuple[
     argv = [objcopy, "-I", "ihex", "-O", "binary", str(hex_path), str(out_bin)]
     cwd = str(Path.cwd())
     try:
-        done = subprocess.run(argv, capture_output=True, text=True, check=False, shell=False)
+        done = subprocess.run(
+            argv, capture_output=True, text=True, errors="replace", check=False, shell=False
+        )
     except OSError as exc:
         return 1, "", f"avr-objcopy failed to execute: {exc}", [{"argv": argv, "cwd": cwd}]
     return done.returncode, done.stdout, done.stderr, [{"argv": argv, "cwd": cwd}]

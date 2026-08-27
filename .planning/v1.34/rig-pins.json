@@ -130,7 +130,13 @@
       "vector_exclusions": [],
       "needs_1200_touch": true,
       "chip_out_before_sideload": false,
-      "chip_out_before_sideload_note": "Leonardo is exempt — flashed with the chip seated (standing memory: chip-out-before-sideload is Uno-class only)."
+      "chip_out_before_sideload_note": "Leonardo is exempt — flashed with the chip seated (standing memory: chip-out-before-sideload is Uno-class only).",
+      "measured_post_touch_port_behavior": "same_node",
+      "measured_post_touch_port_behavior_note": "Measured live, 160-10 Leonardo bring-up (BOOTLOADER-WINDOW.md): two independent 1200-baud touch cycles on this exact board both found devices_before == devices_after == ['/dev/ttyACM0'] -- Caterina returns on the SAME node the application uses, never a new one. This matches the historical avr_tool.py write-direction observation (.planning/debug/resolved/fw-update-blocked-release-fw.md:283, a 5.51s avr109 session on the same node) and is now also measured, independently, for the READ direction. touch_1200.py's --wait-new-port mode was tried first (per this plan's own instruction not to assume) and empirically timed out after 3s with the node list unchanged -- it is the WRONG mode for this board and is not used on the working chain; the bare (settle-only, reuse --port) mode is.",
+      "measured_touch_settle_s": 2.0,
+      "measured_touch_to_responsive_programmer_s": 3.487,
+      "measured_touch_to_read_complete_s": 3.878,
+      "measured_touch_to_read_complete_s_note": "Elapsed wall-clock from the 1200-baud touch's own open/close call to judge_readback.py's completed, judged_match=true verdict for the control arm's full 32768 B read-back (avrdude's own read itself took only 0.31s once started -- see BRINGUP-leonardo/BOOTLOADER-WINDOW.md). Comfortably inside the roughly-8s Caterina inactivity window RESEARCH.md Pitfall 5 describes, with continuous communication throughout so the inactivity timer never had a gap to fire against."
     }
   },
   "chips": {

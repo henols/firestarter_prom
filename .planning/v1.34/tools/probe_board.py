@@ -205,7 +205,17 @@ def resolve_avrdude(pins: dict) -> tuple[bool, str | None, str | None, str]:
 def run_avrdude(binary: str, conf: str, extra_args: list[str]) -> tuple[int, str, str]:
     cmd = [binary, "-C", conf, *extra_args]
     try:
-        done = subprocess.run(cmd, capture_output=True, text=True, check=False, shell=False)
+        # Rule 1 fix (found live, 160-10 leonardo bring-up): text=True alone decodes
+        # stdout/stderr with the strict 'utf-8' error handler, and a Leonardo running its
+        # APPLICATION firmware (not yet touched into the Caterina bootloader) answers an
+        # avr109 handshake attempt with raw, non-protocol serial bytes that are not valid
+        # UTF-8 -- avrdude echoes some of that into its own diagnostic text, which crashed
+        # this tool with UnicodeDecodeError before any FAIL: line could be printed. errors=
+        # "replace" preserves this function's contract (str stdout/stderr, never bytes) while
+        # never crashing on whatever raw bytes the device actually sends back.
+        done = subprocess.run(
+            cmd, capture_output=True, text=True, errors="replace", check=False, shell=False
+        )
     except OSError as exc:
         return 1, "", f"avrdude failed to execute: {exc}"
     return done.returncode, done.stdout, done.stderr
