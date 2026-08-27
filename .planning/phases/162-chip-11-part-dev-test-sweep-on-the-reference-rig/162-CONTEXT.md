@@ -97,8 +97,8 @@ written. Each one changes what the planner must do.
 
 ### The divergence rule (SC#3 / SC#4)
 
-- **D-01: A row cites every prior sweep that touched the part; `same`/`diverges` is keyed on the
-  write-path headline.** *(Claude's call — the user answered "You decide".)* v1.15 alone holds up to
+- **D-01: A row cites every prior sweep that touched the part; `same`/`diverges` is keyed on the write-path headline.**
+  *(Claude's call — the user answered "You decide".)* v1.15 alone holds up to
   four dispositions per part (Phase 81 read sweep, 82 A→B write, 83 UV write, 84 FIX-01 re-bench),
   and "PASS" means a different thing in each. Citing all of them costs a table column and discharges
   SC#3's "no row where the v1.15 disposition itself is left unsourced" and SC#5's "cited inline in
@@ -120,8 +120,8 @@ written. Each one changes what the planner must do.
   regression behind an unchanged headline); and write-path-only (silently forgives a newly-broken
   `id` or `read`).
 
-- **D-03: Where no comparable prior disposition exists, the row reads `diverges: no comparable
-  baseline — <why>`, and the control arm supplies the baseline.** *(User's choice.)* This keeps
+- **D-03: Where no comparable prior disposition exists, the row reads `diverges: no comparable baseline — <why>`, and the control arm supplies the baseline.**
+  *(User's choice.)* This keeps
   SC#3's column at exactly two values while refusing to claim agreement with a measurement that was
   never taken. The control re-run is the right instrument here, not a formality: with no historical
   baseline, the control arm **is** the baseline, so the row still answers "is this arm-dependent?"
@@ -143,8 +143,8 @@ written. Each one changes what the planner must do.
   to catch); and a documented third column value (breaks SC#3 as written and forces Phase 166 to
   reconcile a three-state column).
 
-- **D-04: A row compares against the *most recent* recorded disposition, with v1.15 as the floor,
-  and names which milestone it came from.** *(User's choice.)* This reads the roadmap's "recorded
+- **D-04:** A row compares against the *most recent* recorded disposition, with v1.15 as the floor, and names which milestone it came from.
+  *(User's choice.)* This reads the roadmap's "recorded
   v1.15 disposition" as **naming the sweep, not forbidding a later correction**. It is a deliberate,
   stated interpretation of SC#3 and must be recorded as such so Phase 166 sees the reading rather
   than inheriting it silently.
@@ -159,8 +159,8 @@ written. Each one changes what the planner must do.
   Rejected: literal v1.15-only (books that known-false divergence); and carrying both a v1.15 column
   and a superseding column (same re-run count, wider table, a second unsourced-cell risk per row).
 
-- **D-05: Symptom-identity counts as a flip — but only where the record calls the fault
-  deterministic.** *(User's choice.)*
+- **D-05: Symptom-identity counts as a flip — but only where the record calls the fault deterministic.**
+  *(User's choice.)*
   - **Deterministic, so a moved symptom diverges:** W27E512 (`bit 7 @0x3d`), W27E040
     (`bit 4 @0x7db`), W29C040 (`timeout @0x0000ff`) — all three recorded deterministic across
     initial run plus reseats. A changed offset or byte is `diverges: symptom moved <from> → <to>`
@@ -173,16 +173,16 @@ written. Each one changes what the planner must do.
   everywhere (books re-runs on the two parts recorded as unable to arbitrate anything, which are
   guaranteed uninterpretable).
 
-- **D-06: SC#4's arithmetic is stated as `10 + N`, with the deviation from the roadmap's `11 + N`
-  named on the same line.** Decided mechanically — it follows from D-14. The reconciliation shown is
+- **D-06: SC#4's arithmetic is stated as `10 + N`, with the deviation from the roadmap's `11 + N` named on the same line.**
+  Decided mechanically — it follows from D-14. The reconciliation shown is
   `10 reports + 1 named absence = 11 parts`, and separately `10 primary runs + N control re-runs =
   total runs`. **N is expected to be ≥ 3 before any genuine flip** (D-03), and the planner should
   budget for it rather than discover it.
 
 ### Procedure and evidence shape
 
-- **D-07: `PROCEDURE.md` gains Amendment 4 — a parallel `C-01…C-NN` chip-sweep step list in the same
-  file.** *(User's choice.)* The chip sweep shares `P-01` (mount and declare), `P-02` (re-verify port
+- **D-07: `PROCEDURE.md` gains Amendment 4 — a parallel `C-01…C-NN` chip-sweep step list in the same file.**
+  *(User's choice.)* The chip sweep shares `P-01` (mount and declare), `P-02` (re-verify port
   identity), `P-04` (flash + independent read-back proof), `P-06` (pot) and `P-11` (teardown +
   config-dir check) **by reference, never by copy**, and adds only the steps `dev test` actually
   needs. Amendment 4 must also **correct §Scope**, which currently claims to cover Phase 162 while
@@ -198,8 +198,8 @@ written. Each one changes what the planner must do.
   applicable subset with the sweep's own steps living only in plan files (leaves PROCEDURE.md's
   "executed unchanged by Phase 162" claim standing and false).
 
-- **D-08: The chip sweep's record is a sibling `.planning/v1.34/bench/CHIP-EVIDENCE.jsonl` with its
-  own `_schema`.** *(User's choice.)* Same two-tier shape as the WRV file: the **identical 9
+- **D-08: The chip sweep's record is a sibling `.planning/v1.34/bench/CHIP-EVIDENCE.jsonl` with its own `_schema`.**
+  *(User's choice.)* Same two-tier shape as the WRV file: the **identical 9
   `locked_columns` core** — which Phase 166's CLOSE-01 asserts uniformly across every milestone's
   evidence file — plus a chip-specific extension list for the `dev test` fields (`fw_board_identity`,
   per-step verdicts, `write_coverage`, `run_count`, report artifact path and sha, prior disposition
@@ -213,8 +213,8 @@ written. Each one changes what the planner must do.
   chip sweep reconciled as **arithmetic over rows**, and a hand-maintained table is what
   `render_evidence.py` exists to prevent).
 
-- **D-09: Build `append_chip_evidence.py` and `render_chip_evidence.py`; the appender copies the
-  report artifact out.** *(User's choice.)* This extends Phase 161's D-05 precedent directly, and the
+- **D-09: Build `append_chip_evidence.py` and `render_chip_evidence.py`; the appender copies the report artifact out.**
+  *(User's choice.)* This extends Phase 161's D-05 precedent directly, and the
   argument is stronger here because `dev test` already emits machine-readable JSON — **every machine
   field is derivable, so none is transcribed.** The appender:
   - reads the `dev test` JSON report plus the position's provenance and derives every machine field;
@@ -233,7 +233,7 @@ written. Each one changes what the planner must do.
   appender with no renderer (`EVIDENCE.md` is regenerated and byte-compared throughout this milestone;
   a one-off close-time generator gets no such check).
 
-- **D-10: The `gh` dedup query is allowed to run, is declared, and nothing-was-filed is *proven*.**
+- **D-10:** The `gh` dedup query is allowed to run, is declared, and nothing-was-filed is *proven*.
   *(User's choice.)* `submit.py` differs **105 lines** between the arms, so suppressing this path
   would skip validating a v1.33-modified file in the middle of a milestone whose entire purpose is
   validating v1.33. Each run records its dedup outcome (found / ran-and-found-nothing /
@@ -252,8 +252,8 @@ written. Each one changes what the planner must do.
   sweep. This is materially better evidence for Phase 166's honesty ledger, where every VPP figure
   must be labelled.
 
-- **D-12: Where the DB target is unreachable, "the setting" is the highest real rail that keeps the
-  firmware reading in band.** *(User's choice.)* Set the meter as high as possible while the firmware
+- **D-12: Where the DB target is unreachable, "the setting" is the highest real rail that keeps the firmware reading in band.**
+  *(User's choice.)* Set the meter as high as possible while the firmware
   reading stays under `vpp_mv + 500`, because **high is the blocking error and low is only a
   warning** (D-domain fact 3).
   - **12 V group (8 of the 10):** the current setting is already in band; target reachable.
@@ -300,8 +300,8 @@ written. Each one changes what the planner must do.
   This supersedes the earlier discussion option of a read-only 2516 observation on this rig. Do not
   re-open it here.
 
-- **D-15: M27C512 and AM27C020 are run — this is the UV masked-write path's first hardware
-  exercise.** *(User's choice.)* Both have slots to spare (~256 and ~1024). Running them also
+- **D-15: M27C512 and AM27C020 are run — this is the UV masked-write path's first hardware exercise.**
+  *(User's choice.)* Both have slots to spare (~256 and ~1024). Running them also
   discharges the standing 260821-wna item that has **zero hardware evidence**: whether `P = C & D`
   behaves as predicted on partially-programmed silicon, and whether slot advance works across
   consecutive runs. Each loses one 256-byte slot, irrecoverably.
