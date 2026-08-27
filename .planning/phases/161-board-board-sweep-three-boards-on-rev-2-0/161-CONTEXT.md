@@ -239,14 +239,14 @@ The user answered **"you decide"** on five questions; D-06, D-07, D-08, D-09 and
 alternatives* record what was weighed. The planner may revisit these on evidence, but not on
 preference:
 
-- **D-07 (A2 runs all 4)** — if A2's W27C512 failure turns out to physically damage or endanger the
+- **D-07 (A2 runs all 4):** if A2's W27C512 failure turns out to physically damage or endanger the
   W29C020 (e.g. the brownout leaves a rail in a state that is unsafe for a 32-pin part), stop and
   report; safety outranks coverage. Nothing currently on the record suggests this.
-- **D-08 (ceilings)** — the 4× multiple is a judgment call, not a measurement. If A1's healthy
+- **D-08 (ceilings):** the 4× multiple is a judgment call, not a measurement. If A1's healthy
   figures show high variance, widen it and **state the widening**, do not silently exceed it.
-- **D-09 (smoke check)** — the exact commands are left to research/planning; the locked property is
+- **D-09 (smoke check):** the exact commands are left to research/planning; the locked property is
   that it is **non-destructive, once, on A1 control, outside the step list**.
-- **D-10 (pre-proof)** — if the bare 328PB cannot be flashed without the shield for some reason not
+- **D-10 (pre-proof):** if the bare 328PB cannot be flashed without the shield for some reason not
   currently known, the pre-proof still happens with the shield mounted and the chip out; the locked
   property is that it happens **before A1**, not what it is mounted on.
 
