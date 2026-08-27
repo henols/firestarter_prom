@@ -66,3 +66,9 @@ target to the precision this project records it at. Full detail in `POT.md`.
 **Avrdude window now closed:** the W27C512 is seated. From this point no avrdude operation of any
 kind (upload, read-back, or signature probe) may run on this board until the chip comes out again
 at Task 6's swap (`P-08`).
+
+## P-08 — Swap to W29C020 (2026-08-27, operator)
+
+Operator: "W29C020 seated". W27C512 (DIP28) removed, W29C020 (DIP32) seated on the Uno at
+`/dev/ttyACM1`. **Pot not touched** — `P-06`'s single confirming read (12.0 V) stands for the
+whole cell; no second `vpp` invocation was run for this swap.
