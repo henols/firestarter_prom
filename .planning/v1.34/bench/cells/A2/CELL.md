@@ -453,3 +453,105 @@ the historical `VPP is high` scenario, applied here mid-escalation rather than a
 **Not chased as a contact-fault question (rule 5 does not apply here)** — rule 5's `0x303`/blank
 signature is a distinct symptom class from a real, in-range-looking, stable 12.5 V reading; this
 is treated as a genuine (if unexplained) VPP measurement, not a contact artifact.
+
+## HEADLINE FINDING — this board's VPP ADC reads ~0.8 V high (operator multimeter measurement)
+
+**The paired measurement:** operator, verbatim: "about the vpp the reading is alittele bit off i
+mesured with a multimeter and its 11.7" — taken with the firmware simultaneously reporting
+**12.5 V** at that same moment (Escalation step 4's confirming read, `46_vpp_escalation_check`).
+Multimeter readings are operator-only per Standing bench rule 3; this is an **operator
+measurement**, not a Claude-derived one. **The on-board VPP ADC on this uno328pb reads
+approximately 0.8 V high** (12.5 V firmware-reported vs 11.7 V multimeter-measured). The rail
+itself did not run away — the instrument reading it is inaccurate.
+
+**Why no pot adjustment was possible or attempted, stated as the cleanest form of the finding:**
+on this specific board, the firmware guard and a correct rail cannot be satisfied simultaneously.
+- Adjust until the **firmware** reads 12.0 V -> the real rail falls to **~11.2 V**, below the
+  firmware's own 11.4 V LOW threshold in real terms, and genuinely too low for reliable
+  programming margin.
+- Adjust until the **meter** reads 12.0 V -> the firmware would read **~12.8 V**, and the HIGH
+  guard fires harder.
+- **There is no pot position that satisfies both.** The gate is unsatisfiable on this board as
+  currently calibrated. No `--force` was used and none was requested or considered.
+
+**Ruling: this is NOT a P-H1 rig halt.** P-H1 covers a broken *oracle* — this milestone's judged
+oracle is the read-back SHA judge (`judge_wrv.py`/`judge_readback.py`), which does not consult
+VPP calibration at all and is unaffected. The uno328pb is the **specimen** in this cell, and its
+apparent miscalibration is a finding *about the specimen*, not a broken measuring instrument for
+this cell's own record. Per this plan, findings are recorded, never fixed here — RCA belongs to
+Phase 165. The board's EEPROM calibration was **not** touched, `firestarter config` was **not**
+run, the pot was **not** adjusted.
+
+### Escalation recorded as UNRUN — named reason
+
+The N=3 escalation (retroactive control-arm read of `A2__control__w27c512`'s residual content) is
+recorded as **unrun**, not completed and not fabricated. Named reason: blocked by the VPP ADC
+miscalibration discovered at escalation step 4 — three read attempts all failed identically at
+device init with `VPP is high: 12.5V > 12.0V` before any bytes were read, and the gate is
+unsatisfiable on this board as calibrated (see above). **Even had it run, it would have run under
+the same faulty gate**, so its answer would have carried the same doubt as everything else this
+cell measured under an ADC now known to read high.
+
+**Consequence, stated plainly, not resolved by omission:** the question position 3's three
+distinct read SHAs raised — whether that instability is v1.33-specific or a board-wide property
+present on both arms — **remains UNDETERMINED.** What would resolve it: a three-read set taken on
+a board whose VPP ADC is confirmed calibrated (a fresh meter-cross-checked reading before the
+run), or a re-run of this same measurement on this board after its VPP calibration is corrected.
+Neither is available within this plan's scope.
+
+### Retroactive impact on this cell — an inference, not a measured historical fact
+
+Task 4's single confirming read at `P-06` reported **11.9 V**. **If** the ~0.8 V ADC offset held
+constant across the cell (it was only directly cross-checked once, at escalation step 4, hours
+later), the **real** rail during all four write positions may have been approximately **11.1 V**
+— *below* the firmware's own 11.4 V LOW-guard floor in real terms. **This is stated as an
+inference from a single paired measurement with an assumed-constant offset, not as a measured
+historical fact.** It is a strong, testable lead for Phase 165, not a conclusion this cell's own
+record can support on its own.
+
+### Reframing the four distinct failure mechanisms — a hypothesis, not a finding
+
+Positions 1-4 each failed by a mechanism this cell's record treated as independent (host
+comms timeout / firmware verify timeout / chip-ID mismatch then pulse-convergence / bare connect
+failure). **In light of the VPP measurement above, these four may plausibly share one root cause**
+— an under-volted programming rail failing at different points in the protocol depending on
+timing and which operation was attempted — **rather than four independent faults.** This is
+offered explicitly as a **hypothesis for Phase 165**, not asserted as this cell's finding; nothing
+in this cell's own tooling can distinguish "one shared cause, four symptoms" from "four
+coincidentally different faults."
+
+### The low-VPP hypothesis, promoted
+
+The hypothesis named at Task 12 (position 3's own firmware diagnosis: "insufficient program
+voltage or a worn or failing cell, not a timing problem") is **promoted from a long shot to the
+leading candidate explanation** by this measurement. The firmware's own diagnostic text
+independently pointed here before any multimeter was involved — this measurement is corroborating
+evidence for a hypothesis the firmware itself already raised, not a fresh, unrelated finding.
+
+### Backlog 999.2 implication — a lead, not a resolution
+
+Backlog 999.2 has stood as an unexplained "uno328pb cannot finish a program" board fault. This
+measurement raises the possibility that the true cause is a **miscalibrated VPP ADC on this
+specific board**, rather than a firmware or silicon defect — a materially different, and more
+fixable, explanation than "this board's silicon cannot program." **Recorded as a Phase 165 lead
+with its evidential limits stated explicitly** (one paired measurement, an inferred — not
+measured — historical offset): this cell's record does **not** assert VPP miscalibration as the
+cause of 999.2.
+
+### A limit exposed in P-06 itself
+
+`P-06`'s procedure takes **exactly one confirming read per cell** and treats it as standing for
+the whole cell's duration. **That design is only sound if the reading is accurate and stable** —
+this cell shows a case where the firmware-reported reading was neither, and the discrepancy was
+only caught by chance, because the escalation's guard-fire forced a fresh reading late in the
+cell. Recorded as a **procedure limitation** for Phase 166's honesty ledger, directly connected to
+this milestone's own declared headline non-claim: program-window VPP/VCC **under load** is
+unmeasured on this rig (the Phase-97 DTR-reset-on-close tooling gap) — this finding gives that
+disclosed non-claim concrete teeth rather than leaving it a formality nobody ever actually hit.
+
+### Non-claim about cell A1
+
+**A1's Uno was never meter-checked.** Whether *its* VPP ADC is accurate is genuinely **unknown**
+— this cell's finding must not be read as implying A1 ran at a true 12.0 V, and equally must not
+be read as implying it did not. A1's four positions passed their judged SHA oracles regardless,
+and that judgment is unaffected by VPP calibration either way (the oracle never consults VPP).
