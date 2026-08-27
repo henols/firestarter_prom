@@ -234,30 +234,48 @@ no forbidden flag, times the write by wall clock, then runs the read set and jud
 the full 65536 B device size with `judge_wrv.py`:
 
 ```
-python3 .planning/v1.34/tools/gen_addr_image.py --stamp-width 16 65536 $MASK $CELL_DIR/written.bin
-time FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT write w27c512 $CELL_DIR/written.bin
+python3 .planning/v1.34/tools/gen_addr_image.py --stamp-width 16 65536 $MASK $CELL_DIR/reads/$POSITION_ID/written.bin
+time FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT write w27c512 $CELL_DIR/reads/$POSITION_ID/written.bin
 ```
 
 Read counts and arbitration (stated here, not as a separate step, because it applies
 identically to this step and its W29C020 counterpart below): **three independent reads on the
 v1.33 arm at every position**, via
-`FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT dev consistency-check w27c512 --runs 3 --output-dir $CELL_DIR/reads --keep-files`;
+`FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT dev consistency-check w27c512 --runs 3 --output-dir $CELL_DIR/reads/$POSITION_ID --keep-files`;
 **a single read on the control arm normally**, via
-`FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT read w27c512 $CELL_DIR/reads/run_01.bin`
+`FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT read w27c512 $CELL_DIR/reads/$POSITION_ID/run_01.bin`
 (the positional-output form, named to match `judge_wrv.py`'s `run_NN.bin` glob) — **escalating to
 the same three-run `dev consistency-check` invocation on the control arm only where the v1.33
 arm's three reads for this position disagreed**, arbitrating whether the instability is new or
 was always there. A disagreement is **recorded as a disagreement and never retried away**.
 
 ```
-python3 .planning/v1.34/tools/judge_wrv.py --written $CELL_DIR/written.bin --reads $CELL_DIR/reads \
+python3 .planning/v1.34/tools/judge_wrv.py --written $CELL_DIR/reads/$POSITION_ID/written.bin --reads $CELL_DIR/reads/$POSITION_ID \
   --expect-size 65536 --app-verdict <dev consistency-check's own 0/1/2, when it ran> \
-  --position-id $POSITION_ID --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/wrv_verdict.json
+  --position-id $POSITION_ID --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/WRV-VERDICT_$POSITION_ID.json
 FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR python3 .planning/v1.34/tools/capture_provenance.py \
   --cell-id $CELL_ID --position-id $POSITION_ID \
   --arm {control|v133} --target $TARGET --port $PORT --chip w27c512 --shield-rev "$SHIELD_REV" \
   --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/provenance_$POSITION_ID.json
+python3 .planning/v1.34/tools/append_evidence.py --position-id $POSITION_ID \
+  --cell-dir $CELL_DIR --provenance $CELL_DIR/provenance_$POSITION_ID.json \
+  --wrv $CELL_DIR/WRV-VERDICT_$POSITION_ID.json --readback $CELL_DIR/READBACK-VERDICT.json \
+  --blank-state "<real reading or 'not measured — <reason>'>" \
+  --verdict-file <path|-> --anomalies-file <path|-> \
+  --write-wallclock-s <measured> --write-app-reported-s <app-reported, or 'not measured — <reason>'> \
+  --jsonl .planning/v1.34/bench/EVIDENCE.jsonl
+python3 .planning/v1.34/tools/render_evidence.py --jsonl .planning/v1.34/bench/EVIDENCE.jsonl \
+  --target .planning/v1.34/bench/EVIDENCE.md
 ```
+
+**(Amendment 3, clause (1)):** the `append_evidence.py` append and its paired
+`render_evidence.py` plain re-render run in this same step, immediately after this
+position's provenance and WRV-VERDICT both exist — one row per position, as that position
+completes, never batched to `P-11`. `append_evidence.py` writes via
+`render_evidence.append_row_to_file()` internally, which does **not** itself re-render
+`EVIDENCE.md` (its append path returns before the render path), so the two commands above
+are an atomic pair: skipping the re-render leaves `render_evidence.py --check` (the
+per-cell gate's fourth live leg) red.
 
 `judge_wrv.py` computes SHA-256 over the full 65536 B against the written image — never
 `dev consistency-check`'s own exit code (Pitfall 6: that code compares the N reads only to
@@ -286,23 +304,36 @@ for W27C512 repeats every 65536 B and would leave an A16/A17 aliasing fault unat
 this 18-address-bit part — D-12):
 
 ```
-python3 .planning/v1.34/tools/gen_addr_image.py --stamp-width 32 262144 $MASK $CELL_DIR/written.bin
-time FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT write w29c020 $CELL_DIR/written.bin
+python3 .planning/v1.34/tools/gen_addr_image.py --stamp-width 32 262144 $MASK $CELL_DIR/reads/$POSITION_ID/written.bin
+time FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT write w29c020 $CELL_DIR/reads/$POSITION_ID/written.bin
 ```
 
 Read counts and arbitration are exactly `P-07`'s rule, over 262144 B: three independent reads
-on the v1.33 arm always; a single read on the control arm, escalating to three only where the
+on the v1.33 arm always (`--output-dir $CELL_DIR/reads/$POSITION_ID`); a single read on the
+control arm (`$CELL_DIR/reads/$POSITION_ID/run_01.bin`), escalating to three only where the
 v1.33 arm's three reads for this position disagreed. A disagreement is recorded, never retried.
 
 ```
-python3 .planning/v1.34/tools/judge_wrv.py --written $CELL_DIR/written.bin --reads $CELL_DIR/reads \
+python3 .planning/v1.34/tools/judge_wrv.py --written $CELL_DIR/reads/$POSITION_ID/written.bin --reads $CELL_DIR/reads/$POSITION_ID \
   --expect-size 262144 --app-verdict <dev consistency-check's own 0/1/2, when it ran> \
-  --position-id $POSITION_ID --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/wrv_verdict.json
+  --position-id $POSITION_ID --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/WRV-VERDICT_$POSITION_ID.json
 FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR python3 .planning/v1.34/tools/capture_provenance.py \
   --cell-id $CELL_ID --position-id $POSITION_ID \
   --arm {control|v133} --target $TARGET --port $PORT --chip w29c020 --shield-rev "$SHIELD_REV" \
   --pins .planning/v1.34/rig-pins.json --out $CELL_DIR/provenance_$POSITION_ID.json
+python3 .planning/v1.34/tools/append_evidence.py --position-id $POSITION_ID \
+  --cell-dir $CELL_DIR --provenance $CELL_DIR/provenance_$POSITION_ID.json \
+  --wrv $CELL_DIR/WRV-VERDICT_$POSITION_ID.json --readback $CELL_DIR/READBACK-VERDICT.json \
+  --blank-state "<real reading or 'not measured — <reason>'>" \
+  --verdict-file <path|-> --anomalies-file <path|-> \
+  --write-wallclock-s <measured> --write-app-reported-s <app-reported, or 'not measured — <reason>'> \
+  --jsonl .planning/v1.34/bench/EVIDENCE.jsonl
+python3 .planning/v1.34/tools/render_evidence.py --jsonl .planning/v1.34/bench/EVIDENCE.jsonl \
+  --target .planning/v1.34/bench/EVIDENCE.md
 ```
+
+**(Amendment 3, clause (1)):** same atomic append-then-re-render pair as `P-07`'s, for this
+position — see `P-07`'s own note above; not repeated per step.
 
 Performer: Claude.
 
@@ -316,8 +347,23 @@ operator (the physical steps `P-03`/`P-05`/`P-08` repeat).
 ### P-11 — Teardown
 
 Record the final board and arm state: re-run `probe_board.py` to confirm the board identity
-has not changed since `P-02`, then run the config-dir check below, then append this cell's four
-position rows to `bench/EVIDENCE.jsonl` via the phase's evidence writer. Performer: Claude.
+has not changed since `P-02`, then run the config-dir check below, then assert this cell's
+evidence is complete and declare the leave-state. Performer: Claude.
+
+**(Amendment 3, clause (1)):** the per-position `EVIDENCE.jsonl` append moved to `P-07` and
+`P-09` — one row per position, written as that position completes. `P-11` is therefore a
+**completeness assertion**, not a write step: confirm that all four of this cell's
+`position_id`s are present in `bench/EVIDENCE.jsonl` (or, for a cell that has fewer than four
+positions by design, that every position this cell actually ran has a row), and that
+`render_evidence.py --jsonl .planning/v1.34/bench/EVIDENCE.jsonl --target
+.planning/v1.34/bench/EVIDENCE.md --check` is green (no hand-edit drift).
+
+**(Amendment 3, clause (2), D-12):** `P-11` also carries a general, **cell-agnostic**
+leave-state declaration: record the board, port, arm, chip seated (or removed), pot
+setting, and shield state this cell is left in. The concrete value for each of the six is
+supplied by the executing phase's own plan, never by conditional text in this procedure —
+this clause names the six fields every cell must declare; it does not itself declare a
+value for any of them.
 
 ```
 python3 .planning/v1.34/tools/probe_board.py --target $TARGET --port $PORT \
@@ -347,13 +393,23 @@ the assignment literally**, by the nature of what an environment variable is —
 existing argv re-parse (`check_commands`) has nothing to inspect here, and this procedure does not
 pretend otherwise. The two assertions below are the mechanisms that actually exist today:
 
-1. **Assert `~/.firestarter` still does not exist.** This is the cheap, falsifiable positive
-   proof that no invocation in this cell fell back to the unset default (`config.py`'s
-   `get_config_dir()` resolves there when `FIRESTARTER_CONFIG_DIR` is absent, and
-   `HOME_PATH`/`DATABASE_FILE`/`PIN_MAP_FILE` would have been computed against it at import time
-   for that invocation, creating it). It is checkable today, without a device, and it is exactly
-   the failure mode a missing env-var prefix would produce. Treat its existence as a `P-H1` rig
-   failure — the seam this rule exists to prove was not actually used by at least one invocation.
+1. **(Amendment 3, clause (4)) Assert `~/.firestarter` is unchanged from the recorded
+   baseline** — restated from the original "assert it still does not exist" now that the
+   directory is a known, disclosed, carried-forward artifact on this container (see below).
+   The pinned baseline: path `/home/vscode/.firestarter`; exactly one file, `config.json`,
+   30 bytes; `config.json` sha256
+   `b323867c1f01b22a705dd9caf003ab7302a249fe46772f5b02e44aaa2760dd79`; tree sha (sorted
+   relpath plus content) `423546cd37b5b45d9654e5acd07bd7e2a3c9e1df77e4d5feb79951bf37329951`;
+   mtime `1787817565` (`2026-08-27 07:59:25 UTC`). A **change** to any of those four values
+   (file count/size, `config.json` sha256, tree sha, mtime) is the `P-H1` finding — the seam
+   this rule exists to prove was not actually used by at least one invocation. Deletion is
+   **never** attempted: the sandbox denies it, and deleting it destroys the evidence. This is
+   the cheap, falsifiable positive proof that no invocation in this cell fell back to the
+   unset default (`config.py`'s `get_config_dir()` resolves there when
+   `FIRESTARTER_CONFIG_DIR` is absent, and `HOME_PATH`/`DATABASE_FILE`/`PIN_MAP_FILE` would
+   have been computed against it at import time for that invocation) — it is checkable
+   today, without a device, and it is exactly the failure mode a missing env-var prefix
+   would produce.
 2. **Only then**, re-verify `$FIRESTARTER_CONFIG_DIR`'s content SHA is unchanged from the value
    seeded at bring-up, via `gate_record.py`'s existing `check_config_dir_sha` (D-07 — either arm
    writing to the shared config dir mid-cell is a visible, recorded event, not invisible drift),
@@ -527,3 +583,51 @@ chip seated). No real sweep cell (`A1`/`A2`/`A3-B2`/`B1`/`B3`) has run yet under
 No `## Step list` text outside `P-11`'s own body moved, and the arm-agnostic empty-diff render
 gate (`render_steps.py --arm control` vs `--arm v133`) was re-confirmed empty after this edit —
 the new command block carries no arm-dependent token (`probe_board.py` takes no `$ARM_BIN`).
+
+**Amendment 3 — 2026-08-27, Phase 161 Plan 01:** (a) What changed: (1) **(D-06)** The
+`EVIDENCE.jsonl` append moves out of `P-11` and into `P-07` and `P-09` — one row per
+position, written by `append_evidence.py` as that position completes, each append
+immediately paired with a plain `render_evidence.py --jsonl … --target …` re-render in the
+same step. `P-11` becomes a **completeness assertion**: all four of this cell's rows are
+present in `bench/EVIDENCE.jsonl`. (2) **(D-12)** `P-11` gains a general, **cell-agnostic**
+requirement: declare and record the leave-state — board, port, arm, chip seated, pot,
+shield. The concrete value is supplied by the executing phase's own plan, never by
+conditional text here. (3) **(per-position paths)** `P-07`'s and `P-09`'s `--output-dir`,
+`--reads`, `written.bin` and verdict paths become `$POSITION_ID`-keyed. The shared
+`$CELL_DIR/reads`, `$CELL_DIR/written.bin` and `$CELL_DIR/wrv_verdict.json` in both step
+bodies become `$CELL_DIR/reads/$POSITION_ID/` (read set **and** the position's
+`written.bin`) and `$CELL_DIR/WRV-VERDICT_$POSITION_ID.json`. The verdict filename is
+`WRV-VERDICT` in capitals, matching `BRINGUP-wrv` and D-05, never the lowercase
+`wrv_verdict.json` the old blocks showed. The measured layout rationale:
+`bench/.gitignore` is exactly `cells/*/reads/` and `cells/*/written.bin`, so a
+`positions/<id>/` directory would **not** be ignored and would silently commit ~12 large
+binaries, while everything under `reads/<id>/` stays ignored and the committed records
+(`provenance_<id>.json`, `WRV-VERDICT_<id>.json`) stay outside it. (4) **(`~/.firestarter`)**
+`P-11` teardown assertion (1) of 2 is restated from "assert `~/.firestarter` still does not
+exist" to "assert `~/.firestarter` is **unchanged from the recorded baseline**", with the
+baseline pinned inline: path `/home/vscode/.firestarter`; exactly one file, `config.json`,
+30 bytes; `config.json` sha256
+`b323867c1f01b22a705dd9caf003ab7302a249fe46772f5b02e44aaa2760dd79`; tree sha (sorted
+relpath plus content) `423546cd37b5b45d9654e5acd07bd7e2a3c9e1df77e4d5feb79951bf37329951`;
+mtime `1787817565` (`2026-08-27 07:59:25 UTC`). A **change** to any of those is the `P-H1`
+finding. Deletion is never attempted — the sandbox denies it and deleting destroys the
+evidence. Assertion (2), the frozen `FIRESTARTER_CONFIG_DIR` content SHA
+(`77adfdd26ed8710c4a70882e6dc9ee7bb494286fe225000d581f9e730dd77ad0`, checked via
+`check_arms.py --expect-config-sha`), is unaffected and stays exactly as written. (b) Why:
+(1) a kill after position 3 loses all four rows' assembly and `EVIDENCE.jsonl` silently
+lags the bench, which is what D-15's append-only design exists to prevent. (2)
+cell-conditional text is the same shape as the arm-conditional text this document forbids.
+(3) `judge_wrv.load_reads()` globs `run_*.bin` in `--reads` and counts what it finds, so
+`P-09` would see `P-07`'s three 65536 B files and record a `size_violations` that makes
+`match` unreachable, and across the arm switch a surviving `run_01.bin` from a different
+mask would record an N=3 `disagreement` that never happened. (4) the directory exists on
+this container right now, a Phase 160 disclosed carry-forward, so the assertion as
+literally written is unconditionally red and would book twelve false `P-H1` halts. (c)
+Which cells ran under which text: every bring-up cell (`BRINGUP-uno`, `BRINGUP-uno328pb`,
+`BRINGUP-leonardo`, `BRINGUP-wrv`) ran under the pre-Amendment-3 text; **no real sweep cell
+(`A1`/`A2`/`A3-B2`/`B1`/`B3`) has run under either text** — Amendment 3 lands before the
+first sweep cell, so every sweep cell in this milestone runs under the new text. The
+arm-agnostic empty-diff render gate (`render_steps.py --arm control` vs `--arm v133`) was
+re-confirmed empty after this edit — none of the four clauses adds an `[arm: …]` marker or
+an `$ARM_BIN` token, and `$POSITION_ID` is already declared among the non-arm-dependent
+substitution tokens in `## Arm substitution`.
