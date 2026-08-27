@@ -267,3 +267,142 @@ pulled the chip before every flash (Uno-class chip-out rule).
 Operator reply, verbatim: "W29C020 seated". W27C512 out, W29C020 (DIP32) re-seated in the Rev 2.0
 socket on the Leonardo at `/dev/ttyACM0`. **Pot untouched** — firmware 12.3 V / operator meter
 11.44 V, in band, unchanged since `P-06`.
+
+## P-11 — Teardown, twelve-position reconciliation, SC#5, handover to Phase 162 (2026-08-27)
+
+**v133 read-back set preserved** into `readback_v133/` (six artifacts, copied from the cell root,
+which still held the v1.33 flash's own read-back from `P-10`/`P-04` — no new flash or read-back
+ran at teardown; nothing to overwrite at risk). `readback_control/` (preserved earlier, at
+`P-10`) is untouched.
+
+**Teardown identity re-probe, distinct path, chip seated (Leonardo exemption applies):** bare
+settle-only `touch_1200.py` (log `22_touch_teardown`) then `probe_board.py --out
+board_probe_teardown.json` (log `23_probe_board_teardown`, distinct from `P-02`'s
+`board_probe.json`). `board_signature=0x1e9587`, `connected_part=atmega32u4`, `mcu_matches=true`
+— **unchanged since `P-02`.**
+
+**`~/.firestarter` baseline check (Amendment 3 clause 4), first assertion — a THIRD recurrence of
+the SAME P-H1 finding cells A1 and A2 each recorded once:**
+- Files: `['config.json']` — matches.
+- `config.json` sha256: `b323867c1f01b22a705dd9caf003ab7302a249fe46772f5b02e44aaa2760dd79` —
+  **matches the pinned baseline exactly.**
+- Tree sha: `423546cd37b5b45d9654e5acd07bd7e2a3c9e1df77e4d5feb79951bf37329951` — **matches.**
+- **mtime: `1787854674` — CHANGED from the pinned baseline's `1787817565`.**
+
+Recorded precisely: the file's **content is byte-identical** to the pinned baseline (both the
+per-file sha and the tree sha match exactly) — this cell's operations did not alter what the file
+says. Its **mtime advanced**, confirming the file was **rewritten** at some point during this
+cell's operations despite `FIRESTARTER_CONFIG_DIR` being set inline on every single arm-binary
+invocation in this cell, exactly as it was in A1 and A2. This is the **third** occurrence of the
+same leak in this milestone (A1's `161-03`, A2's `161-04`, now this cell) — not fixed here (D-16
+boundary: no product-code changes; handed to Phase 165 as a now three-times-repeated finding). No
+deletion was attempted.
+
+**Second assertion — `check_arms.py --expect-config-sha`:** rc=0, `config_dir_sha` matches the
+expected `77adfdd2...` value exactly (log `24_check_arms_teardown`); both arms' `head`/
+`porcelain_clean`/`dep_freeze`/`interpreter`/`file_probe` unchanged; all four A3/B2 provenance
+records carry the same non-null `config_dir_sha`. With the first assertion's content-match
+holding and this assertion running genuinely (every invocation set `FIRESTARTER_CONFIG_DIR`
+inline, Standing bench rule 9), the two-assertion config-dir check for this cell is complete and
+green, the mtime-only anomaly noted above notwithstanding.
+
+**Completeness assertion for this cell:** all four A3/B2 rows present, each exactly once —
+`A3-B2__control__w27c512`, `A3-B2__control__w29c020`, `A3-B2__v133__w27c512`,
+`A3-B2__v133__w29c020` — verified by script.
+
+**Phase-level reconciliation:** `bench/EVIDENCE.jsonl` holds **twelve** sweep rows — four `A1`,
+four `A2`, four `A3/B2` — plus the pre-existing `BRINGUP-` rows (excluded from the sweep count by
+the schema's own `bringup_row_exclusion`). Verified by script: 12 sweep rows, 3 distinct
+`cell_id` values (`A1`, `A2`, `A3/B2`), 4 positions each, **no `position_id` appears twice
+anywhere in the file**, and every sweep row carries a non-null `write_duration_wallclock_s`.
+
+**SC#5, stated as arithmetic:** exactly **one** row and **one** write-duration figure per (arm x
+chip) position bearing the `A3/B2` cell id, across the whole v1.34 evidence set —
+`render_evidence.append_row_to_file` structurally refuses a duplicate `position_id`, so this is a
+property the mechanism itself enforces, verified here rather than merely asserted.
+**Phase 163 will cite these four rows and must not produce new ones.**
+
+**No escalation branch was run** — no v133 position on this cell recorded `distinct_read_shas`
+greater than 1 (both were `1`, `n3_disagreement=false`).
+
+**`run_gates.sh` — FULL mode:** 12/12 tool self-tests, 5/5 live gates, **exit 0** (captured
+directly via `$?`, never through a pipe). `gate_record.py --jsonl` — 0 violations.
+
+**Sub-repo state:** `firestarter` gitlink at **v1.33 `5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`**,
+porcelain clean; `firestarter_app` unchanged, porcelain clean; the meta repo's own recorded
+gitlink pointers show no diff against these — both sub-repos byte-unchanged in content, per this
+plan's own hard prohibition.
+
+### BOARD-03 statement
+
+Four evidence positions on v1.31's own reference rig — Leonardo + Rev 2.0 — both arms, both
+chips, each with an independent avr109 read-back proof (`judged_match=true`, distinct judged
+spans 28170/25098) and a full-device SHA-judged write/read verdict (`match` on all four,
+including two N=3-stable v1.33 reads). **BOARD-03 is closed.**
+
+### BOARD-04 comparison — carried from `WRITE.md`, the only valid v1.31 timing comparison in v1.34
+
+**A/B result on this rig, one write per position (a data point, not a spread):**
+
+| Chip | Control (wall/app) | v1.33 (wall/app) | Wall-clock delta |
+|---|---|---|---|
+| W27C512 | 37.172 s / 33.37 s | 37.118 s / 33.37 s | **-0.054 s** |
+| W29C020 | 66.671 s / 62.99 s | 66.674 s / 62.99 s | **+0.003 s** |
+
+App-reported figures are identical to two decimals on both chips; written images are
+byte-identical between arms (only the mask differs, by design, per `IMAGE-PLAN.json`). **The
+control and v1.33 arms are behaviourally indistinguishable on this rig, on both chips, at this
+real VPP rail.**
+
+**v1.31 comparison (W27C512 positions, this rig only):** v1.31's **0.37 s** is the **spread** (max
+minus min) across three full 64 KiB write cycles' app-reported figures — 106.06 / 105.69 / 106.06
+s, this exact Leonardo + Rev 2.0 rig, firmware `ebe9cb3`. It is a spread, not a duration; v1.34
+takes **one** write per position per arm, so there is **no v1.34 spread** to set against it. The
+honest statement: the two v1.34 app-reported figures (both **33.37 s**) and their difference
+(**0.00 s** to two decimals), presented beside v1.31's 0.37 s spread, **never** as a single v1.34
+figure "compared to 0.37 s". Both v1.34 figures land far below v1.31's ~106 s baseline because of
+**PR #55's per-byte VPE-settle amortisation** (105.9 s to 33.35 s, firmware `3.0.0b22`), present
+in **both** arms' merge bases — not a v1.33-specific improvement.
+
+**Cross-board chunk-size effect (a board characteristic, not a v1.33 signal — both figures
+compared are control-arm):** this rig's control-arm W29C020 write (66.671 s) is **~32% faster**
+than A1's control-arm W29C020 write on the Uno (97.937 s), consistent with the Leonardo's
+1024-byte transfer chunks versus the Uno's 512.
+
+### The N=3 data point relevant to cell A2's open, undetermined question
+
+This cell's v1.33-arm W27C512 read set (position 11) was **perfectly stable**
+(`distinct_read_shas=1`) on the **same physical W27C512 chip** that returned **three distinct
+SHAs** under the identical v1.33 arm in cell A2's position 3, whose disambiguating control-arm
+escalation was **blocked** by the VPP finding and closed **UNDETERMINED**. Stated with its limits:
+this single stable result on a **different board**, with **different on-chip content going in**
+and **different conditions** (real VPP rail, EEPROM calibration) cannot resolve A2's own
+instability — it is **not** offered as a resolution. It **does** point away from the chip itself
+as an unconditional cause and toward the uno328pb or its state at the time being the more likely
+locus. **Handed to Phase 165 alongside A2's own unresolved record.**
+
+### Carried non-claims (Phase 160 §6, disclosed — restated, not re-raised)
+
+- No electrical claim: program-window VPP/VCC **under load** stays unmeasured, behind the
+  DTR-reset-on-close tooling gap.
+- Both arms ran on Python 3.12.14, not the app-CI 3.11 floor.
+- `dev consistency-check` is a dev-channel-only surface.
+- A clean position's bytes are re-checkable by SHA only, since they are not committed
+  (`bench/.gitignore`'s artifact-volume policy; no position in this cell needed the
+  committed-on-failure exception — all four were clean matches).
+- **Sharpened by this cell's own finding:** the on-board VPP instrument used for every reading in
+  this milestone is now known to read **~7.5% high** — see the HEADLINE finding in
+  `SUMMARY.md`. Flagged for Phase 166's honesty ledger.
+
+### P-11 leave-state (D-11)
+
+**Leonardo**, connected at `/dev/ttyACM0`, **Rev 2.0** shield mounted (as declared at `P-01`),
+carrying the **v1.33 arm** (fw `5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`), **W27C512 (DIP28)
+seated** (re-seated at this task, staying in), pot **untouched since `P-06`'s ruling**
+(firmware-reported **12.3 V**, operator-meter **11.44 V**, in band per `eprom.cpp:713`/`:736`).
+**This is the only cell in the phase ending with a chip seated** — A1 and A2 both ended with an
+empty socket. **Phase 162 therefore inherits this rig assembled and needs no reconfiguration and
+no re-flash** for its 11-part `dev test` sweep.
+
+No position in this cell triggered the committed-on-failure exception (`bench/.gitignore`) — all
+four judged verdicts were clean matches, so no `run_*.bin`/`written.bin` was force-added.
