@@ -169,3 +169,12 @@ unbounded hang; measured at 431/512 bytes into that block, not just "the block")
 command's own exit code 0 disagrees with the judged mismatch — recorded as a finding, not
 resolved). `EVIDENCE.jsonl` row appended, `outcome=skipped-with-reason` (computed, not hand-set).
 `render_evidence.py --check`: green.
+
+## P-08 — Swap to W29C020 (2026-08-27, operator)
+
+Operator, verbatim: "W29C020 seated". W27C512 (DIP28) removed, W29C020 (DIP32) seated on the
+uno328pb at `/dev/ttyUSB0`. **D-07 safety judgement: the operator inspected the board before the
+swap and affirmatively raised no concern** — this is an operator clearance actively given at this
+gate, not a silent absence of objection. **Pot not touched** — Task 4's single confirming read
+(11.9 V, in band against the firmware guard window) stands for the whole cell; no second `vpp`
+invocation was run for this swap.
