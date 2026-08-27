@@ -555,3 +555,67 @@ disclosed non-claim concrete teeth rather than leaving it a formality nobody eve
 — this cell's finding must not be read as implying A1 ran at a true 12.0 V, and equally must not
 be read as implying it did not. A1's four positions passed their judged SHA oracles regardless,
 and that judgment is unaffected by VPP calibration either way (the oracle never consults VPP).
+
+## Escalation step 6 — flash back to v1.33, proven (2026-08-27)
+
+**Firmware checkout:** `git -C /workspaces/firestarter checkout 5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`
+— pre-checkout HEAD `8695ee52...` (control, from the escalation's re-flash); post-checkout HEAD
+`5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`, equal to `arms.v133.fw_sha`; porcelain empty both
+before and after.
+
+**Flash** (`pio run -t upload -e uno328pb --upload-port /dev/ttyUSB0`, log
+`47_pio_upload_v133_final`): rc=0, `23000/32768 B` — matches the v133 arm's expected span exactly.
+
+**Independent read-back judge** (`judge_readback.py`, out-dir `FINAL_READBACK_v133/`, a distinct
+path from `readback_control/`, `readback_v133/` and `ESCALATION_A2__control__w27c512/` — none
+overwritten, log `48_judge_readback_v133_final`): `judged_match=true`, `judged_span_bytes=23000`,
+`sha_actual_judged=bbf7aa68...` — **byte-identical** to Task 9's original v1.33 flash on this
+board and to plan 161-02's D-10 pre-proof. Both vector exclusions applied; raw-span SHAs recorded
+and never compared, as this target requires.
+
+**Gitlink verified:** `git -C /workspaces/firestarter rev-parse HEAD` = `5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`,
+porcelain empty. `git -C /workspaces diff --stat -- firestarter` — **empty**. The cell ends on the
+v1.33 arm exactly as required, with no gitlink diff to commit (meta's own committed pointer was
+already at this SHA before this plan started).
+
+**Both sub-repos confirmed byte-unchanged:** `git -C /workspaces/firestarter status --porcelain`
+and `git -C /workspaces/firestarter_app status --porcelain` both empty.
+
+**Completeness assertion:** all four A2 `position_id`s present in `bench/EVIDENCE.jsonl`, each
+exactly once, `outcome=skipped-with-reason` for all four, each with a non-null
+`write_duration_wallclock_s`.
+
+**Per-cell gate (D-04):** `bash run_gates.sh` — **exit 0** (captured directly via `$?`, never
+through a pipe), **12/12 tool selftests, ALL GATES PASSED (5/5 live gates)**. `gate_record.py
+--jsonl`: **0 violations**.
+
+**Force-added positions:** **all four.** Every A2 position judged something other than a clean
+`match` (`mismatch` x2, `disagreement` x1, `incomplete-read-set` x1) — the commit-on-failure
+exception applies to all four, and their `reads/<position_id>/` contents are force-added so
+Phase 165's RCA has the actual bytes.
+
+### BOARD-04 non-claims, carried and not re-derived
+
+1. v1.31's **0.37 s** figure is a **spread** (max minus min across three app-reported,
+   success-only figures on **Leonardo + Rev 2.0**), not a duration — A2 is a **uno328pb**, so no
+   comparison against it is drawn here at all; that comparison is valid only on cell A3/B2.
+2. This cell's own write-duration figures (4.019-15.813 s, all failures) are not compared against
+   any v1.31 figure as if they were completions of the same kind of measurement.
+
+### P-11 leave-state (cell-agnostic declaration, this cell's concrete values)
+
+| Field | Value |
+|---|---|
+| Board | uno328pb (ATmega328PB, signature `0x1e9516`) |
+| Port | `/dev/ttyUSB0` (CH340, `1a86:7523`) — **only one live node this whole cell** |
+| Arm on the board | **v1.33** (fw `5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`) |
+| Chip seated | **None** — socket confirmed empty at Task 14's chip-out, again at escalation step 1, and again at escalation step 5 (this final teardown state) |
+| Pot | **NOT adjusted.** Left exactly where the operator had it: the firmware-reported reading there is **~12.5 V**; a multimeter simultaneously reads **11.7 V**. This ~0.8 V ADC discrepancy is the cell's headline finding — the next session must NOT "correct" the pot against the firmware's own (miscalibrated) reading without first re-confirming with a meter, or it risks pushing the real rail further out of range in the wrong direction. |
+| Shield | **Rev 2.0** (operator-declared, silkscreen-authoritative) |
+
+This is A2's own accurate leave-state, whatever it is — **nothing here is staged toward plan
+161-05** (cell A3/B2), which needs a **Leonardo**, not this board, and no attempt was made to
+arrange anything for it. The one item 161-05 explicitly inherits by name is the **shared physical
+W27C512**: eight handlings within this cell alone (on top of its two uses in cell A1), its
+physical condition **never assessed** at any point — 161-05 must treat that as **uncertainty**,
+never as a clearance that the part is sound.
