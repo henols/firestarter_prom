@@ -350,3 +350,8 @@ affected.
 ---
 *Phase: 160-rig-dual-arm-build-flash-provenance-the-shared-cell-procedur*
 *Completed: 2026-08-27*
+
+## Self-Check: PASSED
+
+All claimed files found on disk; all four commit hashes (`e95fbc65`, `f048c204`, `61fa09a4`,
+`de39d274`) found in `git log --oneline --all`.
