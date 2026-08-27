@@ -140,3 +140,57 @@ is nothing of the kind; it is not one.
 - **Outcome:** `validated`. Appended to `EVIDENCE.jsonl` as position 11 of 12,
   `render_evidence.py --check` green. No re-seat needed; no `0x303`-class fault occurred; the
   chip-condition caveat closed at `P-05` held through this position too.
+
+## Position 4 — `A3-B2__v133__w29c020` — the last position of the phase's twelve
+
+- **Image:** `gen_addr_image.py --stamp-width 32 262144 27` -> `reads/A3-B2__v133__w29c020/written.bin`,
+  262144 B, sha256 `5da571d8407b97c754858bb63524b4adc80c8078d90d8a39f478cb248edfbfb8`, matches
+  `IMAGE-PLAN.json`'s row (mask 27, stamp 32 — differs by design from position 2's mask 25).
+- **Write:** `v133` arm, `firestarter -p /dev/ttyACM0 write w29c020 written.bin`, under
+  `timeout --signal=INT 391.748` — the **DERIVED** ceiling (4x A1's measured control-arm W29C020
+  wall-clock, 97.937 s; the 600 s absolute fallback was **not** used). Wrapper exit code **0**
+  (log `20_write_v133_w29c020.std{out,err}.log`).
+  - **Wall-clock (judged measure):** **66.674 s**
+  - **App-reported (unjudged datum):** **62.99 s** (`Write to W29C020 successful (62.99s).`,
+    grepped by string).
+- **Read set — N=3 read-stability gate:** `dev consistency-check w29c020 --runs 3
+  --output-dir reads/A3-B2__v133__w29c020 --keep-files`, whole-invocation wall-clock **135.763 s**
+  (log `21_consistency_check_v133_w29c020.std{out,err}.log`; the first attempt at this command
+  was killed by the calling shell's own outer timeout mid-run-3 at ~120 s — an artifact of the
+  tool harness, not a device behaviour; the partial `run_03.bin` (163840/262144 B) from that
+  attempt was discarded and every file re-generated cleanly on the immediate re-run with a longer
+  outer timeout, recorded here per the same discipline as a discarded touch/probe attempt).
+  Per-run app-reported elapsed: run 1 45.16 s, run 2 45.11 s, run 3 45.04 s. **All three SHAs
+  agree with each other AND with the written image** (`5da571d8...`) — `distinct_read_shas=1`,
+  `n3_disagreement=false`. Command exit code **0** (`--app-verdict`).
+- **Judge:** `judge_wrv.py --expect-size 262144 --app-verdict 0` ->
+  `sha_verdict_judged=match`, `read_count=3`, `distinct_read_shas=1`, `size_violations=[]`,
+  `app_verdict_unjudged=0` agreeing.
+- **A/B pair vs this cell's own control W29C020 (position 2), same board same chip same shield
+  same pot, only the arm differs:** control was **66.671 s wall / 62.99 s app**; this v133-arm
+  write is **66.674 s wall / 62.99 s app**. Wall-clock difference 0.003 s; app-reported figures
+  identical to two decimals. As with the W27C512 pair, essentially no behavioural difference
+  between the two arms for this chip on this rig at this real VPP rail.
+- **Cross-board context (a board characteristic, not a v1.33 signal — both this cell's control
+  and v133 figures are compared to A1's control-arm figure, never v133-to-v133 across boards):**
+  A1's control-arm W29C020 write (Uno) was 97.937 s; this rig's **control** W29C020 write
+  (position 2) was 66.671 s — **~32% faster**, consistent with the Leonardo's 1024-byte chunks
+  vs the Uno's 512.
+- **Outcome:** `validated`. Appended to `EVIDENCE.jsonl` as position 12 of 12 — **the last
+  position of the phase's twelve sweep positions.** No re-seat needed; no `0x303`-class fault
+  occurred.
+
+### Cell A3/B2 four-position A/B summary (Phase 163 cites these rows, never re-runs them)
+
+| Position | Arm | Chip | Judged verdict | Wall-clock | App-reported |
+|---|---|---|---|---|---|
+| 9 (`control__w27c512`) | control | W27C512 | match | 37.172 s | 33.37 s |
+| 10 (`control__w29c020`) | control | W29C020 | match | 66.671 s | 62.99 s |
+| 11 (`v133__w27c512`) | v133 | W27C512 | match (N=3 stable) | 37.118 s | 33.37 s |
+| 12 (`v133__w29c020`) | v133 | W29C020 | match (N=3 stable) | 66.674 s | 62.99 s |
+
+All four positions on this cell are clean matches — the control and v1.33 arms are
+**behaviourally indistinguishable** on both chips on this rig, at this real VPP rail (~11.44 V).
+The only two arm-attributable data points in this cell that carry any signal are the two
+independent read-back proofs' judged spans (28170 B control vs 25098 B v133, by construction —
+the arms' own binary sizes) — not a write/read timing difference.
