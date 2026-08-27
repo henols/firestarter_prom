@@ -135,3 +135,19 @@ plan 161-02) — carried here unchanged, not re-raised.
 now carry `fw_readback_sha_judged == 43dcb663...` (the control verdict's `sha_actual_judged`),
 `captured_at_step` still `2`. The two v1.33 positions' provenance are **untouched** — both still
 carry the `--pending-readback` placeholder, confirmed above.
+
+## P-05 / P-06 — Seat W27C512, pot confirmed against the firmware guard window (2026-08-27)
+
+Operator (via coordinator relay): "seated and set, 12.0V" — W27C512 (DIP28) seated in the Rev
+2.0 socket on the uno328pb at `/dev/ttyUSB0`; pot reported set and reading 12.0 V.
+
+Claude's single confirming `vpp` read: **11.9 V** (first reported reading; band 11.8-11.9V across
+the brief capture, no monitor loop). Judged against the firmware-derived accepted window
+`[11.4, 12.5]` V for a 12000 mV target (`firestarter/src/proms/eprom.cpp:713` HIGH guard
+`target+500mV`, `:736` LOW guard `target*95/100`), **not** string-equality to the target —
+**in band**. Full detail, including a corrected first determination recorded honestly rather than
+silently rewritten, in `POT.md`. `--force used? No.`
+
+**Avrdude window now closed:** the W27C512 is seated. From this point no avrdude operation of any
+kind (upload, read-back, or signature probe) may run on this board until the chip comes out again
+at Task 6's swap (`P-08`).
