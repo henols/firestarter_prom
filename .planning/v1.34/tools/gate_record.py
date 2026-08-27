@@ -176,6 +176,22 @@ def check_commands(record: dict, pins: dict) -> list[str]:
     forbidden_flags = set(pins.get("forbidden_flags", []))
     pio_binary = pins.get("pio_binary")
     pio_project_dir = pins.get("pio_project_dir")
+    # Rule 1 fix (found live, 160-09): rig-pins.json's forbidden_flags carries "-b" for
+    # firestarter_app's own --no-blank-check flag (Phase 145 D-17's withdrawn permission),
+    # but "-b" is ALSO avrdude's own, wholly unrelated baud-rate option (every avrdude
+    # invocation this rig makes passes "-b <baud>" -- see judge_readback.py's
+    # run_avrdude_read() and probe_board.py's run_avrdude()/run_urclock_probes()). A blind
+    # token match against a directly-recorded avrdude command (e.g. the uno328pb bring-up's
+    # corroborating "-c arduino" open-attempt, EVIDENCE.jsonl BRINGUP-uno328pb row) would
+    # reject a perfectly legitimate avrdude baud argument as though it were the withdrawn
+    # app flag. Scoped to the avrdude binary specifically -- the one binary this rig's own
+    # avrdude_binary pin resolves to -- not a blanket exemption.
+    avrdude_binary = pins.get("avrdude", {}).get("binary")
+
+    def _forbidden_flags_for(token0: object) -> set:
+        if avrdude_binary and token0 == avrdude_binary:
+            return forbidden_flags - {"-b"}
+        return forbidden_flags
 
     for i, entry in enumerate(commands):
         argv = entry.get("argv") if isinstance(entry, dict) else entry
@@ -196,7 +212,7 @@ def check_commands(record: dict, pins: dict) -> list[str]:
                 "binaries or a pinned rig-owned executable"
             )
 
-        bad_flags = forbidden_flags & set(str(a) for a in argv)
+        bad_flags = _forbidden_flags_for(token0) & set(str(a) for a in argv)
         if bad_flags:
             violations.append(
                 f"commands[{i}]: forbidden flag(s) {sorted(bad_flags)} present -- "
@@ -566,6 +582,25 @@ def _run_selftest() -> int:
         p.write_text(json.dumps(bad), encoding="utf-8")
         v = validate_cell_file(p, pins)
         report("negative 5: forbidden flag is caught", bool(v), "; ".join(v))
+
+        # --- positive: avrdude's own "-b <baud>" is NOT the withdrawn app flag (160-09
+        # Rule 1 fix) -- a directly-recorded avrdude command carrying "-b 115200" must pass ---
+        avrdude_ok = good_record(
+            commands=[{"argv": [pins["avrdude"]["binary"], "-c", "arduino", "-p", "atmega328pb",
+                                 "-b", "115200", "-P", "/dev/ttyUSB0", "-n"], "cwd": "/tmp"}]
+        )
+        p = tmp / "avrdude_baud_ok.json"
+        p.write_text(json.dumps(avrdude_ok), encoding="utf-8")
+        v = validate_cell_file(p, pins)
+        report("positive: avrdude's own -b <baud> argument is not the withdrawn app flag", not v, "; ".join(v))
+
+        # --- negative: "-b" on a NON-avrdude binary (e.g. the arm's own write command) is
+        # still caught -- the exemption above must be scoped to the avrdude binary only ---
+        bad_arm_b = good_record(commands=[{"argv": [arm_bin, "write", "w27c512", "-b"], "cwd": "/tmp"}])
+        p = tmp / "neg5b.json"
+        p.write_text(json.dumps(bad_arm_b), encoding="utf-8")
+        v = validate_cell_file(p, pins)
+        report("negative 5b: -b on a non-avrdude binary is still caught (exemption is scoped)", bool(v), "; ".join(v))
 
         # --- negative 6: pio command recorded with the wrong working directory ---
         bad = good_record()
