@@ -1,12 +1,12 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.34
-milestone_name: Pre-Merge Hardware Regression Validation
+milestone_name: — Pre-Merge Hardware Regression Validation
 current_phase: 161
 current_phase_name: BOARD — Board Sweep, Three Boards on Rev 2.0
 status: planning
-stopped_at: "Completed 160-13-PLAN.md (the phase's final plan) and operator-approved the phase gate. Task 1 ran the D-17 fresh-context reconstruction three times against `BRINGUP-wrv`'s real record, each round a genuinely fresh, tool-less `claude -p` session given only `provenance.json` + `PROCEDURE.md`: round 1 found a record insufficiency (image mask/stamp_width/sha absent from the record though the run needed them), fixed at the tool (`capture_provenance.py` extended, record re-patched, zero device I/O); round 2 confirmed the fix and found a prescription ambiguity (PROCEDURE.md P-11's teardown re-probe had no literal command), fixed by procedure amendment; round 3 confirmed both closures with zero values sourced outside the two inputs. Task 2 annotated the folded todo additively and filled the 38-row validation map. Task 3 assembled PHASE-160-GATE.md and presented it; the operator responded verbatim "Approved -- close Phase 160", with every limit and carried-forward item explicitly presented and explicitly accepted. RIG-05 marked Complete -- all five phase requirements (RIG-01...05) now Complete. Bench left as-is: Uno (ATmega328P) + Rev 2.0 shield, v1.33 arm flashed and proven, W27C512 SEATED, pot at 12.0V, port /dev/ttyACM0 -- safe for Phase 161's first cell to inherit without reconfiguration. Open item (not a blocker): a stray ~/.firestarter directory still exists on the container filesystem outside git (do not delete -- sandbox denies it and it is evidence); the frozen FIRESTARTER_CONFIG_DIR itself remains independently confirmed unchanged (D-07 holds). A second open item this same plan's reconstruction surfaced: BRINGUP-wrv's own P-11 teardown never re-ran probe_board.py (only the config-dir check ran) -- PROCEDURE.md now carries the missing literal command so it cannot recur, but this cell's board-identity-since-P-02 assurance was never re-confirmed and is not backfilled. Phase-level close-out (ROADMAP.md/STATE.md phase status, Phase 161 unlock) is the orchestrator's own next step, not recorded by this plan."
-last_updated: "2026-08-27T09:43:11.685Z"
+stopped_at: Phase 161 context gathered
+last_updated: "2026-08-27T10:13:48.174Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 160 complete, transitioned to Phase 161
 progress:
@@ -2959,8 +2959,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-27T09:15:00.000Z
-**Stopped at:** Completed 160-13-PLAN.md (the phase's final plan) and operator-approved the phase gate. Task 1 ran the D-17 fresh-context reconstruction three times against `BRINGUP-wrv`'s real record, each round a genuinely fresh, tool-less `claude -p` session given only `provenance.json` + `PROCEDURE.md`: round 1 found a record insufficiency (image mask/stamp_width/sha absent from the record though the run needed them), fixed at the tool (`capture_provenance.py` extended, record re-patched, zero device I/O); round 2 confirmed the fix and found a prescription ambiguity (PROCEDURE.md P-11's teardown re-probe had no literal command), fixed by procedure amendment; round 3 confirmed both closures with zero values sourced outside the two inputs. Task 2 annotated the folded todo additively and filled the 38-row validation map. Task 3 assembled PHASE-160-GATE.md and presented it; the operator responded verbatim "Approved -- close Phase 160", with every limit and carried-forward item explicitly presented and explicitly accepted. RIG-05 marked Complete -- all five phase requirements (RIG-01...05) now Complete. Bench left as-is: Uno (ATmega328P) + Rev 2.0 shield, v1.33 arm flashed and proven, W27C512 SEATED, pot at 12.0V, port /dev/ttyACM0 -- safe for Phase 161's first cell to inherit without reconfiguration. Open item (not a blocker): a stray ~/.firestarter directory still exists on the container filesystem outside git (do not delete -- sandbox denies it and it is evidence); the frozen FIRESTARTER_CONFIG_DIR itself remains independently confirmed unchanged (D-07 holds). A second open item this same plan's reconstruction surfaced: BRINGUP-wrv's own P-11 teardown never re-ran probe_board.py (only the config-dir check ran) -- PROCEDURE.md now carries the missing literal command so it cannot recur, but this cell's board-identity-since-P-02 assurance was never re-confirmed and is not backfilled. Phase-level close-out (ROADMAP.md/STATE.md phase status, Phase 161 unlock) is the orchestrator's own next step, not recorded by this plan.
+**Last session:** 2026-08-27T10:13:48.041Z
+**Stopped at:** Phase 161 context gathered
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
@@ -2996,7 +2996,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/161-board-board-sweep-three-boards-on-rev-2-0/161-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
