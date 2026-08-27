@@ -81,3 +81,10 @@ stand for the whole cell; no second `vpp` invocation.
 
 **Avrdude window closed again** from this confirmation: no upload, read-back or signature probe
 may run on this board until the chip comes out at Task 12's swap (`P-08`, second arm).
+
+## P-08 (second arm) — Swap to W29C020 again (2026-08-27, operator)
+
+Operator: "W29C020 seated". W27C512 removed, W29C020 (DIP32) seated again on the Uno at
+`/dev/ttyACM1`, for the v1.33 arm's last position. **Pot not touched** — `P-06`'s single
+confirming read continues to stand for the whole cell. No D-09 smoke re-run (one-time,
+A1-control-only bring-up datum; repeating it here would break positional symmetry).
