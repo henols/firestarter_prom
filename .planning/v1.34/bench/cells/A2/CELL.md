@@ -62,3 +62,32 @@ value. `surface_diff_ab`/`surface_diff_ba` both empty; 25/25 CLI surface parity 
 both arms — that is the point of running it. The operator was informed at this checkpoint that
 the 32-pin part swap later in this cell is conditioned on their own safety judgement of the board
 after the W27C512 attempt (Task 6/Task 12's `P-08` gates carry this explicitly).
+
+## P-02 — Board identity + pending provenance, all four positions (2026-08-27)
+
+**Signature probe** (log `01_probe_board`): `board_probe.json` — `connected_part=atmega328pb`,
+`board_signature=0x1e9516`, `mcu_matches=true`, `signature_route=route1`. Matches the expected
+constants exactly and matches the operator's declaration.
+
+**Control-arm `hw` probe** (log `02_hw_probe_pre_flash`, config dir inline): rc=0,
+`Hardware revision: Rev 2.0-class` — the non-authoritative controller-string datum, recorded
+alongside the authoritative signature probe. It agrees with the operator's silkscreen
+declaration ("Rev 2.0"), a useful (non-authoritative) cross-check.
+
+**Provenance captured for all four positions**, each with `--pending-readback` and its own
+`--arm`/`--chip`/`--out`, `--cell-id A2`, `--target uno328pb`, `--port /dev/ttyUSB0`,
+`--shield-rev "Rev 2.0"`:
+
+| `position_id` | file | rc | `captured_at_step` |
+|---|---|---|---|
+| `A2__control__w27c512` | `provenance_A2__control__w27c512.json` | 0 | 2 |
+| `A2__control__w29c020` | `provenance_A2__control__w29c020.json` | 0 | 2 |
+| `A2__v133__w27c512` | `provenance_A2__v133__w27c512.json` | 0 | 2 |
+| `A2__v133__w29c020` | `provenance_A2__v133__w29c020.json` | 0 | 2 |
+
+Verified: `board_signature` matches `rig-pins.json`'s `targets.uno328pb.mcu`; exactly four
+`provenance_A2__*.json` files exist with no default `provenance.json` collision; each record's
+`captured_at_step==2`, `cell_id=="A2"`, `target_env=="uno328pb"`; each record's `arm`/`chip`
+match its own `position_id`; each record's `image_mask`/`image_stamp_width`/`image_sha` equal
+`IMAGE-PLAN.json`'s row (masks 20/21/22/23); each record's `fw_sha`/`host_arm_sha` equal
+`rig-pins.json`'s pinned values for its own arm.
