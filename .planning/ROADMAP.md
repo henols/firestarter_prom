@@ -267,7 +267,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 160-10-PLAN.md — On-device bring-up on `leonardo`: measure the bootloader window, prove the read or take SC#2's named alternative with its limits, then the cross-flash completing D-03 on all three targets
+- [x] 160-10-PLAN.md — On-device bring-up on `leonardo`: measure the bootloader window, prove the read or take SC#2's named alternative with its limits, then the cross-flash completing D-03 on all three targets
 
 **Wave 8** *(blocked on Wave 7 completion)*
 

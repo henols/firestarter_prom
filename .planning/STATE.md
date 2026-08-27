@@ -5,10 +5,10 @@ milestone_name: Pre-Merge Hardware Regression Validation
 current_phase: 160
 current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: executing
-stopped_at: "Completed 160-09-PLAN.md (BRINGUP-uno328pb: vector-bootloader judged-span policy resolved, read chain proven, D-03 cross-flash MISMATCH observed and corrected; false task-1 socket declaration corrected post-closeout)"
-last_updated: "2026-08-27T06:46:18.670Z"
+stopped_at: "Completed 160-10-PLAN.md (BRINGUP-leonardo: Caterina/avr109 read chain proven on-device, bootloader-entry behaviour measured same-node, D-03 cross-flash MISMATCH observed and corrected; RIG-01 marked complete)"
+last_updated: "2026-08-27T07:24:22.445Z"
 last_activity: 2026-08-27
-last_activity_desc: "Phase 160 plan 09 execution complete (BRINGUP-uno328pb: -xshowvector interrogation resolved the vector-exclusion judged-span policy, read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected) plus a post-closeout record correction (task-1 socket declaration was false; corrected in EVIDENCE.jsonl/probe.json/CROSSFLASH.md/SUMMARY). Chip currently seated in the attached uno328pb board's socket -- unsafe to drive until removed."
+last_activity_desc: "Phase 160 plan 10 execution complete (BRINGUP-leonardo: Caterina bootloader-entry behaviour measured same-node for the read direction, full 32768 B read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected, completing D-03 across all three targets). RIG-01 marked Complete. Leonardo remains attached with a shield mounted and a W27C512 seated -- safe to drive (chip-out exemption)."
 progress:
   total_phases: 7
   completed_phases: 0
@@ -188,11 +188,11 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — EXECUTING
-Plan: 10 of 13
-Status: 160-09 (BRINGUP-uno328pb) complete — uno328pb vector-bootloader judged-span policy resolved from a live -xshowvector interrogation, read chain proven, D-03 cross-flash MISMATCH observed and corrected; a post-closeout record correction fixed a false task-1 socket declaration (no shield was actually fitted during the run — see 160-09-SUMMARY.md Deviation 4); waves 7-10 (plans 10-13, leonardo bring-up + sweep) remain on-device.
-**SAFETY: the currently attached board (`/dev/ttyUSB0`, ATmega328PB) HAS A CHIP SEATED IN THE SOCKET right now** — the shield was fitted and a chip inserted immediately after 160-09's last flash (~06:34:40Z, operator-confirmed). This board is Uno-class, so it is UNSAFE to drive (no avrdude/pio upload/read) until the chip is removed and confirmed empty. A resumed session must re-run the chip-out step before any further device I/O on this board.
-Last activity: 2026-08-27 — Phase 160 plan 09 execution complete (BRINGUP-uno328pb: bootloader interrogation resolved the vector-exclusion judged-span policy, read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected) plus a same-day record correction (operator's task-1 socket declaration was false; corrected in EVIDENCE.jsonl, probe.json, CROSSFLASH.md and the SUMMARY).
-Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Plan 10 (`leonardo`) proceeds next. Before any device I/O on the currently attached uno328pb board, the chip seated in its socket must be removed and confirmed empty. Plans 10-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Nothing else on the bench may run before this phase closes.
+Plan: 11 of 13
+Status: 160-10 (BRINGUP-leonardo) complete — Caterina/avr109 bootloader-entry behaviour measured live for the read direction (same node, not new; settle 2.0s, touch-to-responsive-programmer 3.487s), full 32768 B read chain proven on-device (judged_match=true, 28170 B control hex extent, 3.878s from touch to verdict against Caterina's ~8s window), D-03 cross-flash MISMATCH observed (24454/28170 bytes, 86.8%) and corrected — completing D-03 across all three targets (uno/uno328pb/leonardo). **RIG-01 marked Complete.** Waves 8-10 (plans 11-13: arms-provenance capture, fresh-context record-reconstruction falsification, phase close-out) remain.
+**SAFETY: the currently attached Leonardo board (`/dev/ttyACM0`, ATmega32U4) has a shield mounted and a W27C512 chip seated.** This is expected and safe — the Leonardo is the one board exempt from the chip-out-before-sideload rule (`rig-pins.json` `targets.leonardo.chip_out_before_sideload: false`) and is flashed/read with the chip seated. No chip operation (read/write/erase/blank/vpp) was performed against it in plan 10 — it remains untouched, ready for a later chip-level plan.
+Last activity: 2026-08-27 — Phase 160 plan 10 execution complete (BRINGUP-leonardo: Caterina bootloader-entry behaviour measured, read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected, D-03 complete across all three targets, RIG-01 marked Complete). A Rule 1 subprocess-decode-crash bug in probe_board.py/judge_readback.py was found and fixed in-phase.
+Next: **Phase 160 execution** — `/gsd-execute-phase 160`. Plan 11 proceeds next. Plans 11-13 must NOT run under `--auto`/`--chain` — those flags auto-approve the operator-physical gates (Phase 145 D-20). Nothing else on the bench may run before this phase closes.
 
 ## Roadmap Summary (v1.34)
 
@@ -2941,11 +2941,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 160 P07 | 70min | 3 tasks | 4 files |
 | Phase 160 P08 | ~2h | 3 tasks | 35 files |
 | Phase 160 P09 | 23min | 3 tasks | 26 files |
+| Phase 160 P10 | ~20min | 3 tasks | 31 files |
 
 ## Session
 
-**Last session:** 2026-08-27T06:46:18.670Z
-**Stopped at:** Completed 160-09-PLAN.md (BRINGUP-uno328pb: vector-bootloader judged-span policy resolved from a live -xshowvector interrogation, read chain proven, D-03 cross-flash MISMATCH observed and corrected); a post-closeout record correction fixed a false task-1 socket declaration (no shield was actually fitted during the run -- see 160-09-SUMMARY.md Deviation 4). SAFETY: the currently attached uno328pb board (`/dev/ttyUSB0`) has a chip seated in its socket right now -- unsafe to drive until removed and confirmed empty.
+**Last session:** 2026-08-27T07:24:22.445Z
+**Stopped at:** Completed 160-10-PLAN.md (BRINGUP-leonardo: Caterina/avr109 bootloader-entry behaviour measured live for the read direction (same-node), full 32768 B read chain proven on-device, D-03 cross-flash MISMATCH observed and corrected -- completing D-03 across all three targets). RIG-01 marked Complete. SAFETY: the currently attached Leonardo board (`/dev/ttyACM0`) has a shield mounted and a W27C512 chip seated -- this is expected and safe (chip-out-before-sideload exemption), and no chip operation was performed against it.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
