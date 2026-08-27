@@ -55,3 +55,14 @@ frozen pinned value. See `check_arms_pre_cell.json`.
 From the moment the W27C512 is seated again (Task 4, `P-05`/`P-06`) no avrdude operation of any
 kind may run on this board until the chip comes out again (`P-03`/`P-10` window for the second
 arm).
+
+## P-05 / P-06 — Seat W27C512, pot confirmed by measurement (2026-08-27)
+
+Operator: "Uno on /dev/ttyACM1, rev 2.0 shield and W27C512 seated" — W27C512 (DIP28) seated,
+board/shield re-confirmed. Pot not separately declared by the operator; `P-06` settled instead by
+Claude's single confirming `vpp` read: `VPP: 12.0V, Internal VCC: 5.1V`, matching the 12.0 V
+target to the precision this project records it at. Full detail in `POT.md`.
+
+**Avrdude window now closed:** the W27C512 is seated. From this point no avrdude operation of any
+kind (upload, read-back, or signature probe) may run on this board until the chip comes out again
+at Task 6's swap (`P-08`).
