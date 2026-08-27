@@ -167,6 +167,58 @@ wrote a fresh metadata block — consistent with the whole-flash unjudged SHA be
 across Events 1 and 3 (byte-identical), which a fresh, date-stamped metadata write would have
 broken.
 
+## Mid-run replug (record correction, added 2026-08-27)
+
+**A physical event occurred between Event 3's flash and its judged read-back, and it was
+absent from this record until now — that omission is itself the defect this note corrects.**
+
+Task 1's original operator gate recorded the socket declaration `"Yes — shield on, chip
+removed"`. That declaration was **false**, and the operator has since corrected it: no shield
+was fitted for any event in this file (Event 1 through the first part of Event 3) — the
+operator's own words: *"I sad the sheil was on but it wasnt, so i added it now"*. The shield
+was fitted **after** Event 3's flash, via a deliberate unplug/fit/replug, which the operator
+also confirmed explicitly: *"Yes — unplugged, fitted, replugged."*
+
+**Timing, from the recorded logs and the device-node timestamp:**
+
+| Time (UTC) | Event |
+|---|---|
+| 06:23–06:34:30 | Task 2 interrogation + Events 1–2 + Event 3's flash — **no shield fitted** |
+| 06:34:30.52 | `09_pio_upload_control_correction_event3.stdout.log` — Event 3's correction flash completes; avrdude self-verifies **26240 bytes of flash verified**, `[SUCCESS] Took 9.36 seconds` |
+| ~06:34:40 | Operator unplugs the board, fits the shield, replugs — `/dev/ttyUSB0`'s device-node creation time moves from 06:18 to **06:34:40**, corroborating the replug independently of the operator's own statement |
+| 06:34:43.55 | `10_judge_readback_correction_event3.stdout.log` — Event 3's judged read-back runs, ~3 s **after** the replug |
+
+**Harmlessness derivation (shown, not assumed):**
+
+1. **No safety invariant was violated.** With no shield fitted, there is no socket and
+   therefore no chip present, for the entire span 06:23–06:34:40. The Uno-class chip-out rule
+   exists to keep a chip out of the socket while avrdude drives the bus; with no shield there
+   is no socket at all, so the rule is satisfied *a fortiori* for every avrdude invocation in
+   this file — the shield (and, per the operator, a chip) arrived only *after* the last flash
+   in this record.
+2. **The plan's own requirements are unaffected.** 160-09-PLAN.md task 1: *"A shield is not
+   required — the flash and read-back need the board only."* The absence of a shield during
+   Events 1–3 is exactly the state the plan anticipated as sufficient; it does not invalidate
+   any measurement above.
+3. **The replug itself was harmless to Event 3's verdict, and this is measured, not assumed.**
+   Event 3's flash self-verified as complete and byte-correct (avrdude's own "26240 bytes of
+   flash verified") at 06:34:30.52, roughly **10 seconds before** the unplug at ~06:34:40. Flash
+   memory is non-volatile — an unplug/replug that follows a completed, self-verified write does
+   not alter its content, and a serial replug forces a fresh device reset, which is the normal
+   precondition for any avrdude read regardless. Event 3's judged read-back then ran at
+   06:34:43.55, ~3 seconds **after** the replug, and reported `judged_match = true` with
+   `sha_whole_flash_unjudged` byte-identical to Event 1's value — an independent, non-judged
+   confirmation that the flash content the replug bracketed was unchanged. No evidence in this
+   record contradicts the harmlessness conclusion; if any had (a truncated read, a whole-flash
+   SHA divergence, a judged mismatch), it would be reported here instead.
+
+**Corrected record pointers:** `bench/EVIDENCE.jsonl` row 3's `shield` field, `probe.json`'s
+`operator_declared_socket_state` / `device_node_reenumeration_midrun_replug` fields, and
+`160-09-SUMMARY.md`'s Deviation/Finding all carry this same correction and are consistent with
+this section.
+
+---
+
 ## Arm-span cross-check (per-arm hex span, not a flat value)
 
 `rig-pins.json`'s `hex_span_expected_by_arm.uno328pb` (fixed in 160-08 alongside `uno`'s
