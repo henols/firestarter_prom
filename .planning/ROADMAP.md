@@ -279,7 +279,7 @@ Plans:
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 160-13-PLAN.md — D-17's fresh-context record reconstruction, the folded-todo annotation, the filled validation map, and the operator phase-gate sign-off
+- [x] 160-13-PLAN.md — D-17's fresh-context record reconstruction, the folded-todo annotation, the filled validation map, and the operator phase-gate sign-off
 
 **UI hint**: no
 

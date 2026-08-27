@@ -1,13 +1,19 @@
 # Phase 160 Gate — RIG: Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 
-**Status: AWAITING OPERATOR SIGN-OFF.** This document is assembled by the executor as part of
-presenting Plan 13 Task 3's `checkpoint:human-verify` gate. It does **not** close Phase 160 by
-itself. Every path below exists on disk as of this writing; every number below is read out of
-the cited artifact, not restated from a plan SUMMARY.
+**Status: APPROVED — 2026-08-27.** The operator's verbatim response: **"Approved — close
+Phase 160"**. This document was assembled by the executor as part of presenting Plan 13 Task
+3's `checkpoint:human-verify` gate, then updated in place (this header and the "Operator
+sign-off" section only) to record the response once given. Every path below exists on disk as
+of this writing; every number below is read out of the cited artifact, not restated from a
+plan SUMMARY. Sections §1-§7 below, including every non-claim and every carried-forward item,
+are unchanged from the version the operator reviewed — nothing was softened, dropped, or
+reworded to secure the approval; the sign-off in §"Operator sign-off" states explicitly that
+those limits were presented and accepted, not merely disclosed.
 
-What this gate is deciding: whether the rig is trustworthy enough that twenty evidence
-positions (Phases 161-163) may rest on it. Nothing beyond this phase's own bring-up has run on
-the bench yet, and nothing should until the operator says so.
+What this gate decided: whether the rig is trustworthy enough that twenty evidence positions
+(Phases 161-163) may rest on it. The operator's approval releases those phases; nothing beyond
+this phase's own bring-up had run on the bench before this approval, and the bench itself is
+left exactly as §7 describes for Phase 161 to inherit.
 
 ---
 
@@ -227,16 +233,24 @@ Phase 161's first cell inherits.
 
 ## Operator sign-off
 
-**This gate is never auto-approvable, under any auto-advance or chained mode.** It is the
-decision to let twenty evidence positions rest on this rig; auto-approving it would make this
-phase's own falsification discipline decorative.
+**This gate was never auto-approvable, under any auto-advance or chained mode**, and it was
+not auto-approved — the response below is the operator's own, given after review.
 
-**Awaiting:** the operator's verbatim response to the questions in this plan's `how-to-verify`
-steps — in particular, whether the non-claims in §6 are stated plainly enough that a later
-phase cannot mistake `uno328pb`'s vector-exclusion for a full-span proof, and whether the rig
-state in §7 matches what is physically on the bench right now.
+**Operator's verbatim response:** *"Approved — close Phase 160"*
 
-**Resume signal:** type "approved" to close Phase 160 and release the sweep phases, or name
-the artifact you want strengthened first.
+**What was presented before that response, explicitly, not merely disclosed in a document
+the operator may not have opened:** the three cross-flash falsifications and their
+differing-byte counts (§1); the three-round D-17 reconstruction, including that **rounds 1
+and 2 each FAILED** and each failure drove a real fix (§2); the full carried-forward list —
+the `~/.firestarter` seam-and-log escape, `BRINGUP-wrv`'s un-re-run `P-11` board probe, the
+sparse argv recording and its consequence for RIG-05's scope, the 4x arm-agnostic-constant
+plan-authoring pattern, the Wave 6 superseded false declaration, and the ~20 latent tooling
+defects found only on real hardware (§6); the rig state Phase 161 inherits (§7); and the
+`run_gates.sh` result (§4). The operator was offered two named alternatives — strengthening a
+named artifact first, or fixing the argv-recording gap first — and **chose approval with the
+limits accepted as stated**, not resolved and not softened.
 
-**Decision recorded:** *(pending — not yet given)*
+**Decision recorded:** **APPROVED**, 2026-08-27. Phase 160's own falsification and
+record-honesty work is complete; this gate discharges RIG-05 (`.planning/REQUIREMENTS.md`)
+and the phase itself. Phase completion (`ROADMAP.md`/`STATE.md` phase-level fields) and the
+release of Phases 161-163 are the orchestrator's next step, not this document's.
