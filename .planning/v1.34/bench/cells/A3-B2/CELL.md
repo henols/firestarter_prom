@@ -206,3 +206,12 @@ patched with `--patch-readback`; the v133 records are untouched.
 **The control arm is on the Leonardo and proven by an independent avr109 read-back**, judged
 against its own 28170-byte span — the flash (run before the interrupt) and its proof (run after)
 are two separate events, both now on the record, with no re-flash performed.
+
+## P-08 — swap W27C512 for W29C020 (2026-08-27)
+
+Operator reply, verbatim: "W29C020 seated". W27C512 (DIP28) removed, W29C020 (DIP32) seated in
+the Rev 2.0 socket on the Leonardo at `/dev/ttyACM0`. **Pot untouched** — stays at the `P-06`
+setting (firmware 12.3 V / operator-meter 11.44 V, in band). No further `vpp` read taken for this
+swap, per Standing bench rule 4's single-confirming-read-per-cell discipline. This W29C020's
+physical condition is **unassessed** — the operator inspection that closed the W27C512's caveat at
+`P-05` says nothing about this different, physical chip.
