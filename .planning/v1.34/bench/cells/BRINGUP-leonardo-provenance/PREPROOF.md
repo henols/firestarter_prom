@@ -293,6 +293,10 @@ the `hw` call and the four host-arm probe subprocess invocations (git HEAD, git 
    nothing here relaxes the Uno-class chip-out-before-sideload rule for A1 or A2; that rule
    applies only to `uno`/`uno328pb` and was never in scope on this board.
 
+## Why no `EVIDENCE.jsonl` row exists for this cell
+
+This cell's `cell_id` begins with the `BRINGUP-` prefix, which `EVIDENCE.jsonl`'s own schema header (`_schema.bringup_row_exclusion`) names explicitly: a row whose `cell_id` begins with `BRINGUP-` is rig evidence, excluded from the 20-position sweep close-out reconciliation. More directly: this cell holds no `WRV-VERDICT.json` at all -- no chip write ever ran here, so `judge_wrv.py` never produced one -- and `append_evidence.py` requires a `WRV-VERDICT.json` to derive a row's `outcome`/`sha256`/`verdict` columns; it structurally refuses to run without one. The absence of a row here is therefore correct-by-construction, not a gap a later reader should try to fill in.
+
 ## Leave-state (this cell only — full plan leave-state in Task 5's record)
 
 - Board: Leonardo, Rev 2.2 fitted, on `/dev/ttyACM0`, remains attached at the end of this task.
@@ -303,3 +307,58 @@ the `hw` call and the four host-arm probe subprocess invocations (git HEAD, git 
 - Chip seated: none (operator-confirmed).
 - Pot: untouched (no chip seated, `P-06` never ran).
 - Shield: Rev 2.2, a pre-proof carrier only — A3/B2 will fit Rev 2.0.
+
+## Task 5 — Bench handoff record (plan-level, not cell-specific)
+
+Recorded here as the last pre-proof cell touched in this plan; applies to the whole plan, not
+only this cell.
+
+### `EVIDENCE.jsonl` unchanged
+
+Line count and content are identical to the state at the end of plan 161-01 (which itself never
+touched this file — last real write was Phase 160 Plan 12, `61fa09a4`). `git diff` against
+`ecaf06e0` (the phase's first 161 commit) for this path is empty. 5 lines total (1 `_schema`
+header + 4 Phase-160 bring-up rows: `BRINGUP-uno`, `BRINGUP-uno328pb`, `BRINGUP-leonardo`,
+`BRINGUP-wrv`). No row's `cell_id` begins with `BRINGUP-uno328pb-v133` or
+`BRINGUP-leonardo-provenance` — this plan's two pre-proof cells added none, per design.
+
+### `~/.firestarter` baseline check (Amendment 3 clause 4)
+
+```
+files:      ['config.json']
+tree_sha:   423546cd37b5b45d9654e5acd07bd7e2a3c9e1df77e4d5feb79951bf37329951
+config_sha: b323867c1f01b22a705dd9caf003ab7302a249fe46772f5b02e44aaa2760dd79
+mtime:      1787817565
+```
+All four values match the pinned Amendment 3 baseline exactly. **Verdict: unchanged.** No
+deletion was attempted (the sandbox denies it, and deleting it would destroy the finding as
+evidence).
+
+### `check_arms.py --expect-config-sha` re-verification
+
+```
+python3 .planning/v1.34/tools/check_arms.py --pins .planning/v1.34/rig-pins.json \
+  --expect-config-sha 77adfdd26ed8710c4a70882e6dc9ee7bb494286fe225000d581f9e730dd77ad0 \
+  --out .../check_arms_teardown.json
+```
+rc=0. `check_arms OK: 2 arms verified (SHA+porcelain+file-probe+dep-freeze+interpreter+config-sha
++cli-surface)`. Recorded at
+`.planning/v1.34/bench/cells/BRINGUP-leonardo-provenance/check_arms_teardown.json`:
+`config_dir_sha` matches the expected value exactly; both arms' `head`/`porcelain_clean`/
+`dep_freeze`/`interpreter`/`file_probe` are unchanged from bring-up (Phase 160 Plan 01);
+`surface_diff_ab`/`surface_diff_ba` both empty (25/25 CLI surface commands match between arms).
+With assertion (1) (the directory's own baseline unchanged) holding and this assertion running
+genuinely (not vacuously — every invocation in this plan set `FIRESTARTER_CONFIG_DIR` inline,
+per standing bench rule 9), the two-assertion config-dir check for this plan is complete and
+green.
+
+### What plan 161-03 (cell A1) inherits
+
+The **Uno + Rev 2.0 shield, W27C512 seated, v1.33 arm flashed, pot at 12.0 V** — untouched by
+this plan, per plan 161-02's own prohibition (no chip seated on any board during this plan, no
+chip write/read/erase/blank/vpp-set). It sits **disconnected** on the bench (confirmed off the
+bus by descriptor absence at the Task 3 checkpoint measurement, `/dev/ttyACM1` absent). A1's own
+`P-01` is where it goes back on — **with its chip coming out as part of that same handover**,
+because A1's `P-02` runs an avrdude signature probe (`probe_board.py`) and the Uno-class
+chip-out rule (standing bench rule 2) covers signature probes, not only writes. This plan does
+not perform that handover; it only states what A1 must do first.

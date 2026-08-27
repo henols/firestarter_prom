@@ -141,6 +141,10 @@ correctly. **It proves nothing about the chip-program path** — no chip was sea
 at any point (see Precondition above), and Backlog 999.2 predicts the chip-program path will
 brown out on this MCU. Observing that is cell A2's job (plan 161-04), not assumed here.
 
+## Why no `EVIDENCE.jsonl` row exists for this cell
+
+This cell's `cell_id` begins with the `BRINGUP-` prefix, which `EVIDENCE.jsonl`'s own schema header (`_schema.bringup_row_exclusion`) names explicitly: a row whose `cell_id` begins with `BRINGUP-` is rig evidence, excluded from the 20-position sweep close-out reconciliation. More directly: this cell holds no `WRV-VERDICT.json` at all -- no chip write ever ran here, so `judge_wrv.py` never produced one -- and `append_evidence.py` requires a `WRV-VERDICT.json` to derive a row's `outcome`/`sha256`/`verdict` columns; it structurally refuses to run without one. The absence of a row here is therefore correct-by-construction, not a gap a later reader should try to fill in.
+
 ## Leave-state (this cell only — full plan leave-state in Task 5's record)
 
 - Board: uno328pb, bare (no shield, no chip), still attached at `/dev/ttyUSB0` at the end of this
