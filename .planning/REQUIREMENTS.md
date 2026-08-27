@@ -40,7 +40,7 @@ v1.33 branches forked from: firmware **`8695ee5`**, host app **`6bfa645`**.
 
 ### Board Sweep — three boards on Rev 2.0 (BOARD)
 
-- [ ] **BOARD-01**: Cell A1 (Uno / Rev 2.0) completes both arms × both chips — W27C512 (DIP28, `0x07`, 64 KiB) and W29C020 (DIP32, `0x05`, 256 KiB page-write) — with every result recorded
+- [x] **BOARD-01**: Cell A1 (Uno / Rev 2.0) completes both arms × both chips — W27C512 (DIP28, `0x07`, 64 KiB) and W29C020 (DIP32, `0x05`, 256 KiB page-write) — with every result recorded
 - [ ] **BOARD-02**: Cell A2 (uno328pb / Rev 2.0) completes both arms × both chips, with its expected program failure captured on **both** arms rather than assumed
 - [ ] **BOARD-03**: Cell A3/B2 (Leonardo / Rev 2.0) completes both arms × both chips on the rig v1.31 used, making its results directly comparable to that milestone's record
 - [ ] **BOARD-04**: Each cell records measured write duration per arm, so a timing regression is visible against v1.31's W27C512 consistency of 0.37 s
@@ -119,7 +119,7 @@ phase numbering continues at **160** (v1.33 ran 154–159).
 | RIG-03 | Phase 160 | Complete |
 | RIG-04 | Phase 160 | Complete |
 | RIG-05 | Phase 160 | Complete |
-| BOARD-01 | Phase 161 | Pending |
+| BOARD-01 | Phase 161 | Complete (161-03) |
 | BOARD-02 | Phase 161 | Pending |
 | BOARD-03 | Phase 161 | Pending |
 | BOARD-04 | Phase 161 | Pending |
