@@ -5,7 +5,7 @@ milestone_name: — Pre-Merge Hardware Regression Validation
 current_phase: 161
 current_phase_name: BOARD — Board Sweep, Three Boards on Rev 2.0
 status: executing
-stopped_at: Phase 161 context gathered
+stopped_at: Phase 161 plan 161-01 complete, wave 2 pending
 last_updated: "2026-08-27T12:29:53.536Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 161 execution started
@@ -192,7 +192,7 @@ Plan: 2 of 5
 Status: Ready to execute
 **SAFETY: the currently attached board is the Uno (`/dev/ttyACM0`, ATmega328P) with the Rev 2.0 shield mounted and a W27C512 chip SEATED.** No avrdude firmware operation (upload/read-back/signature-probe) may run on this board while the chip is seated, and none did during 160-13 — that plan was host-side only (a fresh-context reconstruction, a todo annotation, a validation map, a gate document; zero device I/O). No chip read/write/erase/blank/vpp-set operation has ever run against this seated W27C512 beyond plan 12's already-recorded write-read-verify. The rig is left exactly as plan 12 and 160-13 found it — v1.33 arm flashed, W27C512 seated, pot at 12.0V, port `/dev/ttyACM0` — for Phase 161's first cell to inherit unchanged. `~/.firestarter` (a stray, gitignored, non-repo directory found at plan 12's teardown) still exists on the container filesystem; it is a disclosed open item, not a blocker, and must not be deleted (sandbox denies it; deleting it would also destroy the finding as evidence).
 Last activity: 2026-08-27 — Phase 161 execution started
-Next: **Phase 160 verification and close** — the orchestrator runs phase-level verification and `phase.complete` for Phase 160, then Phase 161 (BOARD — Board Sweep, Three Boards on Rev 2.0) unlocks. Phase 161's first cell inherits the rig exactly as left: Uno + Rev 2.0, v1.33 flashed, W27C512 seated, VPP 12.0V, `/dev/ttyACM0`.
+Next: **Plan 161-02 (Wave 2)** — the two bring-up pre-proofs (328PB v1.33 read-back, Leonardo provenance). Operator-physical: requires board swaps. The rig is inherited from Phase 160 exactly as left: Uno + Rev 2.0, v1.33 flashed, W27C512 SEATED, VPP 12.0V, `/dev/ttyACM0` — the chip must come out before any avrdude operation on this Uno-class board.
 
 ## Roadmap Summary (v1.34)
 
