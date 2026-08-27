@@ -178,3 +178,30 @@ swap and affirmatively raised no concern** — this is an operator clearance act
 gate, not a silent absence of objection. **Pot not touched** — Task 4's single confirming read
 (11.9 V, in band against the firmware guard window) stands for the whole cell; no second `vpp`
 invocation was run for this swap.
+
+## P-09 (control x W29C020) — position 2 of 4: the first algorithm-0x05 attempt, a different failure mode (2026-08-27)
+
+Full detail in `WRITE.md` ("Position 6 (2 of 4)"). Summary: **not predictable from position 1** —
+a genuinely different failure mechanism. The **firmware itself** reported a verify-timeout error
+(`ERROR: Timeout verifying 0x15 at 0x00007f (got 0x13)`), not a bare host communication timeout.
+Wall-clock **4.019 s**, wrapper exit code **1** (the derived 391.748 s ceiling was never
+approached). The subsequent read **also failed** (rc=1, partial 113152/262144 B) — contradicting
+position 1's "the READ path works" observation, not re-asserting it. Byte 0x7f in the partial
+read-back independently confirms the firmware's own quoted stop value (`0x13`). The bulk of the
+partial read correlates ~65% with a freshly-generated copy of `A1__v133__w29c020`'s own image
+(mask `0x13`, matching the stop-point byte) — flagged as an unconfirmed observation for Phase
+165's RCA (possible residual chip content from A1's earlier use of this physical part), not
+asserted as a proven cause.
+
+`judge_wrv.py`: `sha_verdict_judged=mismatch`, `size_violations` **non-empty** (113152 bytes, not
+262144) — this diverges from the plan's own stated acceptance-criteria assumption of an empty
+`size_violations` list, which did not anticipate a partial (truncated) read as a real outcome;
+recorded honestly rather than forced to match the template. `app_verdict_unjudged=1` **agrees**
+with the judged mismatch this time (`verdict_disagreement=false`), unlike position 1's
+disagreement. `EVIDENCE.jsonl` row appended, `outcome=skipped-with-reason`. `render_evidence.py
+--check`: green.
+
+**Both of cell A2's control-arm positions have now failed, by two distinct mechanisms** — a host
+serial-response timeout (W27C512) and a firmware-reported verify timeout (W29C020) — neither a
+clean electrical brownout with zero response, both bounded well under their respective D-08
+ceilings.

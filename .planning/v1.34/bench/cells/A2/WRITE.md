@@ -77,3 +77,79 @@ is itself a finding, never resolved by preferring one field over the other. **Ou
 **Comparison basis:** 15.813 s elapsed against the measured healthy 41.010 s W27C512 baseline —
 the failure is roughly 2.6x **faster** than a healthy write, not slower; it never got close to
 using its 165 s ceiling.
+
+## Position 6 (2 of 4): `A2__control__w29c020`
+
+**The first algorithm-`0x05` (5V page-write) program ever attempted on this board.** Explicitly
+NOT predictable from position 1's result — a materially different electrical/firmware path
+(page-write with polled verify, not the 27C-family program-pulse path) — and it was not
+pre-judged either way before running.
+
+**Command:** `timeout --signal=INT 392 env FIRESTARTER_CONFIG_DIR=/workspaces/.planning/v1.34/config
+/workspaces/.v1.34-arms/control/.venv/bin/firestarter -p /dev/ttyUSB0 write w29c020
+reads/A2__control__w29c020/written.bin` (log `17_write_control_w29c020`).
+
+**Ceiling:** **391.748 s (derived: 4x A1's measured control-arm W29C020 wall-clock, 97.937 s** —
+`161-03-SUMMARY.md`). Not the 165 s W27C512 ceiling, not the 600 s absolute fallback (A1's own
+control-arm W29C020 completed, so a derivation exists and is used). **Not needed** — the write
+did not run anywhere near this ceiling either; wall-clock **4.019 s**, wrapper exit code **1**
+(never 124 — the ceiling never fired here, same fact-pattern as position 1 but a much shorter
+elapsed time).
+
+**Wall-clock:** 4.019 s. **App-reported figure:** `not measured — the write failed before any
+success line was emitted`.
+
+**A DIFFERENT failure mechanism from position 1 — record which, do not conflate.** Position 1
+ended in the *host's* own serial-response timeout (no reply from the firmware at all). This
+position ended in a **firmware-reported error**, relayed by the host: the firmware's own verify
+(data-poll) loop timed out and reported the last value it actually read. **Exactly what the host
+printed** (stdout, in full):
+```
+Connecting...Connecting... OK      
+Writing /workspaces/.planning/v1.34/bench/cells/A2/reads/A2__control__w29c020/written.bin to W29C020
+ERROR: Timeout verifying 0x15 at 0x00007f (got 0x13)
+Programmer error during WRITE: Timeout verifying 0x15 at 0x00007f (got 0x13)
+Write to W29C020 failed.
+```
+(stderr held only the `tqdm` byte-progress frames; **last progress frame, verbatim:**
+`0%|          | 0x0200/0x40000 bytes` — 512 bytes into the 262144 B device, appeared twice
+before the error. `0x40000` = 262144.)
+
+**Stop point, precisely:** the firmware reports the verify failure at device offset **0x00007f**
+(127 decimal), expecting to see `0x15` (this position's mask byte) written, and instead still
+reading `0x13` after its own internal poll gave up. `0x13` (19 decimal) is **A1__v133__w29c020`'s
+own mask** — this is the same physical W29C020 chip previously used in cell A1, and byte 0x7f had
+not actually been reprogrammed to this position's value at the point the verify gave up.
+
+**Read attempted anyway.** Unlike position 1, the READ path did **NOT** work cleanly here:
+`firestarter -p /dev/ttyUSB0 read w29c020 reads/A2__control__w29c020/run_01.bin` (log
+`18_read_control_w29c020`), rc=**1**, wall-clock 43.945 s, host printed `Timeout waiting for a
+response from /dev/ttyUSB0. Communication error during READ: Timeout waiting for a significant
+response from /dev/ttyUSB0.` — a genuinely different observation from position 1's "the READ path
+works on this board" statement; it is **not** re-asserted here, it is contradicted by this
+position's own measurement. The read produced a **partial** file: **113152 of 262144 bytes**
+before it, too, timed out.
+
+**What the partial read-back shows (a measurement):** of the 113152 bytes actually returned, only
+292 are `0xFF` (blank) — the overwhelming majority (112860 bytes) are non-blank, i.e. this is
+**not** simply an erased chip. Byte at offset **0x7f reads `0x13`** in this read-back — an exact
+match to the firmware's own quoted "got 0x13," an independent on-chip confirmation of the same
+fact the error message reported. Diffing the partial read against a freshly-generated copy of
+**`A1__v133__w29c020`'s own image** (mask `0x13`/19, the value the stop-point byte matches)
+shows a partial correlation (~65%, 74117/113152 bytes identical) — consistent with, but not
+conclusively proving, that this physical chip still carries substantial residual content from
+its earlier use in cell A1, since this position's own write essentially never got past its first
+page and the read itself was also cut short by a communication timeout (which could itself
+corrupt the transferred bytes independent of the chip's actual content). **Recorded as an
+observation for Phase 165, not asserted as a proven root cause.**
+
+**Judged verdict** (`judge_wrv.py`, `WRV-VERDICT_A2__control__w29c020.json`): `sha_verdict_judged
+== "mismatch"`; `size_violations` non-empty (`run_01.bin` is 113152 bytes, not 262144);
+`app_verdict_unjudged == 1` (the read command's own exit code, a failure) — **agrees** with the
+judged mismatch this time (`verdict_disagreement == false`), unlike position 1 where the two
+disagreed.
+
+**Comparison basis:** neither this write's 4.019 s nor this read's 43.945 s (partial, failed) is
+compared against A1's healthy 97.937 s write / 73.344 s read baselines as if they were the same
+kind of measurement — both of A2's figures here are failures, not completions, and are recorded
+as such rather than forced into a like-for-like comparison with a completed baseline.
