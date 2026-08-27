@@ -82,6 +82,15 @@ standing **uncertainty**, never as clearance. If a 0x303-class contact fault app
 clean re-seat and one re-run are permitted per position, with both the discarded attempt and the
 re-run recorded.
 
+**UPDATE — caveat CLOSED at `P-05` (ninth handling), by inspection, not measurement:** the
+operator inspected this W27C512 at its ninth handling and reported "nothing looks of[f]" — the
+first physical assessment of this part anywhere in the phase. Recorded precisely: this is an
+operator visual inspection reporting nothing anomalous, **not** a clean bill of health from a
+measurement, and it does **not** retroactively clear A2's `0x303` contact fault, which stands as
+its own recorded event. Full record in `POT.md`'s `P-05` section, including the two-part reply
+(the inspection answer and the separately-sought state confirmation — the same class of ambiguity
+A2's checkpoint recorded).
+
 ## P-02 — Board identity + four pending provenance records (2026-08-27)
 
 **Followed `bench/cells/BRINGUP-leonardo-provenance/PREPROOF.md`'s final working sequence
