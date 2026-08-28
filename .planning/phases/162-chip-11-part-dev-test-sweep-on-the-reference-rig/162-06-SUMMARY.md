@@ -160,3 +160,7 @@ Plan 162-07 inherits this plan's leave-state at zero physical cost: Leonardo at 
 ---
 *Phase: 162-chip-11-part-dev-test-sweep-on-the-reference-rig*
 *Completed: 2026-08-28*
+
+## Self-Check: PASSED
+
+All claimed commits (`acd0ecf2`, `f3077f22`, `97cb0bc4`, `2215413e`) confirmed present in `git log`. All claimed created files (`provenance_CHIP__v133__sst27sf512.json`, `provenance_CHIP__v133__fm1608.json`, `reports/CHIP__v133__sst27sf512.json`, `reports/CHIP__v133__fm1608.json`, this SUMMARY.md) confirmed present on disk.
