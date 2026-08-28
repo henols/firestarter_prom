@@ -5,8 +5,11 @@
 literal command shapes — it is not a log of what happened (that is `bench/EVIDENCE.jsonl` /
 `bench/EVIDENCE.md`).
 
-This procedure is executed **unchanged** by Phases 161, 162 and 163. Every cell those phases
-run cites this document's step ids rather than re-describing the run.
+This procedure is executed **unchanged** by Phases 161 and 163, whose cells are write-read-verify
+cells. Phase 162 runs a different command (`firestarter dev test`) and executes the
+Chip-sweep step list section (see below) instead of the Step list section — see the amendment
+recorded at the bottom of this file.
+Every cell either phase runs cites this document's step ids rather than re-describing the run.
 
 ---
 
@@ -18,6 +21,17 @@ One cell run covers **both arms** (`control` then `v133`) and **both bench chips
 are `A1`, `A2`, `A3/B2`, `B1`, `B3` (`.planning/STATE.md`, `.planning/REQUIREMENTS.md`); one of
 those (`A3/B2`) additionally carries a bring-up position (`BRINGUP-wrv`) recorded outside the
 five-cell table.
+
+**Two cell shapes, not one.** The paragraph above defines the **WRV cell** — the shape Phases 161
+and 163 run, and the only shape the Step list section's `P-01`…`P-11` describe. Phase 162 runs a
+**chip-sweep position** instead: one part, one arm, one `firestarter dev test` invocation, on the
+standing Leonardo and Rev 2.0 rig Phase 161 leaves assembled. A chip position has no pre-computed
+image, no `IMAGE-PLAN.json` row, no full-device SHA judgement and no per-cell arm rotation —
+`P-07` and `P-09` do not apply to it at all. Its steps are `C-01`…`C-09` under the Chip-sweep step
+list section (see below), and its evidence goes to `bench/CHIP-EVIDENCE.jsonl`, never to
+`bench/EVIDENCE.jsonl`, whose position count covers WRV positions only. The **standing bench
+rules, the Arm substitution token table, the halt policy, the outcome taxonomy, the forbidden
+invocations and the recording discipline bind both shapes identically.**
 
 This document is executed **unchanged** by Phases 161–163. Any change to it after the first
 real cell has run must be recorded as a **procedure amendment**: a dated note at the bottom of
@@ -111,7 +125,8 @@ regardless of which arm is running:
 | `$CELL_ID` | `A1`, `A2`, `A3/B2`, `B1`, `B3`, or `BRINGUP-wrv` |
 | `$POSITION_ID` | `<cell_slug>__<arm>__<chip>`, the `bench/IMAGE-PLAN.json` primary key |
 | `$SHIELD_REV` | the operator-declared silkscreen value: `Rev 2.0` / `Rev 2.2` / `Modified Rev 0` |
-| `$CHIP` | `w27c512` or `w29c020` |
+| `$CHIP` | one of the eleven `rig-pins.json` `chips` map slugs: `w27c512`, `w27e512`, `sst27sf512`, `fm1608`, `sst39sf040`, `w27e040`, `w29c040`, `w29c020`, `am27c020`, `m27c512`, `2516` (widened from the original two-part WRV list by the amendment recorded at the bottom of this file) |
+| `$CHIP_TOKEN` | the case-sensitive `firestarter dev test <TOKEN>` CLI token **as typed** (e.g. `W27C512`), from `rig-pins.json` `chips.*.chip_token` — declared separately from `$CHIP` (per the amendment recorded at the bottom of this file) because the report path `dev_test` writes is built from the token as typed and its own sanitiser (`_sanitize_chip_token`) does not normalise case, so the same part invoked in two casings writes two different report files and `append_chip_evidence.py`'s copy-out reads only one of them |
 | `$TARGET` | `uno` / `uno328pb` / `leonardo` (the PlatformIO env name) |
 | `$MASK` | this position's XOR mask, from `bench/IMAGE-PLAN.json` |
 | `$CELL_DIR` | `.planning/v1.34/bench/cells/<cell_slug>/` |
@@ -400,7 +415,7 @@ pretend otherwise. The two assertions below are the mechanisms that actually exi
    30 bytes; `config.json` sha256
    `b323867c1f01b22a705dd9caf003ab7302a249fe46772f5b02e44aaa2760dd79`; tree sha (sorted
    relpath plus content) `423546cd37b5b45d9654e5acd07bd7e2a3c9e1df77e4d5feb79951bf37329951`;
-   mtime `1787817565` (`2026-08-27 07:59:25 UTC`). A **change** to any of those four values
+   mtime `1787854674` (`2026-08-27 18:17:54 UTC`). A **change** to any of those four values
    (file count/size, `config.json` sha256, tree sha, mtime) is the `P-H1` finding — the seam
    this rule exists to prove was not actually used by at least one invocation. Deletion is
    **never** attempted: the sandbox denies it, and deleting it destroys the evidence. This is
@@ -418,6 +433,219 @@ pretend otherwise. The two assertions below are the mechanisms that actually exi
    same vacuous-pass shape (1) exists to close, applied to the record itself rather than to the
    filesystem). With (1) holding and the field genuinely present, the SHA check is now
    falsifiable on its own terms: it fails if either arm actually wrote to the frozen dir.
+
+---
+
+## Chip-sweep step list
+
+These nine steps are the chip-sweep position's prescription (Phase 162's amendment, recorded at
+the bottom of this file) — one part,
+one arm, one `firestarter dev test` invocation, on the standing Leonardo + Rev 2.0 rig Phase 161
+leaves assembled (see §Scope, "Two cell shapes, not one"). Five Step list steps apply here **by
+reference, and never by copy**: `P-01` (mount and declare — already discharged; Phase 161's A3/B2
+left the rig mounted with `Rev 2.0` declared), `P-02` (re-verify port identity, per session,
+never inherited), `P-04` (flash this arm, then prove it by independent read-back — fires twice
+per divergence, inside `C-08`), `P-06` (set the pot — **superseded per-part** for this shape, see
+clause (4) below and `C-02`/`C-03`), and `P-11` (teardown — **retargeted** at
+`bench/CHIP-EVIDENCE.jsonl`, see clause (5) below and `C-09`). Six Step list steps are
+**explicitly not applicable** to a chip-sweep position: `P-03` and `P-05` are Uno-class-only, and
+the standing rig for this sweep is the Leonardo, which is chip-out-exempt (Standing bench rule 2);
+`P-07` and `P-09` write a pre-computed `IMAGE-PLAN.json` image and judge a full-device SHA,
+neither of which a `dev test` invocation does; `P-08` is the two-chip rotation within one WRV
+cell, which has no analogue in an eleven-part sweep; `P-10` is the per-cell arm switch, which
+D-17 replaces here with the per-divergence interleave `C-08` performs instead. These six are
+named rather than left to inference — Amendment 2's own lesson is that a step whose literal
+command must be inferred by analogy is exactly the failure mode this document's prescriptive
+contract exists to prevent.
+
+### C-01 — Assert the frozen config dir is pristine
+
+Run `check_arms.py` with the pinned expected config-dir SHA **before** this position's `dev test`
+invocation. A dirty digest here means the *previous* position's report was never copied out (its
+`C-07` never removed the source files), and the row about to be written would carry a wrong
+`config_dir_sha`.
+
+```
+python3 .planning/v1.34/tools/check_arms.py --pins .planning/v1.34/rig-pins.json \
+  --expect-config-sha <the pinned config_dir_sha, from arms-provenance.json>
+```
+
+Performer: Claude. Record field(s): `config_dir_sha`.
+
+### C-02 — Seat the part; set JP4 and the pot as this position requires
+
+The single operator handover for this position, folding what `P-05`, `P-06` and `P-08` do for
+the WRV shape into **one** stop, because the standing requirement is one operator stop per part,
+not two. Claude derives the part's own facts from `rig-pins.json` — never from memory — and
+states them to the operator: the part, the pin count, the JP4 position and, **only when this
+position is a pot-group boundary** (PD-17: the 12 V→13 V transition, and no other position), the
+VPP target and a request for **one** meter reading. The operator seats the part, sets JP4, and —
+at a boundary only — adjusts the pot and reports back; Claude never adjusts the pot and never
+runs a monitor loop. One clean re-seat is permitted per position (Standing bench rule 8), and
+**both** the discarded attempt and the re-run are recorded, never just the re-run.
+
+```
+python3 -c "
+import json
+d = json.load(open('.planning/v1.34/rig-pins.json'))
+c = d['chips']['$CHIP']
+print('part=$CHIP_TOKEN pin_count=%d package=%s vpp_target_mv=%d' % (c['pin_count'], c['package'], c['vpp_mv']))
+"
+```
+
+Performer: operator (seating, JP4, pot). Record field(s): `jp4_position`, `reseat_count`,
+`vpp_real_mv`.
+
+### C-03 — One firmware VPP reading for this part
+
+The arm's `vpp` subcommand, run **exactly once** per position, with the config-dir variable
+inline. A blank or `0x303` reading is a **contact fault, not a voltage** (Standing bench rule 5) —
+that is `P-H1`, not a pot adjustment. Never chase the database target upward: the firmware guard
+is asymmetric — a reading above the target plus 500 mV is a blocking error downgradeable only by
+a permanently withdrawn flag (`--force`, Forbidden invocations), while a reading below 95% of
+target is a non-blocking warning.
+
+```
+FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT vpp
+```
+
+Performer: Claude. Record field(s): `vpp_target_mv`, `vpp_firmware_mv`, `vpp_shortfall_mv`.
+
+### C-04 — Capture provenance for this position
+
+`capture_provenance.py` with this position's cell id, position id, arm, target, port, chip slug
+and declared shield revision, plus `--no-image-plan` — a chip position writes the chip but
+generates no pre-computed image, so it has no `IMAGE-PLAN.json` row to resolve (PD-9;
+`--no-image-plan`'s help text is widened by this amendment, clause (8), to cover this shape).
+
+```
+FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR python3 .planning/v1.34/tools/capture_provenance.py \
+  --cell-id $CELL_ID --position-id $POSITION_ID \
+  --arm v133 --target leonardo --port $PORT --chip $CHIP --shield-rev "$SHIELD_REV" \
+  --pins .planning/v1.34/rig-pins.json --no-image-plan \
+  --out $CELL_DIR/provenance_$POSITION_ID.json
+```
+
+Performer: Claude. Record field(s): the nineteen provenance columns.
+
+### C-05 — Run dev test under the size-class ceiling, fully logged
+
+One invocation, one argument, no flags — `dev test` takes exactly one argument (the chip token)
+and one optional flag (`--fast`), and `--fast` is **forbidden here** because it disables the
+two-cycle write/verify comparison and the read-divergence measurement this sweep most needs. The
+config-dir variable is inline; the arm binary is the pinned absolute path, never the bare
+`firestarter` name on `PATH` (Forbidden invocations). The invocation runs under a timeout derived
+from PD-14's size-class ceiling, with full stdout **and** stderr captured into this position's own
+numbered log pair. If the ceiling fires, the kill is logged with the last progress frame and
+**which step was in flight** (PD-15), and recorded as `timed out at N s against a measured
+baseline of M s` — write progress is time-keyed **per block** with the clock restarting each
+block, so the last frame names a block, never a byte offset.
+
+```
+timeout <PD-14 ceiling for this size class, seconds> \
+  env FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT dev test $CHIP_TOKEN \
+  > $CELL_DIR/logs/$POSITION_ID.stdout.log \
+  2> $CELL_DIR/logs/$POSITION_ID.stderr.log
+echo "exit_code=$?"
+```
+
+Performer: Claude. Record field(s): `exit_code`, the per-step maps, `write_target`,
+`write_coverage`, `banner`, `dedup_query_outcome`.
+
+### C-06 — Read-divergence follow-up, only when the report says the two read runs diverged
+
+`dev test` destroys its read bytes (`_dispatch_read` reads into a `TemporaryDirectory`), so only
+the divergence metric survives (PD-7). When and only when this position's copied-out report
+carries `read_divergence.repeat_divergent == true`, run **one** `dev consistency-check` at three
+runs with the keep-files and output-directory arguments, on the **same seating and the same arm**,
+before any re-flash, capturing the actual per-run bytes and SHAs. This is recorded as a data point
+against the standing read-instability question and does **not** attempt to close it — never a
+prompt to the operator, always automatic.
+
+```
+FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT dev consistency-check $CHIP_TOKEN \
+  --runs 3 --keep-files --output-dir $CELL_DIR/reads/$POSITION_ID
+```
+
+Performer: Claude. Record field(s): `read_divergence`, `read_consistency_followup`.
+
+### C-07 — Append the row, then re-render and check
+
+`append_chip_evidence.py` copies the `dev test` report out of the frozen config dir to a
+position-keyed path under `$CELL_DIR`, verifies both copies' digests, removes the **two source
+files only** (never the `reports/` directory itself), asserts the pristine config-dir digest
+again, and appends the row to `bench/CHIP-EVIDENCE.jsonl`. `render_chip_evidence.py --check` runs
+immediately after, as one pair. This ordering is the invariant: skip the removal and `C-01`'s
+pristine assertion reds from the next position onward, and every already-appended row's recorded
+`config_dir_sha` starts failing at the next `run_gates.sh` run.
+
+```
+python3 .planning/v1.34/tools/append_chip_evidence.py \
+  --position-id $POSITION_ID --arm v133 --chip $CHIP --chip-token $CHIP_TOKEN \
+  --cell-dir $CELL_DIR --report-json <path to the dev-test report, pre-copy-out> \
+  --report-md <path to the dev-test report's .md sibling, pre-copy-out> \
+  --provenance $CELL_DIR/provenance_$POSITION_ID.json \
+  --exit-code <C-05's measured exit_code> --console-log $CELL_DIR/logs/$POSITION_ID.stdout.log \
+  --pins .planning/v1.34/rig-pins.json --jsonl .planning/v1.34/bench/CHIP-EVIDENCE.jsonl \
+  --verdict-file <path|-> --anomalies-file <path|-> --vpp-real-mv "<C-02/C-03's value>" \
+  --prior-disposition-file <path to this part's recorded v1.15-or-later disposition> \
+  --divergence-verdict "<'same' or 'diverges: <reason>', per PD-16>" \
+  --known-carried "<yes|no, per the pre-declared known faults>" \
+  --jp4 <28-pin|32-pin> --reseat-count <C-02's measured value>
+python3 .planning/v1.34/tools/render_chip_evidence.py \
+  --jsonl .planning/v1.34/bench/CHIP-EVIDENCE.jsonl --target .planning/v1.34/bench/CHIP-EVIDENCE.md
+python3 .planning/v1.34/tools/render_chip_evidence.py \
+  --jsonl .planning/v1.34/bench/CHIP-EVIDENCE.jsonl --target .planning/v1.34/bench/CHIP-EVIDENCE.md \
+  --check
+```
+
+Performer: Claude. Record field(s): the artifact paths and digests, `outcome`,
+`divergence_verdict`.
+
+### C-08 — Divergence arbitration, with the chip unmoved
+
+When and only when this position's `divergence_verdict` begins with the diverging prefix
+(`chip_sc04_rule`'s "divergence_verdict starts with 'diverges'"): `P-04` runs here, **twice, by
+reference** (its literal argv is the block under the `### P-04` heading above, never copied) —
+once flashing the **control** arm's `fw_sha` and judging its independent read-back against the
+**control-arm-keyed** expected span, once re-flashing **back** to the v133 arm's `fw_sha` and
+judging its read-back again. Between the two flashes, re-run the same part on the same seating
+under the control arm, then append the control row naming the position it arbitrates. **Two
+flashes per divergence, zero extra chip handlings** — the Leonardo is chip-out-exempt, so the part
+stays seated throughout both `P-04` invocations and the control re-run between them. On a UV part
+the control re-run lands on the **next slot down** (slot selection is stateless and keyed on chip
+content) — record that, do not fight it.
+
+```
+# P-04 (by reference, see above) flashes the control arm's fw_sha and judges its read-back here.
+FIRESTARTER_CONFIG_DIR=$FIRESTARTER_CONFIG_DIR $ARM_BIN -p $PORT dev test $CHIP_TOKEN \
+  > $CELL_DIR/logs/$POSITION_ID.control-rerun.stdout.log \
+  2> $CELL_DIR/logs/$POSITION_ID.control-rerun.stderr.log
+python3 .planning/v1.34/tools/append_chip_evidence.py \
+  --position-id $POSITION_ID.control-rerun --arm control --chip $CHIP --chip-token $CHIP_TOKEN \
+  --control-rerun-for $POSITION_ID --cell-dir $CELL_DIR \
+  --pins .planning/v1.34/rig-pins.json --jsonl .planning/v1.34/bench/CHIP-EVIDENCE.jsonl \
+  <the remaining flags, unchanged in shape from C-07>
+python3 .planning/v1.34/tools/render_chip_evidence.py \
+  --jsonl .planning/v1.34/bench/CHIP-EVIDENCE.jsonl --target .planning/v1.34/bench/CHIP-EVIDENCE.md
+# P-04 (by reference) re-flashes and re-judges the v133 arm here, restoring the standing state.
+```
+
+Performer: Claude. Record field(s): `control_rerun_for`, `fw_readback_sha_judged`,
+`fw_readback_judged_span_bytes`.
+
+### C-09 — Per-wave gate
+
+`run_gates.sh` with its exit code taken **directly**, never through a pipe.
+
+```
+bash .planning/v1.34/tools/run_gates.sh --quick
+RC=$?
+echo "run_gates_rc=$RC"
+```
+
+Performer: Claude. Record field(s): the measured tool-selftest and live-gate counts and the exit
+code.
 
 ---
 
@@ -631,3 +859,93 @@ arm-agnostic empty-diff render gate (`render_steps.py --arm control` vs `--arm v
 re-confirmed empty after this edit — none of the four clauses adds an `[arm: …]` marker or
 an `$ARM_BIN` token, and `$POSITION_ID` is already declared among the non-arm-dependent
 substitution tokens in `## Arm substitution`.
+
+**Amendment 4 — 2026-08-28, Phase 162 Plan 04:** (a) What changed: (1) The header sentence and
+§Scope corrected to name two cell shapes — the WRV cell Phases 161/163 run, and the chip-sweep
+position Phase 162 runs instead, with `P-07`/`P-09` stated as not applying to it at all. (2) A new
+`## Chip-sweep step list` H2 added, carrying `C-01`…`C-09`, sharing `P-01`/`P-02`/`P-04`/`P-06`/
+`P-11` **by reference** and listing `P-03`/`P-05`/`P-07`/`P-08`/`P-09`/`P-10` as explicitly
+**not applicable**, each with its own reason. (3) The `$CHIP` token row in `## Arm substitution`
+widened from the two-part WRV list (`w27c512` / `w29c020`) to the full eleven-part inventory, and
+a new token `$CHIP_TOKEN` declared alongside it — the case-sensitive CLI token as typed, with the
+case-sensitivity reason stated in the table. (4) `P-06`'s once-per-cell pot rule **superseded
+per-part for the chip-sweep shape only** (D-11/D-13): every part records its own firmware VPP
+reading via `C-03`; the meter comes out only at the two pot-group boundaries (`C-02`); every other
+position records `vpp_real_mv` as a named absence naming the boundary position and the group's
+meter-to-firmware ratio, never a copied number. The `P-06` text itself is unchanged; the
+supersession lives in `C-02`/`C-03` and here. (5) `P-11`'s completeness assertion **retargeted for
+the chip-sweep shape** to `bench/CHIP-EVIDENCE.jsonl` and `render_chip_evidence.py --check`
+(`C-07`/`C-09`), and its assertion (2) — the recomputed config-dir SHA — is now **load-bearing**
+for the copy-out invariant (clause (7) below) rather than merely confirmatory. The `P-11` text
+itself is unchanged; the retarget lives in `C-07`/`C-09` and here. (6) The
+`~/.firestarter/config.json` mtime baseline re-pinned inside `P-11`'s assertion (1), from
+`1787817565` (`2026-08-27 07:59:25 UTC`, the Amendment-3 value) to `1787854674`
+(`2026-08-27 18:17:54 UTC`, measured at the moment this amendment was written) — the **fourth**
+recurrence of this drift, the first three being Phase 161's cells `A1`, `A2` and `A3/B2`.
+`config.json`'s content sha256 (`b323867c1f01b22a705dd9caf003ab7302a249fe46772f5b02e44aaa2760dd79`)
+and the tree sha (`423546cd37b5b45d9654e5acd07bd7e2a3c9e1df77e4d5feb79951bf37329951`) are
+**unchanged** across all four recurrences. (7) The config-dir copy-out invariant (R3/PD-3) stated
+as a step obligation, not merely an implementation detail of one tool: assert pristine before
+(`C-01`), copy out, verify, remove the two source files (`C-07`), assert pristine after (`C-07`'s
+own re-check, and `C-01`'s next position). (8) `--no-image-plan`'s documented rationale widened
+(`C-04`) to cover a chip-sweep position, which writes the chip but has no pre-computed image row
+— the mechanism already fit; only the flag's own help text's stated scope did not.
+
+(b) Why: (1) the header and §Scope claim of "executed unchanged by Phase 162" was false the moment
+Phase 162 began running a different command over a different step shape; leaving it standing would
+have let a later reader believe `## Step list`'s `P-NN` prescriptions applied verbatim to a chip
+position, when roughly half do not apply at all. (2) `render_steps.py`'s `_STEP_ID_RE` is anchored
+to the `P-NN` shape and `validate_steps()` raises `ProcedureParseError` on anything else — a `C-NN`
+heading placed inside the Step list section would have **reded the live gate for the rest of the
+milestone** (RESEARCH R6's blocking finding); the new section's own H2 keeps `_NEXT_H2_RE` from
+ever bleeding the two sections into each other, and `render_steps.py` (Task 1, this plan) was
+taught the second section precisely so the re-confirmation below is not a vacuous pass over text
+the gate could not see. (3) a lower-case or differently-cased chip name invoked at the CLI would
+otherwise write a report file the appender never reads, silently losing the position's own
+evidence — declaring `$CHIP_TOKEN` separately from `$CHIP` and pinning it per part in
+`rig-pins.json` closes that gap once, in the document both the operator and the tool read. (4)
+per-part VPP figures are materially better evidence for Phase 166's honesty ledger than a single
+once-per-cell figure asserted to cover nine dissimilar parts; the meter itself is scarce (operator
+time, one physical action) so it is spent only at the two points where the target actually
+changes. (5) `P-11`'s literal text names `bench/EVIDENCE.jsonl` and `render_evidence.py`, neither
+of which a chip position ever writes; retargeting the *chip-sweep application* of the same
+completeness idea, without touching `P-11`'s own prose, keeps the shared-by-reference contract
+honest (clause (a)(2) above) while still asserting completeness for the shape that actually runs.
+(6) Amendment 3 clause (4) pinned `1787817565`; a live measurement taken while drafting this
+amendment reads `1787854674` — content and tree digests unchanged — so `P-11` assertion (1) as
+literally written was **unconditionally red before this phase starts** and would have booked a
+false `P-H1` halt at every one of the (up to) eleven chip-sweep positions. The mtime is the
+**only one of the four values that has ever changed**; dropping it from the assertion, rather than
+re-pinning it, would make the assertion vacuous — the same vacuous-pass shape the two-assertion
+design (Standing bench rule 9) exists to close. A further change **during** this phase is this
+phase's own `P-H1` finding, not a fifth false recurrence. Removal is never attempted: the sandbox
+denies it, and Phase 160's one unlogged kill during a removal attempt is what contaminated the
+directory in the first place. (7) `check_arms.compute_config_dir_sha()` walks every file under the
+frozen config dir; a `dev test` report left in place after this position's row is appended would
+permanently corrupt the pinned digest for every position that follows it, so the copy-out-then-
+remove sequence has to be a **prescribed obligation** of the step list, not an incidental property
+of `append_chip_evidence.py`'s implementation. (8) the flag's own help text scoped it to "a
+bring-up pre-proof cell that never generates a chip image (no chip write ever runs here)" — a
+chip-sweep position does write the chip, so the mechanism (an explicit not-measured placeholder
+naming the reason) fits but the stated rationale did not, and a future reader should not have to
+infer why a "no write" flag is used on a step that writes.
+
+(c) Which cells ran under which text: `A1`, `A2` and `A3/B2` ran under the Amendment-3 text and
+are **unaffected** — Amendment 4 adds a new `## Chip-sweep step list` H2, corrects the header
+sentence and §Scope, widens `## Arm substitution`'s `$CHIP` row and adds `$CHIP_TOKEN`, and changes
+**exactly one value** inside the Step list section (the `~/.firestarter` mtime baseline in `P-11`),
+which those three cells asserted against a value reality had already overtaken before this phase
+began. No prescription any of `A1`, `A2` or `A3/B2` executed has changed, and every `### P-NN —
+<title>` heading is byte-identical to what those three cells cited. `B1` and `B3` (Phase 163) will
+run under the Step list section at the Amendment-4 text, which for them is identical in substance
+to the Amendment-3 text they would otherwise have run under. **No chip-sweep position has run
+under any text** — Amendment 4 lands before the first one, so every chip-sweep position in this
+phase runs under the new `## Chip-sweep step list` section from its first invocation.
+
+The arm-agnostic empty-diff render gate (`render_steps.py --arm control` vs `--arm v133`) was
+re-confirmed empty after this edit, for **both** sections (`--section P` and `--section C`), and it
+stays empty because **no new text in either section carries an `[arm: …]` annotation marker** —
+the marker, not the arm-binary token, is the mechanism that makes a render differ. Every
+substitution token this amendment adds or widens (`$CHIP`, `$CHIP_TOKEN`) is emitted as literal
+token text in the render, never expanded, and is therefore diff-neutral by the same construction
+`## Arm substitution` already documents for every other non-arm-dependent token.
