@@ -426,3 +426,115 @@ violations, `run_gates.sh` RC=0, 14/14 selftests, 7/7 live gates, ALL GATES PASS
 
 **The 28-pin, 12 V group is now complete** (positions 1, 2, 3 of 3 healthy DIP28 parts) — no pot
 move, no JP4 change since the session opened.
+
+## Position 4 — `CHIP__v133__fm1608` (162-06 Task 3-4)
+
+**Chip swap (Task 3, operator-performed):** SST27SF512 removed, FM1608 seated (DIP28), pin-1
+oriented. JP4 left at 28-pin, pot untouched (operator confirmed: "FM1608 seated"). Reseat count: 0.
+
+**Second live application of the operator ruling — D-03's advance booking overridden.** The phase
+plan (162-06-PLAN.md) pre-booked this position's `divergence_verdict` as `diverges: no comparable
+baseline` in advance (D-03), on the reasoning that the newest prior disposition (v1.16 Phase 90)
+was obtained via a now-forbidden flag. The orchestrator corrected this mid-plan, before any `dev
+test` run: the operator ruling holds that `dev test`'s own v133 verdict is the sweep's operative
+arbiter, and "no comparable baseline" is an absence of history, not a live failure — it does not
+by itself earn a control-arm re-run under the ruling. Only a live FAIL/BAD would have triggered
+`C-08`. Applied here in full: `dev test FM1608` was run alone first, with no pre-emptive flash and
+no pre-emptive control re-run.
+
+### C-01 — frozen config dir pristine
+
+`check_arms.py --expect-config-sha 77adfdd2...` -> OK, matches the pinned digest.
+
+### C-03 — VPP, named absence (D-13, inherited)
+
+Single reading, unchanged since position 1: **12400 mV**, in band. `vpp_real_mv` recorded as a
+named absence pointing back to `CHIP__v133__w27c512`.
+
+### C-04 — provenance
+
+Port re-verified live by signature (`touch_1200.py` + `probe_board.py`, 2s settle,
+`--board-probe-json` seam): `board_signature: 0x1e9587`, matches. `capture_provenance.py` run with
+`--pending-readback` (no flash occurred this position).
+
+### C-05 — `dev test FM1608`, exit 0, steps total 71.0s — clean on the first attempt
+
+```
+timeout 120 env FIRESTARTER_CONFIG_DIR=/workspaces/.planning/v1.34/config \
+  /workspaces/.v1.34-arms/v133/.venv/bin/firestarter -p /dev/ttyACM0 dev test FM1608
+```
+
+No timeout drama this time — let to finish inside a single Bash call given a generous explicit
+timeout, per the standing instruction not to abort on timeout impatience.
+
+| Step | Verdict | Runs | Duration_s (cycle-sum) |
+|---|---|---|---|
+| id | NA | 0 | — |
+| read | OK | 2 | 8.37 |
+| blank-check | NA | 0 | — |
+| write | OK | 2 | 50.5 |
+| verify | OK | 2 | 12.2 |
+| erase | NA | 0 | — |
+
+Banner: **3 of 3 ran** (a reduced banner is expected here, not a defect — three steps are
+structurally NA by construction). Steps total 71.0s, well inside the 120s 8 KiB fallback ceiling —
+**this position supplies the phase's first 8 KiB duration figure**: no wider class ceiling is
+derived from a single data point (no other 8 KiB part exists in the inventory), but 71.0s is
+recorded as the measured basis. `fw_board_identity`: `3.0.0b22:leonardo`, non-null. VPP
+before/after: 12400/12400 mV.
+
+### The predicted failure shape — did NOT manifest, recorded as a data point, not a fix
+
+The folded todo (`fm1608-byte0-write-never-lands-register-cache-elision.md`) predicted: if the
+register-cache-elision defect fires, `write` reports success and `verify` goes BAD with a
+single-byte mismatch at offset 0. **Observed vs. predicted:** `verify` succeeded on **both**
+alternating-pattern write/verify cycles — no byte-0 mismatch anywhere in the console output or the
+report's per-step verdicts (`write`/`verify` both `OK`, `fingerprint: indeterminate` on both, the
+same ambiguous-bucket shape already seen on positions 1-3, not itself grounds for a divergence).
+**This is a live PASS, not a live FAIL** — under the operator ruling this does NOT earn a C-08
+control re-run. The non-manifestation is itself a data point on the open todo (hardware-gated
+defects are not reliably reproducible-or-absent from a single run) — recorded here, not claimed
+as a fix or closure of that todo.
+
+### Three structurally-NA steps, and the family-label trap
+
+`id`, `blank-check`, `erase` are NA by construction (verbatim `DERIVE-PLAN.json` reasons: no
+chip-id in DB entry; blank-check not applicable to FRAM; `FLAG_CAN_ERASE` not set) — none appears
+in the divergence verdict. Family-label conflation stated once: v1.15's EVIDENCE.md labels this
+part's family "0x40 (SRAM_STD / FRAM)" — 0x40 is the DECIMAL algorithm (40) written as though
+hexadecimal; algorithm 40's true hex form is 0x28 (this run's own report: `protocol: "40"` in
+`auto_capture`, i.e. decimal 40 = hex 0x28). The v1.16 ledger already retired this conflation
+(`PROTOCOL-LEDGER.md:31`, "NAME-04 conflation, retired in PROTOCOLS.md Section 1.10"). Not a
+divergence.
+
+### Declared operating voltage — cited, not re-derived
+
+`vcc_mv: 3300` is decorative per Wave 0's `FM1608-VCC.md` (never transmitted to firmware, no
+control path on any shield revision, byte-identical on both arms). Cited, not re-derived; socket
+VCC recorded as not measured with the reason inline; `chip_database.json` untouched.
+
+### Final row content
+
+`divergence_verdict: same`. `known_carried: no`. `outcome: validated`. `control_rerun_for: not
+applicable — arm is v133, not a control re-run`. `prior_disposition_source` names **v1.16 Phase
+90** (`.planning/v1.16/ledger/PROTOCOL-LEDGER.md:31`), not v1.15 — `prior_dispositions_all`
+additionally cites v1.15 Phase 81 (`:59`) and Phase 82 (`:101`). All history recorded as context
+only, per the operator ruling; the operative baseline is `dev test`'s own OK verdict, confirmed.
+`vpp_firmware_mv: 12400`, `vpp_shortfall_mv: -400`. `render_chip_evidence.py --check` green,
+`gate_record.py` (re-run standalone) 0 violations, `run_gates.sh` RC=0, 14/14 selftests, 7/7 live
+gates, `ALL GATES PASSED`.
+
+**No flash was performed for this position** — `firestarter/` confirmed still at the v1.33 SHA
+throughout, both sub-repo porcelains empty. `--pending-readback` used, matching every non-flashing
+position in this sweep.
+
+## Plan 162-06 leave-state
+
+**Board:** Leonardo, `/dev/ttyACM0`, signature `0x1e9587`/`atmega32u4`, re-confirmed at both this
+plan's chip swaps. **Arm on the board:** v1.33 (`5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`), never
+flashed this plan (no divergence occurred). **Chip seated:** FM1608 (DIP28), pin-1 oriented, JP4 at
+28-pin — unchanged since Task 3. **Pot setting:** meter 11.6 V / firmware 12400 mV, in band,
+unchanged since position 1. **Shield:** Rev 2.0, mounted. Four of ten positions recorded
+(w27c512, w27e512, sst27sf512, fm1608), all `same`/`validated`/`known_carried:no`, zero control
+rows in the live ledger. Plan 162-07 inherits this state for its own first handover, where JP4
+moves to 32-pin — **that move belongs to 162-07, not here.**
