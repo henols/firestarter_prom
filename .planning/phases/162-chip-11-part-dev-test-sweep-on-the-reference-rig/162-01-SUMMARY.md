@@ -240,3 +240,8 @@ Plan 162-02 and later bench plans (162-05 through 162-10) can now invoke `captur
 against any of the eleven inventory parts, key their per-step divergence lookups on
 `DERIVE-PLAN.json`'s NA map (and on both `write`/`write-partial`), and cite `FM1608-VCC.md` inline
 wherever FM1608's `vcc_mv` or byte-0 write behavior comes up, per the Folded Todos instruction.
+
+## Self-Check: PASSED
+
+All seven created/modified files verified present on disk; all four task/summary commit hashes
+(`0c04361b`, `a4ce6072`, `56349c10`, `08866a28`) verified present in `git log --oneline --all`.
