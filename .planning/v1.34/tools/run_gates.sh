@@ -15,6 +15,8 @@
 #        c. render_steps.py    -- the SC#3 empty-step-list diff (--arm control vs --arm v133)
 #        d. render_evidence.py --check -- bench/EVIDENCE.md against a fresh render
 #        e. gate_record.py     -- bench/EVIDENCE.jsonl's own record-shape gate
+#        f. render_chip_evidence.py --check -- bench/CHIP-EVIDENCE.md against a fresh render
+#        g. gate_record.py (CHIP-EVIDENCE.jsonl) -- bench/CHIP-EVIDENCE.jsonl's own record-shape gate
 #
 # FAILURE STYLE
 # --------------
@@ -205,6 +207,22 @@ if python3 "$TOOLS_DIR/gate_record.py" --jsonl "$BENCH_DIR/EVIDENCE.jsonl" --pin
 else
     FAILURES+=("gate_record.py: bench/EVIDENCE.jsonl failed its own record-shape gate")
     echo "live gate FAIL: gate_record.py" >&2
+fi
+
+echo "--- live gate: render_chip_evidence.py --check (bench/CHIP-EVIDENCE.md vs a fresh render) ---"
+if python3 "$TOOLS_DIR/render_chip_evidence.py" --jsonl "$BENCH_DIR/CHIP-EVIDENCE.jsonl" --target "$BENCH_DIR/CHIP-EVIDENCE.md" --check; then
+    echo "live gate PASS: render_chip_evidence.py --check"
+else
+    FAILURES+=("render_chip_evidence.py --check: bench/CHIP-EVIDENCE.md diverges from a fresh render -- hand-edit suspected")
+    echo "live gate FAIL: render_chip_evidence.py --check" >&2
+fi
+
+echo "--- live gate: gate_record.py (bench/CHIP-EVIDENCE.jsonl record-shape gate) ---"
+if python3 "$TOOLS_DIR/gate_record.py" --jsonl "$BENCH_DIR/CHIP-EVIDENCE.jsonl" --pins "$PINS_FILE"; then
+    echo "live gate PASS: gate_record.py (CHIP-EVIDENCE.jsonl)"
+else
+    FAILURES+=("gate_record.py (CHIP-EVIDENCE.jsonl): bench/CHIP-EVIDENCE.jsonl failed its own record-shape gate")
+    echo "live gate FAIL: gate_record.py (CHIP-EVIDENCE.jsonl)" >&2
 fi
 
 # ---------------------------------------------------------------------------
