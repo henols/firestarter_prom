@@ -294,3 +294,101 @@ pin-1 oriented, JP4 at 28-pin — unchanged since Task 4, never removed. **Pot s
 11.6 V / firmware 12400 mV, in band, unchanged since position 1's correction. **Shield:** Rev 2.0,
 mounted, unchanged all session. This is the state plan 162-06 inherits at zero physical cost for
 its own first handover (per this plan's own key_links note).
+
+## Position 3 — `CHIP__v133__sst27sf512` (162-06 Task 1-2)
+
+**Operator ruling (162-05) still governs:** `dev test`'s own v133 verdict is this sweep's
+operative baseline. All six steps OK -> `divergence_verdict: same`, no control row, whatever any
+prior milestone recorded.
+
+**Chip swap (Task 1, operator-performed):** W27E512 removed, SST27SF512 seated (DIP28), pin-1
+oriented. JP4 left at 28-pin, pot untouched (operator confirmed: "SST27SF512 seated"). Reseat
+count: 0.
+
+### C-01 — frozen config dir pristine
+
+`check_arms.py --expect-config-sha 77adfdd2...` -> OK, matches the pinned digest. No stray files
+from position 2's own copy-out.
+
+### C-03 — VPP, named absence (D-13, inherited)
+
+Single reading, unchanged since position 1: **12400 mV**, in band (100 mV margin below the
+12500 mV high guard). `vpp_real_mv` recorded as a named absence pointing back to
+`CHIP__v133__w27c512`.
+
+### C-04 — provenance
+
+Port re-verified live by signature (`touch_1200.py` + `probe_board.py`, 2s settle,
+`--board-probe-json` seam per the 162-05 Leonardo bring-up finding — avoids the Caterina avr109-exit
+race): `board_signature: 0x1e9587`, `connected_part: atmega32u4`, matches. `capture_provenance.py`
+run with `--pending-readback` (this position never flashes; the seated v1.33 arm's own
+flash-and-readback proof belongs to an earlier cell).
+
+### C-05 — `dev test SST27SF512`, exit 0, steps total 201.6s
+
+```
+timeout 856 env FIRESTARTER_CONFIG_DIR=/workspaces/.planning/v1.34/config \
+  /workspaces/.v1.34-arms/v133/.venv/bin/firestarter -p /dev/ttyACM0 dev test SST27SF512
+```
+
+**Deviation, recorded plainly (the same class of executor tooling mistake already logged at
+position 1):** the first invocation was killed by the outer harness's own shorter default timeout,
+mid-way through the second write cycle — not this task's own 856s ceiling, not a PD-15 kill, not a
+P-H1 rig finding. No report was written by the aborted attempt (`dev test` persists its report only
+on completion); the frozen config dir was confirmed still pristine (matching the pinned SHA) before
+the clean retry. Logged at
+`logs/CHIP__v133__sst27sf512.attempt1_aborted.std{out,err}.log`. The clean retry (this task's
+Bash call given an explicit long timeout) completed normally, well inside the 856s ceiling.
+
+| Step | Verdict | Runs | Duration_s (cycle-sum) |
+|---|---|---|---|
+| id | OK | 1 | 3.53 |
+| read | OK | 2 | 21.2 |
+| write | OK | 2 | 115.6 |
+| verify | OK | 2 | 28.5 |
+| erase | OK | 2 | 16.6 |
+| blank-check | OK | 2 | 16.1 |
+
+Banner: 6 of 6 ran. Steps total 201.6s. `fw_board_identity`: `3.0.0b22:leonardo`, non-null. VPP
+before/after: 12400/12400 mV. The same reproducible, self-recovering `ERROR: Empty input`
+(`MSG_ERR_EMPTY_INPUT`, 0xA4) already seen at positions 1 and 2 recurred at the identical point in
+the sequence (between the first blank-check and the second write) — not a new finding.
+
+### Tool fix (Rule 1, found live): `vpp_firmware_mv` was silently `not measured` on every
+### real chip-sweep position, including positions 1 and 2
+
+`append_chip_evidence.py`'s `derive_vpp_firmware_mv()` looked for a literal `VPP: <N.N>V` line in
+`--console-log` — that string shape belongs only to the standalone `vpp` CLI subcommand's own
+continuous-print loop (C-03's separate invocation), never to `dev test`'s own console output
+(a rich-rendered summary table, no such literal line anywhere in it). This position's row would
+otherwise have carried `vpp_firmware_mv: not measured` / `vpp_shortfall_mv: not measured` —
+exactly what positions 1 and 2 already carry in their own committed rows (checked: both do).
+**Fixed at the correct layer, not by weakening the check:** the report JSON already carries the
+firmware's own reading verbatim (`voltage.vpp_before_mv`, an exact mV int) — `derive_vpp_firmware_mv`
+now reads that field directly when present and numeric, falling back to the original console-log
+scrape only when it is absent (preserves the function's three pre-existing selftest legs
+byte-for-byte). One new positive selftest leg added, proving the report field wins even when the
+console log carries no `VPP:` line at all (the real `dev test` shape). 20/20 selftest legs pass
+(19 prior + 1 new). This position's row: `vpp_firmware_mv: 12400`, `vpp_shortfall_mv: -400`
+(target 12000 − firmware 12400).
+
+**Positions 1 and 2 are NOT retroactively re-derived** — those rows are already committed,
+closed-plan artifacts, and the scope boundary for this plan's own deviation rules is this
+position's own data, not a reach-back into a prior plan's closed work. **Filed here for plan
+162-10's reconciliation, alongside the already-filed `read_divergence`/`read_consistency_followup`
+export gap**: positions 1 and 2's `vpp_firmware_mv`/`vpp_shortfall_mv` both read
+`not measured — no 'VPP: <N.N>V' line found in --console-log` in the live `CHIP-EVIDENCE.jsonl` —
+a real, citable gap, not a per-position anomaly, and not itself a divergence trigger under the
+operator ruling.
+
+### Final row content
+
+`divergence_verdict: same`. `known_carried: no`. `prior_disposition` cites v1.15 Phase 82
+(`EVIDENCE.md:98`, the auto-erase-proven PASS) as the newest and only disposition;
+`prior_dispositions_all` additionally cites the Phase 81 read PASS (`:54`). Per the operator
+ruling, this history is context only — the operative baseline is `dev test`'s own OK verdict here,
+confirmed. `outcome: validated`. `render_chip_evidence.py --check` green, `gate_record.py` 0
+violations, `run_gates.sh` RC=0, 14/14 selftests, 7/7 live gates, ALL GATES PASSED.
+
+**The 28-pin, 12 V group is now complete** (positions 1, 2, 3 of 3 healthy DIP28 parts) — no pot
+move, no JP4 change since the session opened.

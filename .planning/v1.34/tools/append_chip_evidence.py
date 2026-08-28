@@ -476,10 +476,30 @@ def derive_dedup_query_outcome(console_log_text: str) -> str:
     return _nm("console log names none of the three known dedup_query_outcome markers")
 
 
-def derive_vpp_firmware_mv(console_log_text: str):
+def derive_vpp_firmware_mv(report: dict | None, console_log_text: str):
+    """Prefer the report's own voltage.vpp_before_mv (an exact mV int, native to a real
+    `dev test` report -- see its rendered 'vpp (before/after)' table row) over a console-log
+    text scrape. Found live, 162-06 Task 2 (position 3, SST27SF512): a real `dev test`
+    invocation's console output never contains a literal 'VPP: <N.N>V' line -- that string
+    shape belongs only to the standalone `vpp` CLI subcommand's own continuous-print loop
+    (C-03's separate invocation), never to `dev test`'s own rich-rendered summary table. The
+    console-log regex therefore silently produced 'not measured' on every real chip-sweep
+    position (positions 1 and 2 carry this same gap, undetected because neither plan's own
+    `<verify>` block asserted vpp_shortfall_mv numerically). Fixed at the correct layer: read
+    the authoritative machine field the report already carries; fall back to the console-log
+    scrape only when that field is absent or non-numeric (preserves this function's original,
+    already-selftested behaviour for a report that genuinely lacks voltage data)."""
+    if report is not None:
+        voltage = report.get("voltage") or {}
+        v = voltage.get("vpp_before_mv")
+        if isinstance(v, (int, float)):
+            return v
     match = _VPP_LINE_RE.search(console_log_text)
     if not match:
-        return _nm("no 'VPP: <N.N>V' line found in --console-log")
+        return _nm(
+            "no 'VPP: <N.N>V' line found in --console-log, and report.voltage.vpp_before_mv "
+            "is absent or non-numeric"
+        )
     v_int, v_dec = int(match.group(1)), int(match.group(2))
     return v_int * 1000 + v_dec * 100
 
@@ -778,7 +798,7 @@ def build_row(*, record_keys: list, inputs: dict, chip_cfg: dict, target_cfg: di
         write_target = derive_write_target(write_step)
         write_coverage = derive_write_coverage(write_step)
         read_divergence = derive_read_divergence(read_step)
-        vpp_firmware_mv = derive_vpp_firmware_mv(inputs["console_log_text"])
+        vpp_firmware_mv = derive_vpp_firmware_mv(report, inputs["console_log_text"])
         report_derived = {
             "report_schema_version": report.get("schema_version"),
             "host_version": auto_capture.get("host_version"),
@@ -1589,6 +1609,42 @@ def _run_selftest() -> int:
             f"rc3a={rc3a} rc3b={rc3b} v3a={v3a} v3b={v3b} "
             f"shortfall_a={row3a.get('vpp_shortfall_mv') if row3a else None} "
             f"shortfall_b={row3b.get('vpp_shortfall_mv') if row3b else None}",
+        )
+
+        # --- positive 4: derive_vpp_firmware_mv PREFERS report.voltage.vpp_before_mv over a
+        #     console-log text scrape -- 162-06 Task 2 finding: a real `dev test` console log
+        #     never contains a literal 'VPP: <N.N>V' line at all, so the report's own machine
+        #     field must be read directly rather than relied on as a fallback-only source. ---
+        leg = tmp / "pos3c"; leg.mkdir()
+        cell_dir3c = leg / "cell"; cell_dir3c.mkdir()
+        report3c = copy.deepcopy(_SELFTEST_REPORT)
+        report3c["voltage"]["vpp_before_mv"] = 12400
+        config_dir3c, pristine3c, rj3c, rm3c = _write_config_dir(leg, "W27C512", report3c, _SELFTEST_REPORT_MD, ca_mod)
+        pins3c = copy.deepcopy(_SELFTEST_PINS); pins3c["config_dir"] = str(config_dir3c)
+        pins_path3c = leg / "rig-pins.json"; _write_fixture_json(pins_path3c, pins3c)
+        arms_prov_path3c = leg / "arms-provenance.json"; _write_fixture_json(arms_prov_path3c, {"config_dir_sha": pristine3c})
+        provenance_path3c = leg / "provenance.json"; _write_fixture_json(provenance_path3c, copy.deepcopy(_SELFTEST_PROVENANCE))
+        readback_path3c = leg / "readback.json"; _write_fixture_json(readback_path3c, copy.deepcopy(_SELFTEST_READBACK))
+        jsonl_path3c = _write_jsonl(leg)
+        inputs3c = _make_inputs(leg, config_dir3c, rj3c, rm3c, pins_path3c, arms_prov_path3c, provenance_path3c, readback_path3c, cell_dir3c)
+        # No 'VPP: <N.N>V' line anywhere in this console log -- matching a REAL `dev test`
+        # invocation's actual output shape (only a rich-rendered table, never that literal
+        # string). If the fix regressed to console-log-only, this would fall through to
+        # not-measured; asserting a real numeric value here proves the report field wins.
+        inputs3c["console_log_text"] = (
+            "https://github.com/henols/firestarter_prom/issues/new?title=...\n"
+        )
+        rc3c, v3c, row3c = process_position(inputs3c, jsonl_path3c)
+        report(
+            "positive 4: vpp_firmware_mv reads report.voltage.vpp_before_mv directly when "
+            "present and numeric, even though the console log carries no 'VPP: <N.N>V' line "
+            "at all (the real dev-test console shape, per 162-06 Task 2)",
+            rc3c == 0 and row3c is not None
+            and row3c["vpp_firmware_mv"] == 12400
+            and row3c["vpp_shortfall_mv"] == 12000 - 12400,
+            f"rc3c={rc3c} v3c={v3c} "
+            f"vpp_firmware_mv={row3c.get('vpp_firmware_mv') if row3c else None} "
+            f"shortfall={row3c.get('vpp_shortfall_mv') if row3c else None}",
         )
 
         # --- positive 5 + 6: UV fixture (write-partial) ---
