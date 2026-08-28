@@ -359,7 +359,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 162-06-PLAN.md — Positions 3–4 (SST27SF512, FM1608), DIP28 / 12 V, first control arbitration — CHIP-04, CHIP-05
+- [x] 162-06-PLAN.md — Positions 3–4 (SST27SF512, FM1608), DIP28 / 12 V, first control arbitration — CHIP-04, CHIP-05
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
