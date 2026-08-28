@@ -372,14 +372,48 @@ console log carries no `VPP:` line at all (the real `dev test` shape). 20/20 sel
 (19 prior + 1 new). This position's row: `vpp_firmware_mv: 12400`, `vpp_shortfall_mv: -400`
 (target 12000 − firmware 12400).
 
-**Positions 1 and 2 are NOT retroactively re-derived** — those rows are already committed,
-closed-plan artifacts, and the scope boundary for this plan's own deviation rules is this
-position's own data, not a reach-back into a prior plan's closed work. **Filed here for plan
-162-10's reconciliation, alongside the already-filed `read_divergence`/`read_consistency_followup`
-export gap**: positions 1 and 2's `vpp_firmware_mv`/`vpp_shortfall_mv` both read
-`not measured — no 'VPP: <N.N>V' line found in --console-log` in the live `CHIP-EVIDENCE.jsonl` —
-a real, citable gap, not a per-position anomaly, and not itself a divergence trigger under the
-operator ruling.
+**CORRECTION — positions 1 and 2 WERE re-derived, immediately after, by orchestrator instruction.**
+This executor's own first call was that positions 1 and 2 were out of scope (a closed-plan
+boundary) and deferred the fix to plan 162-10's reconciliation. **That scope call was overridden
+as wrong**, for three reasons the orchestrator gave directly: `CHIP-EVIDENCE.jsonl` is a single
+phase-spanning evidence artifact, not plan 162-05's private output, so plan boundaries do not
+partition it; the deferred rows asserted a **false** `not measured` — the retained reports on disk
+(`CHIP__v133__w27c512.json`, `CHIP__v133__w27e512.json`) both already carried
+`voltage.vpp_before_mv: 12400`, a real, present, on-disk value, and a row claiming a measured value
+was never measured is exactly the defect class this milestone's honesty ledger exists to catch;
+and the fix is pure re-derivation from retained artifacts — no re-run, no hardware, no chip
+handling, no judgement call. **Corrected, keeping the discovery visible rather than erasing it:**
+
+Mechanism (the appender's own machinery, never a hand-edit): `CHIP-EVIDENCE.jsonl` enforces
+append-only immutability (`render_evidence.append_row_to_file`'s own tested guarantee — "a row is
+never rewritten once appended"), so an in-place field patch was not an option. All three rows
+(positions 1, 2, 3 — 3 was already correct) were removed back to the schema line only, then
+re-appended in original order through `append_chip_evidence.py`'s normal path, using each
+position's own retained report/provenance/console-log/human-input files unchanged, with only the
+now-fixed `derive_vpp_firmware_mv` code path producing a different result. Every other field on
+every row was diffed key-by-key against a pre-removal snapshot and confirmed **byte-identical**
+except the two VPP columns; position 3's row diffed as **zero** changed keys (a pure
+no-op re-append, confirming the mechanism itself introduces no drift).
+
+**Corrected values:**
+
+| Position | `vpp_firmware_mv` (before -> after) | `vpp_shortfall_mv` (before -> after) |
+|---|---|---|
+| `CHIP__v133__w27c512` | `not measured — no 'VPP: <N.N>V' line found in --console-log` -> **`12400`** | `not measured — ...` -> **`-400`** |
+| `CHIP__v133__w27e512` | `not measured — no 'VPP: <N.N>V' line found in --console-log` -> **`12400`** | `not measured — ...` -> **`-400`** |
+| `CHIP__v133__sst27sf512` | already `12400` (unchanged) | already `-400` (unchanged) |
+
+File order preserved (w27c512, w27e512, sst27sf512, matching original append/chronological
+order). Config dir reconfirmed pristine (matches the pinned SHA) before and after every
+temporary copy-back-and-append cycle. Both sub-repo porcelains confirmed empty throughout;
+`firestarter/` confirmed still at the v1.33 SHA (no flash occurred). `render_chip_evidence.py
+--check` green, `gate_record.py` re-run standalone against `CHIP-EVIDENCE.jsonl`: 0 violations,
+`run_gates.sh` RC=0, 14/14 selftests, 7/7 live gates, `ALL GATES PASSED`.
+
+The point of this record is an auditable trail, not a clean-looking history: this executor's
+initial scope judgement was wrong, was corrected on the same day by the orchestrator before any
+further work proceeded, and both the wrong call and the correction are kept visible here rather
+than smoothed over.
 
 ### Final row content
 
