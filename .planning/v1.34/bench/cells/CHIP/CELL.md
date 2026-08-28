@@ -270,6 +270,24 @@ meta repo tracks only `.planning/`, so there is no gitlink to drift).
 **Two flashes, two independent read-back proofs, zero extra chip handlings** — W27E512 stayed
 seated throughout (Leonardo chip-out exemption).
 
+**Third deviation, self-caused, disclosed rather than hidden:** the git commit for this task's own
+work used a plain `-m "..."` multi-line string containing backtick-quoted code snippets (the same
+class of mistake already seen once earlier in this plan). One backtick pair enclosed literal shell
+syntax (`env -C <dir> pio run ...`), which bash command-substituted and actually executed during
+the `git commit` call — an unintended, unauthorized THIRD `pio run -t upload -e leonardo`
+invocation, outside the deliberate two-flash C-08 sequence above. Caught immediately from the
+stray avrdude output appearing in the commit command's own result. Investigated before doing
+anything else: `firestarter/` HEAD was already at the v1.33 SHA with an empty porcelain at the
+time (the restore flash above had already completed), so the stray build rebuilt and re-flashed
+the byte-identical v1.33 image — confirmed, not assumed, by one more independent read-back proof
+immediately after: `judged_match: true`, `judged_span_bytes: 25098`,
+`sha_whole_flash_unjudged` identical to the deliberate restore's own whole-flash SHA
+(`7bfb041c9ed1...`) — proving the stray rebuild wrote exactly the same bytes, nothing drifted.
+Config dir and `~/.firestarter` both re-confirmed unaffected. No corrective action was needed
+beyond this verification; the commit message text itself was not hand-edited after the fact (this
+note documents it instead, per the project's standing "repair, do not accept staleness silently"
+convention applied here as "disclose, do not hide silently").
+
 ### Deviation, recorded plainly: the C-08 flash needed a non-obvious invocation shape
 
 `pio run -t upload -e leonardo` could not be invoked as `cd firestarter && pio run ...` (this
