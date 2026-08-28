@@ -1,0 +1,9 @@
+DIVERGES FROM DISPOSITION -- but NOT "healed": all six steps report verdict OK -- id x1 (3.55s), read x2 (21.2s), write x2 (122.2s), verify x2 (28.4s), erase x2 (16.7s), blank-check x2 (16.1s); banner 6 of 6 ran, steps total 208.1s, wall-clock 213s. VPP before/after 12400/12400 mV, in band throughout. fw_board_identity 3.0.0b22:leonardo, non-null. The write covered the FULL device (write_region_start=0, write_region_length=65536), so the recorded defect's address (0x3d) was genuinely exercised, not skipped by a partial-region write.
+
+Three of the report's own internal indicators are consistent with the recorded v1.15 Phase 82 stuck-bit disposition, even though every step's outer verdict says OK:
+1. read.reason = "read runs diverged" (verdict OK, run_count 2) -- v1.15's own record of this defect states "read jittered 14/65536 bytes (0xEF<->0xFF)" alongside the stuck bit; this report's free-text reason is the same class of signal.
+2. write.fingerprint = "indeterminate" -- the classifier bucket printed when bad bytes WERE found during marginal-policy classification.
+3. verify.fingerprint = "indeterminate" -- same bucket, on the verify step.
+The total/bad/bad_pct/evidence values behind "indeterminate" are computed internally by chip_test.py's classifier but dropped before diagnostic_report.py exports the step dict -- the identical export gap already filed for read_divergence.
+
+The defensible statement is NOT "the stuck cell healed" -- it is that dev test returns OK while its own internal indicators are consistent with the recorded defect, and the values that would settle it one way or the other are exactly the ones the host never exports. Escalated to the control-arm arbitration (this row's own C-08 control-rerun) to test whether pre-v1.33 firmware reports a hard FAIL on this same silicon where v1.33 reports OK -- if so, that is a v1.33 regression in failure DETECTION, not in the chip.
