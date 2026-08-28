@@ -343,7 +343,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 162-02-PLAN.md — Wave 0b: `CHIP-EVIDENCE.jsonl` `_schema` (9 locked + 62 extension) and `append_chip_evidence.py` with copy-out-then-remove
+- [x] 162-02-PLAN.md — Wave 0b: `CHIP-EVIDENCE.jsonl` `_schema` (9 locked + 62 extension) and `append_chip_evidence.py` with copy-out-then-remove
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
