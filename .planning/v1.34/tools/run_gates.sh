@@ -12,7 +12,9 @@
 #   2. Live gates (skipped entirely under --quick, see below):
 #        a. check_rebuild.py   -- committed images/ self-check against SHA256SUMS.txt
 #        b. check_arms.py      -- both live host arms against the recorded config-dir SHA
-#        c. render_steps.py    -- the SC#3 empty-step-list diff (--arm control vs --arm v133)
+#        c. render_steps.py    -- the SC#3 empty-step-list diff (--arm control vs --arm v133),
+#                                  now covering BOTH sections (--section P and --section C,
+#                                  Phase 162 Plan 04) inside this one gate -- not an eighth gate
 #        d. render_evidence.py --check -- bench/EVIDENCE.md against a fresh render
 #        e. gate_record.py     -- bench/EVIDENCE.jsonl's own record-shape gate
 #        f. render_chip_evidence.py --check -- bench/CHIP-EVIDENCE.md against a fresh render
@@ -169,29 +171,48 @@ except Exception:
     fi
 fi
 
-echo "--- live gate: render_steps.py (SC#3 empty-step-list diff, control vs v133) ---"
-CONTROL_RENDER="$(mktemp)"
-V133_RENDER="$(mktemp)"
-CONTROL_RC=0
-V133_RC=0
-python3 "$TOOLS_DIR/render_steps.py" --arm control --procedure "$PROCEDURE_FILE" > "$CONTROL_RENDER" || CONTROL_RC=$?
-python3 "$TOOLS_DIR/render_steps.py" --arm v133 --procedure "$PROCEDURE_FILE" > "$V133_RENDER" || V133_RC=$?
-CONTROL_LINES="$(wc -l < "$CONTROL_RENDER")"
-V133_LINES="$(wc -l < "$V133_RENDER")"
-if [ "$CONTROL_RC" -ne 0 ] || [ "$V133_RC" -ne 0 ]; then
-    FAILURES+=("render_steps.py: exited non-zero (control_rc=$CONTROL_RC v133_rc=$V133_RC)")
-    echo "live gate FAIL: render_steps.py -- exited non-zero (control_rc=$CONTROL_RC v133_rc=$V133_RC)" >&2
-elif [ "$CONTROL_LINES" -eq 0 ] || [ "$V133_LINES" -eq 0 ]; then
-    FAILURES+=("render_steps.py: at least one arm's render was empty (control=$CONTROL_LINES v133=$V133_LINES lines)")
-    echo "live gate FAIL: render_steps.py -- empty render (control=$CONTROL_LINES v133=$V133_LINES lines)" >&2
-elif diff -u "$CONTROL_RENDER" "$V133_RENDER" > /dev/null; then
-    echo "live gate PASS: render_steps.py -- diff empty, control=$CONTROL_LINES v133=$V133_LINES lines"
+echo "--- live gate: render_steps.py (SC#3 empty-step-list diff, control vs v133, sections P and C) ---"
+# Amendment 4 / Phase 162 Plan 04: PROCEDURE.md gained a second, independent step-list section
+# ('## Chip-sweep step list', ids C-01..C-09) alongside the original '## Step list' ('P-NN').
+# This block now renders and diffs BOTH sections -- four renders total, control and v133 for
+# each of P and C -- inside this ONE gate (PD-2: the suite target stays at 7 live gates, never
+# an eighth). The three ordered conditions (non-zero exit, empty render, non-empty diff) are
+# unchanged and are applied per section; every failure message names which section failed.
+RENDER_STEPS_OK=1
+RENDER_STEPS_SUMMARY=""
+RENDER_STEPS_FAIL_MSGS=()
+for SECTION in P C; do
+    CONTROL_RENDER="$(mktemp)"
+    V133_RENDER="$(mktemp)"
+    CONTROL_RC=0
+    V133_RC=0
+    python3 "$TOOLS_DIR/render_steps.py" --arm control --procedure "$PROCEDURE_FILE" --section "$SECTION" > "$CONTROL_RENDER" || CONTROL_RC=$?
+    python3 "$TOOLS_DIR/render_steps.py" --arm v133 --procedure "$PROCEDURE_FILE" --section "$SECTION" > "$V133_RENDER" || V133_RC=$?
+    CONTROL_LINES="$(wc -l < "$CONTROL_RENDER")"
+    V133_LINES="$(wc -l < "$V133_RENDER")"
+    if [ "$CONTROL_RC" -ne 0 ] || [ "$V133_RC" -ne 0 ]; then
+        RENDER_STEPS_OK=0
+        RENDER_STEPS_FAIL_MSGS+=("section $SECTION exited non-zero (control_rc=$CONTROL_RC v133_rc=$V133_RC)")
+        echo "live gate FAIL: render_steps.py -- section $SECTION exited non-zero (control_rc=$CONTROL_RC v133_rc=$V133_RC)" >&2
+    elif [ "$CONTROL_LINES" -eq 0 ] || [ "$V133_LINES" -eq 0 ]; then
+        RENDER_STEPS_OK=0
+        RENDER_STEPS_FAIL_MSGS+=("section $SECTION: at least one arm's render was empty (control=$CONTROL_LINES v133=$V133_LINES lines)")
+        echo "live gate FAIL: render_steps.py -- section $SECTION empty render (control=$CONTROL_LINES v133=$V133_LINES lines)" >&2
+    elif diff -u "$CONTROL_RENDER" "$V133_RENDER" > /dev/null; then
+        RENDER_STEPS_SUMMARY="${RENDER_STEPS_SUMMARY}section $SECTION: diff empty, control=$CONTROL_LINES v133=$V133_LINES lines; "
+    else
+        RENDER_STEPS_OK=0
+        RENDER_STEPS_FAIL_MSGS+=("section $SECTION: control vs v133 render diff is non-empty")
+        echo "live gate FAIL: render_steps.py -- section $SECTION non-empty diff:" >&2
+        diff -u "$CONTROL_RENDER" "$V133_RENDER" >&2 || true
+    fi
+    rm -f "$CONTROL_RENDER" "$V133_RENDER"
+done
+if [ "$RENDER_STEPS_OK" -eq 1 ]; then
+    echo "live gate PASS: render_steps.py -- ${RENDER_STEPS_SUMMARY}"
 else
-    FAILURES+=("render_steps.py: control vs v133 render diff is non-empty")
-    echo "live gate FAIL: render_steps.py -- non-empty diff:" >&2
-    diff -u "$CONTROL_RENDER" "$V133_RENDER" >&2 || true
+    FAILURES+=("render_steps.py: ${RENDER_STEPS_FAIL_MSGS[*]}")
 fi
-rm -f "$CONTROL_RENDER" "$V133_RENDER"
 
 echo "--- live gate: render_evidence.py --check (bench/EVIDENCE.md vs a fresh render) ---"
 if python3 "$TOOLS_DIR/render_evidence.py" --jsonl "$BENCH_DIR/EVIDENCE.jsonl" --target "$BENCH_DIR/EVIDENCE.md" --check; then
