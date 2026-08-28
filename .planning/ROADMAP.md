@@ -351,7 +351,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 162-04-PLAN.md — Wave 0d: `render_steps.py --section`, `PROCEDURE.md` Amendment 4 with `C-01…C-09`, `~/.firestarter` mtime re-pin
+- [x] 162-04-PLAN.md — Wave 0d: `render_steps.py --section`, `PROCEDURE.md` Amendment 4 with `C-01…C-09`, `~/.firestarter` mtime re-pin
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
