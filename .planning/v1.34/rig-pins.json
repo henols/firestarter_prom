@@ -146,6 +146,7 @@
       "package": "DIP28",
       "vpp_mv": 12000,
       "algorithm": 7,
+      "family_label": "EPROM-STD",
       "stamp_width": 16,
       "chip_token": "W27C512"
     },
@@ -155,6 +156,7 @@
       "package": "DIP32",
       "vpp_mv": 12000,
       "algorithm": 5,
+      "family_label": "FLASH-AMD-STD",
       "stamp_width": 32,
       "chip_token": "W29C020"
     },
@@ -164,6 +166,7 @@
       "package": "DIP28",
       "vpp_mv": 12000,
       "algorithm": 7,
+      "family_label": "EPROM-STD",
       "chip_token": "W27E512"
     },
     "sst27sf512": {
@@ -172,6 +175,7 @@
       "package": "DIP28",
       "vpp_mv": 12000,
       "algorithm": 7,
+      "family_label": "EPROM-STD",
       "chip_token": "SST27SF512"
     },
     "fm1608": {
@@ -180,6 +184,7 @@
       "package": "DIP28",
       "vpp_mv": 12000,
       "algorithm": 40,
+      "family_label": "SRAM-STD",
       "chip_token": "FM1608"
     },
     "w27e040": {
@@ -188,6 +193,7 @@
       "package": "DIP32",
       "vpp_mv": 12000,
       "algorithm": 8,
+      "family_label": "EPROM-QUICK",
       "chip_token": "W27E040"
     },
     "sst39sf040": {
@@ -196,6 +202,7 @@
       "package": "DIP32",
       "vpp_mv": 12000,
       "algorithm": 6,
+      "family_label": "FLASH-AMD-ALT",
       "chip_token": "SST39SF040"
     },
     "w29c040": {
@@ -204,6 +211,7 @@
       "package": "DIP32",
       "vpp_mv": 12000,
       "algorithm": 5,
+      "family_label": "FLASH-AMD-STD",
       "chip_token": "W29C040"
     },
     "am27c020": {
@@ -212,6 +220,7 @@
       "package": "DIP32",
       "vpp_mv": 13000,
       "algorithm": 8,
+      "family_label": "EPROM-QUICK",
       "chip_token": "AM27C020"
     },
     "m27c512": {
@@ -220,6 +229,7 @@
       "package": "DIP28",
       "vpp_mv": 13000,
       "algorithm": 7,
+      "family_label": "EPROM-STD",
       "chip_token": "M27C512"
     },
     "2516": {
@@ -228,10 +238,12 @@
       "package": "DIP24",
       "vpp_mv": 25000,
       "algorithm": 11,
+      "family_label": "EPROM-LEGACY",
       "chip_token": "2516"
     }
   },
-  "chips_note": "The nine new chips entries (w27e512, sst27sf512, fm1608, w27e040, sst39sf040, w29c040, am27c020, m27c512, 2516) were derived from the v1.33 arm's own EpromDatabase by a one-shot script run on 2026-08-28 (.planning/v1.34/bench/cells/CHIP/CHIPS-MAP-DERIVATION.md carries the exact command, verbatim output, and a cross-check against RESEARCH R7's independently-measured table -- no field is hand-typed). stamp_width is deliberately absent on all nine: it is gen_addr_image.py's address-stamp width for a generated WRV image and has no meaning for a dev-test chip-sweep position that generates no image; it is present only on the two pre-existing WRV entries (w27c512, w29c020), which are otherwise byte-unchanged inputs to Phase 161's twelve recorded positions. chip_token is case-sensitive on every entry -- it is the exact CLI token typed at `dev test <TOKEN>`, and _sanitize_chip_token (cli_handlers.py) preserves case, so the report filename dev-test-<TOKEN>.json depends on the token's case exactly as recorded here. 2516 is present for inventory completeness under D-14 as a named absence: it is never seated, read, or written in this phase.",
+  "chips_note": "The nine new chips entries (w27e512, sst27sf512, fm1608, w27e040, sst39sf040, w29c040, am27c020, m27c512, 2516) were derived from the v1.33 arm's own EpromDatabase by a one-shot script run on 2026-08-28 (.planning/v1.34/bench/cells/CHIP/CHIPS-MAP-DERIVATION.md carries the exact command, verbatim output, and a cross-check against RESEARCH R7's independently-measured table -- no field is hand-typed). stamp_width is deliberately absent on all nine: it is gen_addr_image.py's address-stamp width for a generated WRV image and has no meaning for a dev-test chip-sweep position that generates no image; it is present only on the two pre-existing WRV entries (w27c512, w29c020), which are otherwise byte-unchanged inputs to Phase 161's twelve recorded positions. chip_token is case-sensitive on every entry -- it is the exact CLI token typed at `dev test <TOKEN>`, and _sanitize_chip_token (cli_handlers.py) preserves case, so the report filename dev-test-<TOKEN>.json depends on the token's case exactly as recorded here. 2516 is present for inventory completeness under D-14 as a named absence: it is never seated, read, or written in this phase. family_label (added 162-02) is present on all eleven entries -- see chips_family_label_source.",
+  "chips_family_label_source": "family_label on every chips[*] entry is looked up by algorithm -> hex bucket (\"0x%02X\" % algorithm) against .planning/v1.16/ledger/PROTOCOL-LEDGER.json's rows[*].bucket -> rows[*].proposed_name table (the six v1.16 PROTOCOL-LEDGER bucket names this milestone's eleven parts actually use: EPROM-STD, EPROM-QUICK, EPROM-LEGACY, FLASH-AMD-STD, FLASH-AMD-ALT, SRAM-STD), never a two-part literal duplicated inside a tool. Added in 162-02 as a Rule 2 deviation: append_chip_evidence.py's family column is prohibited from carrying its own chip-slug-to-label dictionary literal (the append_evidence.py _CHIP_LABEL pattern this sibling must not copy), and rig-pins.json's chips map had no label field for the appender to read. All 11 entries covered; FM1608's algorithm 40 (0x28) resolves to SRAM-STD, matching PROTOCOL-LEDGER.md's own NAME-04 correction of v1.15 EVIDENCE.md's stale '0x40 (SRAM_STD / FRAM)' label.",
   "forbidden_flags": ["--force", "-f", "-b", "--no-blank-check", "--skip-erase"],
   "forbidden_flags_note": "Phase 145 D-17 withdrew the standing permission to use --force, permanently.",
   "forbidden_argv0": {
