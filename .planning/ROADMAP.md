@@ -339,7 +339,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 162-01-PLAN.md — Wave 0a: `rig-pins.json` chips map to 11 parts, `capture_provenance.py` unblocked, and the desk-provable R2/R5 records + pre-phase snapshots
+- [x] 162-01-PLAN.md — Wave 0a: `rig-pins.json` chips map to 11 parts, `capture_provenance.py` unblocked, and the desk-provable R2/R5 records + pre-phase snapshots
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
