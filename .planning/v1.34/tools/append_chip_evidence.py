@@ -903,9 +903,21 @@ def process_position(inputs: dict, jsonl_path: Path, dry_run: bool = False) -> t
     ok, provenance, detail = _load_json(inputs["provenance_path"], "provenance artifact")
     if not ok:
         violations.append(detail)
-    ok, readback, detail = _load_json(inputs["readback_path"], "READBACK-VERDICT artifact")
-    if not ok:
-        violations.append(detail)
+    readback = None
+    if inputs.get("pending_readback"):
+        # Seam added 162-05 Task 3 (Rule 1 fix, found live): a chip-sweep position
+        # never flashes on its own -- the arm's flash-and-readback proof (if any)
+        # belongs to a different, earlier cell/plan, or (on a divergence) to this
+        # SAME position's own C-08 interleave, which passes --pending-readback=False
+        # (the default) and supplies a real READBACK-VERDICT.json. Skip the load and
+        # the arm/target cross-check entirely; fw_readback_sha_* come from --provenance
+        # as-is (already a "not measured -- pending" placeholder, or a real judged
+        # value for a control-rerun row).
+        pass
+    else:
+        ok, readback, detail = _load_json(inputs["readback_path"], "READBACK-VERDICT artifact")
+        if not ok:
+            violations.append(detail)
 
     if provenance is not None and pins is not None:
         violations.extend(validate_provenance(position_id, arm, chip, provenance, pins))
@@ -1034,6 +1046,12 @@ def build_argparser() -> argparse.ArgumentParser:
     ap.add_argument("--known-carried", required=True)
     ap.add_argument("--control-rerun-for", default=None)
     ap.add_argument("--named-absence", default=None)
+    ap.add_argument(
+        "--pending-readback", action="store_true",
+        help=(
+            'this position never flashes -- the currently-seated arm flash-and-readback proof (if any) belongs to a DIFFERENT, earlier cell/plan (e.g. Phase 161 A3/B2 for the v133 arm on this rig), not to this chip-sweep position. Skip loading/validating --readback (READBACK-VERDICT.json) entirely for this position; fw_readback_sha_judged/fw_readback_sha_whole_flash are taken verbatim from --provenance instead (capture_provenance.py own --pending-readback placeholder text, or a real judged value if this position IS the control-rerun/re-flash pair a divergence C-08 performs). Found live, 162-05 Task 3: append_chip_evidence.py readback load was unconditional, inherited unmodified from the WRV sibling (append_evidence.py) where every position DOES flash-and-readback -- but a chip-sweep position only does that on a divergence (C-08), so every non-diverging position hard-refused with no artifact ever able to exist for it. Default (omitted): unchanged, hard refusal on a missing READBACK-VERDICT.json as before -- a control-rerun row (arm=control) keeps requiring and validating a real judged read-back.'
+        ),
+    )
     ap.add_argument("--jp4", required=True, choices=list(_JP4_CHOICES))
     ap.add_argument("--reseat-count", default="0")
     ap.add_argument("--dry-run", action="store_true")
@@ -1130,6 +1148,7 @@ def main() -> int:
         "known_carried": args.known_carried,
         "control_rerun_for": args.control_rerun_for,
         "named_absence": args.named_absence,
+        "pending_readback": args.pending_readback,
         "jp4": args.jp4,
         "reseat_count": args.reseat_count,
         "commands_extra": commands_extra,
@@ -1571,6 +1590,34 @@ def _run_selftest() -> int:
             and before_mtime == after_mtime and before_bytes == after_bytes
             and rj7.exists() and rm7.exists(),
             f"rc={rc7} violations={v7}",
+        )
+
+        # --- positive 8: --pending-readback skips the READBACK-VERDICT load/validate ---
+        # entirely -- a chip-sweep position that never flashes on its own (162-05 Task 3
+        # Rule 1 fix). Delete readback.json outright so any un-gated code path would hard
+        # fail on a missing file; the row must still succeed and carry provenance's own
+        # (placeholder) fw_readback_sha_* verbatim.
+        (leg, cell_dir8, config_dir8, rj8, rm8, pins_path8, arms_prov_path8, provenance_path8,
+         readback_path8, jsonl_path8) = _leg("pos8")
+        pending_provenance = copy.deepcopy(_SELFTEST_PROVENANCE)
+        pending_provenance["fw_readback_sha_judged"] = "not measured — pending flash and read-back for this cell"
+        pending_provenance["fw_readback_sha_whole_flash"] = "not measured — pending flash and read-back for this cell"
+        _write_fixture_json(provenance_path8, pending_provenance)
+        readback_path8.unlink()
+        inputs8 = _make_inputs(
+            leg, config_dir8, rj8, rm8, pins_path8, arms_prov_path8, provenance_path8, readback_path8, cell_dir8,
+            pending_readback=True,
+        )
+        rc8, v8, row8 = process_position(inputs8, jsonl_path8)
+        report(
+            "positive 8: --pending-readback skips the READBACK-VERDICT load/validate "
+            "entirely (no readback.json exists on disk) and the row carries provenance's "
+            "own not-measured fw_readback_sha_* verbatim",
+            rc8 == 0 and not v8 and row8 is not None
+            and not readback_path8.exists()
+            and row8["fw_readback_sha_judged"] == "not measured — pending flash and read-back for this cell"
+            and row8["fw_readback_sha_whole_flash"] == "not measured — pending flash and read-back for this cell",
+            f"rc={rc8} violations={v8} judged={row8.get('fw_readback_sha_judged') if row8 else None}",
         )
 
         # --- negative 1: fw_board_identity: null ---
