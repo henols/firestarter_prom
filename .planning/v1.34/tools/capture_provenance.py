@@ -74,7 +74,42 @@ _HWREV_LINE_RE = re.compile(r"^I: Hardware revision: (.+)$", re.MULTILINE)
 _SHIELD_REV_CHOICES = ["Rev 2.0", "Rev 2.2", "Modified Rev 0"]
 _ARM_CHOICES = ["control", "v133"]
 _TARGET_CHOICES = ["uno", "uno328pb", "leonardo"]
-_CHIP_CHOICES = ["w27c512", "w29c020"]
+
+
+def _load_pins_chips_or_die(pins_path: Path) -> dict:
+    """162-01 Task 2 (PD-4/RESEARCH R7): derive --chip's argparse `choices=` from
+    rig-pins.json's own `chips` map, rather than duplicating the list, so the two can never
+    drift (the same fix class as Phase 160's `hex_span_expected_by_arm` correction). This
+    runs at IMPORT time against _DEFAULT_PINS specifically -- a --pins override is a
+    runtime path, but argparse's `choices=` is fixed when build_argparser() constructs the
+    parser object, so the DEFAULT pins file is what the argparse gate validates against
+    regardless of a later --pins override. The runtime `pins["chips"][args.chip]` index
+    inside main() (with its own `except KeyError` named refusal) is unchanged, so a --pins
+    override that omits a chip token still fails by name, not by index error.
+
+    Fails LOUDLY -- never falls back to an empty dict/list: an empty choices=[] would make
+    EVERY --chip invalid, a fail-closed that reads exactly like a silent fail-open bug
+    rather than the deliberate, named refusal this project's discipline requires."""
+    try:
+        doc = json.loads(pins_path.read_text())
+    except OSError as exc:
+        raise RuntimeError(
+            f"_CHIP_CHOICES: could not read pins file {pins_path}: {exc}"
+        ) from exc
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(
+            f"_CHIP_CHOICES: pins file {pins_path} is not valid JSON: {exc}"
+        ) from exc
+    chips = doc.get("chips")
+    if not isinstance(chips, dict) or not chips:
+        raise RuntimeError(
+            f"_CHIP_CHOICES: pins file {pins_path} has no non-empty 'chips' map -- "
+            "refusing to fall back to an empty choices list"
+        )
+    return chips
+
+
+_CHIP_CHOICES = sorted(_load_pins_chips_or_die(_DEFAULT_PINS))
 
 # Field order matches this plan's "Artifacts this phase produces" key list exactly.
 RECORD_KEYS = [
@@ -206,14 +241,19 @@ def build_argparser() -> argparse.ArgumentParser:
         "--no-image-plan",
         action="store_true",
         help=(
-            "this position has no row in --image-plan and never will -- a bring-up pre-proof "
-            "cell that never generates a chip image (no chip write ever runs here), not a "
+            "this position has no row in --image-plan and never will. Two admissible cases "
+            "(PD-9, 162-01 Task 2): (1) a bring-up pre-proof cell that never generates a chip "
+            "image (no chip write ever runs here), and (2) a chip-sweep position, which DOES "
+            "write the chip but writes no pre-computed IMAGE-PLAN.json image and therefore has "
+            "no image row to resolve -- dev test's write path needs no pre-generated image, "
+            "unlike a WRV position's gen_addr_image.py-produced one. Neither case is a "
             "temporarily-pending sweep position (contrast --pending-readback, which implies a "
             "later --patch-readback). Skips resolve_image_plan_fields() entirely and writes "
             "image_mask/image_stamp_width/image_sha as an explicit not-measured placeholder "
             "naming this reason, per the project's anti-fabrication recording discipline. "
             "Default (omitted): unchanged, image-plan lookup runs and hard-refuses on a "
-            "missing row as before -- every real sweep/chip-write position keeps that refusal."
+            "missing row as before -- every position with a real IMAGE-PLAN.json row keeps "
+            "that refusal."
         ),
     )
     ap.add_argument("--selftest", action="store_true")
@@ -834,6 +874,41 @@ def _run_selftest() -> int:
     except SystemExit as exc:
         bad_shield_rev_failed = exc.code != 0
     report("negative: out-of-set --shield-rev value is rejected", bad_shield_rev_failed)
+
+    # --- positive: _CHIP_CHOICES is derived from _DEFAULT_PINS's chips map, 11 parts
+    #     (162-01 Task 2 -- the leg that fails if the two ever drift again) ---
+    _pins_doc_for_selftest = json.loads(_DEFAULT_PINS.read_text())
+    _pins_chip_keys = set(_pins_doc_for_selftest.get("chips", {}))
+    report(
+        "positive: _CHIP_CHOICES equals rig-pins.json's chips key set, has 11 members",
+        set(_CHIP_CHOICES) == _pins_chip_keys and len(_CHIP_CHOICES) == 11,
+        f"_CHIP_CHOICES={sorted(_CHIP_CHOICES)} pins_chips={sorted(_pins_chip_keys)}",
+    )
+
+    # --- negative: a --chip token absent from the pins map is refused by argparse,
+    #     and the refusal names the token (162-01 Task 2) ---
+    import contextlib
+    import io
+
+    _bad_chip_token = "notachip"
+    _stderr_capture = io.StringIO()
+    try:
+        with contextlib.redirect_stderr(_stderr_capture):
+            build_argparser().parse_args(
+                [
+                    "--cell-id", "A3/B2", "--position-id", "x", "--arm", "control",
+                    "--target", "uno", "--port", "/dev/null", "--chip", _bad_chip_token,
+                    "--shield-rev", "Rev 2.0",
+                ]
+            )
+        bad_chip_refused = False
+    except SystemExit as exc:
+        bad_chip_refused = exc.code != 0 and _bad_chip_token in _stderr_capture.getvalue()
+    report(
+        f"negative: --chip {_bad_chip_token!r} (absent from pins map) is refused by name",
+        bad_chip_refused,
+        _stderr_capture.getvalue().strip()[:200],
+    )
 
     # --- negative: --cell-id with '..' or an absolute path is rejected ---
     for bad_cell_id in ("../etc/passwd", "/abs/path", "a b", "a..b"):
