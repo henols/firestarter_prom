@@ -29,14 +29,34 @@ moment a future edit adds one `[arm: ...]`-marked step, the two renders diverge 
 goes non-empty; that is the gate doing its job, not a bug. See the `--selftest` positive and
 negative legs below, and this plan's SUMMARY.md, for both directions observed live.
 
+A second, independently gated section (Amendment 4, Phase 162)
+-----------------------------------------------------------------
+`PROCEDURE.md`'s `## Chip-sweep step list` section (`C-01` ... `C-NN`) is a second,
+independent step list for the phase-162 chip-sweep shape -- parsed and rendered by exactly
+the same machinery, selected with `--section {P,C}`. `--section` **defaults to `P`**, so every
+existing invocation -- including `run_gates.sh`'s two current calls -- behaves byte-identically
+to before this section existed. The same substitution-token and inclusion-marker semantics
+apply verbatim to both sections: a token such as `$ARM_BIN`, `$PORT` or `$CHIP_TOKEN` is
+emitted as literal token text, never expanded, and `--arm` selects *inclusion* only via the
+`[arm: ...]` marker -- which must appear in neither section's real text. `_NEXT_H2_RE` already
+terminates a section at the next `## ` heading, so a `## Chip-sweep step list` heading is
+invisible to a `--section P` parse (and a `## Step list` heading is invisible to a `--section
+C` parse) -- the two sections cannot bleed into each other. Exactly two hardcoded facts differ
+between the sections: the heading text `extract_step_list_section()` looks for, and the
+step-id pattern `validate_steps()` enforces (`P-\\d\\d` for `P`, `C-\\d\\d` for `C`). Every
+other property -- duplicate-id refusal, strict ascending order, and the arm-annotation domain
+check -- is identical and shared.
+
 Fail-closed contract
 ---------------------
-A `## Step list` section that is absent, or present but empty, is refused with a non-zero
-exit and a `FAIL:` line -- a renderer that emitted nothing and exited 0 would make the diff
-trivially (and meaninglessly) empty, and that exact failure shape has already shipped once in
-this repo (T-160-41). Step ids must be unique, must match `P-\\d\\d`, and must appear in
-strictly ascending numeric order; an annotation value must be one of the two known arm names.
-Each violation is a distinct non-zero exit naming the problem.
+A step-list section that is absent, or present but empty, is refused with a non-zero exit and
+a `FAIL:` line -- a renderer that emitted nothing and exited 0 would make the diff trivially
+(and meaninglessly) empty, and that exact failure shape has already shipped once in this repo
+(T-160-41). This applies identically to section `C`: a missing `## Chip-sweep step list` is a
+named refusal, never an empty render with exit 0. Step ids must be unique, must match the
+section's own two-digit id pattern (`P-\\d\\d` for section `P`, `C-\\d\\d` for section `C`),
+and must appear in strictly ascending numeric order; an annotation value must be one of the two
+known arm names. Each violation is a distinct non-zero exit naming the problem.
 """
 from __future__ import annotations
 
@@ -51,26 +71,44 @@ _MILESTONE_DIR = _HERE.parent
 _DEFAULT_PROCEDURE = _MILESTONE_DIR / "PROCEDURE.md"
 
 _ARM_CHOICES = ["control", "v133"]
+_SECTION_CHOICES = ["P", "C"]
 
 _STEP_LIST_HEADING_RE = re.compile(r"^##\s+Step list\s*$", re.MULTILINE)
+_CHIP_STEP_LIST_HEADING_RE = re.compile(r"^##\s+Chip-sweep step list\s*$", re.MULTILINE)
 _NEXT_H2_RE = re.compile(r"^##\s+\S.*$", re.MULTILINE)
 _STEP_HEADING_RE = re.compile(r"^###\s+(?P<id>\S+)\s*[—\-:]\s*(?P<text>.+?)\s*$")
 _STEP_ID_RE = re.compile(r"^P-(?P<num>\d\d)$")
+_CHIP_STEP_ID_RE = re.compile(r"^C-(?P<num>\d\d)$")
 _ANNOTATION_RE = re.compile(r"\[\s*arm\s*:\s*(?P<arm>[A-Za-z0-9_]+)\s*\]")
+
+# The exactly-two hardcoded facts that differ between sections -- everything else
+# (extract_step_list_section's use of _NEXT_H2_RE, parse_steps, render_for_arm,
+# the arm-annotation domain check inside validate_steps) is shared and unchanged.
+_SECTION_HEADING_RE = {"P": _STEP_LIST_HEADING_RE, "C": _CHIP_STEP_LIST_HEADING_RE}
+_SECTION_HEADING_NAME = {"P": "## Step list", "C": "## Chip-sweep step list"}
+_SECTION_ID_RE = {"P": _STEP_ID_RE, "C": _CHIP_STEP_ID_RE}
+_SECTION_ID_LABEL = {"P": "P-NN", "C": "C-NN"}
 
 
 class ProcedureParseError(ValueError):
     """Raised for any malformed procedure input -- the fail-closed contract."""
 
 
-def extract_step_list_section(text: str) -> str:
-    """Return the text strictly between the '## Step list' heading and the next '## ' heading.
+def extract_step_list_section(text: str, section: str = "P") -> str:
+    """Return the text strictly between `section`'s own H2 heading and the next '## ' heading.
 
-    Raises ProcedureParseError if the heading is absent.
+    `section` is 'P' (the '## Step list' heading, the original and default behaviour) or 'C'
+    (the '## Chip-sweep step list' heading, Amendment 4). `_NEXT_H2_RE` terminates the section
+    at the next H2 regardless of which section is being extracted, which is exactly what keeps
+    the two sections from bleeding into each other.
+
+    Raises ProcedureParseError, naming the missing heading, if it is absent.
     """
-    m = _STEP_LIST_HEADING_RE.search(text)
+    heading_re = _SECTION_HEADING_RE[section]
+    heading_name = _SECTION_HEADING_NAME[section]
+    m = heading_re.search(text)
     if not m:
-        raise ProcedureParseError("no '## Step list' section found in the procedure")
+        raise ProcedureParseError(f"no {heading_name!r} section found in the procedure")
     start = m.end()
     nxt = _NEXT_H2_RE.search(text, pos=start)
     end = nxt.start() if nxt else len(text)
@@ -120,17 +158,21 @@ def parse_steps(section_text: str) -> list[dict]:
     return steps
 
 
-def validate_steps(steps: list[dict]) -> None:
-    """Raise ProcedureParseError on: a non-P-NN id, a duplicate id, ids out of ascending
-    numeric order, or an annotation naming an arm outside _ARM_CHOICES.
+def validate_steps(steps: list[dict], section: str = "P") -> None:
+    """Raise ProcedureParseError on: an id that does not match `section`'s own two-digit id
+    pattern (`P-NN` for section 'P', `C-NN` for section 'C'), a duplicate id, ids out of
+    ascending numeric order, or an annotation naming an arm outside _ARM_CHOICES. Every check
+    beyond the id pattern itself is identical and shared between the two sections.
     """
+    id_re = _SECTION_ID_RE[section]
+    id_label = _SECTION_ID_LABEL[section]
     seen: set[str] = set()
     prev_num: int | None = None
     for step in steps:
         step_id = step["id"]
-        m = _STEP_ID_RE.match(step_id)
+        m = id_re.match(step_id)
         if not m:
-            raise ProcedureParseError(f"step id {step_id!r} does not match the P-NN pattern")
+            raise ProcedureParseError(f"step id {step_id!r} does not match the {id_label} pattern")
         num = int(m.group("num"))
         if step_id in seen:
             raise ProcedureParseError(f"duplicate step id: {step_id!r}")
@@ -160,11 +202,11 @@ def render_for_arm(steps: list[dict], arm: str) -> list[str]:
     return [f"{s['id']}\t{s['text']}" for s in steps if s["arm"] is None or s["arm"] == arm]
 
 
-def load_and_render(procedure_path: Path, arm: str) -> list[str]:
+def load_and_render(procedure_path: Path, arm: str, section: str = "P") -> list[str]:
     text = procedure_path.read_text()
-    section = extract_step_list_section(text)
-    steps = parse_steps(section)
-    validate_steps(steps)
+    section_text = extract_step_list_section(text, section)
+    steps = parse_steps(section_text)
+    validate_steps(steps, section)
     return render_for_arm(steps, arm)
 
 
@@ -176,8 +218,16 @@ _FIXTURE_HEADER = "# Fixture Procedure\n\n## Scope\n\nirrelevant preamble.\n\n"
 _FIXTURE_FOOTER = "\n## Outcome taxonomy\n\nirrelevant trailer.\n"
 
 
-def _fixture(step_list_body: str) -> str:
-    return _FIXTURE_HEADER + "## Step list\n\n" + step_list_body + _FIXTURE_FOOTER
+def _fixture(step_list_body: str, chip_list_body: str | None = None) -> str:
+    """Build a fixture procedure. With `chip_list_body` omitted (the original shape), this is
+    byte-identical to what every pre-existing fixture already produced. With it given, a
+    '## Chip-sweep step list' H2 is inserted between the P section and the footer -- exercising
+    the same _NEXT_H2_RE termination the real two-section PROCEDURE.md relies on.
+    """
+    text = _FIXTURE_HEADER + "## Step list\n\n" + step_list_body
+    if chip_list_body is not None:
+        text += "\n## Chip-sweep step list\n\n" + chip_list_body
+    return text + _FIXTURE_FOOTER
 
 
 _POSITIVE_FIXTURE = _fixture(
@@ -214,6 +264,27 @@ _OUT_OF_ORDER_FIXTURE = _fixture(
 _UNKNOWN_ARM_FIXTURE = _fixture(
     "### P-01 — Mount the board\n\nprose.\n\n"
     "### P-02 — [arm: bogus] Verify port identity\n\nprose.\n"
+)
+
+# --- Amendment 4 (Phase 162): a second, gated section -----------------------------------
+
+_COMBINED_P_BODY = "\n\n".join(
+    f"### P-{i:02d} — Fixture WRV step {i}\n\nprose." for i in range(1, 12)
+)
+_COMBINED_C_BODY = "\n\n".join(
+    f"### C-{i:02d} — Fixture chip step {i}\n\nprose." for i in range(1, 10)
+)
+_COMBINED_FIXTURE = _fixture(_COMBINED_P_BODY, _COMBINED_C_BODY)
+
+_C_HEADING_INSIDE_P_FIXTURE = _fixture(
+    "### P-01 — Mount the board\n\nprose.\n\n"
+    "### C-01 — Misplaced chip step\n\nprose.\n"
+)
+
+_P_HEADING_INSIDE_C_FIXTURE = _fixture(
+    "### P-01 — Mount the board\n\nprose.\n",
+    "### C-01 — First chip step\n\nprose.\n\n"
+    "### P-05 — Misplaced WRV step\n\nprose.\n",
 )
 
 
@@ -302,6 +373,56 @@ def _run_selftest() -> int:
         ok = True
     report("negative: annotation naming an unknown arm exits non-zero", ok)
 
+    # --- positive (Amendment 4): a fixture with both an 11-step P section and a 9-step C ---
+    # --- section renders 11 / 9 lines respectively, each arm-identical ----------------------
+    combined_path = tmp / "combined.md"
+    combined_path.write_text(_COMBINED_FIXTURE)
+    try:
+        control_p = load_and_render(combined_path, "control", section="P")
+        v133_p = load_and_render(combined_path, "v133", section="P")
+        control_c = load_and_render(combined_path, "control", section="C")
+        v133_c = load_and_render(combined_path, "v133", section="C")
+        ok = (
+            control_p == v133_p
+            and len(control_p) == 11
+            and control_c == v133_c
+            and len(control_c) == 9
+        )
+    except ProcedureParseError:
+        ok = False
+    report(
+        "positive (Amendment 4): a fixture with an 11-step P section and a 9-step C section "
+        "renders 9 lines under --section C and 11 under --section P, each arm-identical",
+        ok,
+    )
+
+    # --- negative (Amendment 4): a C-NN heading inside '## Step list' is refused by name, ---
+    # --- and symmetrically a P-NN heading inside the chip section is refused under --section C
+    c_in_p_path = tmp / "c_in_p.md"
+    c_in_p_path.write_text(_C_HEADING_INSIDE_P_FIXTURE)
+    ok_c_in_p = False
+    try:
+        load_and_render(c_in_p_path, "control", section="P")
+    except ProcedureParseError as exc:
+        reason = str(exc)
+        ok_c_in_p = "C-01" in reason and "P-NN" in reason
+
+    p_in_c_path = tmp / "p_in_c.md"
+    p_in_c_path.write_text(_P_HEADING_INSIDE_C_FIXTURE)
+    ok_p_in_c = False
+    try:
+        load_and_render(p_in_c_path, "control", section="C")
+    except ProcedureParseError as exc:
+        reason = str(exc)
+        ok_p_in_c = "P-05" in reason and "C-NN" in reason
+
+    report(
+        "negative (Amendment 4): a 'C-NN' heading inside '## Step list' is refused naming the "
+        "id and the P-NN pattern, and symmetrically a 'P-NN' heading inside the chip section "
+        "is refused under --section C naming the id and the C-NN pattern",
+        ok_c_in_p and ok_p_in_c,
+    )
+
     passed = all(ok for _, ok in results)
     print(f"{'PASS' if passed else 'FAIL'}: render_steps.py --selftest ({sum(ok for _, ok in results)}/{len(results)} legs)")
     return 0 if passed else 1
@@ -319,6 +440,16 @@ def build_argparser() -> argparse.ArgumentParser:
         "--procedure",
         default=str(_DEFAULT_PROCEDURE),
         help="path to PROCEDURE.md (default: the milestone's own copy)",
+    )
+    ap.add_argument(
+        "--section",
+        choices=_SECTION_CHOICES,
+        default="P",
+        help=(
+            "which step-list section to render: 'P' for '## Step list' (the original "
+            "behaviour, default) or 'C' for '## Chip-sweep step list' (Amendment 4). "
+            "Defaulting to 'P' keeps every pre-existing invocation byte-identical."
+        ),
     )
     ap.add_argument("--selftest", action="store_true")
     return ap
@@ -341,7 +472,7 @@ def main() -> int:
         return 1
 
     try:
-        lines = load_and_render(procedure_path, args.arm)
+        lines = load_and_render(procedure_path, args.arm, section=args.section)
     except ProcedureParseError as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
         return 1
