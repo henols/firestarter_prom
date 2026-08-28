@@ -347,7 +347,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 162-03-PLAN.md — Wave 0c: `render_chip_evidence.py --check`, two new live gates, suite measured at 14/14 + 7/7
+- [x] 162-03-PLAN.md — Wave 0c: `render_chip_evidence.py --check`, two new live gates, suite measured at 14/14 + 7/7
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
