@@ -515,13 +515,25 @@ def derive_step_maps(steps: list) -> tuple:
     return verdicts, run_counts, durations, error_codes, fingerprints
 
 
+_REPEAT_POLICY_DEFAULT_TAG = "default (every multi-run step at run_count>=2, no --fast)"
+
+
 def derive_repeat_policy(steps: list) -> str:
+    """Rule 1 fix (found live, 162-05 Task 3): the healthy/non-degraded case used to return
+    a bare "" -- a real, deliberate design choice mirroring chip_test.py's own
+    repeat_policy_tag() sentinel, but gate_record.check_required_fields treats EVERY
+    record_key as required-non-blank unless it carries the 'not measured — <reason>' shape,
+    and an empty string is blank by that rule. "" silently failed CHIP-EVIDENCE.jsonl's own
+    record-shape gate on every row this position type produces. Now returns an honest,
+    non-blank, descriptive value for both cases -- never weakens what the value MEANS, only
+    how the healthy case is spelled, and 162-07's own acceptance check ("empty string OR a
+    non-empty string that does not contain 'runs=1'") already anticipated exactly this."""
     for s in steps:
         if not isinstance(s, dict):
             continue
         if s.get("op") in _MULTI_RUN_POLICY_OPS and s.get("run_count") == 1:
             return _REPEAT_POLICY_DEGRADED_TAG
-    return ""
+    return _REPEAT_POLICY_DEFAULT_TAG
 
 
 def _find_write_step(steps: list):
@@ -657,8 +669,44 @@ def derive_prior_disposition_source(newest_line: str) -> str:
     return f"{m.group(1)}, phase {m.group(2).lstrip('Pp').lstrip('hase').strip()}"
 
 
+_READ_DIVERGENCE_NOT_EXPORTED_REASON = (
+    "chip_test.py computes a per-read divergence metric internally (StepResult.divergence, "
+    "surfaced only via the fingerprint/marginal classifier) but diagnostic_report.py's own "
+    "_step_dict() never serializes a 'divergence' key into the exported report -- confirmed "
+    "live, 162-05 Task 3: no read step in any dev-test-<CHIP> report this project can produce "
+    "carries this key at all. Host-app limitation (firestarter_app/firestarter/"
+    "diagnostic_report.py), out of scope for this phase (D-16: no product-code changes); filed "
+    "as a Phase 165/166 backlog item -- C-06's own read-divergence follow-up trigger "
+    "(`read_divergence.repeat_divergent == true`) can never fire from the report alone until "
+    "this is fixed upstream."
+)
+
+
+def derive_read_divergence(read_step) -> object:
+    """Real value if the report ever carries one (future-proofing, never assumed away);
+    otherwise the schema's own gate-legible not-measured shape, naming the exact gap rather
+    than a silent null -- gate_record.check_required_fields requires every record_key to be
+    either real data or 'not measured — <reason>', never a bare None (Rule 1 fix, found live
+    162-05 Task 3: the prior unconditional `read_step.get("divergence")` produced a bare
+    `None`, which fails that check on every single row)."""
+    if isinstance(read_step, dict) and read_step.get("divergence") is not None:
+        return read_step["divergence"]
+    return _nm(_READ_DIVERGENCE_NOT_EXPORTED_REASON)
+
+
+def _is_not_measured_str(value: object) -> bool:
+    return isinstance(value, str) and value.startswith("not measured — ")
+
+
 def derive_read_consistency_followup(read_divergence) -> object:
+    if _is_not_measured_str(read_divergence):
+        return _na(
+            "read_divergence itself is not measured (the report never exports this metric) -- "
+            "whether a follow-up read was needed cannot be determined from the report alone"
+        )
     if read_divergence is None:
+        return _na("the read step's two runs agreed -- no follow-up read was required (PD-7)")
+    if isinstance(read_divergence, dict) and not read_divergence.get("repeat_divergent"):
         return _na("the read step's two runs agreed -- no follow-up read was required (PD-7)")
     return _nm(
         "the read step's two runs diverged; this appender has no dedicated CLI input for a "
@@ -729,7 +777,7 @@ def build_row(*, record_keys: list, inputs: dict, chip_cfg: dict, target_cfg: di
         verdicts, run_counts, durations, error_codes, fingerprints = derive_step_maps(steps)
         write_target = derive_write_target(write_step)
         write_coverage = derive_write_coverage(write_step)
-        read_divergence = read_step.get("divergence") if isinstance(read_step, dict) else None
+        read_divergence = derive_read_divergence(read_step)
         vpp_firmware_mv = derive_vpp_firmware_mv(inputs["console_log_text"])
         report_derived = {
             "report_schema_version": report.get("schema_version"),
@@ -1000,6 +1048,21 @@ def process_position(inputs: dict, jsonl_path: Path, dry_run: bool = False) -> t
         report_md_sha=report_md_sha, report_json_dest=report_json_dest,
         report_md_dest=report_md_dest, outcome=outcome,
     )
+
+    # Rule 1 fix (found live, 162-05 Task 3): the ONLY required-field check this tool ran
+    # before writing was scoped to the four human-supplied fields (verdict/anomalies/
+    # known_carried/prior_disposition_text) -- every one of the ~60 MACHINE-derived fields
+    # in `row` reached disk with zero validation against the same rule
+    # gate_record.check_required_fields enforces on every record_key, later, in a SEPARATE
+    # full-file scan (run_gates.sh's own live gate). A derivation bug (e.g. an empty string
+    # or a bare None on a required column) was therefore only ever caught after the fact, by
+    # a different tool, against an already-written row. Self-check the WHOLE constructed row
+    # against the SAME record_keys list before it is ever written (or returned under
+    # --dry-run) -- this is the exact check `run_gates.sh` will run again later; catching it
+    # here means a bad row is refused at append time, never merely detected afterward.
+    row_field_violations = gr.check_required_fields(row, record_keys)
+    if row_field_violations:
+        return 1, row_field_violations, None
 
     if dry_run:
         return 0, [], row
