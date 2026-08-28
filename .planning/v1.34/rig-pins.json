@@ -146,7 +146,8 @@
       "package": "DIP28",
       "vpp_mv": 12000,
       "algorithm": 7,
-      "stamp_width": 16
+      "stamp_width": 16,
+      "chip_token": "W27C512"
     },
     "w29c020": {
       "size_bytes": 262144,
@@ -154,9 +155,83 @@
       "package": "DIP32",
       "vpp_mv": 12000,
       "algorithm": 5,
-      "stamp_width": 32
+      "stamp_width": 32,
+      "chip_token": "W29C020"
+    },
+    "w27e512": {
+      "size_bytes": 65536,
+      "pin_count": 28,
+      "package": "DIP28",
+      "vpp_mv": 12000,
+      "algorithm": 7,
+      "chip_token": "W27E512"
+    },
+    "sst27sf512": {
+      "size_bytes": 65536,
+      "pin_count": 28,
+      "package": "DIP28",
+      "vpp_mv": 12000,
+      "algorithm": 7,
+      "chip_token": "SST27SF512"
+    },
+    "fm1608": {
+      "size_bytes": 8192,
+      "pin_count": 28,
+      "package": "DIP28",
+      "vpp_mv": 12000,
+      "algorithm": 40,
+      "chip_token": "FM1608"
+    },
+    "w27e040": {
+      "size_bytes": 524288,
+      "pin_count": 32,
+      "package": "DIP32",
+      "vpp_mv": 12000,
+      "algorithm": 8,
+      "chip_token": "W27E040"
+    },
+    "sst39sf040": {
+      "size_bytes": 524288,
+      "pin_count": 32,
+      "package": "DIP32",
+      "vpp_mv": 12000,
+      "algorithm": 6,
+      "chip_token": "SST39SF040"
+    },
+    "w29c040": {
+      "size_bytes": 524288,
+      "pin_count": 32,
+      "package": "DIP32",
+      "vpp_mv": 12000,
+      "algorithm": 5,
+      "chip_token": "W29C040"
+    },
+    "am27c020": {
+      "size_bytes": 262144,
+      "pin_count": 32,
+      "package": "DIP32",
+      "vpp_mv": 13000,
+      "algorithm": 8,
+      "chip_token": "AM27C020"
+    },
+    "m27c512": {
+      "size_bytes": 65536,
+      "pin_count": 28,
+      "package": "DIP28",
+      "vpp_mv": 13000,
+      "algorithm": 7,
+      "chip_token": "M27C512"
+    },
+    "2516": {
+      "size_bytes": 2048,
+      "pin_count": 24,
+      "package": "DIP24",
+      "vpp_mv": 25000,
+      "algorithm": 11,
+      "chip_token": "2516"
     }
   },
+  "chips_note": "The nine new chips entries (w27e512, sst27sf512, fm1608, w27e040, sst39sf040, w29c040, am27c020, m27c512, 2516) were derived from the v1.33 arm's own EpromDatabase by a one-shot script run on 2026-08-28 (.planning/v1.34/bench/cells/CHIP/CHIPS-MAP-DERIVATION.md carries the exact command, verbatim output, and a cross-check against RESEARCH R7's independently-measured table -- no field is hand-typed). stamp_width is deliberately absent on all nine: it is gen_addr_image.py's address-stamp width for a generated WRV image and has no meaning for a dev-test chip-sweep position that generates no image; it is present only on the two pre-existing WRV entries (w27c512, w29c020), which are otherwise byte-unchanged inputs to Phase 161's twelve recorded positions. chip_token is case-sensitive on every entry -- it is the exact CLI token typed at `dev test <TOKEN>`, and _sanitize_chip_token (cli_handlers.py) preserves case, so the report filename dev-test-<TOKEN>.json depends on the token's case exactly as recorded here. 2516 is present for inventory completeness under D-14 as a named absence: it is never seated, read, or written in this phase.",
   "forbidden_flags": ["--force", "-f", "-b", "--no-blank-check", "--skip-erase"],
   "forbidden_flags_note": "Phase 145 D-17 withdrew the standing permission to use --force, permanently.",
   "forbidden_argv0": {
