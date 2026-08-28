@@ -355,7 +355,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 162-05-PLAN.md — Pre-flight `fw_board_identity` + positions 1–2 (W27C512, W27E512), DIP28 / 12 V — CHIP-02, CHIP-05
+- [x] 162-05-PLAN.md — Pre-flight `fw_board_identity` + positions 1–2 (W27C512, W27E512), DIP28 / 12 V — CHIP-02, CHIP-05
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
