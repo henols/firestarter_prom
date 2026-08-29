@@ -2,9 +2,9 @@
 id: write-modifications-md-rework-trace
 title: Write full MODIFICATIONS.md rework trace for operator's Modified Rev 0 (Phase 31 follow-up #4)
 captured: 2026-05-26
-status: pending
+status: deferred
 type: documentation
-target_milestone: post-v1.7
+target_milestone: none (deferred 2026-08-29 by operator direction)
 priority: MEDIUM
 related_phase: 31
 resolves_phase_followups: [Phase 31 follow-up #4]
@@ -14,6 +14,17 @@ depends_on: photograph-modified-rev-0
 ---
 
 # Write full MODIFICATIONS.md rework trace for operator's Modified Rev 0 (Phase 31 follow-up #4)
+
+## ⏸ DEFERRED 2026-08-29 by operator direction — do not plan this
+
+Operator directed on 2026-08-29 to **skip Rev 0 and defer it**. This todo is parked with **no target
+milestone**. It is split out of backlog **999.42**, which now covers only the six unswept chips and the
+two unswept shields; it is **not** a blocker on that item and must not be sized into a resumption of it.
+
+Pick this up only if the operator puts the Modified Rev 0 board on the bench for some other reason.
+Nothing downstream depends on it: firmware handles the board correctly today via the broad-bucket
+`REVISION_2_0` + EEPROM override fall-through, regardless of how the rework landed.
+
 
 ## ⚠ STATUS UPDATE 2026-08-29 — v1.34 Phase 164 closed UNRUN; now carried as backlog 999.42
 

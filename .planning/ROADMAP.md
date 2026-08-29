@@ -4723,7 +4723,7 @@ Plans:
 
 **Why it is deliberately deferred rather than done at the fix.** `tests/test_check_size_baseline.py` hard-codes 22952 / 23000 / 25098 in roughly six places and feeds frozen `captured_build_v158_*.log` fixtures to the default gate. A re-record therefore demands the **fixture-severance pattern** — a NEW version-named fixture family at the post-change figures, re-point only the legs that must track the live baseline, leave the frozen families byte-unchanged, verify with an empty `git diff` over the old paths. Re-capturing in place silently destroys the arms that deliberately depend on pre-change figures. **Never write a "tests byte-unchanged" acceptance criterion into the plan that does this** — it is unsatisfiable. Note also that CI arms none of this (`build.yml:142/155/193`, `beta-build.yml:122/128/145` run only `pio test -e native`, `native_nodevtools`, `pio run`), so nothing is red in automation today.
 
-### Phase 999.42: Finish the v1.34 sweep — six chips, two shields, and the Rev 0 rework trace (BACKLOG — filed 2026-08-29 at the v1.34 close)
+### Phase 999.42: Finish the v1.34 sweep — six chips and two shields (BACKLOG — filed 2026-08-29 at the v1.34 close; the **Rev 0 rework trace is SPLIT OUT and DEFERRED**, see below)
 
 **Goal:** Complete the evidence base v1.34 was scoped for and closed without, so the "merge with caveats" verdict can be upgraded or corrected on measurement rather than left standing on a partial sweep.
 
@@ -4731,6 +4731,32 @@ Plans:
 - **Six of eleven chips**, never swept: ST M27C512, SST39SF040, W29C040, W29C020, AM27C020, 2516. Three carry known prior trouble and are the ones most worth having — SST39SF040, W29C040 (permanently locked §6.6 boot block, CR-01) and AM27C020 (non-deterministic marginality). Discharges the remainder of CHIP-01…05.
 - **Two of three shields**, never swept: Rev 2.2 (cell B3) and Modified Rev 0 (cell B1), 8 positions. **Every v1.34 result is Rev 2.0.** Discharges SHIELD-01, -02, -04 (SHIELD-03's citation obligation was already met by executing A3/B2 exactly once in Phase 161).
 - **The Modified Rev 0 rework trace**, REV0-01…03. The **ten** `TBD pending Phase 35` cells in `v1.7-SHIELD-REVS.md` §4/§5 — two `Rev 0 → Modified Rev 0` rows of five cells each, plus the §4 prose mention — **remain TBD**, now pending this item rather than Phase 35. Note the board has never been physically inspected: the 2026-06-01 session that was believed to have examined it was on a Rev 2.0, and A3 ADC cannot distinguish it (Rev 2.2 collides on 10 kΩ), so operator silkscreen identification is mandatory before any electrical claim.
+
+**⚠ SCOPE AMENDED 2026-08-29 by operator direction: the Modified Rev 0 rework trace is DEFERRED, not queued.**
+REV0-01…03 are **out of this item's actionable scope**. They are not abandoned and not lost — they are
+parked with no target milestone, to be picked up only if the operator puts that board on the bench for
+some other reason. **Do not plan them, do not size them into a resumption of this item, and do not treat
+them as a blocker on it.** The chip and shield sweeps above stand on their own and are the actionable
+work here.
+
+**Why deferring costs little.** The trace has been blocked on the same thing since Phase 31 — operator
+photographs of a board that has never been physically inspected, and none exist anywhere. Four
+deferrals (Phase 31 → 35 → post-v1.7 → Phase 164 → here) have not changed that, and nothing downstream
+depends on it: firmware handles the board correctly today through the broad-bucket `REVISION_2_0` +
+EEPROM override fall-through, regardless of how the rework landed.
+
+**What was already banked at the desk, so a future attempt does not restart from zero** (`0e114fb7`,
+post-close): the ten `TBD pending Phase 35` sentinel cells in `v1.7-SHIELD-REVS.md` §4/§5 are
+**discharged 10 → 0** via REV0-03's *named-reason* branch, each now naming the specific artefact it
+needs; `.planning/v1.7/MODIFICATIONS.md` is no longer the v1.7 stub but carries the full delta table, a
+corrected identity table, an empty-but-structured rework inventory and a seven-item inspection priority
+list; and the schematic to trace against is blob **`cfe6139f` @ `486f3d1`** — **not** `d2a7f691`, which
+is `origin/rev2.0` and would send a tracer hunting for JP4/JP5 that are not on the board while never
+inspecting the JP2 A17 strap that is.
+
+**Note on cell B1.** Sweeping the Modified Rev 0 *shield* (SHIELD-01, 4 positions) is a separate
+question from tracing the *rework*, and stays in scope above — the shield sweep needs the board mounted
+and running, not photographed and reverse-engineered.
 
 **Two things that make a resumption cheaper than a restart.** The rig procedure, arm provenance, pinned images and gate tooling all exist and are proven on silicon (`.planning/v1.34/PROCEDURE.md`, `arms-provenance.json`, `images/`, `tools/`). And **the arm images do not contain the v1.34 blank-check fix** — so if this item resumes against the same pinned images, expect blank-check to fail at ~98 % on the three 512 KiB parts (W27E040, W29C040, SST39SF040) on **both** arms; that is the known, explained, pre-existing defect of 999.37's sibling, not a new finding. Re-pinning both arms to carry the fix is the alternative and **invalidates every row already recorded**, which is why v1.34 did not do it.
 
