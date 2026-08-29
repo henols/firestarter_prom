@@ -1,0 +1,35 @@
+FAIL (live, per dev test's own exit code 1) -- under the operator ruling this earns the C-08
+control-arm arbitration. `dev test W27E040` (this position's THIRD attempt, after two discarded
+diagnostic attempts -- see anomalies): id OK x1 (3.54s), read OK x2 (165.345s, reason "read runs
+diverged"), write OK x1 (392.429s, full device write_region_start=0, write_region_length=524288),
+verify OK x1 (68.974s), erase OK x1 (62.617s, no bit-4-at-0x7db symptom), blank-check BAD x1
+(69.392s, reason "Empty input", error_code 164 / 0xA4). Banner 6 of 6 ran, steps total ~762s,
+wall-clock 768s -- well inside the 3920s 512 KiB fallback ceiling (no ceiling widening needed; this
+position supplies the phase's first measured 512 KiB total). VPP before/after: not captured in this
+report's voltage block for this run; the standalone `vpp` reading taken separately for this
+position (C-03) was 12400 mV, in band, unchanged since position 1. fw_board_identity:
+3.0.0b22:leonardo, non-null.
+
+Diagnostic sequence preceding this result (recorded in full in anomalies and in CELL.md): attempts
+1 and 2 both failed immediately (~14-19s) on a chip-ID mismatch (reported 0x8201, expected 0xDA86)
+-- id/read/blank-check all BAD, write/verify/erase gated off, chip left pristine both times. A JP4
+adjustment between attempts 1 and 2 made no difference (byte-identical failure), so the diagnosis
+moved from JP4 to seating/orientation; a reseat before this, the third attempt, cleared the chip-ID
+mismatch entirely (id OK, chip_id 0xDA86 matched). Seating is therefore confirmed as the cause of
+the first two attempts' total ID failure -- a genuine rig/handling issue, not a chip or v1.33
+finding, and not itself booked as a divergence.
+
+This third attempt's own result -- a clean chip ID, read, write, verify and erase, with a single
+BAD verdict on blank-check citing "Empty input" -- does NOT match the recorded v1.15 disposition
+(a stuck bit failing to clear on erase specifically; here erase itself succeeded cleanly). The
+blank-check failure reason (`MSG_ERR_EMPTY_INPUT`, error_code 164/0xA4) is the SAME transient
+protocol anomaly already observed, benignly, at positions 1-3 of this sweep ("reproducible,
+self-recovering, no effect on any step's own verdict") -- but here, for the first time in this
+sweep, it directly produced a BAD step verdict rather than a benign transient log line. Per the
+operator ruling, dev test's own live verdict (FAIL, on this BAD step) is the arbiter regardless of
+this transient's prior benign history elsewhere -- recorded as a genuine live FAIL, earning C-08.
+
+Recorded detail, kept but NOT itself the divergence trigger (per the ruling, dev test's own verdict
+is the arbiter): read step's reason = "read runs diverged" (verdict OK, run_count 2). The
+structured `read_divergence` metric is not exported by the report (the known, already-filed
+diagnostic_report.py export gap) -- `not measured` per row schema, not re-derived here.

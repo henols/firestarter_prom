@@ -1,0 +1,28 @@
+CONFIRMS: NOT a v1.33 regression -- the control arm reproduces the IDENTICAL failure. `dev test
+W27E040` on the control arm (fw_sha 8695ee52c27a4bee4387c5c489afd5f3d7275e8a, independently
+read-back-proven, judged_span_bytes=28170): id OK x1 (3.48s, chip_id 0xDA86 matched -- confirming
+the earlier chip-ID mismatch was a seating fault, not arm-dependent), read OK x2 (165.3s), write OK
+x1 (392.4s, full device 0-524288), verify OK x1 (68.9s), erase OK x1 (62.6s, no bit-4-at-0x7db
+symptom on this arm either), blank-check BAD x1 (69.4s, reason "Empty input", same error_code 164)
+-- banner 6 of 6 ran, wall-clock 767s, essentially identical timing to the v133 run (768s) step for
+step. This is a byte-for-byte reproduction of CHIP__v133__w27e040's own failure shape on the OTHER
+arm, under the SAME seating (Leonardo chip-out-exempt, chip never removed between the two runs).
+
+CONCLUSION: `ERROR: Empty input` (MSG_ERR_EMPTY_INPUT, error_code 164/0xA4) is an ARM-INDEPENDENT
+protocol fault, not a v1.33 behavioural change. It has now been observed on BOTH arms in this
+sweep -- previously as a benign, self-recovering transient (no verdict impact) at
+CHIP__v133__w27c512, CHIP__v133__w27e512, CHIP__control__w27e512 (the superseded W27E512
+arbitration's own control run) and CHIP__v133__sst27sf512; here, for the first time, it landed on
+BLANK_CHECK and was scored BAD, on BOTH arms, identically. The distribution (present pre-existing
+on the control arm, present on v133, flaky rather than deterministic in which step it lands on) is
+the signature of a flaky, arm-independent host/serial protocol fault -- not a byte-mismatch, not
+the recorded v1.15 stuck-bit disposition (which failed specifically and deterministically on
+ERASE, never on blank-check, and never with an "Empty input" protocol error). Recorded as a
+rig/protocol anomaly, cross-referenced against position 1's own CELL.md note and the project's
+prior write-path "Empty input"/0xA4 regression (resolved historically by ack_data=False on
+INIT/END) -- worth a fresh filing on its own merits given its reappearance here on both arms, out
+of scope to fix in this bench phase (D-16 boundary).
+
+Per the operator ruling's own stated purpose for C-08 ("to establish whether control firmware
+fails the same way (not v1.33-attributable) or passes where v1.33 fails"): control failed the SAME
+way. CHIP__v133__w27e040's live FAIL is therefore NOT a v1.33 regression.

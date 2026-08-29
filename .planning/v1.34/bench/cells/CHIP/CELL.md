@@ -651,3 +651,139 @@ chip verdict and NOT escalated to C-08** — a control-arm arbitration would bur
 long 512 KiB re-run to arbitrate a result that is not yet a genuine chip finding. Returning a
 second checkpoint, this time asking the operator to check full seating and pin-1 orientation (not
 JP4, already addressed once).
+
+### Attempt 3 (after the operator reseated the part) — chip ID cleared; run proceeded to a genuine live FAIL
+
+```
+timeout 3920 env FIRESTARTER_CONFIG_DIR=/workspaces/.planning/v1.34/config \
+  /workspaces/.v1.34-arms/v133/.venv/bin/firestarter -p /dev/ttyACM0 dev test W27E040
+```
+
+Exit code 1, wall-clock 768s (well inside the 3920s 512 KiB fallback ceiling — this position
+supplies the phase's first measured 512 KiB total, no widening needed). **Chip ID cleared**
+(`0xDA86`, matched) — seating is confirmed as the cause of attempts 1 and 2's total ID failure, a
+rig/handling issue, not a chip or v1.33 finding.
+
+| Step | Verdict | Runs | Duration_s (cycle-sum) | Reason |
+|---|---|---|---|---|
+| id | OK | 1 | 3.54 | — |
+| read | OK | 2 | 165.345 | "read runs diverged" (recorded detail, not a divergence trigger per the operator ruling) |
+| write | OK | 1 | 392.429 | full device, `write_region_start=0`, `write_region_length=524288` |
+| verify | OK | 1 | 68.974 | — |
+| erase | OK | 1 | 62.617 | no bit-4-at-0x7db symptom — the recorded v1.15 disposition did NOT reproduce |
+| blank-check | **BAD** | 1 | 69.392 | "Empty input", `error_code 164` (`0xA4`, `MSG_ERR_EMPTY_INPUT`) |
+
+Banner: 6 of 6 ran. `fw_board_identity`: `3.0.0b22:leonardo`, non-null. `repeat_policy`:
+`runs=1` — accurately reflects that `write`/`verify`/`erase`/`blank-check` all ran a single cycle
+here (unlike positions 1-4's two-cycle default); no `--fast` was used on either invocation, this
+appears to be this chip/size class's own single-cycle behaviour at `dev test`'s default settings.
+
+**This is a live FAIL under the operator ruling** ("a `dev test` FAIL/BAD is the interesting case,
+and earns the control-arm re-run"). Critically, the observed symptom does **not** match the
+recorded v1.15 disposition at all: that disposition is a **data failure** (a stuck bit failing to
+clear on **erase**, at a specific offset/value); here **erase itself returned OK**, and the failure
+is a **host/serial protocol error** (`Empty input`) on `blank-check`, not a byte mismatch. This is
+explicitly not booked as the recorded `known_carried` symptom.
+
+**Row appended:** `CHIP__v133__w27e040`, `divergence_verdict: diverges: blank-check BAD (Empty
+input, error_code 164/0xA4) — a live FAIL under the operator ruling; erase itself was OK, so this
+does NOT match the recorded v1.15 stuck-bit-on-erase disposition — earns C-08`, `known_carried: no`
+(the recorded disposition's symptom did not reproduce), `jp4_position: 32-pin`, `reseat_count: 1`.
+
+### C-08 — control-arm arbitration
+
+**Cross-reference before arbitrating:** `ERROR: Empty input` (`MSG_ERR_EMPTY_INPUT`, error code
+164/`0xA4`) is the **same** transient console anomaly already recorded, benignly (no verdict
+impact), at `CHIP__v133__w27c512` (position 1's own `CELL.md` note), `CHIP__v133__w27e512`, the
+superseded `CHIP__control__w27e512` control run, and `CHIP__v133__sst27sf512`. This is the first
+position in the sweep where it landed on a step and produced a **BAD** verdict rather than a benign
+log line. The project also carries prior history on this exact error class: a previously-diagnosed
+write-path regression resolved by the host passing `ack_data=False` on the INIT/END phases —
+worth a fresh filing on its own merits given its reappearance here, out of scope to fix in this
+bench phase (D-16 boundary).
+
+**Flash 1 — control.** `git -C firestarter checkout 8695ee52c27a4bee4387c5c489afd5f3d7275e8a`
+(porcelain empty before/after), `env -C /workspaces/firestarter pio run -t upload -e leonardo` —
+SUCCESS, 28170 bytes. **Proven by independent read-back** (RIG-02): `touch_1200.py` +
+`judge_readback.py --flashed-arm control --expect-arm control` → `judged_match: true`,
+`judged_span_bytes: 28170`. `capture_provenance.py` re-run for the control arm: `fw_board_identity`
+non-null (`3.0.0b22:leonardo`), `config_dir_sha` still matching the pinned value.
+
+**Port re-enumeration, noted not chased:** during this arbitration's touch/probe cycle the board
+briefly re-enumerated from `/dev/ttyACM0` to `/dev/ttyACM1` and back to `/dev/ttyACM0` across
+successive 1200-baud touches — Standing bench rule 1 (never inherit a port) was honoured by
+re-verifying port identity live before every subsequent command; the board signature
+(`0x1e9587`/`atmega32u4`) matched throughout. Recorded as a rig behaviour data point, not chased
+further.
+
+**Control-arm `dev test W27E040` re-run**, same seating, same pot, exit 1, wall-clock 767s:
+
+| Step | Verdict | Runs | Duration_s (cycle-sum) |
+|---|---|---|---|
+| id | OK | 1 | 3.48 |
+| read | OK | 2 | 165.3 |
+| write | OK | 1 | 392.4 |
+| verify | OK | 1 | 68.9 |
+| erase | OK | 1 | 62.6 |
+| blank-check | **BAD** | 1 | 69.4 |
+
+**Byte-for-byte identical failure shape and near-identical per-step timing to the v133 run.**
+`chip_id` matched (`0xDA86`) on the control arm too, confirming the earlier chip-ID mismatch was a
+seating fault, not arm-dependent. `repeat_policy: runs=1` on this row too, matching the primary
+row's own accurate derivation.
+
+**CONCLUSION: NOT a v1.33 regression.** `ERROR: Empty input` is an **arm-independent** host/serial
+protocol fault, observed now on **both** arms across this sweep. Per the operator ruling's own
+stated purpose for C-08 ("establish whether control firmware fails the same way ... or passes
+where v1.33 fails"): control failed **the same way**. Recorded as a rig/protocol anomaly, not a
+chip finding and not a v1.33-attributable finding.
+
+**Control row appended:** `CHIP__v133__w27e040.control-rerun`, `arm: control`,
+`control_rerun_for: CHIP__v133__w27e040`, `divergence_verdict: same` (control's own result matches
+the v133 arm's result — both fail identically), `outcome: validated` (non-null
+`fw_board_identity`, both read-back SHAs matched their sources, frozen config-dir invariant held).
+
+**Flash 2 — restore to v1.33.** `git checkout 5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463` (porcelain
+empty), `env -C /workspaces/firestarter pio run -t upload -e leonardo` — SUCCESS, 25098 bytes.
+**Proven by independent read-back**: `judged_match: true`, `judged_span_bytes: 25098`.
+`firestarter/` HEAD confirmed at the v1.33 SHA, porcelain empty; `firestarter_app/` porcelain
+empty; no gitlink drift in the meta repo.
+
+**No wasted chip handling:** W27E040 stayed seated throughout attempts 1-3 and the entire C-08
+arbitration (Leonardo chip-out-exempt) — zero extra chip handling beyond the original seating and
+the one reseat before attempt 3.
+
+**Full suite re-run after this position closed, `RC` read directly:** `run_gates.sh` exits 0,
+14/14 selftests, 7/7 live gates, `ALL GATES PASSED` — both `gate_record.py` runs (against
+`bench/EVIDENCE.jsonl` and `bench/CHIP-EVIDENCE.jsonl`) checked standalone, 0 violations each.
+`render_chip_evidence.py --check` green.
+
+### Pin-map note and erase-duration comparison (this plan's own required record)
+
+**Pin-map:** W27E040 is on the **standard** 32-pin map, not the scoped map v1.18's Phase 97-99 fix
+introduced for AM27C020 (the other 32-pin `EPROM-QUICK`-family part in this inventory) — that fix
+is size-gated to parts at or below a quarter mebibyte (262144 B) and W27E040 is twice that
+(524288 B), so the fix does not touch it.
+
+**Erase-duration comparison:** this position's measured erase duration is **62.617s** (single
+cycle, 524288 B, and the erase itself returned OK — the recorded stuck-bit fault did not
+manifest). Plan 162-05's other stuck-bit part, W27E512 (65536 B), measured its own healthy erase at
+16.7s cycle-sum / 2 = **8.35s per operation**. Two data points on the erase op, eight times apart
+in device capacity: 62.6s vs 8.35s is roughly **7.5x** for an **8x** capacity increase — consistent
+with an erase duration that scales close to linearly with device size on this rig, for a run whose
+erase actually completes without hitting either part's own recorded stuck-bit fault.
+
+### Position 5 summary — supplies the 512 KiB class figure
+
+**Measured total (v133 run): 768s wall-clock.** This position is the first of the two 512 KiB
+parts to complete in actual run order (the plan's nominal order — SST39SF040 first — was swapped
+by the operator's physical seating choice; see the order-swap note above). **The 512 KiB class
+ceiling for the next 512 KiB position (SST39SF040, now position 6): `4 × 768s = 3072s`** —
+narrower than the 3920s derived fallback (980s × 4), and stated here with its arithmetic per PD-14.
+This is now a **measured**, same-rig, same-firmware figure, retiring the derived fallback for the
+one part still to run in this class. **Caveat carried into `CELL.md` per this plan's own
+instruction:** this measured total comes from a run that itself had a live FAIL on `blank-check`
+(a protocol anomaly, confirmed arm-independent and NOT chip- or write/erase-attributable) — the
+write/verify/erase figures that dominate the wall-clock total (392.4s + 68.9s + 62.6s) are
+themselves clean OK measurements, so the total is still a legitimate healthy-write-path basis for
+bounding the next 512 KiB run, notwithstanding the unrelated blank-check anomaly.
