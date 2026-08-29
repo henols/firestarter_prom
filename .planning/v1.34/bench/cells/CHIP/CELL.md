@@ -624,9 +624,30 @@ the C-08 control-arm arbitration, and must not yet be compared against the recor
 until the operator confirms JP4 is genuinely at the 32-pin position. **Returning a checkpoint for
 that confirmation now**, per plan (no C-08, no flash, no further chip handling attempted here).
 
-**No row appended to `CHIP-EVIDENCE.jsonl` for this attempt.** If the operator confirms JP4 was
-already correct, this exact FAIL becomes the recorded result (compared fresh against the known
-disposition, since it fails to match that disposition's symptom shape — a genuine new finding,
-not `known_carried`). If the operator corrects JP4 and re-seats, the retry is the recorded result
-and this discarded attempt is kept here, in the record, never silently dropped (mirroring Standing
-bench rule 8's re-seat discipline for a clean-reseat case, applied here to a JP4-position case).
+**No row appended to `CHIP-EVIDENCE.jsonl` for this attempt.** Superseded: the operator
+addressed JP4 and asked for a re-run (see "Second attempt" below) — that re-run reproduced the
+identical failure, so the diagnosis moved from JP4 to seating/orientation. Kept here, never
+silently dropped, per Standing bench rule 8's re-seat discipline applied to this JP4/seating case.
+
+### Second attempt (after the operator's JP4 correction) — IDENTICAL failure, same chip-ID mismatch
+
+```
+timeout 3920 env FIRESTARTER_CONFIG_DIR=/workspaces/.planning/v1.34/config \
+  /workspaces/.v1.34-arms/v133/.venv/bin/firestarter -p /dev/ttyACM0 dev test W27E040
+```
+
+Exit code 1, wall-clock ~19s — byte-for-byte the same shape as the first attempt: `id` BAD (3.46s,
+reported `0x8201`, expected `0xDA86`), `read` BAD x2 (7.04s), `blank-check` BAD (3.52s), `write`/
+`verify`/`erase` gated off, banner 3 of 6 ran, chip left pristine. **The operator did not report
+which position JP4 ended up in, only that it was addressed** — the re-run's own result is being
+used as the confirmation, per instruction.
+
+**Diagnosis moved: two identical ID failures across a jumper change point at seating or
+orientation, not JP4 and not silicon.** A JP4 mismatch on the first attempt would very likely have
+been fixed by moving JP4, which it was not — so either JP4's correction did not land, or the real
+fault is a partially-seated DIP32 part or a reversed (pin-1) orientation, both of which produce
+the identical "read garbage as the chip ID" symptom regardless of JP4. **This is NOT booked as a
+chip verdict and NOT escalated to C-08** — a control-arm arbitration would burn two flashes and a
+long 512 KiB re-run to arbitrate a result that is not yet a genuine chip finding. Returning a
+second checkpoint, this time asking the operator to check full seating and pin-1 orientation (not
+JP4, already addressed once).
