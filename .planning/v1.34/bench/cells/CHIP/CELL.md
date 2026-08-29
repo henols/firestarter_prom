@@ -528,6 +528,21 @@ gates, `ALL GATES PASSED`.
 throughout, both sub-repo porcelains empty. `--pending-readback` used, matching every non-flashing
 position in this sweep.
 
+## Plan 162-06 leave-state (superseded reading order note: see Position 5 below)
+
+**Order swap, recorded per orchestrator instruction (162-07):** 162-07-PLAN.md nominally orders
+position 5 = SST39SF040, position 6 = W27E040 (PD-1's healthy-part-first reorder). **The operator
+physically seated W27E040 first** at the JP4-to-32-pin handover. The orchestrator instructed:
+record positions by **actual run order** — W27E040 runs as position 5, SST39SF040 becomes position
+6 — because both parts share the same 32-pin/12V/512KiB group so no rig-cost arithmetic changes,
+only the ordering. This is a deviation from the plan text, recorded here rather than silently
+reinterpreted.
+
+**JP4 not explicitly confirmed for this handover.** The operator confirmed the part seated but did
+not explicitly confirm the JP4 position when asked. Per the orchestrator's guard: a live FAIL/BAD
+on this position must not book C-08 arbitration until the operator confirms JP4 is genuinely at
+32-pin (a DIP32 part run with JP4 at 28-pin fails in a way that closely resembles silicon failure).
+
 ## Plan 162-06 leave-state
 
 **Board:** Leonardo, `/dev/ttyACM0`, signature `0x1e9587`/`atmega32u4`, re-confirmed at both this
@@ -538,3 +553,80 @@ unchanged since position 1. **Shield:** Rev 2.0, mounted. Four of ten positions 
 (w27c512, w27e512, sst27sf512, fm1608), all `same`/`validated`/`known_carried:no`, zero control
 rows in the live ledger. Plan 162-07 inherits this state for its own first handover, where JP4
 moves to 32-pin — **that move belongs to 162-07, not here.**
+
+## Position 5 (actual run order) — `CHIP__v133__w27e040` — Task 1/2, checkpoint pending
+
+**Chip swap (Task 1, operator-performed):** FM1608 removed, **W27E040** seated (DIP32) — **not**
+SST39SF040 as the plan text nominally orders (see the order-swap note above). Operator confirmed
+"the part is seated" but the JP4 position itself was **not** explicitly confirmed when the
+orchestrator asked. Pot untouched (12 V group, unchanged since position 1). Reseat count: 0.
+
+### C-01 — frozen config dir pristine
+
+`check_arms.py --expect-config-sha 77adfdd2...` -> OK, matches the pinned digest (checked before
+this position's run).
+
+### C-04 — provenance
+
+Port re-verified live by signature: `touch_1200.py` (settle 2.0s, reused `/dev/ttyACM0`, no new
+enumeration) + `probe_board.py` -> `board_signature: 0x1e9587`, `connected_part: atmega32u4`,
+matches every prior position on this rig. `capture_provenance.py` run with `--pending-readback`
+(no flash performed). `config_dir_sha` in the captured record: `77adfdd2...`, matching the pinned
+value — still pristine at capture time.
+
+### C-03 — VPP, named absence (D-13, inherited)
+
+Single reading, unchanged since position 1: **12400 mV** (`VPP: 12.4V, Internal VCC: 5.5V`), in
+band. `vpp_real_mv` recorded as a named absence pointing back to `CHIP__v133__w27c512`. **Note:**
+the VPP monitor does not route to the socket (Standing bench rule 5) — an in-band VPP reading here
+says nothing about JP4's actual position; it cannot be used to infer JP4 is correct.
+
+### C-05 — `dev test W27E040`, exit 1, steps total 13.9s — FAIL, chip-ID mismatch on the very first step
+
+```
+timeout 3920 env FIRESTARTER_CONFIG_DIR=/workspaces/.planning/v1.34/config \
+  /workspaces/.v1.34-arms/v133/.venv/bin/firestarter -p /dev/ttyACM0 dev test W27E040
+```
+
+Exit code 1. Wall-clock ~20s (far below any ceiling — no timeout drama, a genuine fast failure).
+
+| Step | Verdict | Runs | Duration_s (cycle-sum) | Reason |
+|---|---|---|---|---|
+| id | BAD | 1 | 3.47 | chip-ID check did not return OK — reported `0x8201`, expected `0xDA86` |
+| read | BAD | 2 | 6.94 | (init failure, same chip-ID mismatch) |
+| write | SKIPPED | 0 | — | chip-ID mismatch — destructive steps gated (chip left pristine) |
+| verify | SKIPPED | 0 | — | no write target available for verify |
+| erase | SKIPPED | 0 | — | chip-ID mismatch — destructive steps gated (chip left pristine) |
+| blank-check | BAD | 1 | 3.52 | Programmer error during init: chip-ID mismatch |
+
+Banner: 3 of 6 ran, all 3 **BAD**. `fw_board_identity`: `3.0.0b22:leonardo`, non-null (the board
+itself answered fine — this is not a port/board identity problem). VPP not measured by `dev test`
+itself (the standalone `vpp` read above is separate). `write_coverage`: "chip-ID mismatch —
+destructive steps gated (chip left pristine)" — **no write, erase or verify pulse ever reached the
+chip**; it is left exactly as found. `report_json` copied nowhere yet (still sitting in the frozen
+config dir at `dev-test-W27E040.{json,md}` — not yet copied out, because this position is **not
+being recorded as a final row** until the JP4 question below is resolved).
+
+### Why this is NOT booked as a live FAIL for C-08 yet, and NOT compared against W27E040's recorded disposition
+
+**The observed symptom does not match the recorded disposition at all.** W27E040's known,
+carried-forward disposition (v1.15 Phase 82, `EVIDENCE.md:99`) is a **stuck bit on erase** —
+`id`, `read` and `blank-check` all PASS cleanly in that record (Phase 81, `:55`); only `erase`
+fails, at one specific offset (`0x7db`, bit 4). **Here, `id`/`read`/`blank-check` all failed
+immediately**, before any write/erase pulse was attempted, on a **chip-ID mismatch** (`0x8201`
+reported vs `0xDA86` expected). A chip-ID mismatch this total, on the very first command, is the
+textbook symptom of a **socket/pin-map mismatch** — exactly what a DIP32 part run with JP4 still
+at the 28-pin position would produce — not a stuck-cell silicon defect, which would leave `id` and
+`read` clean.
+
+Per the orchestrator's explicit instruction: a live FAIL/BAD on this position must **not** book
+the C-08 control-arm arbitration, and must not yet be compared against the recorded disposition,
+until the operator confirms JP4 is genuinely at the 32-pin position. **Returning a checkpoint for
+that confirmation now**, per plan (no C-08, no flash, no further chip handling attempted here).
+
+**No row appended to `CHIP-EVIDENCE.jsonl` for this attempt.** If the operator confirms JP4 was
+already correct, this exact FAIL becomes the recorded result (compared fresh against the known
+disposition, since it fails to match that disposition's symptom shape — a genuine new finding,
+not `known_carried`). If the operator corrects JP4 and re-seats, the retry is the recorded result
+and this discarded attempt is kept here, in the record, never silently dropped (mirroring Standing
+bench rule 8's re-seat discipline for a clean-reseat case, applied here to a JP4-position case).
