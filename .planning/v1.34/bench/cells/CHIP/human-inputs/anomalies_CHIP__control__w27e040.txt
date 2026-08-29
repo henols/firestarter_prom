@@ -10,3 +10,9 @@ Timing comparison, arm to arm, step for step (v133 -> control): id 3.54s -> 3.48
 165.3s; write 392.4s -> 392.4s; verify 68.9s/69.0s -> 68.9s; erase 62.6s -> 62.6s; blank-check
 69.4s -> 69.4s (both BAD). Essentially identical -- further corroboration this is an
 arm-independent fault, not a v1.33-specific behavioural or timing change.
+
+REPRODUCIBILITY UPDATE: a subsequent v133-arm re-run (same seating, no re-flash) reproduced the
+identical blank-check failure a second time on that arm, at the same step, with the same error and
+near-identical timing to both this control run and the original v133 run. The fault is now
+observed three times total (v133 x2, control x1), all at the same step -- reinforcing that this is
+an intermittent, arm-independent transport fault rather than a one-off or arm-specific event.

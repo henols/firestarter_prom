@@ -787,3 +787,95 @@ instruction:** this measured total comes from a run that itself had a live FAIL 
 write/verify/erase figures that dominate the wall-clock total (392.4s + 68.9s + 62.6s) are
 themselves clean OK measurements, so the total is still a legitimate healthy-write-path basis for
 bounding the next 512 KiB run, notwithstanding the unrelated blank-check anomaly.
+
+### Step-order hypothesis, checked and cleared — erase-before-blank-check is deliberate
+
+Operator asked whether `erase` and `blank-check` run in the correct order for this part. Checked
+live against `firestarter_app/firestarter/chip_test.py:640-683`: blank-check is appended at
+exactly one of two positions, never both. **Case 2 (erase executable)** appends it **after**
+erase — "only once erase has run does 'not blank' become a tool-health finding rather than a
+report of the chip's prior state." **Case 4 (everything else, incl. UV-EPROM)** keeps it before
+write — "the write is irrecoverable and only UV light erases, so 'not blank' is a real pre-write
+finding." W27E040 is an EEPROM with an executable erase (protocol 8, `can_erase` true,
+`write_execute` true) → **Case 2 applies**, and `erase → blank-check` is the intended, correct
+sequence. Checked and cleared — not re-investigated further; no product-code change (Phase 165
+boundary, and there is nothing to fix here regardless).
+
+### Reproducibility re-run — board already at v1.33 SHA, no re-flash needed
+
+Purpose: a single observed `Empty input` blank-check BAD does not distinguish a **deterministic**
+fault from a **transient** one, and the position's disposition turns on which it is. Confirmed
+live before running: `git -C firestarter rev-parse HEAD` = `5759dc8d644a8a7fb26e9a0ccd11a8bfd53fc463`
+(the v1.33 SHA), porcelain empty — **no flash performed for this re-run**.
+
+```
+timeout 3072 env FIRESTARTER_CONFIG_DIR=/workspaces/.planning/v1.34/config \
+  /workspaces/.v1.34-arms/v133/.venv/bin/firestarter -p /dev/ttyACM0 dev test W27E040
+```
+
+Exit code 1, wall-clock 767s (near-identical to the recorded run's 768s). **IDENTICAL result**: id
+OK, read OK x2, write OK x1, verify OK x1, erase OK x1, blank-check **BAD** x1 — same reason
+("Empty input"), same error_code (164), same step. **Same error, same step** — a reproducible fault
+at this exact point in the sequence, not a one-off transient. Logged to a distinct filename
+(`logs/CHIP__v133__w27e040.repro-rerun.std{out,err}.log`) so the four W27E040 runs on the v133 arm
+(attempts 1, 2, 3, and this reproducibility re-run) stay separable; its report was copied out
+manually (SHA-verified, `e1eb44c7...`) to `reports/CHIP__v133__w27e040.repro-rerun.{json,md}` and
+removed from the frozen config dir, since this run is recorded as corroborating evidence on the
+existing position, never as a fifth row.
+
+### Error-identity correction — `MSG_ERR_EMPTY_INPUT` (0xA4) is overloaded and does not mean what its name says
+
+Checked live against `firestarter/src/firestarter.cpp`. Two emit sites:
+
+- **`:124`** — genuine empty buffer: `if (handle->data_size == 0) { LOG_ERROR_ID(MSG_ERR_EMPTY_INPUT); return false; }`
+- **`:251-255`** — the frame-integrity path, reused deliberately per the comment: *"CRC mismatch,
+  COBS violation, overflow, or read underrun. MSG_ERR_EMPTY_INPUT reused (messages.h is codegen;
+  adding MSG_ERR_BAD_FRAME requires a TOML catalog update — deferred)."*
+
+**`ERROR: Empty input` on this position's `blank-check` is therefore far more likely a corrupted
+serial frame than a literal empty input.** Three consequences recorded on the row and here:
+
+1. **Blank-check never produced a verdict about the chip.** It failed at the transport layer
+   before returning a result — this run carries **no evidence** about whether the device is
+   actually blank, and therefore **no independent confirmation that the preceding `erase: OK`
+   actually erased anything**. `erase: OK` means the erase command was accepted and completed
+   without the firmware reporting an error; it is not itself proof the device was left blank.
+2. **The disposition is a transport-integrity finding, not a chip finding and not a
+   firmware-logic finding.** Both arms failed identically at the same step; the same error text
+   appears in all four earlier positions' logs (both arms) at points where it happened to be
+   recoverable. Intermittent frame corruption fits that distribution; a firmware logic defect tied
+   to this one chip or this one arm does not.
+3. **The misleading error identity is its own Phase 165/166 filing**, separate from the transport
+   issue itself — an operator or triager reading "ERROR: Empty input" on a blank-check would
+   reasonably conclude something about the chip or the input file, when the actual condition is a
+   bad frame. Cited here with `firestarter.cpp:251-255` and the deferred-`MSG_ERR_BAD_FRAME`
+   comment. **Not fixed here** — `messages.h` is codegen-generated from meta's `messages.toml` and
+   this is a Phase 165 boundary; no product-code edit made in either sub-repo.
+
+### Row strengthened in place, no duplicate row, SC#4 identity preserved
+
+Per the reproducibility result (same error, same step) and the error-identity finding, both
+existing rows for this position were **re-derived** (removed back to the schema line — the last
+two rows in the file, so no other row's byte-unchanged prefix was disturbed — then re-appended
+through `append_chip_evidence.py`'s normal path using each row's own retained
+report/provenance/console-log/commands-extra artifacts **unchanged**; only the human-supplied
+`verdict`/`anomalies`/`divergence_verdict` text was strengthened to carry the reproducibility
+evidence and the corrected error identity). Every machine-derived field re-diffed byte-identical
+to the pre-rederivation values (`step_durations_s`, `step_verdicts`, `report_json_sha256`, etc.) —
+confirmed live, not asserted. **No second diverging v133 row and no second control row were
+added** — SC#4's identity (`count(control) == count(diverging-v133)`) holds at **1 == 1** after the
+re-derivation, verified live: `primaries: 5, diverging: 1, control: 1`.
+
+**Final disposition, both rows:** `CHIP__v133__w27e040` — `divergence_verdict: diverges: ...
+REPRODUCED on a second v133-arm run ... and on the control arm — confirmed a transport-integrity
+fault, not v1.33-attributable`; `known_carried: no`. `CHIP__v133__w27e040.control-rerun` —
+`divergence_verdict: same` (control's own result matches the v133 arm's result). **In all cases
+the position remains NOT v1.33-attributable** — control has been shown to fail identically on this
+exact part and seating, now corroborated by a second v133-arm reproduction.
+
+**Full suite re-run after the re-derivation, `RC` read directly:** `run_gates.sh` exits 0, 14/14
+selftests, 7/7 live gates, `ALL GATES PASSED`; `gate_record.py` re-run standalone against
+`CHIP-EVIDENCE.jsonl`: 0 violations. `render_chip_evidence.py --check` green. Frozen config dir
+reconfirmed pristine (matches the pinned SHA) before and after the re-derivation cycle. Both
+sub-repo porcelains empty throughout; `firestarter/` confirmed still at the v1.33 SHA (no flash
+occurred during the reproducibility re-run or the re-derivation).
