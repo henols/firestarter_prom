@@ -2,9 +2,9 @@
 id: photograph-modified-rev-0
 title: Photograph operator's Modified Rev 0 board (Phase 31 follow-up #3)
 captured: 2026-05-26
-status: pending
+status: deferred
 type: documentation
-target_milestone: post-v1.7
+target_milestone: none (deferred 2026-08-29 by operator direction)
 priority: MEDIUM
 related_phase: 31
 resolves_phase_followups: [Phase 31 follow-up #3]
@@ -13,6 +13,32 @@ resolves_phase: 164
 ---
 
 # Photograph operator's Modified Rev 0 board (Phase 31 follow-up #3)
+
+## ⏸ DEFERRED 2026-08-29 by operator direction — do not plan this
+
+Operator directed on 2026-08-29 to **skip Rev 0 and defer it**. This todo is parked with **no target
+milestone**. It is split out of backlog **999.42**, which now covers only the six unswept chips and the
+two unswept shields; it is **not** a blocker on that item and must not be sized into a resumption of it.
+
+Pick this up only if the operator puts the Modified Rev 0 board on the bench for some other reason.
+Nothing downstream depends on it: firmware handles the board correctly today via the broad-bucket
+`REVISION_2_0` + EEPROM override fall-through, regardless of how the rework landed.
+
+
+## ⚠ STATUS UPDATE 2026-08-29 — v1.34 Phase 164 closed UNRUN; now carried as backlog 999.42
+
+`resolves_phase: 164` is retained, but **Phase 164 never ran.** v1.34 closed early and scope-reduced
+by operator direction on 2026-08-29; Phase 163 (cell B1) never put the board on the bench, so Phase
+164 — which was scheduled to photograph it *while it was already out for B1* — never started either.
+
+**Current home: backlog 999.42** ("Finish the v1.34 sweep — six chips, two shields, and the Rev 0
+rework trace"). See `.planning/ROADMAP.md` §Phase 999.42 and `.planning/v1.34/CLOSE-RECORD.md` §2.3.
+
+**The third deferral in this todo's life** (Phase 31 → Phase 35 → post-v1.7 → Phase 164 → 999.42),
+and the board is **still never physically inspected**. No photographs of it exist anywhere.
+**Nothing here is discharged.** REV0-01 is NOT RUN. This todo is unchanged in scope: it still needs
+the operator, the board in hand, and a camera. It is the hard blocker on its companion
+`write-modifications-md-rework-trace.md`, which cannot proceed without it.
 
 ## The deferral
 

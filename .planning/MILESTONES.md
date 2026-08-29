@@ -1,5 +1,165 @@
 # Milestones
 
+## v1.34 Pre-Merge Hardware Regression Validation (Closed: 2026-08-29 — EARLY / SCOPE-REDUCED)
+
+**Phases completed:** 7 phases authored (160–166); **4 complete** (160, 161, 165, 166), **1 partial** (162, at 5 of 11 chips), **2 not run** (163 SHIELD, 164 REV0). 28 plans authored, **24 completed** — 160 at 13/13, 161 at 5/5, 162 at 6 summarised of 10 (plan 162-07 executed but never summarised; the sweep stopped mid-plan on operator direction).
+**Timeline:** 2026-08-25 → 2026-08-29 (5 days)
+**Requirements:** **19/31 Complete** — 5 PARTIAL/MET-in-scope (CHIP-01…05), 6 NOT RUN (SHIELD-01/02/04, REV0-01/02/03), 1 DEVIATED (CLOSE-04). See Known Gaps.
+**Closeout type:** `operator_directed_early_close` — **not** a gap in the work that ran. On 2026-08-29 the operator directed "stop testing, close ASAP", and the milestone closed on the evidence already banked rather than on the planned sweep. Every phase that ran, ran clean; more than half the planned evidence base was simply never measured, and this record says so in every place a reader could mistake it for complete.
+**Code:** meta 202 commits, 901 files, +80496/−376 (896 of those files, +80492/−258, are `.planning/`) · firmware **2 commits, 2 files, +18/−1** (`5759dc8` → `a218b4f`) — **+16 B flash on all three AVR targets, +0 RAM** · host app **0 commits** (`cb189a9` is v1.33 tail work from 2026-08-25, not v1.34). v1.34 touched no product code except the one pre-existing defect it found.
+**Close posture:** **MERGED, BY OPERATOR DIRECTION — a deliberate break with the local-only precedent, recorded as a deviation.** The three v1.33 PRs merged to `beta`: [`firestarter_prom#43`](https://github.com/henols/firestarter_prom/pull/43) (`ee562a03`), [`firestarter#56`](https://github.com/henols/firestarter/pull/56) (`01be7885`), [`firestarter_app#54`](https://github.com/henols/firestarter_app/pull/54) (`db262331`), each firing its own beta pre-release cut; meta followed via PR **#44** (`eb87413e`). Meta's beta gitlinks read fw `a218b4f` / app `cb189a9` — the firmware **with** the blank-check fix this gate found. **No sub-repo tag, no meta `v1.34` tag, and no stable release** — those stay operator-gated and were deliberately untaken. (v1.33 was tagged at its close; v1.34 is not.)
+
+**Delivered:** A hardware gate in front of a merge that had never touched an Arduino. v1.33 shipped −2938 B
+flash / −13 B RAM across all three AVR targets on a premise of byte-level equivalence — heap allocator
+removed, the 438 B 64-bit runtime dropped, `jsmntok_t` narrowed 8 → 6 B, `key_parsers[]` rewritten, handle
+types narrowed — every claim backed by native tests, golden traces and cold builds, **and none by silicon.**
+v1.34 bought the A/B comparison v1.31 declined to make: every cell ran a **control arm** (the exact
+merge-bases the v1.33 branches forked from, firmware `8695ee5` / host `6bfa645`) before the v1.33 arm, so
+"this failed" could be told apart from "this has always failed here."
+
+**The verdict: MERGE WITH CAVEATS.** Not "merge" — six chips and two shields were never measured. Not
+"do-not-merge" — every position that *was* measured came back clean of v1.33 attribution, and the one hard
+failure was affirmatively shown to predate v1.33 by two independent methods. Withholding a merge on
+evidence that never contradicted it would be overcaution; calling it validated would be overclaiming.
+
+**The milestone-level non-claim, stated once here in this milestone's own canonical wording:**
+**program-window VPP/VCC under load was never measured**, because the Phase-97 DTR-reset-on-close tooling
+gap still stands. Every voltage figure in this milestone is a static or idle reading. **v1.34 therefore
+makes no electrical claim whatsoever.** Its results are read-back SHA facts, not rail facts.
+
+**Key accomplishments (curated):**
+
+1. **Zero v1.33-caused regressions in any position actually measured** — 12 board positions (3 boards × 2
+   arms × 2 chips, cells A1 Uno / A2 uno328pb / A3-B2 Leonardo, all Rev 2.0) plus 6 chip-sweep rows. **RCA-02
+   is therefore satisfied vacuously, and the close record says so rather than dressing it up**: there was no
+   v1.33-caused regression to root-cause. A real result about what was measured; not a result about what was not.
+
+2. **The one hard failure was proven pre-existing, then root-caused, then fixed — in that order.** W27E040
+   blank-check died at ~98% with `ERROR: Empty input` (`MSG_ERR_EMPTY_INPUT`, 164/0xA4). Classified
+   pre-existing on **two independent grounds**: a control-arm re-run reproduced it, and `git show
+   8695ee5:src/operation_utils.cpp` shows the control firmware carries the byte-identical
+   `LOG_DATA_ID_U32_U32(MSG_DATA_PROGRESS, …)` with no `op_wait_for_ack` after it. **Mechanism:** standalone
+   blank-check emitted one progress frame per 2048 B chunk and never consumed the host's per-frame ack, so
+   the firmware ran unthrottled without touching the incoming byte stream; past ~4–5 KB of cumulative TX,
+   `handle->cmd` reverted to `CMD_IDLE` outside `command_done()` and the unread backlog decoded into the
+   overloaded 0xA4. Deterministic at 251/256 chunks on a 512 KB part. **Fixed on the v1.33 PR branch** —
+   `1e8bbae` (consume the ack) and `a218b4f` (chunk 2048 → 8192, cutting a 512 KB part from 256 frames and
+   256 round-trips to 64 of each at zero added instructions) — and **re-validated in the cell that caught
+   it**: 4/4 clean at 59.66–59.68 s, bar landing exactly on `0x80000/0x80000`, `MSG_ERR_NOT_BLANK` still
+   correctly reported with its offset+value payload.
+
+3. **A flash was made provable by device read-back, not by an upload exit code.** Phase 160 built both arms ×
+   three AVR targets into six committed arm-tagged images with `SHA256SUMS.txt`, added an address-attributable
+   image generator, a signature probe that identifies a board without a handshake, an independent avrdude
+   read-back judge, and a deliberate **wrong-arm cross-flash on all three targets** with the MISMATCH observed
+   and recorded — the negative control that makes every later "the right firmware was running" claim mean
+   something.
+
+4. **The A2 program failure was captured on both arms rather than assumed from Backlog 999.2** — which is the
+   whole point of BOARD-02, and the discipline that kept a known fault from being adopted as a v1.34 finding.
+
+5. **A finding nobody was looking for: the VPP ADC error is ratiometric, ~+7.5% (range 6.8–8.3%).** Three
+   paired firmware-vs-multimeter readings across **two independently calibrated boards** cluster near the same
+   ratio, which is *consistent with* — **not proof of** — a shield-wide gain/divider fault rather than
+   per-board EEPROM miscalibration. It **materially weakens** the leading low-VPP hypothesis for A2's four
+   write failures: if the error is shield-wide, A1's firmware-reported 12.0 V also meant a real rail near
+   ~11.0–11.2 V, and A1 **passed** all four positions there. **Standing operational rule while this is open:**
+   do **not** correct the pot down toward 12.0 V against the firmware's own reading — that would drive the real
+   rail toward ~11.2 V and make the rig worse while looking like a fix. Set it from a multimeter, never from
+   the firmware's `vpp` figure.
+
+6. **Findings were filed, not narrated.** Six new backlog items — **999.37** (the unexplained 64 KiB `Empty
+   input` occurrences), **999.38** (the ratiometric VPP ADC error), **999.39** (the app writing
+   `~/.firestarter/config.json` despite `FIRESTARTER_CONFIG_DIR`, three recurrences), **999.40**
+   (`MSG_ERR_EMPTY_INPUT` is overloaded — frame-integrity failures need their own id), **999.41**
+   (`size_baseline.json` stale by +16 B on all three targets after the fix), **999.42** (the unfinished sweep
+   itself). Pre-existing failures were linked to **999.2** and **CR-01** and explicitly not fixed.
+
+### Known Gaps
+
+**These are carried, not hidden, and the first one is not a gap in execution — it is the shape of the close.**
+
+- **(1) More than half the planned evidence base was never measured.** Six of eleven chips unswept (ST
+  M27C512, SST39SF040, W29C040, W29C020, AM27C020, 2516) and two of three shields unswept (Rev 2.2, Modified
+  Rev 0). **Every v1.34 result is Rev 2.0 only**, so v1.33 merged with **zero** bench evidence on Rev 2.2 and
+  Modified Rev 0. Three of the unswept parts carry known prior trouble — SST39SF040, W29C040 (permanently
+  locked §6.6 boot block, CR-01) and AM27C020 (non-deterministic marginality). No claim is made about any of
+  them under v1.33. → **999.42**.
+- **(2) The 64 KiB `Empty input` occurrences are unexplained and were NOT folded into the 512 KB
+  explanation.** The identical text appeared on `w27c512`, `w27e512`, `sst27sf512` and one superseded control
+  row, at differing steps, without changing any step verdict. All three parts are 64 KiB = 32 chunks ≈ 544 B
+  of cumulative TX — **an order of magnitude below** the ~4–5 KB threshold that triggers the defect in gap
+  (3)'s sibling. Recorded **INCONCLUSIVE** and not resolved by assumption in either direction; Phase 162-07's
+  earlier "intermittent arm-independent frame corruption" reading is superseded **for the 512 KB case only**.
+  Arm-independent, so nothing about it is v1.33-attributable. → **999.37**.
+- **(3) The two fix commits were absent from every measurement in this milestone.** Both pinned arm images
+  predate them; the bench board was restored to the v133 arm (`5759dc8`) and proven so by independent avrdude
+  read-back (`judged_match=True`, 25098 B). The fix is verified on a W27C040/W27E040 and **on no other part** —
+  second-chip confirmation needs an operator chip swap. Consequence for anyone resuming **999.42** against the
+  same pinned images: expect blank-check to fail at ~98% on the three 512 KiB parts on **both** arms; that is
+  the known, explained, pre-existing defect, not a new finding. Re-pinning both arms to carry the fix
+  **invalidates every row already recorded**, which is why v1.34 did not do it.
+- **(4) The VPP ADC mechanism is undetermined**, and so, consequently, is A2's write-failure cause — the
+  leading hypothesis was low VPP and finding (5) above substantially weakens it. → **999.38**.
+- **(5) A2's N=3 read instability remains UNDETERMINED.** The same physical W27C512 on the same v133 arm read
+  three distinct SHAs on the uno328pb; the same arm/chip pairing read perfectly stable on the Leonardo. That
+  points away from the chip and toward the uno328pb or its state — a relevant but **non-resolving** data point.
+- **(6) Only the diverging chip got a control re-run**, per CHIP-04 by design. The four PASSes were **not**
+  A/B-contrasted, and this record does not imply they were.
+- **(7) `hw_revision` still cannot identify a shield.** Board identity was verified per cell by avrdude
+  signature; **no firmware-reported field can distinguish the operator's three shields**, and the A3 ADC check
+  collides at 10 kΩ between Rev 2.2 and Modified Rev 0.
+- **(8) The Modified Rev 0 board has still never been physically inspected.** No photographs of it exist
+  anywhere. See the post-close note below for what *was* settled at the desk.
+
+### The CLOSE-04 Deviation, Recorded Rather Than Hidden
+
+CLOSE-04 read: *"v1.34 performs no merge, no push to `beta`, no sub-repo tag, no beta cut and no release —
+every outward-facing step is left to the operator."* **v1.34 did not meet it.** Asked directly whether closing
+should also merge the three v1.33 PRs, and told in the same exchange that the step is outward-facing and
+auto-fires a beta pre-release cut, the operator answered *"Yes — merge as part of the close."*
+
+The requirement's **purpose** — that no outward-facing step happens without the operator's decision — is
+satisfied: the operator made the decision. Its **letter** is not. It is recorded as a **deviation** and left
+unticked rather than marked complete, so the ledger stays honest. Not performed even so: **no sub-repo tag, no
+meta `v1.34` tag, no stable release.**
+
+### Post-Close Desk Work: The Rev 0 Schematic Blob Was Wrong (2026-08-29)
+
+**Found after the close, at the desk, with no board in hand** (`0e114fb7`). Every prior citation of "the
+upstream Rev 0 schematic" — in `ROADMAP.md`, `REQUIREMENTS.md`, `v1.7-SHIELD-REVS.md` and elsewhere — named
+blob **`d2a7f691`** / `UniversalProgrammerRev0b0.zip::W27C512Programmer.kicad_sch`. **Both halves are wrong.**
+`d2a7f691` is `hardware/W27C512Programmer.kicad_sch` on `origin/rev2.0`, and it is a bare `.kicad_sch` rather
+than a member of that zip. The true Rev 0 schematic is blob **`cfe6139f`** at commit **`486f3d1`**.
+
+**This is not cosmetic.** The two differ by **23 components, concentrated exactly where a rework trace
+looks.** Rev 0 carries JP1 (24-pin ROM VCC), JP2 (≥SST39SF020 & 28C512 need A17), JP3 (W27C010/AT27C010 needs
+p1 VPE/VPP) and global label A18. `rev2.0` instead carries JP4/JP5, R41 = 4k7 at A3, Q9–Q12 and RN2-5/7-8 at
+10k rather than 4k7, and drops RN1/RN9. **A tracer working from `d2a7f691` would hunt a Rev 0 board for
+JP4/JP5 that are not on it and never inspect JP1/JP2/JP3 that are** — and JP2 is the A17 strap, directly
+relevant to the Bug A upper-address jitter.
+
+**Ten cells discharged.** The ten `TBD pending Phase 35` sentinel cells in `v1.7-SHIELD-REVS.md` §4/§5 were
+re-measured at start rather than assumed — 10 across two rows, confirming the 2026-08-25 "ten cells"
+correction and refuting REQUIREMENTS.md's original "six rows" — and taken **10 → 0** via REV0-03's
+*named-reason* branch: each cell now states the specific artefact that is missing (a photograph, a continuity
+probe, a DMM reading), never the word "pending". Two resolved to real attested values (the 10k A3 pull-up — an
+*addition*, since Rev 0 has no A3 divider at all), and the §5 "gated" cell resolved to gated on that pull-up's
+electrical nature, with its single-datum basis stated. `.planning/v1.7/MODIFICATIONS.md` was upgraded from the
+stub it had been since v1.7 into a reference correction with the full delta table, a corrected identity table
+including the Rev 2.2 10 kΩ ADC collision, an empty-but-structured rework inventory, and a seven-item
+inspection priority list derived from the Rev 0 netlist.
+
+**REV0-03 is left UNTICKED despite this**, because the work landed *after* the milestone closed, and because
+the trace itself is still blocked on operator photographs that do not exist. The 2026-06-01 correction notice
+recording that no physical inspection has ever occurred deliberately still stands. Phase 164's criterion 2 in
+`ROADMAP.md` still carries the stale `d2a7f691` citation, annotated in place — that phase closed unrun, and
+the citation is retained as inert history rather than rewritten.
+
+**Backlog:** files **999.37**, **999.38**, **999.39**, **999.40**, **999.41** and **999.42**. Links
+pre-existing failures to **999.2** (uno328pb program-path brownout) and **CR-01** (W29C040 locked boot block)
+without fixing them. Retires nothing.
+
 ## v1.33 Source Hygiene & Firmware Size Reduction (Shipped: 2026-08-24)
 
 **Phases completed:** 6 phases executed (154–159), 45 plans, ≥66 tasks (66 enumerated across the 30 of 45 plan summaries that carry an explicit task list; the remaining 15 use a different summary shape, so the true total is higher and is not claimed here)
