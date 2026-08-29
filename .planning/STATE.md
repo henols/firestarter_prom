@@ -2,19 +2,22 @@
 gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: — Pre-Merge Hardware Regression Validation
-current_phase: 162
-current_phase_name: CHIP — 11-Part `dev test` Sweep on the Reference Rig
-status: executing
-stopped_at: Completed 162-06-PLAN.md
-last_updated: "2026-08-28T23:53:59.015Z"
-last_activity: 2026-08-28
-last_activity_desc: Phase 162 execution started
+current_phase: 166
+current_phase_name: CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger — LAST phase of v1.34, milestone CLOSED (scope-reduced)
+status: milestone-complete
+stopped_at: "Milestone v1.34 CLOSED and archived 2026-08-29. CLOSED EARLY / SCOPE-REDUCED by operator direction ('stop testing, close ASAP') on the evidence already banked. Phases 160/161 complete (12 of 12 board positions); 162 PARTIAL at 5 of 11 chips (plans 1-7 of 10, 6 summarised); 163 SHIELD and 164 REV0 NOT RUN; 165/166 discharged on the evidence that exists. Every v1.34 result is Rev 2.0 only. Verdict MERGE WITH CAVEATS — full scope statement, evidence table, merge recommendation and 10-row honesty ledger in .planning/v1.34/CLOSE-RECORD.md. CLOSE-04 DEVIATED by explicit operator instruction: the three v1.33 PRs WERE merged to beta as part of this close (firestarter #56 / 01be7885, firestarter_app #54 / db262331, firestarter_prom #43 / ee562a03; meta PR #44), each firing its own beta pre-release cut. NO sub-repo tag and NO stable release — those stay operator-gated, as does the meta v1.34 tag. Six findings filed as backlog 999.37-999.42. REQUIREMENTS.md removed via git rm — recreate with /gsd-new-milestone."
+last_updated: "2026-08-29T23:30:00.000Z"
+last_activity: 2026-08-29
+last_activity_desc: "Milestone v1.34 (Pre-Merge Hardware Regression Validation) CLOSED and archived 2026-08-29 — 7 phases authored (160-166), 4 complete + 1 partial + 2 not run, 28 plans authored / 24 completed, 19/31 requirements Complete. Zero v1.33-caused regressions in any position actually measured (12 board positions + 6 chip-sweep rows); the one hard failure (W27E040 blank-check 0xA4) proven pre-existing by control re-run AND source comparison, then root-caused and fixed on the v1.33 PR branch (1e8bbae + a218b4f, +18/-1 over 2 files, +16 B flash all three AVR targets, +0 RAM). No electrical claim — program-window VPP/VCC under load stays unmeasured."
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 4
+  partial_phases: 1
+  not_run_phases: 2
   total_plans: 28
   completed_plans: 24
-  percent: 29
+  percent: 57
+  percent_note: "Phase-weighted and deliberately NOT rounded up to 100 — v1.34 closed scope-reduced, not complete. status milestone-complete is the close discriminator; this figure is the honest coverage number."
 ---
 
 # Project State
@@ -189,10 +192,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 166 (CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger) — MILESTONE CLOSED
 Plan: n/a — v1.34 closed early by operator direction 2026-08-29
-Status: CLOSED (scope-reduced). Phases 160/161 complete; 162 PARTIAL at 5 of 11 chips; 163 SHIELD and 164 REV0 NOT RUN; 165/166 discharged on the evidence that exists. Full scope statement, evidence table, merge recommendation and honesty ledger in `.planning/v1.34/CLOSE-RECORD.md`. Verdict: MERGE WITH CAVEATS. Six findings filed as backlog 999.37–999.42.
+Status: CLOSED (scope-reduced) AND ARCHIVED 2026-08-29. Phases 160/161 complete (12 of 12 board positions); 162 PARTIAL at 5 of 11 chips (plans 1-7 of 10, 6 summarised); 163 SHIELD and 164 REV0 NOT RUN; 165/166 discharged on the evidence that exists. Every v1.34 result is Rev 2.0 only. Full scope statement, evidence table, merge recommendation and 10-row honesty ledger in `.planning/v1.34/CLOSE-RECORD.md`. Verdict: MERGE WITH CAVEATS. Six findings filed as backlog 999.37–999.42. Archived to `.planning/milestones/v1.34-ROADMAP.md` + `v1.34-REQUIREMENTS.md`; live `REQUIREMENTS.md` removed via `git rm` per the v1.32/v1.33 close precedent — recreate with `/gsd-new-milestone`.
 **SAFETY (end of plan 161-05, 2026-08-27): cell A3/B2 CLOSED — ALL TWELVE SWEEP POSITIONS OF PHASE 161 NOW EXIST. The Leonardo (Rev 2.0 shield mounted) is CONNECTED at `/dev/ttyACM0` (`2341:8036`), W27C512 (DIP28) SEATED (the only cell in the phase ending with a chip in), v1.33 arm flashed (fw `5759dc8d`), gitlink clean. Pot NOT adjusted since P-06's ruling — firmware reads 12.3V, a multimeter simultaneously reads 11.44V (in band per eprom.cpp:713/:736, target window 11.4-12.5V). DO NOT "correct" the pot down toward 12.0V against the firmware's own reading — the on-board ADC reads roughly 7.5% HIGH (see HEADLINE below), so a firmware-chasing correction would drive the REAL rail toward ~11.2V and make the rig worse while looking like a fix. If a future session needs a different real rail, set it from a multimeter reading, never from the firmware's own vpp figure.** All four A3/B2 positions (`A3-B2__{control,v133}__{w27c512,w29c020}`) are `validated` — clean SHA-judged matches, including two N=3-stable v1.33 reads (`distinct_read_shas=1` on both) — appended to `EVIDENCE.jsonl`, `run_gates.sh` 12/12 selftests + 5/5 live gates exit 0, `gate_record.py` 0 violations. **HEADLINE FINDING, ESCALATED BEYOND A2: the VPP ADC error is RATIOMETRIC (~+7.5%, range 6.8-8.3%), consistent with (not proven as) a shield-wide gain/divider fault rather than a board-specific EEPROM miscalibration** — three paired firmware-vs-meter readings across two independently-calibrated boards (A2 uno328pb 12.5/11.70; this Leonardo 12.9-13.0/12.00 and 12.3/11.44) all cluster near the same ratio. This REVISES A2's leading low-VPP hypothesis for its four write failures: if the error is shield-wide, A1's firmware 12.0V also meant a real rail near ~11.0-11.2V, and A1 PASSED all four positions there — substantially weakening low-VPP as A2's explanation. Full reasoning in `bench/cells/A3-B2/POT.md`, `CELL.md`, and `161-05-SUMMARY.md`; `161-04-SUMMARY.md` is NOT edited, this is a forward supersession for Phase 165. **The N=3 read-instability question from A2 position 3 (same physical W27C512, same v133 arm, 3 distinct SHAs there, escalation blocked/UNDETERMINED) got a relevant but non-resolving data point here: this cell's same arm/chip pairing read perfectly STABLE on a different board** — points away from the chip, toward the uno328pb or its state; still UNDETERMINED for A2 itself. **`~/.firestarter/config.json` CHANGED again (mtime only, content byte-identical to baseline)** — a THIRD recurrence of the same P-H1 finding (A1, A2, now A3/B2), not fixed here (D-16 boundary, handed to Phase 165). **The shared W27C512's condition caveat (never assessed across eight handlings in A1/A2) is now CLOSED** — operator inspection at handling nine reported "nothing looks of[f]"; this is a visual check, not a measurement, and is NOT retroactive clearance for A2's own `0x303` fault. **Treat every recorded node in this file as a hint, never an identity** — re-derive per task from the descriptor or a `controller:`/signature probe; nodes have shuffled multiple times this phase.
-Last activity: 2026-08-29 — v1.34 closed; the three v1.33 PRs merged to beta by operator direction
-Next: **v1.34 is closed.** The three v1.33 PRs are MERGED to `beta` — firestarter #56 (merge commit `01be7885`), firestarter_app #54 (`db262331`), firestarter_prom #43 (`ee562a03`); meta's beta gitlinks now read fw `a218b4f` / app `cb189a9`, and each merge fires its own beta pre-release cut. NO sub-repo tag and NO stable release were made — those remain operator-gated. Outstanding: this v1.34 meta branch still needs to reach `beta` (close tail cannot fast-forward onto meta's beta — open a PR, never push). The bench rig is left assembled: Leonardo on `/dev/ttyACM0` carrying the **v133 arm** (`5759dc8`, read-back judged), W27C040 seated and blank, pot untouched — note that arm image does NOT contain the blank-check fix. Resuming the unfinished sweep is backlog **999.42**.
+Last activity: 2026-08-29 — v1.34 closed and archived; the three v1.33 PRs merged to beta by operator direction
+Next: **v1.34 is closed and archived.** The three v1.33 PRs are MERGED to `beta` — firestarter #56 (merge commit `01be7885`), firestarter_app #54 (`db262331`), firestarter_prom #43 (`ee562a03`); meta's beta gitlinks now read fw `a218b4f` / app `cb189a9`, and each merge fires its own beta pre-release cut. The meta branch reached `beta` too, via **PR #44** (merge commit `eb87413e`) — that outstanding item is DISCHARGED. **Still operator-gated and deliberately untaken: the meta `v1.34` tag, any sub-repo tag, and any stable release** (v1.33 was tagged at its close; v1.34 is not, pending operator direction). Any meta commit after `eb87413e` — including the Rev 0 desk work `0e114fb7` — is ahead of `beta` and needs its own PR; never push. The bench rig is left assembled: Leonardo on `/dev/ttyACM0` carrying the **v133 arm** (`5759dc8`, read-back judged), W27C040 seated and blank, pot untouched — note that arm image does NOT contain the blank-check fix. Resuming the unfinished sweep is backlog **999.42**. **Post-close desk work already done against 999.42, do not redo it:** `0e114fb7` corrected the upstream Rev 0 schematic blob from `d2a7f691` (which is `origin/rev2.0`, carrying JP4/JP5/R41 a Rev 0 board never had) to the true `cfe6139f` @ `486f3d1`, and discharged all ten `TBD pending Phase 35` sentinel cells in `v1.7-SHIELD-REVS.md` §4/§5 (bare-sentinel count 10 → 0), each now carrying a column-specific named reason. The board itself is still **never physically inspected** — no photographs exist, so REV0-01/02 stay genuinely unrun.
 
 ## Roadmap Summary (v1.34)
 
@@ -2980,8 +2983,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-28T23:53:58.959Z
-**Stopped at:** Completed 162-06-PLAN.md
+**Last session:** 2026-08-29T23:30:00.000Z
+**Stopped at:** Milestone v1.34 CLOSED and archived 2026-08-29 — scope-reduced by operator direction; verdict MERGE WITH CAVEATS; three v1.33 PRs merged to beta; meta reached beta via PR #44 (`eb87413e`). No tag, no stable release — operator-gated.
+**Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);

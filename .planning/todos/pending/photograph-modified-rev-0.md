@@ -14,6 +14,21 @@ resolves_phase: 164
 
 # Photograph operator's Modified Rev 0 board (Phase 31 follow-up #3)
 
+## ⚠ STATUS UPDATE 2026-08-29 — v1.34 Phase 164 closed UNRUN; now carried as backlog 999.42
+
+`resolves_phase: 164` is retained, but **Phase 164 never ran.** v1.34 closed early and scope-reduced
+by operator direction on 2026-08-29; Phase 163 (cell B1) never put the board on the bench, so Phase
+164 — which was scheduled to photograph it *while it was already out for B1* — never started either.
+
+**Current home: backlog 999.42** ("Finish the v1.34 sweep — six chips, two shields, and the Rev 0
+rework trace"). See `.planning/ROADMAP.md` §Phase 999.42 and `.planning/v1.34/CLOSE-RECORD.md` §2.3.
+
+**The third deferral in this todo's life** (Phase 31 → Phase 35 → post-v1.7 → Phase 164 → 999.42),
+and the board is **still never physically inspected**. No photographs of it exist anywhere.
+**Nothing here is discharged.** REV0-01 is NOT RUN. This todo is unchanged in scope: it still needs
+the operator, the board in hand, and a camera. It is the hard blocker on its companion
+`write-modifications-md-rework-trace.md`, which cannot proceed without it.
+
 ## The deferral
 
 Operator photo session for the third on-hand RURP shield (Modified Rev 0 — hardware-bug-A/B rework with cuts + jumpers) was deferred from Phase 31 to Phase 35, then deferred again from Phase 35 to post-v1.7 per D-07. Rationale: the rework trace is independent of v1.7's detect-fw substrate. The operator's Modified Rev 0 board uses the EEPROM `hw_revision` override path regardless of how the rework cuts/jumpers landed; firmware detect logic does not depend on Modified Rev 0 specifics during v1.7 (broad-bucket `REVISION_2_0` + override fall-through cover all observed cases).
