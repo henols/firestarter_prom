@@ -447,21 +447,21 @@ FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter -p /dev/ttyACM0 id W27C512   # exerc
 | 0x01 | MSG_OK_READY | USED | hardware_operations.cpp:42 |
 | 0x02 | MSG_OK_REQ_DATA | USED | eprom_operations.cpp:76 |
 | 0x03 | MSG_OK_FW_VERSION | KEPT | LFW-05 bootstrap exemption (text path, no ID-frame emit) |
-| 0x04 | MSG_OK_REV | USED | hardware_operations.cpp:98 |
-| 0x05 | MSG_OK_CFG | USED | hardware_operations.cpp:120 |
+| 0x04 | MSG_OK_REV | USED | hardware_operations.cpp:97 |
+| 0x05 | MSG_OK_CFG | USED | hardware_operations.cpp:119 |
 | 0x06 | MSG_OK_FW_HANDSHAKE | USED | firestarter.cpp:153 |
-| 0x10 | MSG_INIT_DONE | USED | operation_utils.cpp:254 |
-| 0x20 | MSG_MAIN_DONE | USED | operation_utils.cpp:184 |
-| 0x30 | MSG_END_DONE | USED | operation_utils.cpp:256 |
+| 0x10 | MSG_INIT_DONE | USED | operation_utils.cpp:262 |
+| 0x20 | MSG_MAIN_DONE | USED | operation_utils.cpp:192 |
+| 0x30 | MSG_END_DONE | USED | operation_utils.cpp:264 |
 | 0x40–0x59 | MSG_INFO_* (all 26) | USED | firestarter.cpp, dev_tools.cpp, eprom.cpp, flash_type_{3,4}.cpp |
 | 0x80–0x84 | MSG_WARN_* (all 5) | USED | eprom.cpp, flash_intel.cpp, flash_type_3.cpp, eeprom_28c.cpp |
 | 0xA0–0xBA | MSG_ERR_* (all 27) | USED | firestarter.cpp, hardware_operations.cpp, operation_utils.cpp, eprom_operations.cpp, proms/*.cpp |
-| 0xE0 | MSG_DATA_PROGRESS | USED | memory.cpp:325 |
+| 0xE0 | MSG_DATA_PROGRESS | USED | memory.cpp:397 |
 | 0xE1 | MSG_DATA_VOLTAGE | ORPHAN | DELETED — superseded by 0xE4/0xE5 (VPP/VPE dedicated IDs) |
-| 0xE2 | MSG_DATA_SENDING | USED | eprom_operations.cpp:119 |
+| 0xE2 | MSG_DATA_SENDING | USED | eprom_operations.cpp:114 |
 | 0xE4 | MSG_DATA_VPP_VOLTAGE | USED | hardware_operations.cpp:72 |
 | 0xE5 | MSG_DATA_VPE_VOLTAGE | USED | hardware_operations.cpp:70 |
-| 0xE6 | MSG_DATA_CHUNK | USED | eprom_operations.cpp:120 |
+| 0xE6 | MSG_DATA_CHUNK | USED | eprom_operations.cpp:115 |
 | 0xF0 | MSG_DEBUG | USED | logging_id.h (LOG_DEBUG_ID_SUB* macros) |
 | DBG_0x00–0x28 | All 41 DBG_* entries | USED | Confirmed individual grep for all 41 |
 

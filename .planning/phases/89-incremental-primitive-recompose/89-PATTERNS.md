@@ -79,7 +79,7 @@ No new `-I` line is needed (`-I include` is already present, line 98). No `test_
 The existing `flash_utils.cpp` is the living proof: it sits in `proms/`, is `#include`d by
 `eeprom_28c.cpp`/flash3/flash4, and links cleanly into both AVR and native with zero ini edits.
 
-### Module-comment convention — copy `flash_utils.cpp:8-27` banner style
+### Module-comment convention — copy `flash_utils.cpp:8-28` banner style
 
 `flash_utils.cpp` opens with a block comment naming (a) which handlers/protocols call it, (b)
 what primitives it holds, (c) the safety boundary (`No VPP regulator control lives here`), (d)
@@ -127,7 +127,7 @@ void flash_util_check_chip_id_execute(firestarter_handle_t* handle) {
 | eprom | report tail `eprom.cpp:356-369`; read `eprom_get_chip_id` `eprom.cpp:249-260` | A9-12V: `CTRL_VPP_REGULATOR_ENABLE`+`delay(50)` then `CTRL_VPP_A9_ENABLE`+`delay(100)`, read 0x0000/0x0001, clear |
 | eeprom28c | report tail `eeprom_28c.cpp:100-115`; read `eeprom_28c.cpp:92-99` | A9-12V like eprom, but `mfr_addr = mem_size-64` (NOT 0x0000); **preserve the `mem_size < 64` underflow guard `eeprom_28c.cpp:82-91`** |
 | flash_intel | report tail `flash_intel.cpp:218-231`; read `flash_intel.cpp:214-217` | command-register: `set_data(0,0x90)` autoselect → read → `set_data(0,0xFF)` exit |
-| flash4 | already delegates: `flash_type_4.cpp:143-145` → `flash_util_check_chip_id_execute`; read `flash_utils.cpp:102-108` | AMD unlock: `FLASH_ENABLE_ID`/`FLASH_DISABLE_ID` sequence |
+| flash4 | already delegates: `flash_type_4.cpp:143-145` → `flash_util_check_chip_id_execute`; read `flash_utils.cpp:103-105` | AMD unlock: `FLASH_ENABLE_ID`/`FLASH_DISABLE_ID` sequence |
 
 **The `error_code` param wrinkle (verified — Assumption A3, do NOT collapse without trace check):**
 `eprom_internal_check_chip_id` (`eprom.cpp:353-370`) takes an explicit `uint8_t error_code` and
@@ -277,7 +277,7 @@ drops its internal-linkage copy.
 **Edit 2 — redirect `eeprom_28c.cpp`'s local table to the shared one:**
 - `EEPROM_SDP_DISABLE` (`eeprom_28c.cpp:47-54`) is byte-identical to `FLASH_DISABLE_WRITE_PROTECTION`
   (`flash_utils.h:53-60`) — both the 6-write `…{0x5555,0x80}…{0x5555,0x20}` sequence.
-- Single caller: `eeprom_28c.cpp:130` `flash_execute_command(EEPROM_SDP_DISABLE);`
+- Single caller: `eeprom_28c.cpp:124` `flash_execute_command(EEPROM_SDP_DISABLE);`
 - `eeprom_28c.cpp` already `#include "flash_utils.h"` (the table is in scope). Delete the local
   `EEPROM_SDP_DISABLE`, change line 130 to `flash_execute_command(FLASH_DISABLE_WRITE_PROTECTION);`.
 
@@ -292,7 +292,7 @@ were NOT identical — STOP and inspect. They are identical; expect zero-diff.
 
 ### Error / WARN-vs-ERROR frame idiom (the universal FORCE-downgrade)
 **Source:** `flash_utils.cpp:118-124` (canonical); replicated at `eprom.cpp:362-368`,
-`eeprom_28c.cpp:107-113`, `flash_intel.cpp:224-230`, the two VPP sites, the three poll sites.
+`eeprom_28c.cpp:102-108`, `flash_intel.cpp:224-230`, the two VPP sites, the three poll sites.
 ```cpp
 if (is_flag_set(FLAG_FORCE)) {
     LOG_WARN_ID_BYTES(MSG_WARN_<X>, _b, N);
@@ -308,7 +308,7 @@ site checks `if (handle->response_code == RESPONSE_CODE_ERROR) return;` after th
 (see `eprom.cpp:345-346`, `flash_intel.cpp:136-143`, `eeprom_28c.cpp:123-125`).
 
 ### `_b[]` byte-packing idiom (big-endian, manual)
-**Source:** `flash_utils.cpp:113-117` (the 4-byte chip-id pack). Every frame manually packs
+**Source:** `flash_utils.cpp:107-105` (the 4-byte chip-id pack). Every frame manually packs
 `uint8_t _b[N]` MSB-first inside a local `{ }` block, then one `LOG_*_ID_BYTES(MSG, _b, N)`.
 The exact `_b[]` length AND byte order is part of the golden-trace contract — **never reorder**
 (P5's two poll sites deliberately differ; that difference must be preserved as a parameter).
@@ -320,7 +320,7 @@ WARNING-5 structural guards `using_p1_as_vpp(handle)` (`eprom.cpp:373`) and the 
 keys on `handle->protocol` and `handle` flags only.
 
 ### Register-write convention
-**Source:** `flash_utils.cpp:43-47`, `eprom.cpp` throughout — always
+**Source:** `flash_utils.cpp:44-48`, `eprom.cpp` throughout — always
 `handle->firestarter_set_control_register(handle, <CTRL_* bitmask>, <0|1>)` and
 `handle->firestarter_get_data(handle, addr)` (function-pointer indirection through `handle`,
 never a direct `rurp_*` call inside `proms/` handler logic). Primitives use the same indirection.
@@ -339,7 +339,7 @@ abort-that-primitive-and-continue.
 
 | Primitive | Precedent in tree |
 |-----------|-------------------|
-| `chip_id_report` (P4) | `flash_util_check_chip_id_execute` (`flash_utils.cpp:110`) — already the exact primitive, 4 byte-identical tails |
+| `chip_id_report` (P4) | `flash_util_check_chip_id_execute` (`flash_utils.cpp:107`) — already the exact primitive, 4 byte-identical tails |
 | `vpp_check_window` (P3) | `eprom_check_vpp` body == `flash_intel_check_vpp` body, verbatim |
 | `poll_readback` (P5) | `eeprom28c_wait_for_write` == `flash4_wait_for_page_write` loop (params differ) |
 | P7 tables | `FLASH_ENABLE_WRITE` / `FLASH_DISABLE_WRITE_PROTECTION` already present |
@@ -357,7 +357,7 @@ body is lifted from an existing handler. No RESEARCH.md fallback patterns are ne
 `eeprom_28c.cpp` (40-176), `flash_intel.cpp` (40-232), `flash_type_4.cpp` (110-159), `eprom.h`,
 `platformio.ini` (69-131); grep-verified P7 table callers.
 **Line-number reconciliation vs CONTEXT/RESEARCH:** all verified accurate — `flash_util_check_chip_id_execute`
-at `flash_utils.cpp:110` (report tail 112-125); eprom VPP `262-325`, eprom verify-mask `182-194`,
+at `flash_utils.cpp:107` (report tail 112-125); eprom VPP `262-325`, eprom verify-mask `182-194`,
 eprom chip-id tail `356-369`; eeprom28c SDP table `47-54`, chip-id `77-116`, poll `156-176`;
 flash_intel VPP `52-108`, chip-id `213-232`; flash4 poll `119-141`, P4 delegate `143-145`.
 `FLASH_ENABLE_WRITE_PROTECTION` confirmed callerless (dead); `EEPROM_SDP_DISABLE` one caller (line 130).

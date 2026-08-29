@@ -138,7 +138,7 @@ D-06 — so nothing here can explain or fix `write BAD`.
   "algorithm-controlled" (417 chips) or "decode fault on a 0x07/0x08/0x0B chip". Make that
   `except (TypeError, ValueError)` branch **fatal** — the build fails rather than emitting a wrong
   `0`. Then `0` has exactly one meaning by construction. Wire behaviour is unchanged (the host
-  already sends `0` for algorithm-controlled chips), and `ic_layout.py:608-610` **already** omits
+  already sends `0` for algorithm-controlled chips), and `ic_layout.py:605-607` **already** omits
   the "Pulse delay:" row on `0`, so the display convention is in place today.
   **Rejected:** shipping `0` with the conflation intact (a build emitting a wrong `0` still
   succeeds and the WARN scrolls past in CI); omitting the key for algorithm-controlled chips
@@ -221,7 +221,7 @@ D-06 — so nothing here can explain or fix `write BAD`.
 ### Human output (DATA-02 display side)
 
 - **D-15: The render helper emits byte-identical output to today — `"5.0v"`, `"12.0v"`, `"4.5v"`.**
-  One-decimal, lowercase `v`, exactly as `ic_layout.py:571` produces now from the coerced float.
+  One-decimal, lowercase `v`, exactly as `ic_layout.py:568` produces now from the coerced float.
   `tests/__snapshots__/test_characterization.ambr:432` pins `VCC:  5.0v` / `VPP:  12.0v`, so the
   snapshot diff then changes on **exactly** the AT28C-family lines (`4.0v` → `5.0v`) and that diff
   *is* the proof that the migration changed nothing visible while the rule changed precisely what
@@ -243,7 +243,7 @@ D-06 — so nothing here can explain or fix `write BAD`.
 - **D-16: One shared helper, in `database.py`.** It sits beside the code that owns the millivolt
   convention, in the same file the coercion layer is being deleted from — so `database.py` goes
   from "parses strings into numbers" to "owns the numeric convention and renders it", one clean
-  reversal. Imported by all three call sites: `ic_layout.py:571` (`vcc_str`), `ic_layout.py:597`
+  reversal. Imported by all three call sites: `ic_layout.py:568` (`vcc_str`), `ic_layout.py:597`
   (`vpp_str`), `eprom_info.py:401` (list-view `vpp_str`). One definition, one format, one place to
   change.
   **Rejected:** hosting it in `ic_layout.py` (makes `eprom_info.py` import a formatting concern
@@ -335,7 +335,7 @@ D-06 — so nothing here can explain or fix `write BAD`.
   DO NOT EDIT BY HAND; re-run the tool.
 
 ### Display
-- `firestarter_app/firestarter/ic_layout.py:571` (`vcc_str`), `:590-597` (`vpp_str`, gated on
+- `firestarter_app/firestarter/ic_layout.py:568` (`vcc_str`), `:590-597` (`vpp_str`, gated on
   `vpp_mv > 0` and non-SRAM/FRAM), `:606-610` (pulse row, **already** omitted on 0).
 - `firestarter_app/firestarter/eprom_info.py:248-263` (info card rows), `:395-421` (list view).
 - `firestarter_app/tests/__snapshots__/test_characterization.ambr:432` — the pinned
@@ -359,7 +359,7 @@ D-06 — so nothing here can explain or fix `write BAD`.
 - **`interpret_timing`'s narrowed `except`** (WR-05, Plan 98-03) — already narrowed from a bare
   `except Exception` for exactly the reason D-08 now finishes: an upstream decode fault must be
   visible, not silently shipped as a valid `0 us`.
-- **The pulse-row omission at `ic_layout.py:606-610`** — `0` already means "no fixed programming
+- **The pulse-row omission at `ic_layout.py:603-607`** — `0` already means "no fixed programming
   pulse to report". D-08's sentinel needs no display work.
 
 ### Established Patterns

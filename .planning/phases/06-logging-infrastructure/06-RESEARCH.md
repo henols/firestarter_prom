@@ -132,28 +132,28 @@ Tagged `[OK]`, `[INIT]`, `[MAIN]`, `[END]`, `[INFO]`, `[WARN]`, `[ERROR]`, `[DAT
 | 0x02 | `MSG_OK_REQ_DATA` | OK | `Req data` | `[]` | `eprom_operations.cpp:78` |
 | 0x03 | `MSG_OK_FW_VERSION` | OK | `FW_VERSION` (text literal) | (special — see below) | `hardware_operations.cpp:78` |
 | 0x04 | `MSG_OK_REV` | OK | `Rev%d%s` | `[u8, ascii_str]` (special) | `hardware_operations.cpp:87` |
-| 0x05 | `MSG_OK_CFG` | OK | `R1: %ld, R2: %ld%s` | `[i32, i32, ascii_str]` | `hardware_operations.cpp:98,100` |
+| 0x05 | `MSG_OK_CFG` | OK | `R1: %ld, R2: %ld%s` | `[i32, i32, ascii_str]` | `hardware_operations.cpp:97,99` |
 | 0x06 | `MSG_OK_FW_HANDSHAKE` | OK | `FW: %s, HW: Rev%d, Cmd: 0x%02x` | (special — see below) | `firestarter.cpp:152-156` |
-| 0x10 | `MSG_INIT_DONE` | INIT | `` (empty) | `[]` | `operation_utils.cpp:266` |
-| 0x20 | `MSG_MAIN_DONE` | MAIN | `` (empty) | `[]` | `operation_utils.cpp:189` |
-| 0x30 | `MSG_END_DONE` | END | `` (empty) | `[]` | `operation_utils.cpp:268` |
-| 0x40 | `MSG_INFO_MAIN_START` | INFO | `Main start` | `[]` | `operation_utils.cpp:218` |
-| 0x41 | `MSG_INFO_MAIN_DONE` | INFO | `Main done` | `[]` | `operation_utils.cpp:187` |
-| 0x42 | `MSG_INFO_INIT_START` | INFO | `Init start` | `[]` | `operation_utils.cpp:250` |
-| 0x43 | `MSG_INFO_END_START` | INFO | `End start` | `[]` | `operation_utils.cpp:252` |
-| 0x44 | `MSG_INFO_BUF_VAL` | INFO | `Buf val: 0x%02x` | `[u8]` | `firestarter.cpp:69` |
-| 0x45 | `MSG_INFO_TOKEN_COUNT` | INFO | `Token count: %d` | `[i16]` | `firestarter.cpp:76` |
+| 0x10 | `MSG_INIT_DONE` | INIT | `` (empty) | `[]` | `operation_utils.cpp:274` |
+| 0x20 | `MSG_MAIN_DONE` | MAIN | `` (empty) | `[]` | `operation_utils.cpp:197` |
+| 0x30 | `MSG_END_DONE` | END | `` (empty) | `[]` | `operation_utils.cpp:276` |
+| 0x40 | `MSG_INFO_MAIN_START` | INFO | `Main start` | `[]` | `operation_utils.cpp:226` |
+| 0x41 | `MSG_INFO_MAIN_DONE` | INFO | `Main done` | `[]` | `operation_utils.cpp:195` |
+| 0x42 | `MSG_INFO_INIT_START` | INFO | `Init start` | `[]` | `operation_utils.cpp:258` |
+| 0x43 | `MSG_INFO_END_START` | INFO | `End start` | `[]` | `operation_utils.cpp:260` |
+| 0x44 | `MSG_INFO_BUF_VAL` | INFO | `Buf val: 0x%02x` | `[u8]` | `firestarter.cpp:66` |
+| 0x45 | `MSG_INFO_TOKEN_COUNT` | INFO | `Token count: %d` | `[i16]` | `firestarter.cpp:73` |
 | 0x46 | `MSG_INFO_FLAG_FORCE` | INFO | `Force: %d` | `[u8]` | `firestarter.cpp:93` |
 | 0x47 | `MSG_INFO_FLAG_CAN_ERASE` | INFO | `Can erase: %d` | `[u8]` | `firestarter.cpp:94` |
-| 0x48 | `MSG_INFO_FLAG_SKIP_ERASE` | INFO | `Skip erase: %d` | `[u8]` | `firestarter.cpp:95` |
-| 0x49 | `MSG_INFO_FLAG_SKIP_BLANK` | INFO | `Skip blank check: %d` | `[u8]` | `firestarter.cpp:96` |
-| 0x4A | `MSG_INFO_FLAG_VPE_AS_VPP` | INFO | `VPE as VPP: %d` | `[u8]` | `firestarter.cpp:97` |
-| 0x4B | `MSG_INFO_FLAG_OUTPUT_EN` | INFO | `Output enable: %d` | `[u8]` | `firestarter.cpp:106` |
-| 0x4C | `MSG_INFO_FLAG_CHIP_EN` | INFO | `Chip enable: %d` | `[u8]` | `firestarter.cpp:107` |
-| 0x4D | `MSG_INFO_BUFFER_SIZE` | INFO | `Buffer size: %d` | `[u16]` | `firestarter.cpp:131` |
-| 0x4E | `MSG_INFO_MEM_SIZE` | INFO | `Memory size 0x%lx` | `[u32]` | `firestarter.cpp:146` |
-| 0x4F | `MSG_INFO_ADDR_MASK` | INFO | `Address mask 0x%lx` | `[u32]` | `firestarter.cpp:147` |
-| 0x50 | `MSG_INFO_MATCH_LINES` | INFO | `Matching lines %u` | `[u16]` | `firestarter.cpp:148` |
+| 0x48 | `MSG_INFO_FLAG_SKIP_ERASE` | INFO | `Skip erase: %d` | `[u8]` | `firestarter.cpp:91` |
+| 0x49 | `MSG_INFO_FLAG_SKIP_BLANK` | INFO | `Skip blank check: %d` | `[u8]` | `firestarter.cpp:92` |
+| 0x4A | `MSG_INFO_FLAG_VPE_AS_VPP` | INFO | `VPE as VPP: %d` | `[u8]` | `firestarter.cpp:93` |
+| 0x4B | `MSG_INFO_FLAG_OUTPUT_EN` | INFO | `Output enable: %d` | `[u8]` | `firestarter.cpp:102` |
+| 0x4C | `MSG_INFO_FLAG_CHIP_EN` | INFO | `Chip enable: %d` | `[u8]` | `firestarter.cpp:103` |
+| 0x4D | `MSG_INFO_BUFFER_SIZE` | INFO | `Buffer size: %d` | `[u16]` | `firestarter.cpp:127` |
+| 0x4E | `MSG_INFO_MEM_SIZE` | INFO | `Memory size 0x%lx` | `[u32]` | `firestarter.cpp:142` |
+| 0x4F | `MSG_INFO_ADDR_MASK` | INFO | `Address mask 0x%lx` | `[u32]` | `firestarter.cpp:143` |
+| 0x50 | `MSG_INFO_MATCH_LINES` | INFO | `Matching lines %u` | `[u16]` | `firestarter.cpp:144` |
 | 0x51 | `MSG_INFO_RETRIES` | INFO | `Number of retries: %d` | `[u8]` | `eprom.cpp:170` |
 | 0x52 | `MSG_INFO_REG_HEADER` | INFO | `%s: 0x%02X` | `[ascii_str, u8]` | `dev_tools.cpp:23` |
 | 0x53 | `MSG_INFO_BIT_HEADER` | INFO | `%s\|D7\|D6\|D5\|D4\|D3\|D2\|D1\|D0\|` | `[ascii_str]` | `dev_tools.cpp:26` |
@@ -166,35 +166,35 @@ Tagged `[OK]`, `[INIT]`, `[MAIN]`, `[END]`, `[INFO]`, `[WARN]`, `[ERROR]`, `[DAT
 | 0x80 | `MSG_WARN_REV0_VPP_UNSUPPORTED` | WARN | `Rev0 dont support reading VPP/VPE` | `[]` | `flash_intel.cpp:29`, `eprom.cpp:203` |
 | 0x81 | `MSG_WARN_VPP_LOW` | WARN | `VPP is low: %u.%uV < %u.%uV` | `[u16, u16, u16, u16]` `[ASSUMED]` (four `%u.%u` slots — current code passes 4 args via `_format`) | `flash_intel.cpp:45`, `eprom.cpp:227` |
 | 0x82 | `MSG_WARN_VPP_HIGH` | WARN | `VPP is high: %u.%uV > %u.%uV` | `[u16, u16, u16, u16]` | `flash_intel.cpp:41`, `eprom.cpp:223` |
-| 0x83 | `MSG_WARN_CHIP_ID_MISMATCH` | WARN | `Chip ID %#04x dont match expected ID %#04x` | `[u16, u16]` | `flash_intel.cpp:159`, `flash_type_3.cpp:135`, `eeprom_28c.cpp:75` |
-| 0x84 | `MSG_WARN_MEM_SIZE_TOO_SMALL` | WARN | `mem_size %lu too small for chip-id check` | `[u32]` | `eeprom_28c.cpp:62` |
-| 0xA0 | `MSG_ERR_BAD_JSON` | ERROR | `Bad JSON` | `[]` | `firestarter.cpp:70` |
-| 0xA1 | `MSG_ERR_NO_CMD` | ERROR | `No cmd` | `[]` | `firestarter.cpp:78` |
-| 0xA2 | `MSG_ERR_SETUP` | ERROR | `Setup error` | `[]` | `firestarter.cpp:100` |
-| 0xA3 | `MSG_ERR_PARSE_CFG` | ERROR | `Failed parsing config` | `[]` | `firestarter.cpp:115` |
-| 0xA4 | `MSG_ERR_EMPTY_INPUT` | ERROR | `Empty input` | `[]` | `firestarter.cpp:134` |
-| 0xA5 | `MSG_ERR_NOT_SUPPORTED` | ERROR | `Not supported` | `[]` | `eprom_operations.cpp:40` |
-| 0xA6 | `MSG_ERR_NO_CHIP_ID` | ERROR | `No chip ID` | `[]` | `eprom_operations.cpp:49` |
-| 0xA7 | `MSG_ERR_OUT_OF_RANGE` | ERROR | `Out of range` | `[]` | `eprom_operations.cpp:95` |
-| 0xA8 | `MSG_ERR_TIMEOUT` | ERROR | `Timeout` | `[]` | `operation_utils.cpp:118` |
-| 0xA9 | `MSG_ERR_DATA_ERR_N` | ERROR | `Data err %d` | `[i16]` | `operation_utils.cpp:171` (was `log_error_P_int("Data err ", res)`) |
-| 0xAA | `MSG_ERR_CMD_TIMEOUT` | ERROR | `Cmd: %d, timeout` | `[u8]` | `firestarter.cpp:176` |
-| 0xAB | `MSG_ERR_UNKNOWN_CMD` | ERROR | `Unknown cmd: %d` | `[u8]` | `firestarter.cpp:243` (was `log_error_P_int_buf`) |
+| 0x83 | `MSG_WARN_CHIP_ID_MISMATCH` | WARN | `Chip ID %#04x dont match expected ID %#04x` | `[u16, u16]` | `flash_intel.cpp:159`, `flash_type_3.cpp:135`, `eeprom_28c.cpp:71` |
+| 0x84 | `MSG_WARN_MEM_SIZE_TOO_SMALL` | WARN | `mem_size %lu too small for chip-id check` | `[u32]` | `eeprom_28c.cpp:58` |
+| 0xA0 | `MSG_ERR_BAD_JSON` | ERROR | `Bad JSON` | `[]` | `firestarter.cpp:67` |
+| 0xA1 | `MSG_ERR_NO_CMD` | ERROR | `No cmd` | `[]` | `firestarter.cpp:75` |
+| 0xA2 | `MSG_ERR_SETUP` | ERROR | `Setup error` | `[]` | `firestarter.cpp:96` |
+| 0xA3 | `MSG_ERR_PARSE_CFG` | ERROR | `Failed parsing config` | `[]` | `firestarter.cpp:111` |
+| 0xA4 | `MSG_ERR_EMPTY_INPUT` | ERROR | `Empty input` | `[]` | `firestarter.cpp:130` |
+| 0xA5 | `MSG_ERR_NOT_SUPPORTED` | ERROR | `Not supported` | `[]` | `eprom_operations.cpp:41` |
+| 0xA6 | `MSG_ERR_NO_CHIP_ID` | ERROR | `No chip ID` | `[]` | `eprom_operations.cpp:50` |
+| 0xA7 | `MSG_ERR_OUT_OF_RANGE` | ERROR | `Out of range` | `[]` | `eprom_operations.cpp:91` |
+| 0xA8 | `MSG_ERR_TIMEOUT` | ERROR | `Timeout` | `[]` | `operation_utils.cpp:124` |
+| 0xA9 | `MSG_ERR_DATA_ERR_N` | ERROR | `Data err %d` | `[i16]` | `operation_utils.cpp:179` (was `log_error_P_int("Data err ", res)`) |
+| 0xAA | `MSG_ERR_CMD_TIMEOUT` | ERROR | `Cmd: %d, timeout` | `[u8]` | `firestarter.cpp:171` |
+| 0xAB | `MSG_ERR_UNKNOWN_CMD` | ERROR | `Unknown cmd: %d` | `[u8]` | `firestarter.cpp:238` (was `log_error_P_int_buf`) |
 | 0xAC | `MSG_ERR_REV0_VPP_RD` | ERROR | `Rev0 dont support reading VPP/VPE` | `[]` | `hardware_operations.cpp:20` |
 | 0xAD | `MSG_ERR_CMD` | ERROR | `Error cmd` | `[]` | `hardware_operations.cpp:33` |
 | 0xAE | `MSG_ERR_MEM_TYPE_UNSUPPORTED` | ERROR | `Memory type 0x%02x not supported` | `[u8]` | `memory.cpp:116` |
-| 0xAF | `MSG_ERR_VERIFY` | ERROR | `0x%02x != 0x%02x at 0x%06x` | `[u8, u8, u24]` | `memory.cpp:219` |
-| 0xB0 | `MSG_ERR_NOT_BLANK` | ERROR | `Not blank, at 0x%06x, v: 0x%02x` | `[u24, u8]` | `memory.cpp:287` |
+| 0xAF | `MSG_ERR_VERIFY` | ERROR | `0x%02x != 0x%02x at 0x%06x` | `[u8, u8, u24]` | `memory.cpp:223` |
+| 0xB0 | `MSG_ERR_NOT_BLANK` | ERROR | `Not blank, at 0x%06x, v: 0x%02x` | `[u24, u8]` | `memory.cpp:359` |
 | 0xB1 | `MSG_ERR_WRITE_FAILED` | ERROR | `Failed to write memory, 0x%06x, retries: %d, bad bytes: %d` | `[u24, u8, u16]` | `eprom.cpp:182` |
-| 0xB2 | `MSG_ERR_EEPROM_TIMEOUT` | ERROR | `EEPROM timeout at 0x%06lx: wrote 0x%02x got 0x%02x` | `[u24, u8, u8]` | `eeprom_28c.cpp:126` |
+| 0xB2 | `MSG_ERR_EEPROM_TIMEOUT` | ERROR | `EEPROM timeout at 0x%06lx: wrote 0x%02x got 0x%02x` | `[u24, u8, u8]` | `eeprom_28c.cpp:120` |
 | 0xB3 | `MSG_ERR_FL4_VERIFY_TIMEOUT` | ERROR | `Timeout verifying 0x%02x at 0x%06lx (got 0x%02x)` | `[u8, u24, u8]` | `flash_type_4.cpp:88` |
 | 0xB4 | `MSG_ERR_INTEL_VPP` | ERROR | `Intel flash: VPP error` | `[]` | `flash_intel.cpp:135` |
 | 0xB5 | `MSG_ERR_INTEL_PROGRAM` | ERROR | `Intel flash: program error` | `[]` | `flash_intel.cpp:140` |
 | 0xB6 | `MSG_ERR_INTEL_SR_TIMEOUT` | ERROR | `Intel flash: SR timeout` | `[]` | `flash_intel.cpp:147` |
-| 0xB7 | `MSG_ERR_OP_TIMEOUT` | ERROR | `Operation timed out` | `[]` | `flash_utils.cpp:46` |
-| 0xE0 | `MSG_DATA_PROGRESS` | DATA | `%lu/%lu` | `[u32, u32]` | `memory.cpp:303` |
+| 0xB7 | `MSG_ERR_OP_TIMEOUT` | ERROR | `Operation timed out` | `[]` | `flash_utils.cpp:47` |
+| 0xE0 | `MSG_DATA_PROGRESS` | DATA | `%lu/%lu` | `[u32, u32]` | `memory.cpp:375` |
 | 0xE1 | `MSG_DATA_VOLTAGE` | DATA | `%s: %u.%uV, Internal VCC: %u.%uV` | `[ascii_str, u16, u16, u16, u16]` | `hardware_operations.cpp:65` |
-| 0xE2 | `MSG_DATA_SENDING` | DATA | `Sending data` | `[]` | `eprom_operations.cpp:119` |
+| 0xE2 | `MSG_DATA_SENDING` | DATA | `Sending data` | `[]` | `eprom_operations.cpp:114` |
 
 **Special handling required:**
 
@@ -750,7 +750,7 @@ void rurp_log_id(uint8_t id, const uint8_t* params, uint8_t param_count) {
 }
 ```
 
-For the Leonardo board: the existing `leonardo_rurp_shield.cpp` does NOT override `rurp_log` (it relies on the weak default in `rurp_serial_utils.cpp:115-119`). For symmetry, `rurp_log_id` similarly relies on a **weak default in `rurp_serial_utils.cpp`** that just calls `_firestarter_emit_frame` unconditionally (no `com_mode` gate — Leonardo doesn't switch pins for programming, since it has a separate USB-CDC bridge). The Uno strong override is the one that adds the `com_mode` gate. `[VERIFIED: leonardo board file has no rurp_log() override; it uses the weak default]`
+For the Leonardo board: the existing `leonardo_rurp_shield.cpp` does NOT override `rurp_log` (it relies on the weak default in `rurp_serial_utils.cpp:113-117`). For symmetry, `rurp_log_id` similarly relies on a **weak default in `rurp_serial_utils.cpp`** that just calls `_firestarter_emit_frame` unconditionally (no `com_mode` gate — Leonardo doesn't switch pins for programming, since it has a separate USB-CDC bridge). The Uno strong override is the one that adds the `com_mode` gate. `[VERIFIED: leonardo board file has no rurp_log() override; it uses the weak default]`
 
 ### Convenience Macros (LFW-02)
 
@@ -1387,9 +1387,9 @@ On the Uno, the ATmega328P's `PORTD` pins are the data bus AND the UART pins:
 - `PD1` = UART TX = data bus bit 1
 - `PD2..PD7` = data bus bits 2..7
 
-During programming, the firmware switches `PORTD` to OUTPUT and drives bytes onto the bus. If the UART hardware is enabled while `PORTD` is being driven, the UART TX line emits whatever value PD1 takes; the receiver (host PC) sees this as a serial byte. The existing `rurp_set_programmer_mode()` (uno_rurp_shield.cpp:76-80) disables the UART via `rurp_serial_end()` before flipping PD0 to output, but **transitions** are still observable as fractional bytes if the UART finishes a TX in flight or if the host's USB-CDC bridge is mid-frame.
+During programming, the firmware switches `PORTD` to OUTPUT and drives bytes onto the bus. If the UART hardware is enabled while `PORTD` is being driven, the UART TX line emits whatever value PD1 takes; the receiver (host PC) sees this as a serial byte. The existing `rurp_set_programmer_mode()` (uno_rurp_shield.cpp:73-77) disables the UART via `rurp_serial_end()` before flipping PD0 to output, but **transitions** are still observable as fractional bytes if the UART finishes a TX in flight or if the host's USB-CDC bridge is mid-frame.
 
-Worst-case ghost-byte patterns observed in the firmware's bench logs (from CONTEXT.md and existing comments in `uno_rurp_shield.cpp:50-72`):
+Worst-case ghost-byte patterns observed in the firmware's bench logs (from CONTEXT.md and existing comments in `uno_rurp_shield.cpp:47-69`):
 - Long runs of similar values (e.g., `0xFF` during high-address writes) leaking as `0xFF` bytes.
 - Pattern bytes that match printable ASCII (e.g., `0x4F` = 'O', `0x4B` = 'K') triggering false-positive prefix matches in the OLD text parser (mitigated by rightmost-prefix-wins).
 - Single bytes during the moment of mode-switch transition.
@@ -1539,7 +1539,7 @@ Files that must be created before Phase 6 implementation tasks can run:
 
 **What goes wrong:** The Uno's PORTD pins are dual-purpose. If `rurp_log_id` emits during programming mode (when PORTD is being driven as a data bus), the SERIAL TX pin will collide with PD1 (data bit 1), producing corruption on both the wire AND the chip-write operation.
 
-**Why it happens:** Easy to copy `rurp_log_id` declaration without copying the `com_mode` discipline. The existing `rurp_log` (uno_rurp_shield.cpp:83-88) sets the precedent — new code must mirror it.
+**Why it happens:** Easy to copy `rurp_log_id` declaration without copying the `com_mode` discipline. The existing `rurp_log` (uno_rurp_shield.cpp:80-85) sets the precedent — new code must mirror it.
 
 **How to avoid:** Explicit comment in the Uno strong override (recommended above). Code review checklist item.
 

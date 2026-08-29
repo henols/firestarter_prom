@@ -7,7 +7,7 @@ tags: [record-correction, roadmap, project-md, honesty-ledger]
 # Dependency graph
 requires:
   - phase: 153-write-path-erase-policy
-    provides: the measured firestarter_app/firestarter/database.py:638 exclusion-tuple line and the restored FLAG_CAN_ERASE bit for algorithm 13, which this plan's citations and correction block cite
+    provides: the measured firestarter_app/firestarter/database.py:629 exclusion-tuple line and the restored FLAG_CAN_ERASE bit for algorithm 13, which this plan's citations and correction block cite
 provides:
   - "ROADMAP.md criterion 2 amended (D-05): gh#32 dropped from the OPEN list, pre-amendment wording retained"
   - "ROADMAP.md criterion 5 amended (D-11): pairing clause narrowed to write-path correctness/validation claims, five forbidden classes intact"

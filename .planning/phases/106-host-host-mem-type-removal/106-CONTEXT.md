@@ -73,7 +73,7 @@ canonical `electrical.type` string, phantom/named-infeasibility arms).
   entirely (the `determined_type` derivation block at `database.py:~418–426,445`
   goes away with `_ALGO_MEM_TYPE`). Clean up **every** `.get("type", 0)`
   consumer: `convert_to_programmer` (`database.py:585` — the wire emit),
-  `ic_layout.py:564`, `eprom_info.py:408`. Matches SC#2's "no derived
+  `ic_layout.py:561`, `eprom_info.py:408`. Matches SC#2's "no derived
   `mem_type`" — no vestigial internal field left behind. (Chosen over
   drop-at-wire-only, which would leave the axis lingering internally.)
 

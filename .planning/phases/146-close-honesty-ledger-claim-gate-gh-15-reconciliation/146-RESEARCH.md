@@ -52,7 +52,7 @@ hard sequencing constraints they imply.
   (1) 143 D-01's `ROADMAP.md`/`PROJECT.md` prose — Phase 143 is factually **not** independent of
   Phases 140–142 and **is** dual-repo; (2) the milestone's matching sequencing-spine sentence;
   (3) 141 H3 / milestone C3 — `pulse-delay` is parsed by `extract_long` into an **unclamped**
-  `uint32_t` (`json_parser.c:305`), so an over-ceiling `delayMicroseconds` value is reachable
+  `uint32_t` (`json_parser.c:503`), so an over-ceiling `delayMicroseconds` value is reachable
   **today**, before `--pulse-us` ships; (4) 141 H4 — the honest energy-cap ceiling is exactly **50 ms**
   on every shipped `0x0B` width and **99998 µs** worst case for an arbitrary width, not
   `141-CONTEXT.md` D-01's larger figure; (5) **F-140-05** — `PROJECT.md`'s throughput table implies
@@ -1134,7 +1134,7 @@ statements around it, which are all correct.
 
 ### (3) C3 / 141 H3 — the unclamped `extract_long` — **HOLDS, and is narrower than it reads**
 
-**Site of the mechanism:** `firestarter/src/json_parser.c:305`:
+**Site of the mechanism:** `firestarter/src/json_parser.c:503`:
 ```c
 bool get_delay(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle) {
     extract_long("pulse-delay", handle->pulse_delay);
@@ -1154,15 +1154,15 @@ in the same terms.
 **Two narrowings the correction must carry, both measured this session and neither stated in CONTEXT:**
 
 - **The over-ceiling value is no longer routed through a bare `delayMicroseconds`.** Phase 141 added
-  `mem_util_delay_us` (`firestarter/src/proms/memory.cpp:243-251`, with `MEM_UTIL_DELAY_US_MAX 16383UL`
-  at `:34`), and the program pulse now goes through it: `memory.cpp:337` is
+  `mem_util_delay_us` (`firestarter/src/proms/memory.cpp:315-323`, with `MEM_UTIL_DELAY_US_MAX 16383UL`
+  at `:34`), and the program pulse now goes through it: `memory.cpp:409` is
   `mem_util_delay_us(handle->pulse_delay);`. So the honest statement is *"an arbitrarily large
   `pulse-delay` is accepted from the wire and will be **delivered** as a delay of that length"* —
   **not** *"it will silently truncate"*. The 16-bit truncation hazard C3 describes was real
   pre-Phase-141 and is now mitigated by the split-delay helper.
 - **`0x0B` refuses over-cap pulses; `0x07`/`0x08` do not.** `eprom.cpp:105-110` refuses pre-flight with
   `MSG_ERR_PULSE_TOO_WIDE` — but only `if (energy_cap_us > 0 && handle->pulse_delay > energy_cap_us)`,
-  and `energy_cap_us` ships **`0`** on `0x07` and `0x08` (`eprom_params.cpp:50-52`). So the unbounded
+  and `energy_cap_us` ships **`0`** on `0x07` and `0x08` (`eprom_params.cpp:46-48`). So the unbounded
   path is live on `0x07`/`0x08` only. That is exactly backlog **999.31**'s subject and exactly
   T-145-45's overstatement (145-BENCH-LOG carry-forward row 11).
 
@@ -1175,7 +1175,7 @@ firmware-side refusal is `0x0B`'s, gated on `energy_cap_us > 0`, which is `0` on
 The correct figures: **exactly 50 ms** on every shipped `0x0B` width, and **99998 µs** worst case for an
 arbitrary width. Re-derived from source this session:
 
-- `energy_cap_us = 50000UL` on the `0x0B` row (`eprom_params.cpp:52`), `0UL` on `0x07`/`0x08`.
+- `energy_cap_us = 50000UL` on the `0x0B` row (`eprom_params.cpp:48`), `0UL` on `0x07`/`0x08`.
 - The loop adds *before* testing: `accumulated += org_delay;` then, after a failed verify,
   `if (energy_cap_us && accumulated >= energy_cap_us)` (`eprom.cpp:463, 474`). So the last pulse can
   overshoot the cap by up to `pulse − 1`.
@@ -1205,7 +1205,7 @@ than reproducing the arithmetic.
 | `0x08` | `handle->pulse_delay` | 25 | `3 × N × pulse` | ~0.2 s | ~13 s |
 | `0x0B` | `handle->pulse_delay` | 50 ms energy cap | none | ~0.8 s | ~25.6 s |
 
-**Shipped table, measured** (`firestarter/src/proms/eprom_params.cpp:49-53`, columns per
+**Shipped table, measured** (`firestarter/src/proms/eprom_params.cpp:45-49`, columns per
 `include/eprom_params.h:51-58` — `overprogram_cap_us, energy_cap_us, max_pulses, overprogram_factor,
 verify_mode, vpp_path`):
 
@@ -1297,7 +1297,7 @@ that one was correct when written and is history, not a defect.
 | 1 | 143 D-01 | `ROADMAP.md:380` | holds |
 | 1b | 143 D-01 (`PROJECT.md` half) | **none — no false site exists**; `PROJECT.md:131` / `:1183` carry a true routing note | **does not hold as stated** |
 | 2 | 143 D-01 (spine) | `ROADMAP.md:167` | holds |
-| 3 | C3 / 141 H3 | `PROJECT.md:155` (C3 row); mechanism at `json_parser.c:305` | holds, with two measured narrowings |
+| 3 | C3 / 141 H3 | `PROJECT.md:155` (C3 row); mechanism at `json_parser.c:503` | holds, with two measured narrowings |
 | 4 | 141 H4 | `141-CONTEXT.md` D-01's figure (cite by location) | holds |
 | 5 | F-140-05 | `PROJECT.md:212` **and `:213`** (two rows); `:214` conflates a third cell | holds, **broader than stated** |
 | 6 | F-140-07 | gh#15 comment line 39 (public); `REQUIREMENTS.md:20`; `PROJECT.md:176-181`, `:1187`; `STATE.md:67` | holds; **`doc/PROTOCOLS.md` §1.5 already done** |
@@ -2433,7 +2433,7 @@ explicitly rather than omitted.
 | V2 Authentication | no | no auth surface; `gh` uses the operator's existing credential, unchanged |
 | V3 Session Management | no | none |
 | V4 Access Control | **partially** | the phase's only privileged action is one `gh issue comment` to a public repo. The control is procedural and already designed: a blocking operator authorization gate (D-10), a negative-argv audit forbidding `--label`/`--assignee`/`gh issue close`/`gh issue edit`, and the absence of an allowlist entry for the call. **Do not add one.** Note `git push`, `gh workflow`, `gh release` and `gh run` **are** allowlisted, so D-01's boundary is procedural, not enforced — hence the recommended structural gate |
-| V5 Input Validation | **yes, as a documented finding, not a fix** | `firestarter/src/json_parser.c:305` parses the `pulse-delay` wire field via `extract_long`/`simple_strtoul` into an **unclamped** `uint32_t`. The only firmware-side bound is `0x0B`'s pre-flight `MSG_ERR_PULSE_TOO_WIDE`, gated on `energy_cap_us > 0`, which ships `0` on `0x07`/`0x08`. Host-side `click.IntRange(1, 65535)` is the *only* bound on those two protocols, and it is host-side. **D-06 records this and does not clamp it**; backlog **999.31** owns the decision. The security-relevant framing for the ledger: an unbounded duration on a high-voltage rail is bounded today only by a client-side check |
+| V5 Input Validation | **yes, as a documented finding, not a fix** | `firestarter/src/json_parser.c:503` parses the `pulse-delay` wire field via `extract_long`/`simple_strtoul` into an **unclamped** `uint32_t`. The only firmware-side bound is `0x0B`'s pre-flight `MSG_ERR_PULSE_TOO_WIDE`, gated on `energy_cap_us > 0`, which ships `0` on `0x07`/`0x08`. Host-side `click.IntRange(1, 65535)` is the *only* bound on those two protocols, and it is host-side. **D-06 records this and does not clamp it**; backlog **999.31** owns the decision. The security-relevant framing for the ledger: an unbounded duration on a high-voltage rail is bounded today only by a client-side check |
 | V6 Cryptography | no | no crypto. `sha256sum` and `git hash-object` are used as **integrity oracles** only (freeze verification, archived-file identity), which is the correct use |
 | V7 Error Handling & Logging | **yes, weakly** | both new checkers must fail closed and must never exit 0 on nothing scanned. That is the never-vacuous guard, and it is a security property of a gate: a gate that passes vacuously is worse than no gate because it is believed |
 | V12 Files & Resources | **yes** | the plant-and-revert writes to a **tracked, committed** artifact and must restore it byte-exactly, proven by blob SHA. The fixture suite must write only under its own `fixtures/` or `tmp_path`. Both sub-repo tests already enforce the analogous property (`test_flash_path_record_sync.py:1244-1250` asserts a planted mutation never touched the real record and the repo is clean after) |
@@ -2469,13 +2469,13 @@ is a robustness and hardware-safety issue recorded as such, and this phase neith
   10 whole files
 
 **Shipped source (firmware @ `fa6c9c7`)**
-- `src/proms/eprom_params.cpp:26-62` (the table), `include/eprom_params.h:38-83` (columns, enums, PROGMEM contract)
+- `src/proms/eprom_params.cpp:22-58` (the table), `include/eprom_params.h:38-83` (columns, enums, PROGMEM contract)
 - `src/proms/eprom.cpp` — `:90-110` (the pre-flight refusals), `:247-253` (`eprom_internal_program_pulse`),
   `:284-299` (`eprom_hv_route_mask`), `:400-500` (the per-byte loop, the progress emit, the budget checks)
 - `include/eprom.h:166-167` (`EPROM_VPP_SETUP_US 1000` / `EPROM_VPP_HOLD_US 100`)
-- `src/json_parser.c:272-313` (the `extract_long` macro chain and `get_delay`), `include/firestarter.h:197`
+- `src/json_parser.c:459-497` (the `extract_long` macro chain and `get_delay`), `include/firestarter.h:197`
 - `src/proms/memory.cpp:32-34, 243-251, 337` (`mem_util_delay_us` and the pulse call site)
-- `include/eprom_budget.h:1-40`, `scripts/check_size_baseline.py:21-167, 274-296`
+- `include/eprom_budget.h:1-39`, `scripts/check_size_baseline.py:21-167, 274-296`
 - `platformio.ini` (env list, `default_envs`), `.github/workflows/py32f071.yml:1-60`, `beta-build.yml` (py32 asset steps)
 - `tests/test_flash_path_record_sync.py:252-261, 1244-1250`
 - `CLAUDE.md:57-75, 103-146, 260-282`; `doc/PROTOCOLS.md:1-235, 474`; `README.md:111-116`

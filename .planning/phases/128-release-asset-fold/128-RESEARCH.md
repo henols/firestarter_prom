@@ -620,7 +620,7 @@ rather than a YAML read.** Chain, all read live:
 - `include/version.h:11` → `#define VERSION "3.0.0b14"`.
 - `include/firestarter.h:54` → `#define FW_VERSION VERSION ":" RURP_BOARD_NAME`.
 - `src/firestarter.cpp:151` (`LOG_INFO_ID_ASTR(MSG_INFO_FW, FW_VERSION)`) and
-  `src/hardware_operations.cpp:99` (`SERIAL_PORT.println(FW_VERSION)`) both reference it, and both
+  `src/hardware_operations.cpp:98` (`SERIAL_PORT.println(FW_VERSION)`) both reference it, and both
   files are in the ARM target's `FIRESTARTER_COMMON_SOURCES` (`CMakeLists.txt:36, 38`).
 - `platform/py32f071/CMakeLists.txt:139` sets `RURP_BOARD_NAME="py32f071"`.
 - On ARM, `include/rurp_platform_compat.h:23-32` defines `PROGMEM` as empty and `PSTR(value)` as

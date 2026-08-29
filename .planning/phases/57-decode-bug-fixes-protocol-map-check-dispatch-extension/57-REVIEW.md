@@ -105,11 +105,11 @@ This makes GATE-03 a true superset of WARNING-5 (any vpp-pinout, not just `DIP28
 
 - `database.py:60-61` maps `0x35 → mem_type 5` (comment "FLASH_EEPROM_LIKE") and `0x39 → mem_type 5` (comment "FLASH_INTEL_ALT"). These contradict the corrected upstream identity (`0x35` is an MCU; `0x39` does not exist).
 - `ic_layout.py:228-229` labels `0x35 → "Flash (EEPROM-like)"` and `0x39 → "Flash (Intel-alt)"`.
-- `ic_layout.py:510` includes `0x35, 0x39` in the `can_erase_str = "true (firmware-supported)"` branch.
+- `ic_layout.py:507` includes `0x35, 0x39` in the `can_erase_str = "true (firmware-supported)"` branch.
 
 Since `build_db.py` can no longer emit chips with these algorithms, the entries are dead, but they are actively misleading: a hand-edited `~/.firestarter/database.json` override carrying `algorithm: 53` (0x35) would be silently classified as an erasable flash chip and shown a fabricated "Flash (Intel-alt)" type, when upstream says it is an MCU the firmware cannot drive. The phase claims to canonicalize the protocol map; leaving two of three tables stale defeats the canonicalization.
 
-**Fix:** Remove `0x35` and `0x39` from `database.py:_ALGO_MEM_TYPE`, from `ic_layout.py:get_chip_type_string`'s `proto_display`, and from the `can_erase_str` tuple at `ic_layout.py:510`, mirroring the build_db.py removal. If they must be retained as a defensive fallback for legacy overrides, replace the misleading "Flash" labels with an explicit "Unsupported (upstream MCU / phantom)" string and document why.
+**Fix:** Remove `0x35` and `0x39` from `database.py:_ALGO_MEM_TYPE`, from `ic_layout.py:get_chip_type_string`'s `proto_display`, and from the `can_erase_str` tuple at `ic_layout.py:507`, mirroring the build_db.py removal. If they must be retained as a defensive fallback for legacy overrides, replace the misleading "Flash" labels with an explicit "Unsupported (upstream MCU / phantom)" string and document why.
 
 ### WR-02: build_db.py PROTOCOL_MAP / KNOWN_PROTOCOLS diverge from database.py PROTOCOL_MAP — no single source of truth
 

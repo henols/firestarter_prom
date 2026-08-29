@@ -63,7 +63,7 @@ still names it: a worktree leaves submodules empty and `files_modified` under-de
   loop.** Chosen over a host-only tick and over an INFO-band heartbeat. It is the only option that
   gives a bar reflecting **bytes actually programmed** rather than bytes handed to the firmware, and it
   costs **no new message id** — `0xE0` already exists with `format="%lu/%lu"`, is already emitted by
-  `mem_util_blank_check` (`firestarter/src/proms/memory.cpp:467`), and is already rendered host-side by
+  `mem_util_blank_check` (`firestarter/src/proms/memory.cpp:558`), and is already rendered host-side by
   `_handle_progress_response` → `ClassProgressHandler.set_progress`
   (`firestarter_app/firestarter/eprom_operations.py:492-512`, `:268-277`). **`0xBF` therefore stays
   free** — Phase 142's D-08 left the ERROR band's last slot for this phase (F-141-05, H4) and this
@@ -235,7 +235,7 @@ still names it: a worktree leaves submodules empty and `files_modified` under-de
   hand-rolled check whose guarantee would rest on where it sits in the handler.
   **The bound's provenance, which the record must state:** `1..65535` is **minipro parity** (`-o
   pulse=N` is uint16), **not** the wire type. `pulse-delay` is parsed by `extract_long` into an
-  *unclamped* `uint32_t` (`json_parser.c:305`, hand-off H3) — an over-ceiling value is reachable on the
+  *unclamped* `uint32_t` (`json_parser.c:503`, hand-off H3) — an over-ceiling value is reachable on the
   wire today, before this flag ships. H3 is Phase 146 / CLOSE-04's to reconcile; this phase must not
   imply the bound is a type constraint.
   *Rejected — hand-rolled check with a bespoke message:* more actionable wording, but it re-implements
@@ -471,7 +471,7 @@ a label wrapped across lines cannot be read by that gate either.
 - **`MSG_OK_READY`'s length-discriminated param blob** — `param_bytes=-1` plus two prior extensions
   (CAP-01, CAP-02) decoded by length in one override seam. D-08's budget field is the third, and needs
   **no catalog edit and no codegen**.
-- **`read_settling_us` / `read_strobe_us`** (`eprom_operations.py:765-777`, `cli_handlers.py:1470-1484`)
+- **`read_settling_us` / `read_strobe_us`** (`eprom_operations.py:765-777`, `cli_handlers.py:1468-1482`)
   — a complete, in-tree, shipped example of a per-run µs override riding the DB dict with a shallow copy
   and emit-only-when-non-zero. D-14 copies the shape, not the semantics.
 - **`_boot_block_hint_message`** (`eprom_operations.py:106-135`, wired at `:568-572`) — a working
@@ -519,7 +519,7 @@ a label wrapped across lines cannot be read by that gate either.
   field must do so **inside** the `with`.
 - **The `0xE0` payload contract is shared with blank-check** — D-04 deliberately keeps one meaning for
   the id, which means the host's *write* branch must be the thing that differs, not the frame.
-- **`firestarter/src/eprom_operations.cpp:93`'s comment** ("The host application shows its own progress,
+- **`firestarter/src/eprom_operations.cpp:89`'s comment** ("The host application shows its own progress,
   so we just ask for data") states the assumption D-02 removes; it goes stale in the same change.
 - **`serial_comm.py` is one of the 8 mypy-strict modules** — every new attribute and signature there
   must be annotated to CI-strict standards, and the devcontainer's 3.12 masks the CI 3.11/3.9 result.

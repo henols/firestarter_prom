@@ -95,7 +95,7 @@ Snapshots taken before any edit: `/tmp/gsd-144/REQUIREMENTS.md`, `/tmp/gsd-144/R
 ## Where the Four Mandatory Disclosures Live in `144-TEST-RECORD.md`
 
 - **D-14 (re-anchor disclosure):** `## 4. D-14: The Re-Anchor Disclosure` — line 323. Contains the required verbatim sentence, F-141-01's operator acceptance, and the +204 B parameter-table mechanism.
-- **D-03 (non-claim, overprogram wiring):** `## 6. Non-Claims`, item 1 — line 420. Names `overprogram_factor` = 0 on all three shipped rows at `eprom_params.cpp:50-52`.
+- **D-03 (non-claim, overprogram wiring):** `## 6. Non-Claims`, item 1 — line 420. Names `overprogram_factor` = 0 on all three shipped rows at `eprom_params.cpp:46-48`.
 - **D-08 (gap, un-gated prechange file):** `## 6. Non-Claims`, item 2 — line 429. Names `eprom_v131_expected_prechange.h`, cites the blob, and states "not machine-checked."
 - **D-15 (absence, no CI leg):** `## 6. Non-Claims`, item 3 — line 434. Names all three `*_v131` envs and states they run in no CI leg of either repository.
 

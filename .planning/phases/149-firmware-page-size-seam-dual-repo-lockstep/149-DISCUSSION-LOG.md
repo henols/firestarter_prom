@@ -215,7 +215,7 @@ Neither size script runs in CI.
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Host test scanning `json_parser.c` + inventory entry | Also makes `constants.py:145`'s false sync note true and enforced | ✓ |
+| Host test scanning `json_parser.c` + inventory entry | Also makes `constants.py:144`'s false sync note true and enforced | ✓ |
 | Documented manual check | No new machinery; sync note stays a comment | |
 
 **User's choice:** Host test + `scan_paths.py` inventory entry → **D-18**.

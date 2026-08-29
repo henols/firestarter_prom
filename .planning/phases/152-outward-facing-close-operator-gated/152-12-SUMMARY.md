@@ -28,7 +28,7 @@ key-files:
     - .planning/phases/152-outward-facing-close-operator-gated/152-RELEASE-NOTES-fw.md
 
 key-decisions:
-  - "The plan's Task 1 acceptance criterion named `firestarter/main.py` as the file to grep for the new `lock-status` reachability count. Read live: `firestarter/main.py` is a thin entry-point re-export stub (its own docstring: 'Entry-point stub for the firestarter console script... Re-exports Click's cli as main', Phase 41 D-08/D-16) that wires zero commands by design. The command is actually registered at `firestarter/cli_handlers.py:1791` (`@dev.command(name=\"lock-status\")`). Re-pointed the check at the correct file (Rule 3 — the criterion's underlying intent, confirming the command is reachable on the published branch, is what was verified; the named file was simply wrong) and recorded both the original zero-count reading and the corrected nonzero reading below."
+  - "The plan's Task 1 acceptance criterion named `firestarter/main.py` as the file to grep for the new `lock-status` reachability count. Read live: `firestarter/main.py` is a thin entry-point re-export stub (its own docstring: 'Entry-point stub for the firestarter console script... Re-exports Click's cli as main', Phase 41 D-08/D-16) that wires zero commands by design. The command is actually registered at `firestarter/cli_handlers.py:1788` (`@dev.command(name=\"lock-status\")`). Re-pointed the check at the correct file (Rule 3 — the criterion's underlying intent, confirming the command is reachable on the published branch, is what was verified; the named file was simply wrong) and recorded both the original zero-count reading and the corrected nonzero reading below."
   - "The app release-note draft's opening version-read paragraph, as first substituted, produced a git diff of +19/-15 lines against the +14/-15 the plan's acceptance criterion (added+deleted <= 30) permits. Rewritten once, more densely (wider lines, fewer wraps, no loss of required content), to +14/-15 -- still stating the tag, the read command, the timestamp, the workflow, the merge commit, the target commit, the PR number, the direct registry confirmation, the measured stable-channel state, and the sibling repository's version-independence note."
 
 requirements-completed: [OUT-04]
@@ -189,7 +189,7 @@ $ git -C /workspaces/firestarter_app show origin/beta:firestarter/cli_handlers.p
 Re-pointed at the correct file per Rule 3 (the acceptance criterion's underlying intent — confirm
 the new protection-read command is reachable on the published branch — is what this verifies; the
 plan named the wrong file). The corrected count is `9` (≥ 1), and `dev.command(name="lock-status")`
-at `cli_handlers.py:1791` confirms the command is registered and reachable on `origin/beta` today.
+at `cli_handlers.py:1788` confirms the command is registered and reachable on `origin/beta` today.
 
 All four pieces of announced work are confirmed present on the published branch by direct read, not
 by inference.

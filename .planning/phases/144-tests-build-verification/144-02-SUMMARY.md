@@ -235,7 +235,7 @@ bare_index_over_3 (host): []
 
 Quoted verbatim from `test_cap03_ack_layout_parity.py`'s module docstring:
 
-> Honest non-claim (F-10) -- read this before treating a GREEN run as more than it is: this gate proves the two sides agree on LAYOUT, not on BOUNDS. The firmware clamps `_vlen` (the version-string length) to `<= 32` and sizes `_ready[4 + 32 + 2]` accordingly (src/firestarter.cpp:192-194); the host's `_decode_id_frame` applies NO upper bound of its own on `params_bytes[3]` and relies only on the runtime guard `ver_end <= len(params_bytes)` (serial_comm.py:411). That asymmetry is safe, not a defect -- the firmware-side clamp is what keeps the wire bounded, and the host-side guard degrades a truncated tail to "no identity" rather than a partial string -- but it means this module's GREEN must never be read as "the host independently proves the 32-byte ceiling too". It does not, and is not designed to.
+> Honest non-claim (F-10) -- read this before treating a GREEN run as more than it is: this gate proves the two sides agree on LAYOUT, not on BOUNDS. The firmware clamps `_vlen` (the version-string length) to `<= 32` and sizes `_ready[4 + 32 + 2]` accordingly (src/firestarter.cpp:187-189); the host's `_decode_id_frame` applies NO upper bound of its own on `params_bytes[3]` and relies only on the runtime guard `ver_end <= len(params_bytes)` (serial_comm.py:411). That asymmetry is safe, not a defect -- the firmware-side clamp is what keeps the wire bounded, and the host-side guard degrades a truncated tail to "no identity" rather than a partial string -- but it means this module's GREEN must never be read as "the host independently proves the 32-byte ceiling too". It does not, and is not designed to.
 
 ---
 *Phase: 144-tests-build-verification*

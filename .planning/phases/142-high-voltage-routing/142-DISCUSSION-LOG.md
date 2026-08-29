@@ -122,7 +122,7 @@ escape it. "Both" was declined as a second mechanism for no additional guarantee
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| No — control-register only | vpp_line is set on reads too (memory.cpp:346 ignores read_write); clearing it would be a read-path change the milestone excluded | ✓ |
+| No — control-register only | vpp_line is set on reads too (memory.cpp:418 ignores read_write); clearing it would be a read-path change the milestone excluded | ✓ |
 | Yes — include it | Clear it on write-path exit for fuller de-energisation | |
 
 **User's choice:** No — control-register only, recorded as a named non-claim.

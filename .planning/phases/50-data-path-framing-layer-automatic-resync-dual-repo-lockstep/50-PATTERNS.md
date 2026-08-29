@@ -246,12 +246,12 @@ def send_bytes(self, data_bytes: bytes) -> int:
 ## Shared Patterns
 
 ### CRC8-CCITT (reused UNCHANGED, both repos — D-05 / CRC-01)
-**Source (fw):** `firestarter/src/boards/rurp_serial_utils.cpp:109-131` (`CRC8_TABLE` PROGMEM + `crc8_ccitt(crc, b)` accessor).
+**Source (fw):** `firestarter/src/boards/rurp_serial_utils.cpp:107-128` (`CRC8_TABLE` PROGMEM + `crc8_ccitt(crc, b)` accessor).
 **Source (host):** `firestarter_app/firestarter/frame_parser.py:28-55` (`_build_crc8_table` + `_crc8_ccitt`).
 **Apply to:** every framed payload, both encode and decode, both repos. Poly 0x07, seed 0x00, no reflection, no final XOR — byte-compatible; do NOT introduce a new CRC routine. Pinned by `test_crc_polynomial_smoke` (fw, test_rurp_log_id.cpp:185-201) and the host `test_decoder.py`/`_ref_crc8_ccitt`.
 
 ### Single-byte writes + `.flush()` at end (firmware serial discipline)
-**Source:** `_firestarter_emit_frame` (`rurp_serial_utils.cpp:138-184`).
+**Source:** `_firestarter_emit_frame` (`rurp_serial_utils.cpp:135-181`).
 **Apply to:** the rewritten `rurp_communication_write` COBS encoder — same cadence (running CRC, per-byte `SERIAL_PORT.write`, terminate, `flush`).
 
 ### Atomic-write mandate (host)
@@ -263,7 +263,7 @@ def send_bytes(self, data_bytes: bytes) -> int:
 **Apply to:** fw `rurp_communication_read_data` (consume up to AND including next `0x00` before returning `res < 0`) and host `cobs_decode` callers (raise, advance past next `0x00`). Bounded to one frame.
 
 ### Marker-dispatched MAIN-state loop (preserved — D-04)
-**Source:** `operation_utils.cpp:128-178` (`op_get_message`); the `default:` consume-one-byte arm (172-174) is the marker-corruption self-heal.
+**Source:** `operation_utils.cpp:134-186` (`op_get_message`); the `default:` consume-one-byte arm (172-174) is the marker-corruption self-heal.
 **Apply to:** keep unchanged; only the post-`#` payload framing changes.
 
 ## No Analog Found

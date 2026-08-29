@@ -112,7 +112,7 @@ grep -rniE "has no erase|no erase operation|cannot be erased|can.?t be erased|er
 Two hits, both already known and both re-examined directly against their current source, not assumed
 from either party's prior characterization:
 
-1. `firestarter_app/firestarter/cli_handlers.py:802` — reads, in full context: "Phase 153 correction
+1. `firestarter_app/firestarter/cli_handlers.py:800` — reads, in full context: "Phase 153 correction
    (RESEARCH C-8, now inverted): this arm's message used to justify itself by claiming the 28C family
    'has no erase operation at all'. That clause is now **FALSE**..." This is a past-tense correction
    comment explicitly retracting the old claim, not a present-tense assertion of it. **Agreed: not a
@@ -146,7 +146,7 @@ user/operator-facing false claim.
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
 | 1 | The pre-write blank check is gone on both `0x0D` and `0x05`, the `0x05` site located (not assumed) | ✓ VERIFIED | Unchanged from first pass — re-confirmed `eeprom_28c.cpp` and `flash_5v_page.cpp` sites, native tests still green. |
-| 2 | `erase` is a real standalone step on `0x0D`: `CMD_ERASE` dispatches, `FLAG_CAN_ERASE` restored for algorithm 13 (exclusion tuple `(5,)`) | ✓ VERIFIED | Unchanged — `database.py:638` exclusion tuple re-confirmed, native/host tests unaffected by the doc-only fix. |
+| 2 | `erase` is a real standalone step on `0x0D`: `CMD_ERASE` dispatches, `FLAG_CAN_ERASE` restored for algorithm 13 (exclusion tuple `(5,)`) | ✓ VERIFIED | Unchanged — `database.py:629` exclusion tuple re-confirmed, native/host tests unaffected by the doc-only fix. |
 | 3 | GATE-03 funded honestly: mechanism correction recorded, `check_dispatch.py` byte-unchanged, real control built/reachable/discriminating | ✓ VERIFIED | Re-ran `check_erase_no_vpp.py` and `check_dispatch.py` live in this pass — both still exit 0, unaffected by the doc fix. |
 | 4 | `blank` remains available as its own step (non-regression) | ✓ VERIFIED | Unchanged. |
 | 5 | `info`'s "can be erased" row agrees with the wire flag | ✓ VERIFIED | Unchanged — `ic_layout.py` still has zero commits from this phase. |

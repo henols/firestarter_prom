@@ -48,7 +48,7 @@ parity tests green (SAFE-03).
   provably idle during the X88C64 write window. We do **not** pursue speculative
   creative multiplexing of a busy line. **Scout pre-finding:** the 8-bit control
   register is fully allocated and bit `0x100` needs a 16-bit port the ATmega
-  lacks ([rurp_pinout.h:71-129](../../../firestarter/include/rurp_pinout.h#L71-L129))
+  lacks ([rurp_pinout.h:71-128](../../../firestarter/include/rurp_pinout.h#L71-L129))
   → PCB-block deferral is the expected landing.
 - **D-03 (deferral deliverable):** On PCB-block, deliver **(a)** the A6 verdict
   recorded in `X88C64-FEASIBILITY.md` with the concrete trace evidence, **and
@@ -137,7 +137,7 @@ parity tests green (SAFE-03).
 - Devcontainer Python 3.12 masks CI (py3.9/3.11) — validate `ruff check` + `ruff format --check` against the target before claiming host CI green.
 
 ### Integration Points
-- **The A6 blocker:** RURP control register is **8 bits, fully allocated** ([rurp_pinout.h:71-129](../../../firestarter/include/rurp_pinout.h#L71-L129)); address latches strobe via dedicated LSB/MSB/CONTROL pins (`rurp_shield.h:53-56`), not a free GPIO. No ALE strobe exists today → the trace (D-01) is expected to land on PCB-block (D-02).
+- **The A6 blocker:** RURP control register is **8 bits, fully allocated** ([rurp_pinout.h:71-128](../../../firestarter/include/rurp_pinout.h#L71-L129)); address latches strobe via dedicated LSB/MSB/CONTROL pins (`rurp_shield.h:53-56`), not a free GPIO. No ALE strobe exists today → the trace (D-01) is expected to land on PCB-block (D-02).
 - Handler-write branch chain (if A6 feasible): `chip_database.json` (0x34 entry) → host wire-config (pinout, A7) → firmware `configure_memory` 0x34 arm → `configure_x88c64` ALE/WR/RD sequence → I/O6 poll. Graduation flip + `resolve_chip` refusal removal held until bench SHA-match (D-04/D-05).
 </code_context>
 

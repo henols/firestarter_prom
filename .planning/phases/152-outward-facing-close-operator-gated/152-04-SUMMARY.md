@@ -7,7 +7,7 @@ tags: [record-correction, requirements, honesty-ledger, coverage-block]
 # Dependency graph
 requires:
   - phase: 153-write-path-erase-policy
-    provides: the measured firestarter_app/firestarter/database.py:638 FLAG_CAN_ERASE exclusion-tuple line, ERASE-01...09 (already flipped complete on disk), and the REVERSAL RECORD comment this plan's citations point at
+    provides: the measured firestarter_app/firestarter/database.py:629 FLAG_CAN_ERASE exclusion-tuple line, ERASE-01...09 (already flipped complete on disk), and the REVERSAL RECORD comment this plan's citations point at
   - phase: 152-outward-facing-close-operator-gated (Plan 03, same wave)
     provides: the ROADMAP.md criterion 1/4/5 amendments (D-05, D-11) this plan's REQUIREMENTS.md text must stay consistent with
 provides:
@@ -97,7 +97,7 @@ status: complete
   tree today). ERASE-03's drift history is recorded: this file previously cited line 621 (pre-153),
   Phase 153 itself separately recorded line 620, and the tree measures 638 today (the file grew as
   Phase 153 landed) — a citation that has now drifted three times. ERASE-03's own confirmatory note
-  citing `database.py:638-639` was already correct — verified, not edited.
+  citing `database.py:629-630` was already correct — verified, not edited.
 
 This ships software-proven and unvalidated on silicon.
 

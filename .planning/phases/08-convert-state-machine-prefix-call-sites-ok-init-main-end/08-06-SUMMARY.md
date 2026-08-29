@@ -92,7 +92,7 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-1. **eprom.cpp:169 was a 4th clear site** — the PLAN.md body listed 3 clear sites but the CONTEXT.md R-01 section had already listed 4 (firestarter.cpp:67/168, operation_utils.cpp:292, eprom.cpp:169). The pre-deletion gate confirmed it was a clear-only site (not a populate-site), so it was deleted alongside the others.
+1. **eprom.cpp:169 was a 4th clear site** — the PLAN.md body listed 3 clear sites but the CONTEXT.md R-01 section had already listed 4 (firestarter.cpp:64/168, operation_utils.cpp:300, eprom.cpp:169). The pre-deletion gate confirmed it was a clear-only site (not a populate-site), so it was deleted alongside the others.
 
 2. **logging.h macro definitions left intact** — Macros like `log_info_format`, `log_data_format`, `send_ack_format`, `firestarter_set_response`, `format_P_int`, `format_P_char` all reference `handle->response_msg` in their bodies. These are dead code (zero call-sites in `src/`) and builds are clean because macros are only compiled when instantiated. Phase 9 (LFW-03/04) deletes the entire legacy logging.h macro tower.
 

@@ -117,8 +117,8 @@ Three legs are **green on arrival** and prove nothing until seen RED. Transcript
 | That the drop resistor produces ~13 V | No native suite reads an ADC; `rurp_read_voltage_mv` is a mock |
 | **Any** timing change | `delay()`/`delayMicroseconds()` are unstubbed ArduinoFake free functions; the recorder stores arguments only. A trace diff proves *which* delay was requested, never how long anything took |
 | Physical de-assertion where the mapper aliases two logical bits | C-4 (Rev 2-class `CTRL_ADDRESS_LINE_18` ≡ `CTRL_VPP_P1_ENABLE` ≡ physical `0x08`) and the Rev 0/1 drop↔A16 case. The composite's guarantee is **logical**, not physical |
-| The address-bus `vpp_line` bit is cleared on write-path exit | D-11 — `memory.cpp:346-348` ignores `read_write`; clearing it would change the read path. Cleared only by `command_done()` |
-| That `command_done()` runs on the real AVR abort path | The timeout arm (`firestarter.cpp:174-176`) depends on `millis()`, outside every native suite's reach |
+| The address-bus `vpp_line` bit is cleared on write-path exit | D-11 — `memory.cpp:418-420` ignores `read_write`; clearing it would change the read path. Cleared only by `command_done()` |
+| That `command_done()` runs on the real AVR abort path | The timeout arm (`firestarter.cpp:169-171`) depends on `millis()`, outside every native suite's reach |
 | D-03's non-claim discipline is gate-enforced | **It is not.** CLOSE-01's `check_permitted_claims.py` is Phase 146's (L-12); prose-enforced only this phase |
 
 ---

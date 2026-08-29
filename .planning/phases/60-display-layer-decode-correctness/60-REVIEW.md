@@ -45,7 +45,7 @@ touched (this is display-layer only).
 
 ### WR-01: Every SRAM now displays a spurious `VPP: 12.0v` row
 
-**File:** `firestarter_app/firestarter/ic_layout.py:536-538`
+**File:** `firestarter_app/firestarter/ic_layout.py:533-535`
 **Issue:** The VPP gate was changed from `flags & 0x08` (always 0 → never shown) to
 `eprom_data.get("vpp_mv", 0) > 0`. All 76 SRAM chips in the packaged
 `chip_database.json` carry `vpp_mv=12000` (an upstream infoic.xml voltage-field
@@ -122,7 +122,7 @@ misleads future maintainers.
 
 ### IN-03: `etype == "EEPROM" or etype == "Flash/EEPROM"` reads less clearly than membership test
 
-**File:** `firestarter_app/firestarter/ic_layout.py:530`
+**File:** `firestarter_app/firestarter/ic_layout.py:527`
 **Issue:** Style only (ruff does not flag it). A membership test is more idiomatic and
 matches the analogous condition in `database.py:432`
 (`electrical.get("type") in ("EEPROM", "Flash/EEPROM")`).

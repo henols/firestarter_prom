@@ -120,7 +120,7 @@ Four bench legs, **asymmetric**. Chip handling is operator-only; driving the por
 
 | Leg | Behavior | Part | Req | Why Manual | Instructions |
 |-----|----------|------|-----|------------|--------------|
-| **A** | Product-ID mode entry/exit works — a genuine positive control on `AA/55/90` → read → `AA/55/F0` | `W29C020` | LOCK-02 | Needs silicon | **Available today, zero new code.** `firestarter id W29C020` must return **`0xDA45`** via `CMD_CHECK_CHIP_ID` → `flash_5v_page.cpp:54-57` → `flash_utils.cpp:81-86`. Not gated by D-03, D-06 or D-07. |
+| **A** | Product-ID mode entry/exit works — a genuine positive control on `AA/55/90` → read → `AA/55/F0` | `W29C020` | LOCK-02 | Needs silicon | **Available today, zero new code.** `firestarter id W29C020` must return **`0xDA45`** via `CMD_CHECK_CHIP_ID` → `flash_5v_page.cpp:54-57` → `flash_utils.cpp:82-87`. Not gated by D-03, D-06 or D-07. |
 | **B** | The `0x05` status read on the documented-readable part | `W29C020` | LOCK-02 | Needs silicon | `dev lock-status W29C020 --force`. `--force` is required **even on the operator's own part** — `W29C022` is undocumented, so D-06's unanimity refuses the entry regardless. A **PROBE**. Record the raw result either way. |
 | **C** | The original D-03 leg | `W29C040` | LOCK-03 | Needs silicon | Same `--force` path. A **PROBE**, explicitly capped by D-03. |
 | **D** | The `0x06` Autoselect read | — | LOCK-02 | **No bench leg exists** | Not run. `lock-status` on a `0x06` part ships **software-proven and unrun on silicon** and must say so in those words. |

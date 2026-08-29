@@ -224,7 +224,7 @@ Boundaries the planner must honor, all measured:
 
 **⚠ Pitfall 2 is load-bearing and re-confirmed by measurement.** `results` is returned by reference; a
 `results.append(...)` in the `finally` **is** visible to the caller. The consumer chain is real:
-`cli_handlers.py:2164` `results = run_plan(plan, app.eprom_operator, app.db, sampler=sampler)` and
+`cli_handlers.py:2161` `results = run_plan(plan, app.eprom_operator, app.db, sampler=sampler)` and
 `:2166` `report.banner = count_applicable(plan, results)`, plus `report.results` `:2165`,
 `build_db_diff` `:2178`, the markdown table `:2200`, `dedup_fingerprint`, and
 `sys.exit(max(...))` `:2217-2219` — seven surfaces. **The drain must not append into `results`.**

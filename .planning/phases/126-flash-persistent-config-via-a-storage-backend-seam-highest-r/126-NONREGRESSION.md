@@ -418,13 +418,13 @@ RESEARCH.md's mislabeled seven** — re-grepped by line in this session (§3, F1
 | Site | Line read |
 |---|---|
 | `src/firestarter.cpp:40` | `rurp_load_config();` |
-| `src/firestarter.cpp:103` | `rurp_configuration_t* config = rurp_get_config();` |
-| `src/firestarter.cpp:109` | `rurp_save_config(config);` |
+| `src/firestarter.cpp:99` | `rurp_configuration_t* config = rurp_get_config();` |
+| `src/firestarter.cpp:105` | `rurp_save_config(config);` |
 | `src/boards/rurp_common.cpp:53` | `rurp_configuration_t* rurp_config = rurp_get_config();` |
 | `include/rurp_hw_rev_utils.h:95` | `if (revision == REVISION_UNKNOWN && rurp_get_config()->hardware_revision == 0xFF) {` |
 | `include/rurp_hw_rev_utils.h:101` | `rurp_configuration_t* rurp_config = rurp_get_config();` |
-| `src/hardware_operations.cpp:107` | `rurp_configuration_t* rurp_config = rurp_get_config();` |
-| `src/hardware_operations.cpp:119` | `rurp_configuration_t* rurp_config = rurp_get_config();` |
+| `src/hardware_operations.cpp:106` | `rurp_configuration_t* rurp_config = rurp_get_config();` |
+| `src/hardware_operations.cpp:118` | `rurp_configuration_t* rurp_config = rurp_get_config();` |
 | `platform/py32f071/src/py32f071_rurp_shield.cpp:297` | `const rurp_configuration_t *const configuration = rurp_get_config();` |
 
 All nine call sites read only from the four public functions above the seam — no consumer was touched

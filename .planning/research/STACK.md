@@ -430,7 +430,7 @@ tuple** — that is patterns A and B, already), `_diff_offsets` (`:93`), `Finger
 
 **⚠ `dedup_fingerprint` changes for all 43 ALLOW chips — and the design note says the opposite.**
 The note claims the new ops are picked up "without learning a new field", which is true of the
-*schema*. But `dedup_fingerprint` (`diagnostic_report.py:186`, verified) hashes
+*schema*. But `dedup_fingerprint` (`diagnostic_report.py:183`, verified) hashes
 `f"{op}={verdict}:{cls}"` **per step, in order**. Adding four steps to a chip's plan therefore
 **changes that chip's fingerprint value**. Consequence: `tools/parse_devtest_issue.py::count_agreeing`
 groups *saved* report bodies by the already-embedded fingerprint and never re-hashes, so every
@@ -533,7 +533,7 @@ Needed on top of `channel.py`: **(1)** a command-level registration gate (§4b);
 `dev`-group analogue of `_reject_py32_only_option`'s *single shared refusal path* for anything that
 must refuse rather than vanish; **(3)** a reworded `dev` group docstring — it currently reads
 *"Debug command for development purposes. USR button will break command and return."*
-(`cli_handlers.py:1174-1177`), which actively warns off the stable users `dev read` + `dev test`
+(`cli_handlers.py:1172-1175`), which actively warns off the stable users `dev read` + `dev test`
 are being kept for.
 
 **The test template is committed and its rationale is already written down.**
@@ -553,7 +553,7 @@ one of the 69 mypy errors (`"Command" has no attribute "commands"`, fixed by
 Also carried forward from the gating note and **still live**: R3, the editable-install trap —
 `dev reg 0 0 0x86 -f` is the held-erase-rail DMM proxy and is load-bearing bench tooling; a
 source-checkout override must be designed **up front**. `fw --pre` / `--stable` already exist
-(`cli_handlers.py:956` / `:969`) so no new firmware-channel flag is needed, and
+(`cli_handlers.py:954` / `:969`) so no new firmware-channel flag is needed, and
 `FIRMWARE_VERSION_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+((b|rc)[0-9]+)?\Z")`
 (`firmware.py:52`) needs no widening as long as no `+dev` local-version segment is introduced.
 
@@ -587,8 +587,8 @@ it are also stale.
 
 | Claim | Source | Live | Status |
 |---|---|---|---|
-| `dev_sdp` at `cli_handlers.py:2098-2230` | note §7, PROJECT.md:51 | decorator **2196**, `def dev_sdp` **2213**, block ends **2321** (EOF) | **STALE** — off by ~98; the real block is **2196-2321** |
-| `dev_test(app, chip)` at `cli_handlers.py:1961` | note §4, PROJECT.md:106 | `@dev.command(name="test")` **2055**, `def dev_test` **2059** | **STALE**, actual 2059 |
+| `dev_sdp` at `cli_handlers.py:2095-2227` | note §7, PROJECT.md:51 | decorator **2196**, `def dev_sdp` **2213**, block ends **2321** (EOF) | **STALE** — off by ~98; the real block is **2196-2321** |
+| `dev_test(app, chip)` at `cli_handlers.py:1958` | note §4, PROJECT.md:106 | `@dev.command(name="test")` **2055**, `def dev_test` **2059** | **STALE**, actual 2059 |
 | `sdp_capability` at `sdp_capability.py:266` | note §4, PROJECT.md:60 | `def sdp_capability` **272** (266 is inside the preceding helper) | **STALE** by 6 |
 | `eprom_operations.py:1736 sdp_unlock` | note §7 | `def sdp_unlock` **1736** | **VERIFIED** |
 | `eprom_operations.py:1784 sdp_lock` | note §7 | `def sdp_lock` **1784** | **VERIFIED** |
@@ -597,9 +597,9 @@ it are also stale.
 | host-side auto-unlock at `eprom_operations.py:1637` | note §2 | 1637 is a comment; the live gate is `if is_protocol_0x0d and (operation_flags & FLAG_SKIP_SDP_UNLOCK)` at **1654** | **PARTIALLY STALE** |
 | `chip_test.py:289-295` op vocabulary | note §7 | `OP_ID` **289** … `OP_ERASE` **295** | **VERIFIED** |
 | `chip_test.py:636 _DESTRUCTIVE_OPS` | note §7 | **636** | **VERIFIED** |
-| `diagnostic_report.py:186 dedup_fingerprint` | (§3d) | **186** | **VERIFIED** |
+| `diagnostic_report.py:183 dedup_fingerprint` | (§3d) | **186** | **VERIFIED** |
 | `channel.py` `BETA_ONLY_BOARDS` | scope item 5 | **33** | **VERIFIED** |
-| `dev` group at `cli_handlers.py:962`, docstring `:965` | gating note | `def dev()` **1173**, docstring **1174-1177** | **STALE** |
+| `dev` group at `cli_handlers.py:960`, docstring `:965` | gating note | `def dev()` **1173**, docstring **1174-1177** | **STALE** |
 | "**eight** dev subcommands" | gating note | **nine** (`sdp` added after the note) → back to eight after v1.30 | **STALE** |
 | `fw --pre` `cli_handlers.py:797`, `--stable` `:810` | gating note | **956** / **969** | **STALE** |
 | `firmware.py:47` version regex | gating note | `FIRMWARE_VERSION_RE` **52** (47 is its comment) | **STALE** by 5 |

@@ -718,7 +718,7 @@ Options:
 
 `--skip-sdp-unlock` confirmed at `cli_handlers.py:509-510`, threaded through
 `eprom_operations.py:180/208/1612/1657`. `dev test` confirmed to take **zero options**
-(`cli_handlers.py:1958-1967`: *"Takes ZERO options -- CHIP is the only argument (D-05, Phase 121)"*).
+(`cli_handlers.py:1955-1964`: *"Takes ZERO options -- CHIP is the only argument (D-05, Phase 121)"*).
 **[VERIFIED: executed / source]**
 
 > The help text's own *"a successful run means only that the command sequence was **emitted**,
@@ -745,7 +745,7 @@ F-118-01 separately measured **572 µs** on the Leonardo — a 4 µs difference 
 same emitter and board class. Cite one, note the other; do not average them.
 
 **Timing — page-load per-byte worst interval vs the 100 µs datasheet maximum**
-(`AT28C_TBLC_MAX_US`, `eeprom_28c.cpp:58`; `119-MEASUREMENT.md:420-433`): Uno **84 µs** (84 %),
+(`AT28C_TBLC_MAX_US`, `eeprom_28c.cpp:54`; `119-MEASUREMENT.md:420-433`): Uno **84 µs** (84 %),
 Leonardo **88 µs** (88 %). D-16 explicitly declined a runtime budget check on this path — these are
 context, **not a gate**.
 

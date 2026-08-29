@@ -67,7 +67,7 @@ Three warnings cover the deprecated `utcnow()`, a silent recording-buffer overfl
 
 ### CR-01: `dev validate-family` oracle always yields PASS — readback SHA is never compared to source SHA
 
-**File:** `firestarter_app/firestarter/cli_handlers.py:1558-1564`
+**File:** `firestarter_app/firestarter/cli_handlers.py:1556-1562`
 
 **Issue:** When `write_cycle_eprom` returns 0 (hardware path), the code computes
 `evidence_sha = sha256(source_image)` and then calls `_classify_sha_result(evidence_sha, evidence_sha, board)`.
@@ -132,7 +132,7 @@ Option B makes the host mirror truthful at the cost of also adding them to KNOWN
 
 ### WR-01: `datetime.utcnow()` is deprecated
 
-**File:** `firestarter_app/firestarter/cli_handlers.py:1358`
+**File:** `firestarter_app/firestarter/cli_handlers.py:1356`
 
 **Issue:** `datetime.datetime.utcnow()` is deprecated since Python 3.12 and scheduled for removal. In Python 3.12+ it emits a `DeprecationWarning`.
 
@@ -233,7 +233,7 @@ No chip in the current database uses these protocols. Including them in the spec
 
 ### IN-03: `_EVIDENCE_SHA_SOFTWARE_SENTINEL` constant is defined but unused
 
-**File:** `firestarter_app/firestarter/cli_handlers.py:1263-1265`
+**File:** `firestarter_app/firestarter/cli_handlers.py:1261-1263`
 
 **Issue:** The constant `_EVIDENCE_SHA_SOFTWARE_SENTINEL` is computed at module level:
 

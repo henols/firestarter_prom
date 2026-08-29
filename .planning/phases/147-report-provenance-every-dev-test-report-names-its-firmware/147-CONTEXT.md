@@ -10,7 +10,7 @@ A `dev test` report identifies the firmware and board that produced it, so any c
 report — this milestone's own included — can be attributed to a firmware version before any
 write-path claim is made about it.
 
-**In scope:** replacing `cli_handlers.py:2503`'s hardcoded `fw_board_identity=None` with a real,
+**In scope:** replacing `cli_handlers.py:2500`'s hardcoded `fw_board_identity=None` with a real,
 prerelease-preserving identity captured inside the SAFE-02 orchestrator contract; an explicit
 unknown rendering in the human-readable surfaces; a bumped-but-backward-compatible report schema
 version; and the identity surfaced in the `[dev test]` issue parser(s). Host-only + the
@@ -46,7 +46,7 @@ be phrased as closing gh#21/#32/#11/#12.
   command shares and touches `eprom_operations.py`).
 
 - **D-02: Widen the existing method's return — do not add a near-duplicate sibling.** It has exactly
-  **one** production call site (`cli_handlers.py:2504`); the churn is test mocks, not production
+  **one** production call site (`cli_handlers.py:2501`); the churn is test mocks, not production
   code. One method, one handshake, no duplication.
 
 - **D-03: Rename it and return a NamedTuple.** e.g.
@@ -71,7 +71,7 @@ be phrased as closing gh#21/#32/#11/#12.
   `comm.firmware_identity` (`serial_comm.py:412`) holds the raw, untruncated
   `"<version>:<board>"` string decoded from the CAP-02 ack tail. Firmware side confirms:
   `FW_VERSION = VERSION ":" RURP_BOARD_NAME` with `VERSION "3.0.0b18"`
-  (`firestarter/include/version.h:11`, `firestarter/src/firestarter.cpp:209-227`, 32-char cap).
+  (`firestarter/include/version.h:11`, `firestarter/src/firestarter.cpp:204-222`, 32-char cap).
   So the recorded string preserves `b19` **for free**. The version-capture path is GATE-1.8d
   ring-fenced and pinned by `test_fwguard.py` + `test_fw_version_guard.py`; editing it buys this
   phase nothing and risks refusing boards.
@@ -114,7 +114,7 @@ be phrased as closing gh#21/#32/#11/#12.
 - **D-10: The fenced JSON keeps `null`; the marker lives in the human surfaces.** Typed absence lets
   machine consumers test `is None`, and PROV-04's "old reports carry `null` and still parse" story
   stays **one** case instead of two. The explicit marker appears in the `rich` table
-  (`diagnostic_report.py:518`) and the triage render. **PROV-05's "both report outputs" wording is
+  (`diagnostic_report.py:512`) and the triage render. **PROV-05's "both report outputs" wording is
   tightened in the same hand-edit pass as D-06** — as written it reads as requiring a sentinel in
   the JSON.
 
@@ -185,7 +185,7 @@ be phrased as closing gh#21/#32/#11/#12.
 - Exact `ProgrammerIdentity` NamedTuple name and field order (fields must be named — D-03).
 - Exact phrasing of the not-attributable clause (D-14/D-17), subject to the claim gate.
 - Where the capture sits relative to `run_plan`: **keep it where it is today** (before the plan
-  runs, `cli_handlers.py:2504`) unless research finds a reason to move it.
+  runs, `cli_handlers.py:2501`) unless research finds a reason to move it.
 
 </decisions>
 
@@ -196,7 +196,7 @@ be phrased as closing gh#21/#32/#11/#12.
 
 ### Milestone charter & requirements (binding)
 - `.planning/PROJECT.md` §"Current Milestone: v1.32" — D-01…D-04, the Evidence Ceiling, the
-  finding that opens the milestone (`cli_handlers.py:2503`), workstream table.
+  finding that opens the milestone (`cli_handlers.py:2500`), workstream table.
 - `.planning/REQUIREMENTS.md` §"Report Provenance (PROV)" — PROV-01…PROV-06. **PROV-03 and PROV-05
   are hand-corrected by this phase per D-06/D-10.**
 - `.planning/ROADMAP.md` §"v1.32 — AT28C Write-Path Root Cause & Report Provenance" — sequencing
@@ -206,7 +206,7 @@ be phrased as closing gh#21/#32/#11/#12.
   *unblocks diagnosis of* but does **not** retire.
 
 ### The defect and its call site
-- `firestarter_app/firestarter/cli_handlers.py:2494-2507` — the `AutoCapture(...)` construction with
+- `firestarter_app/firestarter/cli_handlers.py:2491-2504` — the `AutoCapture(...)` construction with
   the hardcoded `fw_board_identity=None` and its honest explanatory comment (which D-01 supersedes).
 - `firestarter_app/firestarter/hardware.py:115-148` — `read_hardware_revision_value()`, the
   SAFE-02-clean single-read precedent this phase widens (D-02/D-03).
@@ -219,7 +219,7 @@ be phrased as closing gh#21/#32/#11/#12.
   defensive.
 - `firestarter/include/version.h:11` and `firestarter/include/firestarter.h:54` — `VERSION
   "3.0.0b18"`, `FW_VERSION = VERSION ":" RURP_BOARD_NAME`.
-- `firestarter/src/firestarter.cpp:165-230` — the CAP-02 identity-tail emit and its 32-char cap.
+- `firestarter/src/firestarter.cpp:161-225` — the CAP-02 identity-tail emit and its 32-char cap.
   **Read-only for this phase — Phase 147 changes no firmware.**
 
 ### Report model & rendering
@@ -291,9 +291,9 @@ be phrased as closing gh#21/#32/#11/#12.
   re-baselining needed.
 
 ### Integration Points
-- `cli_handlers.py:2504` — the single production call site; becomes the NamedTuple unpack.
-- `diagnostic_report.py:408` (`to_dict`) — key already present, value becomes populated (D-09).
-- `diagnostic_report.py:518-519` — the two rich-table rows D-12 fixes.
+- `cli_handlers.py:2501` — the single production call site; becomes the NamedTuple unpack.
+- `diagnostic_report.py:402` (`to_dict`) — key already present, value becomes populated (D-09).
+- `diagnostic_report.py:512-513` — the two rich-table rows D-12 fixes.
 - `tools/parse_devtest_issue.py::render_diff` and
   `.claude/skills/devtest-triage/scripts/devtest_issues.py::show` — D-14/D-15/D-16/D-17.
 
@@ -320,7 +320,7 @@ be phrased as closing gh#21/#32/#11/#12.
   distinguished from a board lacking the entire Phase-117–120 `0x0D` fix stack (FIX-01 `/WE`-inhibit
   routing, FIX-03 A16–A18 staleness, FIX-06 the completion-vs-data-landed conflation that is gh#11's
   actual shape). Keep that framing in the test names and the not-attributable wording.
-- The honest comment currently at `cli_handlers.py:2494-2499` should be **replaced, not deleted** —
+- The honest comment currently at `cli_handlers.py:2491-2496` should be **replaced, not deleted** —
   it correctly states why `EpromOperator.comm` cannot serve, and the replacement should say why the
   hw-revision connection can.
 

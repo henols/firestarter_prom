@@ -45,8 +45,8 @@
 
 **Two call shapes exist side by side in the tree. FIX-01 replaces the first with the second.**
 
-**Shape A — the SHIPPED path (what is there now).** `eeprom_28c.cpp:109`, expanding through
-`flash_utils.h:15-16` into `flash_utils.cpp:20-27`:
+**Shape A — the SHIPPED path (what is there now).** `eeprom_28c.cpp:104`, expanding through
+`flash_utils.h:15-16` into `flash_utils.cpp:21-28`:
 
 ```cpp
 // flash_utils.h:15-16 — the macro; note it captures `handle` from the caller's scope
@@ -55,7 +55,7 @@
 ```
 
 ```cpp
-// flash_utils.cpp:20-27 — READ-ONLY ANALOG (FIX-04 frozen). The loop body FIX-01's
+// flash_utils.cpp:21-28 — READ-ONLY ANALOG (FIX-04 frozen). The loop body FIX-01's
 // replacement is shaped against.
 void flash_util_byte_flipping(firestarter_handle_t* handle, const byte_flip_t* byte_flips, size_t size) {
     handle->firestarter_set_control_register(handle, CTRL_READ_WRITE, 0);
@@ -67,7 +67,7 @@ void flash_util_byte_flipping(firestarter_handle_t* handle, const byte_flip_t* b
 ```
 
 ```cpp
-// flash_utils.cpp:52-66 — READ-ONLY ANALOG (FIX-04 frozen). :53 is D-12's parity argument
+// flash_utils.cpp:53-67 — READ-ONLY ANALOG (FIX-04 frozen). :53 is D-12's parity argument
 // (the shipped path DID set data direction). :61-66 is the bypass: LSB/MSB only, never
 // CONTROL_REGISTER, never handle->bus_config.
 void fu_flash_flip_data(firestarter_handle_t* handle, uint32_t address, uint8_t data) {
@@ -104,7 +104,7 @@ for (size_t i = 0; i < len; i++) {
 }
 ```
 
-**What `handle->firestarter_set_data` resolves to** — `memory.cpp:224-234`
+**What `handle->firestarter_set_data` resolves to** — `memory.cpp:228-306`
 (READ-ONLY ANALOG). Note: routes through `mem_util_remap_address_bus`, writes CONTROL via
 `firestarter_set_address`, and **never calls `rurp_set_data_output()`** (D-12's finding):
 
@@ -122,7 +122,7 @@ void memory_set_data(firestarter_handle_t* handle, uint32_t address, uint8_t dat
 }
 ```
 
-**The remap `fu_flash_fast_address` skips** — `memory.cpp:259-282` (READ-ONLY ANALOG), abridged to
+**The remap `fu_flash_fast_address` skips** — `memory.cpp:331-354` (READ-ONLY ANALOG), abridged to
 the two clauses that matter for the `0x5555`/`0x2AAA` loads:
 
 ```cpp
@@ -149,7 +149,7 @@ const byte_flip_t EEPROM_SDP_DISABLE[] = {
 };
 ```
 
-**Existing `rurp_set_data_output()` call sites** (D-12's explicit call) — `flash_utils.cpp:53` and
+**Existing `rurp_set_data_output()` call sites** (D-12's explicit call) — `flash_utils.cpp:54` and
 `:40`, plus the incidental restoration inside `rurp_register_utils.h:77-81` (Uno/328PB-only
 `MOST_SIGNIFICANT_BYTE` branch). Declared in `host_stubs_common.inc:176` as a no-op, so it is
 **invisible to the strobe recorder** — consistent with D-12's "no `SDP_FIXED_*` regeneration".
@@ -247,7 +247,7 @@ names worked examples and the original bug. D-13 rejects the *helper*, not the *
 
 ### 3. `eeprom_28c.cpp` — FIX-06: the in-tree page-write + poll template
 
-**`flash_5v_page.cpp:80-107` — READ-ONLY ANALOG (FIX-04 frozen). CONTEXT.md names this the single
+**`flash_5v_page.cpp:79-106` — READ-ONLY ANALOG (FIX-04 frozen). CONTEXT.md names this the single
 most important FIX-06 analog. Copy the shape; do not refactor into shared code.**
 
 ```cpp
@@ -279,7 +279,7 @@ void flash_5v_page_write_execute(firestarter_handle_t* handle) {
 }
 ```
 
-Its poll — `flash_5v_page.cpp:109-131` (READ-ONLY ANALOG). **Note this is the *same*
+Its poll — `flash_5v_page.cpp:108-130` (READ-ONLY ANALOG). **Note this is the *same*
 equality-compare shape as `eeprom28c_wait_for_write`**, i.e. the analog supplies the loop/timeout/
 error-payload skeleton and the per-page gating, **not** the DQ7-complement semantics D-07 requires:
 
@@ -306,7 +306,7 @@ static bool flash_5v_page_wait_for_page_write(firestarter_handle_t* handle, uint
 }
 ```
 
-**The only DQ7-mask poll that exists in the tree** — `flash_utils.cpp:29-50` (READ-ONLY ANALOG,
+**The only DQ7-mask poll that exists in the tree** — `flash_utils.cpp:30-51` (READ-ONLY ANALOG,
 FIX-04 frozen). This is the DQ7-bit-compare *idiom* (`(x & 0x80) == (expected & 0x80)`, read twice
 to confirm) the planner may reference for FIX-06's completion arm:
 
@@ -330,7 +330,7 @@ void flash_util_verify_operation(firestarter_handle_t* handle, uint8_t expected_
 }
 ```
 
-**Why D-06 forbids this poll's *transport*** — `flash_utils.cpp:68-76` (READ-ONLY ANALOG). It emits
+**Why D-06 forbids this poll's *transport*** — `flash_utils.cpp:69-77` (READ-ONLY ANALOG). It emits
 four `rurp_*` strobes per read, **all of them recorded** by
 `host_stubs_common.inc:125-130` (`rurp_set_control_pin` → `STROBE_KIND_PIN`). Using it in the
 completion path would inject entries into the stream cases 1-5 compare for full equality:
@@ -352,7 +352,7 @@ By contrast a read through `handle->firestarter_get_data` in a test is *mocked* 
 all 2000 poll iterations. That asymmetry is the whole mechanism behind D-06's hard constraint.
 
 **Contrast reference for D-05 (poll must never write `response_code`)** — the closest in-tree
-severity-preserving fork is `flash_utils.cpp:97-103` / `eeprom_28c.cpp:86-92`
+severity-preserving fork is `flash_utils.cpp:98-104` / `eeprom_28c.cpp:86-92`
 (`is_flag_set(FLAG_FORCE)` → WARNING else ERROR). D-05 rejects even that arm for the poll; the
 pattern is cited here only so the planner can point at what "writing response_code" looks like and
 assert its **absence**.
@@ -723,9 +723,9 @@ D-12's named Phase-118 hook and should not be re-scoped by this phase.
 
 | Concern | Role | Data flow | Why no analog |
 |---|---|---|---|
-| DQ7-**complement** completion poll (D-07) | handler-local poll | request-response | The tree has DQ7-**mask-equality** polling (`flash_utils.cpp:37-39`) and last-byte-equality polling (`flash_5v_page.cpp:114-116`, `eeprom_28c.cpp:140`), but **no complement-compare** anywhere. `flash_5v_page.cpp` supplies the skeleton; the complement semantics have no in-tree precedent. |
-| A named `t_WC`-style timing constant (D-04/D-06) | handler constant | n/a | Timing bounds are inline magic numbers today (`2000` iterations × `delayMicroseconds(10)` at `eeprom_28c.cpp:137-138`; `1024` at `flash_5v_page.cpp:112`; `millis() + 150` at `flash_utils.cpp:33`). The named-constant convention Phase 118 OBS-03 will cite (`AT28C_TBLC_MAX_US = 100`) does not exist yet — this phase's constant is its first instance. |
-| Per-byte read-back with failing-address attribution (D-07/D-08) | handler-local verify | batch verify | Closest is `memory_verify_execute` (`memory.cpp:236-256`), which does per-byte compare + `MSG_ERR_VERIFY` with `{expected, observed, addr[3]}` — but it is a **whole-operation MAIN handler**, not an in-page read-back. Payload shape is copyable; placement is not. |
+| DQ7-**complement** completion poll (D-07) | handler-local poll | request-response | The tree has DQ7-**mask-equality** polling (`flash_utils.cpp:38-40`) and last-byte-equality polling (`flash_5v_page.cpp:113-115`, `eeprom_28c.cpp:134`), but **no complement-compare** anywhere. `flash_5v_page.cpp` supplies the skeleton; the complement semantics have no in-tree precedent. |
+| A named `t_WC`-style timing constant (D-04/D-06) | handler constant | n/a | Timing bounds are inline magic numbers today (`2000` iterations × `delayMicroseconds(10)` at `eeprom_28c.cpp:131-132`; `1024` at `flash_5v_page.cpp:111`; `millis() + 150` at `flash_utils.cpp:34`). The named-constant convention Phase 118 OBS-03 will cite (`AT28C_TBLC_MAX_US = 100`) does not exist yet — this phase's constant is its first instance. |
+| Per-byte read-back with failing-address attribution (D-07/D-08) | handler-local verify | batch verify | Closest is `memory_verify_execute` (`memory.cpp:308-328`), which does per-byte compare + `MSG_ERR_VERIFY` with `{expected, observed, addr[3]}` — but it is a **whole-operation MAIN handler**, not an in-page read-back. Payload shape is copyable; placement is not. |
 | A `handle->firestarter_get_data`-only poll asserted to emit zero strobes | native test | trace assertion | Today the zero-strobe property is a *by-product* of the mock, asserted only indirectly via `strobe_overflowed() == 0` and full-stream equality. No case asserts the completion path's strobe contribution directly. |
 
 ---

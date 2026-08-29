@@ -93,7 +93,7 @@ The operator explicitly skipped these gray areas during discussion. The research
 - **Param shape representation + per-param render hints** — LHOST-02 requires that `[u24]` renders as `0x{:06X}`, so render rules must live somewhere. Two options: (a) shape carries types only, render rules derived from a per-type default table (`u24 → hex6`, `u16 → dec`, `i32 → signed-dec`); (b) shape entries carry an explicit `render` field (`{type: u24, render: hex_addr}`). Researcher should pick the smallest schema that covers the existing 66 unique log strings in `firestarter/src/`.
 - **Codegen language + invocation** — Python script in `tools/` is the obvious default given existing `tools/build_db.py` precedent in `firestarter_app/`. Planner should confirm and pin the exact invocation path used by both sub-repo CIs.
 - **`MSG_PARAM_COUNT(id)` implementation** — generated header could expose this as a `constexpr` lookup, a `switch`-based inline, or a PROGMEM table. Researcher picks the smallest-flash option for AVR.
-- **`rurp_log_id` integration with `com_mode` + `SERIAL_DEBUG`** — the existing `rurp_log` honors a `com_mode` gate (boards/uno_rurp_shield.cpp:85) and duplicates output through `log_debug()` when `SERIAL_DEBUG` is set. The new helper should preserve both behaviors; the planner should mirror them in the new code path.
+- **`rurp_log_id` integration with `com_mode` + `SERIAL_DEBUG`** — the existing `rurp_log` honors a `com_mode` gate (boards/uno_rurp_shield.cpp:82) and duplicates output through `log_debug()` when `SERIAL_DEBUG` is set. The new helper should preserve both behaviors; the planner should mirror them in the new code path.
 
 </decisions>
 
@@ -110,10 +110,10 @@ The operator explicitly skipped these gray areas during discussion. The research
 
 ### Existing firmware logging surface (the thing being rebuilt around, not yet removed)
 - `firestarter/include/logging.h` — full macro tower (`log_info_const`, `log_info_format`, `log_warn`, `log_warn_format`, `log_error_const`, `log_error_format`, `log_data_const`, `send_ack_const`, `send_ack_format`, plus `send_main_done`/`send_init_done`/`send_end_done`). The new `LOG_*` macros wrapping `rurp_log_id` need to be no more verbose than these — see LFW-02.
-- `firestarter/include/rurp_shield.h:132-133` — `rurp_log(PGM_P type, const char* msg)` + `rurp_log_P(PGM_P type, PGM_P msg)` declarations. The new `rurp_log_id` lives alongside these in the same header.
+- `firestarter/include/rurp_shield.h:127-128` — `rurp_log(PGM_P type, const char* msg)` + `rurp_log_P(PGM_P type, PGM_P msg)` declarations. The new `rurp_log_id` lives alongside these in the same header.
 - `firestarter/src/logging.c` — `LOG_OK_MSG`, `LOG_INIT_DONE_MSG`, `LOG_MAIN_DONE_MSG`, `LOG_END_DONE_MSG`, `LOG_INFO_MSG`, `LOG_DATA_MSG`, `LOG_WARN_MSG`, `LOG_ERROR_MSG` PROGMEM strings. **Not deleted in Phase 6** — these stay until Phase 9.
-- `firestarter/src/boards/uno_rurp_shield.cpp:83-100` — current `rurp_log` / `rurp_log_P` Uno implementation (with `com_mode` gate and `SERIAL_DEBUG` duplication). The new `rurp_log_id` should mirror both behaviors.
-- `firestarter/src/boards/rurp_serial_utils.cpp:14-28` — `_firestarter_log_ram` / `_firestarter_log_progmem` — the actual `SERIAL_PORT.print(...).println(...).flush()` site for text frames. The new binary frame emitter is a sibling helper at this layer.
+- `firestarter/src/boards/uno_rurp_shield.cpp:80-97` — current `rurp_log` / `rurp_log_P` Uno implementation (with `com_mode` gate and `SERIAL_DEBUG` duplication). The new `rurp_log_id` should mirror both behaviors.
+- `firestarter/src/boards/rurp_serial_utils.cpp:11-25` — `_firestarter_log_ram` / `_firestarter_log_progmem` — the actual `SERIAL_PORT.print(...).println(...).flush()` site for text frames. The new binary frame emitter is a sibling helper at this layer.
 - `firestarter/src/firestarter.cpp:152-155` — `PARSE_RESPONSE` macro for the `OK: FW: ...` bootstrap; this single string stays text-formatted by design (LFW-05) so the host can read the version before loading the catalog.
 
 ### Existing host parser (the thing the new decoder slots into)
@@ -144,8 +144,8 @@ The operator explicitly skipped these gray areas during discussion. The research
 
 ### Reusable Assets
 - **`rurp_log` / `rurp_log_P` core path** (boards/rurp_serial_utils.cpp) — the new `rurp_log_id` is a sibling at the same layer. Reuse `SERIAL_PORT.write(uint8_t)` for binary bytes (not `print` which formats as ASCII).
-- **`com_mode` gating** (uno_rurp_shield.cpp:85) — must be preserved: `rurp_log_id` is a no-op when `com_mode == false` (i.e., when the serial pins are repurposed as bus lines during programming).
-- **`SERIAL_DEBUG` duplication path** (uno_rurp_shield.cpp:93-96) — when set, current `rurp_log_P` also routes through `log_debug(type, msg)`. The new helper can either render the same way for debug duplication, or output a hex-dump form — researcher picks.
+- **`com_mode` gating** (uno_rurp_shield.cpp:82) — must be preserved: `rurp_log_id` is a no-op when `com_mode == false` (i.e., when the serial pins are repurposed as bus lines during programming).
+- **`SERIAL_DEBUG` duplication path** (uno_rurp_shield.cpp:90-93) — when set, current `rurp_log_P` also routes through `log_debug(type, msg)`. The new helper can either render the same way for debug duplication, or output a hex-dump form — researcher picks.
 - **Host rightmost-prefix discipline** (serial_comm.py:176-188) — already designed against ghost bytes for text; the binary path inherits the same defensive posture via 4-byte magic.
 - **Native test harness** (test/native/avr/test_dispatch/) — template for the codegen-side header-link tests.
 - **`tools/build_db.py` in `firestarter_app/`** — precedent for a Python-based codegen tool living in the sub-repo's `tools/` directory. Codegen for messages may follow the same pattern.

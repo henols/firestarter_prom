@@ -536,7 +536,7 @@ measure it, per "assert counts, never 'tests pass'".
 
 `src/firestarter.cpp:40` (`rurp_load_config()`), `:103` (`rurp_get_config()`), `:109`
 (`rurp_save_config(config)`); `src/boards/rurp_common.cpp:53`; `include/rurp_hw_rev_utils.h:95,101`;
-`src/hardware_operations.cpp:107,119`; `platform/py32f071/src/py32f071_rurp_shield.cpp:297`. Every one
+`src/hardware_operations.cpp:106,118`; `platform/py32f071/src/py32f071_rurp_shield.cpp:297`. Every one
 sits **above** the seam and calls only the four public functions. The split is invisible to all of
 them — which is the structural argument that CFG-04's "byte-identical behaviour" is achievable, and
 the reason no golden trace can move.
@@ -587,7 +587,7 @@ the reason no golden trace can move.
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | HAL `HAL_FLASH_Program` | Direct `FLASH->CR` register sequence | **Rejected** — skips `__HAL_FLASH_TIMMING_SEQUENCE_CONFIG()`; RM §4.2.3.6 says the operation *"will fail"* (C-4). Would pass review and fail on silicon |
-| Bitwise CRC-32 (`0xEDB88320`) | 256-entry table | Locked as Discretion: ~1 KiB of flash for an operation that runs at boot and on rare writes. Also: reusing `rurp_serial_utils.cpp:381`'s CRC8-CCITT `PROGMEM` table is wrong — it is CRC8 and AVR-shaped |
+| Bitwise CRC-32 (`0xEDB88320`) | 256-entry table | Locked as Discretion: ~1 KiB of flash for an operation that runs at boot and on rare writes. Also: reusing `rurp_serial_utils.cpp:378`'s CRC8-CCITT `PROGMEM` table is wrong — it is CRC8 and AVR-shaped |
 | Two 256 B config pages (512 B reservation) | One whole 8 KiB sector (C-5) | Sector-aligned costs 7680 B of slack but is immune to a sector-granular DFU erase; the 512 B form leaves a stated hazard instead of removing one |
 | Single-page slot, commit = program completion (C-2) | Two-page slot with a separate commit page | Two pages keeps D-16's literal wording but adds a "body valid / commit torn" failure mode CRC already covers |
 | `pytest` + `g++` in `tests/` | New PIO `test/native/` Unity suite | **Rejected by D-01** — would move the pinned 141/17 counts inside the phase whose premise is that nothing else moved |
@@ -628,13 +628,13 @@ size figure) and does not belong in this phase.
 ```
                     ┌──────────────────────────────────────────────┐
    command layer    │ firestarter.cpp:40 rurp_load_config()        │
-   (7 call sites,   │ firestarter.cpp:103/109 get/save             │
-    C-14, unchanged)│ hardware_operations.cpp:107/119              │
+   (7 call sites,   │ firestarter.cpp:99/109 get/save             │
+    C-14, unchanged)│ hardware_operations.cpp:106/119              │
                     │ rurp_hw_rev_utils.h:95/101 (header-inlined)  │
                     │ rurp_common.cpp:53  py32..shield.cpp:297     │
                     └───────────────────────┬──────────────────────┘
                                             │  4 public fns, extern "C" (C-11)
-                                            │  declared rurp_shield.h:61,150-152  (NOT TOUCHED, D-09)
+                                            │  declared rurp_shield.h:61,145-152  (NOT TOUCHED, D-09)
                     ┌───────────────────────▼──────────────────────┐
    COMMON POLICY    │  src/rurp_config_utils.cpp        (CFG-03)   │
    one policy,      │  rurp_config global · get · load · save      │
@@ -889,7 +889,7 @@ git diff --stat -- tests/test_config_storage_eeprom_regression.py
 | Non-overlap of app `.text` and config | A comment, or a convention, or `-D` addresses from CMake | A second `MEMORY` region + `PROVIDE` symbols in the `.ld` (D-11) | The linker enforces it structurally; the first violation of a convention is a corrupted config at runtime on silicon nobody can debug |
 | Whole-page staging | Writing the record struct directly | An explicit `uint32_t page[64]` | The HAL reads 64 words regardless of your object's size (C-2) |
 | A fake EEPROM for the host test | Depending on `.pio/libdeps/…/EEPROM.h` | A hand-written shim beside the test | The libdeps path is a gitignored build artifact — a fail-open dependency (C-12) |
-| A CRC32 | Adapting `rurp_serial_utils.cpp:381` | A fresh bitwise reflected CRC-32 in the HAL-free core | That accessor is **CRC8**-CCITT and `PROGMEM`/AVR-shaped. Wrong algorithm and wrong platform |
+| A CRC32 | Adapting `rurp_serial_utils.cpp:378` | A fresh bitwise reflected CRC-32 in the HAL-free core | That accessor is **CRC8**-CCITT and `PROGMEM`/AVR-shaped. Wrong algorithm and wrong platform |
 | Confidence that the CRC is right | Asserting the module against itself | The KAT `CRC32("123456789") == 0xCBF43926` (D-05) | An implementation asserted against itself proves nothing (the HOST-06 discipline) |
 | AVR size judgement | Eyeballing build output | `scripts/check_size_baseline.py` (armed, strict equality) | Already built; this phase reads figures, it does not build a comparator |
 

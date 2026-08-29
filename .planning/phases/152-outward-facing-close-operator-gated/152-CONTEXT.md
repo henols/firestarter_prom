@@ -92,7 +92,7 @@ dependence — the rule stays load-bearing and must be restated in every posting
 
   **Why this was forced, and it is the load-bearing measurement of this whole phase:** `origin/beta` —
   the commit that cut `3.0.0b22`, i.e. what `pip install --pre` gives a reporter **today** — still
-  carries `fw_board_identity=None` hardcoded at `cli_handlers.py:2517`. The provenance fix exists only
+  carries `fw_board_identity=None` hardcoded at `cli_handlers.py:2514`. The provenance fix exists only
   on the unmerged milestone branch (**67** app commits ahead of `origin/beta`; `vcc_mv` and
   `lock-status` both absent from beta). So criterion 2's request for a fresh run *"stated as answerable
   because the report now identifies its firmware"* would have been **false in every published version**.
@@ -163,7 +163,7 @@ dependence — the rule stays load-bearing and must be restated in every posting
 
   | surface | says | origin |
   |---|---|---|
-  | `firestarter info AT28C256` | "Can be erased: **yes** (electrically erasable)" | `firestarter_app/firestarter/ic_layout.py:582` — keys on `electrical.type` only |
+  | `firestarter info AT28C256` | "Can be erased: **yes** (electrically erasable)" | `firestarter_app/firestarter/ic_layout.py:579` — keys on `electrical.type` only |
   | wire `flags` | **`0`** — `FLAG_CAN_ERASE` clear | `firestarter_app/firestarter/database.py:621` — excludes `algo ∈ {5, 13}` |
   | `firestarter erase AT28C256` | `MSG_ERR_NOT_SUPPORTED` | firmware `configure_eeprom28c` has no erase op |
 
@@ -187,11 +187,11 @@ dependence — the rule stays load-bearing and must be restated in every posting
 
   | what | where | state |
   |---|---|---|
-  | pre-write blank check on `0x0D` | `firestarter/src/proms/eeprom_28c.cpp:547` — `if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) { mem_util_blank_check(handle); }` | **one conditional**, in the handler |
+  | pre-write blank check on `0x0D` | `firestarter/src/proms/eeprom_28c.cpp:517` — `if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) { mem_util_blank_check(handle); }` | **one conditional**, in the handler |
   | same, `0x05` | `flash_5v_page.cpp` sibling | to locate |
-  | `blank` as its own step | `cli_handlers.py:856` + `eeprom_28c.cpp:226` wires `CMD_BLANK_CHECK` → `mem_util_blank_check` | **ALREADY WORKS — nothing owed** |
+  | `blank` as its own step | `cli_handlers.py:854` + `eeprom_28c.cpp:218` wires `CMD_BLANK_CHECK` → `mem_util_blank_check` | **ALREADY WORKS — nothing owed** |
   | `erase` as its own step | no `CMD_ERASE` arm in `configure_eeprom28c`; `FLAG_CAN_ERASE` cleared for `algo 13` | **missing** |
-  | `info`'s "can be erased" row | `ic_layout.py:582` | contradicts the wire flag |
+  | `info`'s "can be erased" row | `ic_layout.py:579` | contradicts the wire flag |
 
   **⚠ HAZARD for whoever implements erase:** the datasheet's *hardware* path puts **12 V on OE
   (pin 22)** on `DIP28_28C256`. That is precisely what GATE-03 / `tools/check_dispatch.py` exists to
@@ -571,7 +571,7 @@ The operator said "you decide" on these; they are recorded as decisions above wi
   it; a short timeout returns rc=124 and reads like a RED.
 
 ### Measured live during this discussion (2026-08-20) — re-verify at plan time, do NOT inherit
-- `origin/beta` app: `fw_board_identity=None` at `cli_handlers.py:2517`; no `vcc_mv`; no `lock-status`.
+- `origin/beta` app: `fw_board_identity=None` at `cli_handlers.py:2514`; no `vcc_mv`; no `lock-status`.
   **67** commits behind the milestone branch.
 - Release body lengths: app `b14` 4490, `b15` 4856, **`b16`–`b22` all 0**; fw `b14` 5257, `b15` 8841,
   **`b16`–`b19` all 0**. App latest pre-release **`3.0.0b22`** (2026-08-19), stable **2.0.8**; fw

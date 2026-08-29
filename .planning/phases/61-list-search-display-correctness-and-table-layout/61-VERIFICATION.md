@@ -27,7 +27,7 @@ never narrower than today's default width.
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
 | 1 | `firestarter list`/search Type column comes from `electrical.type` (EEPROM-family shows "EEPROM") | VERIFIED | `print_eprom_list_table` calls `spec_builder.resolve_type_label(ic.get("electrical-type"), ...)` at `eprom_info.py:378`; `W27C512` live render confirmed "EEPROM" in Type cell |
-| 2 | VPP gated on `vpp_mv > 0 AND electrical-type != "SRAM"` — mirrors `info` gate exactly | VERIFIED | `eprom_info.py:372`: `if _etype != "SRAM" and _vpp_mv > 0`; `build_specifications` uses identical guard at `ic_layout.py:563` |
+| 2 | VPP gated on `vpp_mv > 0 AND electrical-type != "SRAM"` — mirrors `info` gate exactly | VERIFIED | `eprom_info.py:372`: `if _etype != "SRAM" and _vpp_mv > 0`; `build_specifications` uses identical guard at `ic_layout.py:560` |
 | 3 | SRAM rows show VPP `-` (no spurious 12.0v) despite `vpp_mv=12000` | VERIFIED | Live render of DS1220(RW) and DS1220(TEST) (both SRAM, `vpp_mv=12000`) shows `- ` in VPP cell; confirmed with live Python command |
 | 4 | list Type and VPP equal what `info` produces for the same chip (parity guarantee) | VERIFIED | `test_list_vs_info_parity` parametrized over W27C512, SST27VF512, SST27SF512, W27C257, M27C512, 27C256, 2764; `test_list_sram_vpp_is_dash` covers SRAM; all 35 tests pass |
 | 5 | Label computed in exactly ONE shared helper (`resolve_type_label`); `_ELECTRICAL_TYPE_LABEL` referenced only inside that helper | VERIFIED | `grep "_ELECTRICAL_TYPE_LABEL" ic_layout.py` returns lines 470 (definition), 485 (docstring), 507-508 (body of `resolve_type_label`) — all inside the helper; `build_specifications` calls `self.resolve_type_label(...)` at line 537 |
@@ -111,7 +111,7 @@ table does not map any of them to Phase 61 — the PLAN frontmatter reference is
 | File | Pattern | Severity | Impact |
 |------|---------|----------|--------|
 | `eprom_info.py:373` | `vpp_str = f"{ic.get('vpp_volts', '-')}v"` | Warning (WR-02 from code review) | When `vpp_mv > 0 AND etype != "SRAM"` but `vpp_volts` key absent, list shows `"-v"` while info shows `"N/Av"` — mismatched fallback. Not triggered by any of the 743 current DB chips. |
-| `eprom_info.py:384` (and `ic_layout.py:509`) | `{type_str: <12}` with no truncation before format | Warning (WR-01 from code review) | Protocol-based fallback labels from `get_chip_type_string` are 13-39 chars and blow past the 12-char column. Not triggered for any of the 743 current DB chips (all have `electrical.type`). |
+| `eprom_info.py:384` (and `ic_layout.py:506`) | `{type_str: <12}` with no truncation before format | Warning (WR-01 from code review) | Protocol-based fallback labels from `get_chip_type_string` are 13-39 chars and blow past the 12-char column. Not triggered for any of the 743 current DB chips (all have `electrical.type`). |
 
 Both warnings are latent risks for operator-written `~/.firestarter/database.json` overrides that
 omit `electrical.type` or `vpp_volts`. They are advisory, not blocking — no current DB chip

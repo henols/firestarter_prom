@@ -43,7 +43,7 @@ landmines for operator-written `~/.firestarter/database.json` overrides.
 
 ### WR-01: Fallback label from `get_chip_type_string` overflows the 12-char Type column
 
-**File:** `firestarter/eprom_info.py:384` (and `firestarter/ic_layout.py:509`)
+**File:** `firestarter/eprom_info.py:384` (and `firestarter/ic_layout.py:506`)
 
 **Issue:** The Type column is formatted with `{type_str: <12}`, a fixed-width field of 12
 characters. `resolve_type_label` falls back to `get_chip_type_string` whenever
@@ -124,7 +124,7 @@ else:
 
 ### IN-01: Redundant `etype` local in `build_specifications` after refactor
 
-**File:** `firestarter/ic_layout.py:536`
+**File:** `firestarter/ic_layout.py:533`
 
 **Issue:** After the refactor, `build_specifications` still computes:
 ```python

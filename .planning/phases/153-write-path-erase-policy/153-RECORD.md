@@ -16,7 +16,7 @@ this phase closes, so a claim that is not true here becomes a public overclaim t
 ## What shipped
 
 **ERASE-01.** `write` performs no blank check on protocol `0x0D` (28C family), with or without
-`FLAG_SKIP_BLANK_CHECK`. The three-line conditional at `eeprom_28c.cpp:547-549` was deleted
+`FLAG_SKIP_BLANK_CHECK`. The three-line conditional at `eeprom_28c.cpp:517-519` was deleted
 outright, not re-gated, and `mem_util_blank_check` now appears exactly once in the file — the
 `CMD_BLANK_CHECK` dispatch arm. Delivered in `153-02` (code, proven by an observed-RED-then-GREEN
 native case) and `153-13` (the last false prose claim, `doc/PROTOCOLS.md` §1.6's "`-b` is
@@ -34,7 +34,7 @@ retired one).
 **ERASE-03.** `erase` is available as a standalone step on `0x0D`. A `case CMD_ERASE:` arm in
 `configure_eeprom28c` dispatches to a real operation (`153-03`), proven to actually emit the
 AN-0544B stream rather than merely resolve a non-NULL pointer (`153-04`). `FLAG_CAN_ERASE` is
-restored on the wire for all 84 algorithm-13 rows at `database.py:620` (not `:621` — see Mechanism
+restored on the wire for all 84 algorithm-13 rows at `database.py:617` (not `:621` — see Mechanism
 Corrections), with algorithm 5 staying excluded for its own, unrelated hardware-hazard reason
 (`153-07`). The wire-level and host-level ripple this restoration causes was proven exhaustively:
 an 84-entry, field-disjoint delta layer over the Phase 149 golden (`153-08`); inverted
@@ -56,7 +56,7 @@ and discriminating (fails on `eeprom28c_check_chip_id`'s legitimate A9-12V write
 plan that owns this requirement's flip).
 
 **ERASE-05.** `blank` remains available as its own step. This was a non-regression assertion, not
-new work: `cli_handlers.py:856` → `CMD_BLANK_CHECK` → `mem_util_blank_check` already worked before
+new work: `cli_handlers.py:854` → `CMD_BLANK_CHECK` → `mem_util_blank_check` already worked before
 this phase and is proven still to work across the CLI, host-call and firmware-dispatch layers
 (`153-12`).
 
@@ -207,7 +207,7 @@ outward-facing text.**
   120 → 121 → 153, each time in the project's established mechanism-corrected /
   intent-satisfied voice, never framed as a failure (`153-07`).
 - **A fourth corrected line number, found independently of the above three:** the host edit site
-  for ERASE-03 is `database.py:620` (the `algo not in (5, 13)` exclusion tuple itself), not `:621`
+  for ERASE-03 is `database.py:617` (the `algo not in (5, 13)` exclusion tuple itself), not `:621`
   as both `ROADMAP.md` and `REQUIREMENTS.md` state — line 621 is the `simple_flags |=` body that
   reads the tuple's result, not the edit site. `153-RESEARCH.md` caught this before any code was
   written; `153-07` confirmed it by making exactly that one-character edit at the correct line.

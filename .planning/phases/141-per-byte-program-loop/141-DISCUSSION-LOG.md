@@ -102,7 +102,7 @@ Delegated in full (CONTEXT.md D-05…D-12), plus D-02 delegated explicitly durin
 - **D-05** — reuse `firestarter_set_data`/`get_data` as the pulse and verify primitives; no
   EPROM-local duplicate write path.
 - **D-06** — the 32-bit-safe delay helper lives beside `mem_util_*` and is applied at **both**
-  `delayMicroseconds(handle->pulse_delay)` sites (`memory.cpp:257`, `eprom.cpp:283`); structured as a
+  `delayMicroseconds(handle->pulse_delay)` sites (`memory.cpp:329`, `eprom.cpp:283`); structured as a
   pure split so the arithmetic is unit-testable.
 - **D-07** — the overprogram pulse uses the existing `org_delay` save/restore idiom, not a new width
   parameter on the primitive.
@@ -128,7 +128,7 @@ Delegated in full (CONTEXT.md D-05…D-12), plus D-02 delegated explicitly durin
   everywhere, `--pulse-us` is the **only** live caller LOOP-07's helper will have. → Phase 146 /
   CLOSE-04, alongside F-140-05 and F-140-07.
 - **Phase 143 may not be host-only.** The roadmap calls it "independent of 140–142 (different repo)",
-  but HOST-02's own named precedent (the blank-check progress/chunk pattern, `memory.cpp:307-341`) is
+  but HOST-02's own named precedent (the blank-check progress/chunk pattern, `memory.cpp:379-413`) is
   a **firmware** pattern. Flagged before Phase 143 plans, not after.
 - **Phase 141 is tri-repo**, not dual-repo as the milestone framing implies — the message catalog
   lives in meta.

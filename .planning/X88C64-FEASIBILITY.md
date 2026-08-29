@@ -334,7 +334,7 @@ like a 9th control bit, but it can never be physically transmitted:
 - `rurp_internal_write_to_register` (`rurp_register_utils.h:63–89`) pushes control data onto
   the shared bus via `rurp_write_data_buffer(data)` at `rurp_register_utils.h:83`.
 - `rurp_write_data_buffer` is declared `void rurp_write_data_buffer(uint8_t data)`
-  (`rurp_shield.h:118`). The parameter is `uint8_t`, so any value `> 0xFF` is truncated to
+  (`rurp_shield.h:113`). The parameter is `uint8_t`, so any value `> 0xFF` is truncated to
   8 bits before it ever reaches the 74HC573 — `0x100 & 0xFF == 0x00`.
 
 So the "9th bit" is a logical flag the firmware special-cases elsewhere; it is **not** a

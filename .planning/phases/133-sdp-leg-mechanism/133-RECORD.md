@@ -55,7 +55,7 @@ path. See §3 Criterion 3 below.
 
 **Qualifier:** D-07 — on the path where the drain runs because an exception is propagating
 (`KeyboardInterrupt`/`SystemExit` included), the unlock is *attempted*, but the production caller's
-`results = run_plan(...)` assignment (`cli_handlers.py:2164`) never completes, so **the report is
+`results = run_plan(...)` assignment (`cli_handlers.py:2161`) never completes, so **the report is
 honestly forfeited**. See §3 Criterion 1 below.
 
 ### LEG-11
@@ -128,7 +128,7 @@ not smoothed over.
 | D-04 | **Literal.** `_dispatch_sdp`'s arm is last in `_dispatch_step`, immediately above the terminal fail-closed `return`; mutation-proved (arm moved above `OP_ID` under a widened `_SDP_OPS` made the sentinel fail with the expected message). | 133-03, `test_shipped_ops_never_reach_sdp_arm`. |
 | **D-05** | **Honoured non-literally — vacuous by design, and the record says so plainly.** No `Step.group` field exists; the arm keys on `_SDP_OPS` membership of the op string itself. ROADMAP criterion 4's `group=None` clause is therefore satisfied **vacuously** — see §3 Criterion 4. The record does not restate the criterion's literal words as though they were tested. | 133-03; §3 below. |
 | D-06 | **Literal.** A **generic** cleanup registry — a `list` of callables drained in one `try/finally` around the whole step loop, not a hardcoded lock-to-unlock window. An empty registry is a proven no-op for every currently-shipping run (mutation-proved: `test_empty_registry_noop`). | 133-04. |
-| **D-07** | **Honoured non-literally.** "The unlock attempt is recorded on the exception (or logged)" was **not** implemented as a literal recorder — see the D-10/D-16 reconciliation below. `KeyboardInterrupt`/`SystemExit` propagate unchanged, and on that path **the report is honestly forfeited**: the production caller's `results = run_plan(...)` assignment (`cli_handlers.py:2164`) never completes, so there is no `dev test` report to render after a Ctrl-C mid-leg. This is one of the three residuals carried in §5. | 133-04; `test_keyboard_interrupt_drains_and_propagates`, `test_system_exit_drains_and_propagates`. |
+| **D-07** | **Honoured non-literally.** "The unlock attempt is recorded on the exception (or logged)" was **not** implemented as a literal recorder — see the D-10/D-16 reconciliation below. `KeyboardInterrupt`/`SystemExit` propagate unchanged, and on that path **the report is honestly forfeited**: the production caller's `results = run_plan(...)` assignment (`cli_handlers.py:2161`) never completes, so there is no `dev test` report to render after a Ctrl-C mid-leg. This is one of the three residuals carried in §5. | 133-04; `test_keyboard_interrupt_drains_and_propagates`, `test_system_exit_drains_and_propagates`. |
 | D-08 | **Literal.** `_run_step` re-raises `ProgrammerNotFoundError`/`FirmwareOutdatedError` **first**, then degrades `SerialError`/`HardwareOperationError` to a BAD step. | 133-02. |
 | D-09 | **Literal.** No-bare-except proven two independent ways: behavioural tests (criteria 1/2) plus a new build-time deny-rule in `tools/check_devtest_orchestrator.py`. | 133-02 (behavioural), 133-05 (gate). |
 | **D-10** | **Honoured non-literally — see the reconciliation below.** Each cleanup callable is wrapped in its own `try/except _UNLOCK_CLEANUP_SWALLOWED`, and the drain continues past a caught failure — but "recorded as a failed-unlock attempt" landed as test-observability only (the operator double's call assertions), not an in-module recorder. | 133-04. |
@@ -173,7 +173,7 @@ proven to drain on an ordinary raised exception (`test_finally_drains_on_excepti
 
 **Honest caveat (D-07):** on the path where the drain runs because an exception is propagating, **the
 report is honestly forfeited**. The production caller does `results = run_plan(...)`
-(`cli_handlers.py:2164`) and builds the report from `results` immediately after
+(`cli_handlers.py:2161`) and builds the report from `results` immediately after
 (`:2166`); a propagating exception means that assignment never completes, so after a Ctrl-C mid-leg
 the chip has an unlock *attempted*, but the user sees **no `dev test` report at all**. This was a
 measured constraint, not an oversight: fixing it would require changing `run_plan`'s signature and

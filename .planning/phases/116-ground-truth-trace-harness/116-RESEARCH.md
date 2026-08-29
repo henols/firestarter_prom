@@ -348,7 +348,7 @@ prose that says "the `0x5555` writes are inhibited" is wrong for 19 chips.
 ```
 
 Mechanism, fully traced: `eeprom28c_wait_for_write(handle, 0x5555, 0x20)` polls 2000 times
-(`eeprom_28c.cpp:137`), never observes `0x20`, emits `MSG_ERR_EEPROM_TIMEOUT` and sets
+(`eeprom_28c.cpp:131`), never observes `0x20`, emits `MSG_ERR_EEPROM_TIMEOUT` and sets
 `RESPONSE_CODE_ERROR` (`:151-153`); `eeprom28c_write_init:111-113` returns early, so the blank
 check never runs and no data byte is ever sent.
 
@@ -495,8 +495,8 @@ CONFLICT 3 is upheld in full.
 
 The structural difference is worth naming because it is the only DIP32 hook and because **stream
 length is identical (54 = 54) in every case**: `fu_flash_flip_data` calls `rurp_chip_input()`
-*after* the address (`flash_utils.cpp:53-58` → `OE` at index 7 of each write), while
-`memory_set_data` calls it *first* (`memory.cpp:225` → `OE` at index 0). So:
+*after* the address (`flash_utils.cpp:54-59` → `OE` at index 7 of each write), while
+`memory_set_data` calls it *first* (`memory.cpp:229` → `OE` at index 0). So:
 
 ```
 SHIPPED  per write:  DATA(lsb) LSB^ LSBv  DATA(msb) MSB^ MSBv  DATA(payload) OE->1  CE->0 CE->1
@@ -509,7 +509,7 @@ counting *anything* fails here. D-06's element-by-element ordered comparison is 
 preferable, it is the only thing that works.
 
 **Observation for Phase 117, recorded not acted on:** `fu_flash_flip_data` calls
-`rurp_set_data_output()` (`flash_utils.cpp:53`); `memory_set_data` does **not**. Data-bus direction
+`rurp_set_data_output()` (`flash_utils.cpp:54`); `memory_set_data` does **not**. Data-bus direction
 before `rurp_write_data_buffer` therefore relies on incidental prior state in the fixed path
 (on Uno, `rurp_internal_write_to_register`'s MSB branch happens to call it). Recording the two
 direction calls costs 2 entry kinds and would make this visible — a middle path between D-07's
@@ -519,7 +519,7 @@ a small widening of D-07 for the planner to accept or decline.
 ### F6 — `EEPROM_SDP_DISABLE` is **not linkable** from a test TU
 `[VERIFIED: compile error, this session]`
 
-`const byte_flip_t EEPROM_SDP_DISABLE[]` at `eeprom_28c.cpp:26` is `const` at namespace scope in a
+`const byte_flip_t EEPROM_SDP_DISABLE[]` at `eeprom_28c.cpp:24` is `const` at namespace scope in a
 C++ TU → **internal linkage**. A test cannot `extern` it. Two consequences:
 
 1. D-04's "test-local `byte_flip_t` copies" is not merely a stylistic choice — it is the **only**
@@ -535,7 +535,7 @@ single source of truth, or (b) a firmware-side text scan in the same shape as D-
 checker. (a) is cheaper and reuses the D-11 cross-repo skipif machinery already being built. Flag as
 a Claude's-Discretion resolution the planner should adopt.
 
-`flash_util_byte_flipping` **is** externally linked (`flash_utils.cpp:20`), so feeding local tables
+`flash_util_byte_flipping` **is** externally linked (`flash_utils.cpp:21`), so feeding local tables
 through the real emitter works — verified.
 
 Also note `flash_execute_command(command)` (`flash_utils.h:15-16`) is a macro that expands to
@@ -564,7 +564,7 @@ Additional measured read counts under an address-keyed mock returning virgin `0x
 | `zero_chip_id_skips_check` | **0** | 2000 | 2000 |
 | `mismatching_chip_id_with_force_warns` | 2 | **2000** | 2002 |
 
-The `2000` figure is `eeprom28c_wait_for_write`'s full timeout loop (`eeprom_28c.cpp:137`). It is
+The `2000` figure is `eeprom28c_wait_for_write`'s full timeout loop (`eeprom_28c.cpp:131`). It is
 the reason for §Pitfall 2.
 
 The three `0x20` fixture sites TRACE-04 must retire: `test_eeprom28c_chip_id.cpp:104`
@@ -931,7 +931,7 @@ one disagree about VPP on the same handler, this is why.
 **What goes wrong:** driving `eeprom28c_write_init` records **~6057** entries. Against today's
 `HOST_STUBS_MAX_RECORDING 256` that is 24× over; the recorder drops everything past 256 with no
 signal. `[VERIFIED: measured 6054–6057 across five handles]`
-**Why it happens:** `eeprom28c_wait_for_write` loops 2000 times (`eeprom_28c.cpp:137`), each
+**Why it happens:** `eeprom28c_wait_for_write` loops 2000 times (`eeprom_28c.cpp:131`), each
 iteration emitting `/OE`, `/CE↓`, `/CE↑` via `memory_get_data`. Address latches are elided (same
 address every poll), so only the pin edges accumulate.
 **How to avoid:** size the new buffer independently (512 recommended), add `strobe_overflowed()`,
@@ -1116,7 +1116,7 @@ void setUp(void) {
 
 ### Building a `bus_config_t` the way `json_parser.c` does (what the D-08 generator must emit)
 ```c
-/* Source: mirrors src/json_parser.c:214-243 exactly. Verified against the host's
+/* Source: mirrors src/json_parser.c:401-430 exactly. Verified against the host's
  * convert_to_programmer output for AT28C256: bus [0..13,15], rw-pin 14. */
 h.bus_config.matching_lines = 0xFF;
 for (uint8_t j = 0; j < bus_len; j++) {

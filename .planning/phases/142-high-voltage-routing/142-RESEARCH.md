@@ -16,7 +16,7 @@ CONTEXT.md's 18 decisions are, with three exceptions, resting on premises that h
 2. **D-15(b)'s template (`test_flash_intel_vpp`) runs in NO PlatformIO environment, and when forced to run it SIGABRTs after case 1 — the SAF-04 case never executes.** It is an *unrun* in-tree pattern, not "a working, in-tree template."
 3. **`eprom_check_vpp()` is ALREADY exit-safe on its over-voltage refusal path** (`eprom.cpp:393` clears `REGULATOR|DROP` on every path except the pre-assert Rev-0 return). D-15(b) will therefore be **green on arrival** and must be planted-RED to mean anything.
 
-A fourth finding is a genuine hardware trap the CONTEXT does not name: **on Rev 2-class boards logical `CTRL_ADDRESS_LINE_18` and logical `CTRL_VPP_P1_ENABLE` collapse onto the same physical bit `0x08`** (`rurp_pinout.h:128`, corroborated by `doc/SHIELD-REVISIONS.md:76` + `:83`). A composite "all HV off" mask that clears logical P1 cannot guarantee physical de-assertion when logical A18 is set. It is not reachable on the 27C write path today, but it is exactly the class of aliasing D-02 exists to guard against in the other direction, and it must be scoped explicitly.
+A fourth finding is a genuine hardware trap the CONTEXT does not name: **on Rev 2-class boards logical `CTRL_ADDRESS_LINE_18` and logical `CTRL_VPP_P1_ENABLE` collapse onto the same physical bit `0x08`** (`rurp_pinout.h:127`, corroborated by `doc/SHIELD-REVISIONS.md:76` + `:83`). A composite "all HV off" mask that clears logical P1 cannot guarantee physical de-assertion when logical A18 is set. It is not reachable on the 27C write path today, but it is exactly the class of aliasing D-02 exists to guard against in the other direction, and it must be scoped explicitly.
 
 **Primary recommendation:** put two *distinct* composites in `rurp_pinout.h` after `:97` — an all-off DISABLE composite (`REGULATOR|DROP|A9|VPE`, no explicit `P1`, so `eprom_internal_set_control_register`'s remap still converts VPE→P1 on P1 parts) and *nothing else*, because the preserve/HOLD mask is revision- and pins-conditional and therefore cannot be a `#define` at all. Draw the disable guarantee around **`eprom_write_execute` (mandatory — all four leaking exits are there) plus `eprom_write_init` (defensive, ~free)** and do **not** widen to `erase_execute` / `get_chip_id`, because those two are already internally exit-safe and `PROJECT.md:189-190` licenses a change there only "where a change is required for safe shared cleanup." Build every route-change proof on the `native_loop_v131` strobe recorder (`control_write_value()`), never on `HOST_STUBS_RECORD_BUS`, which truncates the `0x100` drop bit to zero.
 
@@ -71,7 +71,7 @@ Program received signal SIGABRT (Aborted)
 ```
 The SAF-04 case is `RUN_TEST` #6 (`test_flash_intel_vpp.cpp:199`); execution stops during case #2. **Its assertions (`:184-189`) have never been observed to pass in this configuration.** `platformio.ini:72-74`'s claim that "all individual Unity assertions PASS but the suite as a whole ERRORS (Unity teardown abort)" does not hold today — the abort is mid-run, not at teardown.
 
-Probable mechanism (**UNVERIFIED**): that suite's `setUp` (`test_flash_intel_vpp.cpp:55-65`) mocks only `delay`. `flash_intel.cpp:162-163` and `flash_utils.cpp:33-34` call `millis()`, which is unmocked. Every other suite in the tree mocks all four — `test_loop_eprom_v131.cpp:125-134`, with the explicit comment *"ArduinoFake SIGABRTs on any unmocked call — cheap insurance matching house convention."*
+Probable mechanism (**UNVERIFIED**): that suite's `setUp` (`test_flash_intel_vpp.cpp:55-65`) mocks only `delay`. `flash_intel.cpp:162-163` and `flash_utils.cpp:34-35` call `millis()`, which is unmocked. Every other suite in the tree mocks all four — `test_loop_eprom_v131.cpp:125-134`, with the explicit comment *"ArduinoFake SIGABRTs on any unmocked call — cheap insurance matching house convention."*
 
 **Determination:** the SAF-04 *shape* (record `(bit, state)` pairs; assert `last write had the route bits in its mask and state==false`) is still a fine pattern to copy, but a plan that says "copy the working template" is copying dead code. Two concrete consequences:
 - Copy the **shape**, and mock `delay`, `delayMicroseconds`, `millis`, `micros` (the `test_loop_eprom_v131.cpp:125-134` set).
@@ -91,8 +91,8 @@ Corollary for `eprom_write_init`: its single `return` (`:131`) fires on `RESPONS
 ### C-4 (MEDIUM severity, new) — on Rev 2-class, logical `CTRL_ADDRESS_LINE_18` and logical `CTRL_VPP_P1_ENABLE` are the SAME physical bit
 
 ```
-rurp_pinout.h:122   #define CTRL_VPP_P1_ENABLE_REV2       0x08
-rurp_pinout.h:128   #define CTRL_ADDRESS_LINE_18_REV2     CTRL_VPP_P1_ENABLE_REV2
+rurp_pinout.h:121   #define CTRL_VPP_P1_ENABLE_REV2       0x08
+rurp_pinout.h:127   #define CTRL_ADDRESS_LINE_18_REV2     CTRL_VPP_P1_ENABLE_REV2
 rurp_hw_rev_utils.h:26     ctrl_reg |= data & CTRL_ADDRESS_LINE_18 ? CTRL_ADDRESS_LINE_18_REV2 : 0;
 ```
 Logically they are distinct in the wide layout (`CTRL_VPP_P1_ENABLE` = `0x08` at `:91`, `CTRL_ADDRESS_LINE_18` = `0x20` at `:93`). Physically, on `REVISION_2_0/2_1/2_2/2_3`, both land on `0x08`. Independently documented:
@@ -102,7 +102,7 @@ doc/SHIELD-REVISIONS.md:83  | REV_2_ADDRESS_LINE_18 | N | CTRL_ADDRESS_LINE_18_R
 ```
 Consequence for VPP-02: `memory_set_control_register` (`memory.cpp:145-149`) operates on the **logical** register; clearing logical `P1` (`0x08`) leaves logical `A18` (`0x20`) untouched, and the mapper will re-emit physical `0x08` from it. **A clear of `CTRL_VPP_P1_ENABLE` is not a guarantee of physical VPP-pin-1 de-assertion on Rev 2-class whenever `CTRL_ADDRESS_LINE_18` is set.**
 
-Reachability on the 27C write path (assessed, not assumed): logical `A18` is only ever set from `mem_util_calculate_top_address_register`'s `(address >> 16) & CTRL_ADDRESS_LINE_18` (`memory.cpp:164`), i.e. bit 21 of the *remapped* bus address. Bus line 21 is socket pin 1 on a 32-pin DIP (`rurp_shield.h:40  #define VPP_P1_32_DIP 0x15`). On every 27C 32-pin part pin 1 *is* VPP, so `using_p1_as_vpp()` is true, and `mem_util_remap_address_bus` deliberately skips setting bit 21 (`memory.cpp:346-348`); no address line occupies bus 21 either. **So the aliasing is not reachable from a 27C write today.** It becomes reachable the moment an all-off composite that names `CTRL_VPP_P1_ENABLE` is used outside the EPROM family.
+Reachability on the 27C write path (assessed, not assumed): logical `A18` is only ever set from `mem_util_calculate_top_address_register`'s `(address >> 16) & CTRL_ADDRESS_LINE_18` (`memory.cpp:164`), i.e. bit 21 of the *remapped* bus address. Bus line 21 is socket pin 1 on a 32-pin DIP (`rurp_shield.h:40  #define VPP_P1_32_DIP 0x15`). On every 27C 32-pin part pin 1 *is* VPP, so `using_p1_as_vpp()` is true, and `mem_util_remap_address_bus` deliberately skips setting bit 21 (`memory.cpp:418-420`); no address line occupies bus 21 either. **So the aliasing is not reachable from a 27C write today.** It becomes reachable the moment an all-off composite that names `CTRL_VPP_P1_ENABLE` is used outside the EPROM family.
 
 **Determination:** scope the composite explicitly to the EPROM family (name it `EPROM_*`), and state the A18/P1 physical aliasing as a named non-claim in the phase record rather than discovering it in Phase 144.
 
@@ -119,10 +119,10 @@ Two sound interception points for the EPROM family:
 | Cited in | Claim | Actual |
 |---|---|---|
 | `142-CONTEXT.md` D-02 / canonical_refs | `rurp_pinout.h:95-96` gives "`0x01` vs `0x100`" | `:95` is `CTRL_VPP_REGULATOR_ENABLE 0x80`. The correct pair is **`:88`** (`CTRL_ADDRESS_LINE_16 0x01`) and **`:96`** (`CTRL_VPP_VPE_DROP_ENABLE 0x100`). |
-| `142-CONTEXT.md` canonical_refs | `rurp_pinout.h:107-126` = the REV1/REV2 families | Block is **`:105-129`**. The cited range **omits `:128`**, which is the A18/P1 alias of C-4 — the single most consequential line in that block for this phase. |
+| `142-CONTEXT.md` canonical_refs | `rurp_pinout.h:106-125` = the REV1/REV2 families | Block is **`:105-129`**. The cited range **omits `:128`**, which is the A18/P1 alias of C-4 — the single most consequential line in that block for this phase. |
 | `142-CONTEXT.md` canonical_refs | `rurp_hw_rev_utils.h:17-41` = the mapper | Function signature is at **`:15`**; body `:15-41`. |
 | `142-CONTEXT.md` D-14 / `<code_context>` | `test_flash_intel_vpp/host_stubs.cpp:39` = the mock | **`:38`** (`extern "C" void set_mock_vpp_mv(uint16_t mv)`). |
-| `142-CONTEXT.md` canonical_refs | `memory.cpp:163-190` = `mem_util_calculate_top_address_register` | Function is **`:163-196`**; the `pins < 32` guard `:172-189`; the preserve OR-in `:190`; `pins == 28` A17 force `:192-194`. |
+| `142-CONTEXT.md` canonical_refs | `memory.cpp:163-194` = `mem_util_calculate_top_address_register` | Function is **`:163-196`**; the `pins < 32` guard `:172-189`; the preserve OR-in `:190`; `pins == 28` A17 force `:192-194`. |
 | `PROJECT.md:119` (Phase 146's to fix) | `eprom.cpp:114` pays a `delay(10)` VPE settle | **No `delay(10)` exists in `eprom.cpp`.** `grep -n "delay(" src/proms/eprom.cpp` → `197:delay(500)`, `321:delay(50)`, `324/348/400/403:delay(100)`, `452:delay(500)`. Phase 141 replaced it. `eprom.cpp:114` is now `eprom_check_vpp(handle);` inside `eprom_check_chip_id_init`. |
 | `test_loop_eprom_v131.cpp:1597` (in-test prose) | drop bit excluded from preserve mask at `memory.cpp:161-162` | Actual guard `:172`, mask OR `:188`. |
 | `tests/golden/protocol_branch_inventory.json` `meta.allowlist_rationale` | "the VPP-path duplication at `:145/:218`" and "line 71's switch" and "pin_routing predicate at `:320`" | Stale prose inside the golden itself. The authoritative numbers are in its own `sites` array: `:70`, `:190`, `:340`, `:442`. `meta.frozen_for` uses the correct `:190`/`:340`. **Re-derivation should fix `allowlist_rationale` too, or it will keep misleading readers.** |
@@ -143,13 +143,13 @@ Contradicting evidence, same repo:
 
 | CONTEXT claim | Verdict | Evidence |
 |---|---|---|
-| D-02: on Rev 0/Rev 1 the drop bit maps onto the same physical bit as A16 | **HOLDS** | `rurp_hw_rev_utils.h:30-31` `ctrl_reg = data; ctrl_reg \|= data & CTRL_VPP_VPE_DROP_ENABLE ? CTRL_VPP_VPE_DROP_ENABLE_REV1 : 0;` — `rurp_register_t` is `uint16_t` under `HARDWARE_REVISION` (`rurp_types.h:16`), so `uint8_t ctrl_reg = data` truncates logical `0x100` away, then `:31` re-inserts it as `CTRL_VPP_VPE_DROP_ENABLE_REV1` = `0x01` (`rurp_pinout.h:107`); logical A16 = `0x01` (`:88`) passes straight through the same assignment; and `CTRL_ADDRESS_LINE_16_REV1` is *defined as* `CTRL_VPP_VPE_DROP_ENABLE_REV1` (`:116`). |
+| D-02: on Rev 0/Rev 1 the drop bit maps onto the same physical bit as A16 | **HOLDS** | `rurp_hw_rev_utils.h:30-31` `ctrl_reg = data; ctrl_reg \|= data & CTRL_VPP_VPE_DROP_ENABLE ? CTRL_VPP_VPE_DROP_ENABLE_REV1 : 0;` — `rurp_register_t` is `uint16_t` under `HARDWARE_REVISION` (`rurp_types.h:16`), so `uint8_t ctrl_reg = data` truncates logical `0x100` away, then `:31` re-inserts it as `CTRL_VPP_VPE_DROP_ENABLE_REV1` = `0x01` (`rurp_pinout.h:106`); logical A16 = `0x01` (`:88`) passes straight through the same assignment; and `CTRL_ADDRESS_LINE_16_REV1` is *defined as* `CTRL_VPP_VPE_DROP_ENABLE_REV1` (`:116`). |
 | D-02: on Rev 2-class they are distinct | **HOLDS** | `rurp_hw_rev_utils.h:24-25` maps drop→`CTRL_VPP_VPE_DROP_ENABLE_REV2` (`0x01`, `:119`) and A16→`CTRL_ADDRESS_LINE_16_REV2` (`0x20`, `:124`). |
 | D-02: legacy non-`HARDWARE_REVISION` build has a genuine macro alias | **HOLDS** | `rurp_pinout.h:75-76`: `#define CTRL_VPP_VPE_DROP_ENABLE 0x01` / `#define CTRL_ADDRESS_LINE_16 CTRL_VPP_VPE_DROP_ENABLE`. |
 | D-02: revision lookup is boot-cached, no ADC per call | **HOLDS** | `rurp_hw_rev_utils.h:100-106` → EEPROM override or `rurp_get_physical_hardware_revision()` (`:43-45`) which returns the file-scope `revision` (`:13`), set once in `rurp_detect_hardware_revision()`. **But see the cost quantification in §Gate and Budget Posture — "no new class of cost" is true; "free" is not.** |
 | D-02: unknown revision must fail toward today's stripping | **HOLDS and is the documented house pattern** | `rurp_hw_rev_utils.h:33-37` `default: /* ctrl_reg = 0 */ break;` — `REVISION_UNKNOWN` (`0xFE`, `rurp_shield.h:31`) yields no VPP/VPE enables at all. |
 | D-09: `command_done()` zeroes all three registers on both success and abort | **HOLDS** | `firestarter.cpp:162-171`; `:166` `CONTROL_REGISTER=0x00`, `:167` `LEAST_SIGNIFICANT_BYTE=0x00`, `:168` `MOST_SIGNIFICANT_BYTE=0x00`. Exactly **two** call sites: `:176` (the `timeout < millis()` abort arm of `loop()`) and `:290` (`if (finished) command_done(&handle);` after the `:217-288` dispatch switch). |
-| D-09: nothing tests `command_done()` today | **HOLDS** | `grep -rn command_done` over `src/ test/` returns only `firestarter.cpp:30/162/176/290`, a prose mention at `operation_utils.cpp:156`, and four *comments* in `test_loop_eprom_v131.cpp` (`:262`, `:1260`, `:1264`, `:1267`) explaining why that suite deliberately does **not** drive it. Zero assertions. |
+| D-09: nothing tests `command_done()` today | **HOLDS** | `grep -rn command_done` over `src/ test/` returns only `firestarter.cpp:30/162/176/290`, a prose mention at `operation_utils.cpp:166`, and four *comments* in `test_loop_eprom_v131.cpp` (`:262`, `:1260`, `:1264`, `:1267`) explaining why that suite deliberately does **not** drive it. Zero assertions. |
 | D-13: `MSG_ERR_VPP_HIGH` / `MSG_WARN_VPP_HIGH` in no test | **HOLDS** | `grep -rn "MSG_ERR_VPP_HIGH\|MSG_WARN_VPP_HIGH\|MSG_WARN_VPP_LOW\|MSG_WARN_REV0_VPP" test/ tests/` → **no output**. Source refs only: `eprom.cpp:367/370`, `flash_intel.cpp:55/58`, `messages.h:71/101`. |
 | D-13: `test_val_eprom` pins `vpp_mv = 0` against a 0-returning stub | **HOLDS** | `test_val_eprom.cpp:74` `h.vpp_mv = 0;  /* vpp setpoint=0 matches stub voltage=0: no warn/error */`; that suite does **not** define `HOST_STUBS_CUSTOM_VOLTAGE_MV`, so `rurp_read_voltage_mv()` returns `0` from `host_stubs_common.inc:275-277`. `0 > 0+500` false; `0 < 0*95/100` false. Vacuous by construction. |
 | D-08 / F-141-05: `0xBF` is the last free ERROR slot | **HOLDS** | `messages.h` `0xA0`…`0xBE` are all occupied (`:77-107`, contiguous); `0xBF` unused. |
@@ -161,7 +161,7 @@ Contradicting evidence, same repo:
 | D-17: `native_trace_v131` is RED right now | **HOLDS, observed** | `pio test -e native_trace_v131` → `test_protocol_0x07_…: Expected 198 Was 91 [FAILED]`, `0x08: Expected 221 Was 119 [FAILED]`, `0x0B: Expected 201 Was 59 [FAILED]`, then `SIGQUIT`, `[ERRORED]`, `6 test cases: 3 failed, 2 succeeded`. |
 | D-18: both blob SHAs pinned and currently matching | **HOLDS** | `git hash-object src/proms/eprom.cpp src/proms/eprom_params.cpp` → `b36d3c4c…`, `5dffe841…`; identical to `meta.blob_shas`. All 27 recorded site line numbers match the current file. Whole pytest gate suite: **256 passed**. |
 | D-12's "fact worth carrying": a 27C write asserts only `REGULATOR` (+drop) | **HOLDS** | The only control-register writes reachable from `eprom_write_execute` are `:192`, `:195`, `:218`, `:174`. No `A9`/`VPE`/`P1`. |
-| `<code_context>`: `PROGMEM` rows must go through `pgm_read_*` | **HOLDS** | `eprom_params.h:71-77` (the accessor returns "a POINTER INTO PROGMEM"); `eprom_params.cpp:49` `PROGMEM`; existing consumers `eprom.cpp:105`, `:228-233`. |
+| `<code_context>`: `PROGMEM` rows must go through `pgm_read_*` | **HOLDS** | `eprom_params.h:71-77` (the accessor returns "a POINTER INTO PROGMEM"); `eprom_params.cpp:45` `PROGMEM`; existing consumers `eprom.cpp:105`, `:228-233`. |
 | `<code_context>`: register-write elision is real | **HOLDS** | `rurp_register_utils.h:39-41` `case CONTROL_REGISTER: if (control_register == data) { return; }` — compared in **logical** space, *before* `rurp_map_ctrl_reg_for_hardware_revision` (`:47-49`). |
 
 ---
@@ -183,24 +183,24 @@ Contradicting evidence, same repo:
 | `eprom.cpp:396-410` `eprom_internal_erase` | ✓ `:396-410` | asserts `:399`, `:402`; clear `:409` |
 | `eprom.cpp:441-447` `using_p1_as_vpp` remap | ✓ `:441-447` | predicate `:442`, rewrite `:443-444` |
 | `eprom.cpp:70-77` / `:71-76` pulse fallback switch | **`:70-75`** | switch `:70`, cases `:71-73` |
-| `memory.cpp:163-190` `mem_util_calculate_top_address_register` | **`:163-196`** | guard `:172`, `mask \|= DROP` `:188`, preserve OR-in `:190`, `pins==28` A17 `:192-194` |
+| `memory.cpp:163-194` `mem_util_calculate_top_address_register` | **`:163-196`** | guard `:172`, `mask \|= DROP` `:188`, preserve OR-in `:190`, `pins==28` A17 `:192-194` |
 | `memory.cpp:172` the `pins < 32` guard | ✓ `:172` | |
-| `memory.cpp:294-304` `memory_set_data` | ✓ `:294-304` | `mem_util_delay_us(handle->pulse_delay)` at `:302` |
-| `memory.cpp:329-352` `mem_util_remap_address_bus` | ✓ `:329-352` | |
-| `memory.cpp:346-348` the `vpp_line` bit | ✓ `:346-348` | `if (config.vpp_line != 0xFF && !using_p1_as_vpp(handle))` — `read_write` genuinely ignored (D-11 holds) |
+| `memory.cpp:366-376` `memory_set_data` | ✓ `:294-304` | `mem_util_delay_us(handle->pulse_delay)` at `:302` |
+| `memory.cpp:401-424` `mem_util_remap_address_bus` | ✓ `:329-352` | |
+| `memory.cpp:418-420` the `vpp_line` bit | ✓ `:346-348` | `if (config.vpp_line != 0xFF && !using_p1_as_vpp(handle))` — `read_write` genuinely ignored (D-11 holds) |
 | `rurp_pinout.h:75-96` per-variant `CTRL_*` | **`:74-97`** incl. guards | legacy arm `:74-84`, wide arm `:85-97` |
 | `rurp_pinout.h:95-96` "distinct `0x01` vs `0x100`" | **`:88` + `:96`** | C-6 |
 | `rurp_pinout.h:75-76` legacy aliases | ✓ `:75-76` | |
-| `rurp_pinout.h:107-126` REV1/REV2 families | **`:105-129`** | omitted `:128` = A18/P1 alias (C-4) |
+| `rurp_pinout.h:106-125` REV1/REV2 families | **`:105-129`** | omitted `:128` = A18/P1 alias (C-4) |
 | `rurp_hw_rev_utils.h:17-41` mapper | **`:15-41`** | Rev2 arm `:19-27`, Rev0/1 arm `:28-32`, fail-safe default `:33-37` |
 | `rurp_hw_rev_utils.h:43-45` boot-cached static | ✓ `:43-45` | backing storage is `:13` `uint8_t revision = 0xFF;` |
-| `rurp_hw_rev_utils.h:100-106` `rurp_get_hardware_revision` | ✓ `:100-106` | also declared `rurp_shield.h:156` → callable from `memory.cpp` |
+| `rurp_hw_rev_utils.h:100-106` `rurp_get_hardware_revision` | ✓ `:100-106` | also declared `rurp_shield.h:151` → callable from `memory.cpp` |
 | `memory_utils.h:43-47` `using_p1_as_vpp` | ✓ `:43-47` | `static inline`; constants `rurp_shield.h:40-42` (`0x15`/`0x0F`/`0x0B`) |
 | `eprom_params.h:46` `VPP_PATH_*` enum | ✓ `:46` | `VPP_PATH_DROP_RESISTOR = 0`, `VPP_PATH_DIRECT_VPE = 1`; `:43-45` explicitly says Phase 142 owns the masks |
 | `eprom_params.h:57` the `vpp_path` column | ✓ `:57` | `uint8_t` |
-| `eprom_params.cpp:50-52` the three rows | ✓ `:50-52` | `0x07`/`0x08` → `VPP_PATH_DROP_RESISTOR`; `0x0B` → `VPP_PATH_DIRECT_VPE` |
+| `eprom_params.cpp:46-48` the three rows | ✓ `:50-52` | `0x07`/`0x08` → `VPP_PATH_DROP_RESISTOR`; `0x0B` → `VPP_PATH_DIRECT_VPE` |
 | `firestarter.cpp:162-171` `command_done()` | ✓ `:162-171` | |
-| `firestarter.cpp:215-291` dispatch switch | ✓ `:215-291` | `:289-291` `if (finished) command_done(...)` |
+| `firestarter.cpp:210-286` dispatch switch | ✓ `:215-291` | `:289-291` `if (finished) command_done(...)` |
 | `host_stubs_common.inc:274-278` voltage seam | ✓ `:274-278` | |
 | `test_flash_intel_vpp/host_stubs.cpp:39` mock | **`:38`** | |
 | `test_flash_intel_vpp.cpp:160-189` / `:186-189` SAF-04 | **fn `:173-190`, assertions `:184-189`** | and see C-2 |
@@ -258,13 +258,13 @@ Installed for **every** EPROM command (`eprom.cpp:65-66`), so it intercepts writ
 
 ### D. Indirect writes carrying HV bits (not in `eprom.cpp`, but in every `eprom.cpp` code path)
 
-Every `handle->firestarter_set_address(...)` and every `firestarter_get_data`/`firestarter_set_data` reaches `mem_util_set_address` (`memory.cpp:220-236`), which writes `CONTROL_REGISTER` **unconditionally** at `:231` with the value from `mem_util_calculate_top_address_register` (`:163-196`). That function's preserve mask is:
+Every `handle->firestarter_set_address(...)` and every `firestarter_get_data`/`firestarter_set_data` reaches `mem_util_set_address` (`memory.cpp:224-308`), which writes `CONTROL_REGISTER` **unconditionally** at `:231` with the value from `mem_util_calculate_top_address_register` (`:163-196`). That function's preserve mask is:
 ```
 memory.cpp:171   rurp_register_t mask = CTRL_VPP_A9_ENABLE | CTRL_VPE_ENABLE | CTRL_VPP_P1_ENABLE | CTRL_VPP_REGULATOR_ENABLE;
 memory.cpp:172   if (handle->pins < 32) {
 memory.cpp:188       mask |= CTRL_VPP_VPE_DROP_ENABLE;
-memory.cpp:189   }
-memory.cpp:190   top_address |= rurp_read_from_register(CONTROL_REGISTER) & mask;
+memory.cpp:193   }
+memory.cpp:194   top_address |= rurp_read_from_register(CONTROL_REGISTER) & mask;
 ```
 Call sites inside `eprom.cpp`'s reach: `eprom.cpp:401` (`eprom_internal_erase`), and — via `memory_get_data:252` / `memory_set_data:298` — every read and every pulse in the per-byte loop (`eprom.cpp:247`, `:257`, `:260`, `:287`, `:298`), the final verify pass, `mem_util_blank_check` (`memory.cpp` blank-check loop → `firestarter_get_data`), and `eprom_get_chip_id:325-326`.
 
@@ -315,9 +315,9 @@ Reasoning, tied to evidence:
 | `src/proms/memory.cpp` | directly, `:25` |
 | both | transitively via `rurp_shield.h:20` (`eprom.cpp:16`, `memory.cpp:24`) |
 
-Full includer set: `rurp_hw_rev_utils.h:7`, `rurp_register_utils.h:5`, `rurp_shield.h:20`, `memory.cpp:25`, `eprom.cpp:17`, `hardware_operations.cpp:12`, `flash_intel.cpp:17`, `flash_5v_page.cpp:17`, `rurp_common.cpp:10`, `flash_utils.cpp:11`, `eeprom_28c.cpp:17`, plus six native suites. Placing composites here reaches every consumer with **zero new edges**.
+Full includer set: `rurp_hw_rev_utils.h:7`, `rurp_register_utils.h:5`, `rurp_shield.h:20`, `memory.cpp:25`, `eprom.cpp:17`, `hardware_operations.cpp:12`, `flash_intel.cpp:17`, `flash_5v_page.cpp:17`, `rurp_common.cpp:10`, `flash_utils.cpp:12`, `eeprom_28c.cpp:17`, plus six native suites. Placing composites here reaches every consumer with **zero new edges**.
 
-**The alternative is worse, confirmed:** `eprom_params.h` deliberately has no shield dependency — `eprom_params.h:43-45` says so in the source: *"`vpp_path` names an ABSTRACT route, not a control-register bitmask — Phase 142 owns the mask sets, and naming a mask here would force this dependency-free header to pull in the shield's register header."* And `eprom_params.h:13-18` records that pairing an Arduino framework header with the `pgmspace` shim emits **14 macro-redefinition warnings against a watermark with zero headroom**. `eprom.h` is likewise unsuitable: `memory.cpp` would then need an EPROM-family header to compute its preserve mask (`memory.cpp:171-189` serves every protocol).
+**The alternative is worse, confirmed:** `eprom_params.h` deliberately has no shield dependency — `eprom_params.h:43-45` says so in the source: *"`vpp_path` names an ABSTRACT route, not a control-register bitmask — Phase 142 owns the mask sets, and naming a mask here would force this dependency-free header to pull in the shield's register header."* And `eprom_params.h:13-18` records that pairing an Arduino framework header with the `pgmspace` shim emits **14 macro-redefinition warnings against a watermark with zero headroom**. `eprom.h` is likewise unsuitable: `memory.cpp` would then need an EPROM-family header to compute its preserve mask (`memory.cpp:171-193` serves every protocol).
 
 ### Per-variant correctness
 
@@ -335,10 +335,10 @@ Both are correct **as logical disable masks in every variant**, including the le
 > A **preserve/HOLD** composite must NOT be a plain `#define` that includes `CTRL_VPP_VPE_DROP_ENABLE`.
 >
 > - Legacy build: `DROP == A16` at the macro level (`:75-76`), so a preserve mask naming `DROP` pins `A16` high forever.
-> - Rev 0 / Rev 1, `HARDWARE_REVISION` build: `DROP` (logical `0x100`) and `A16` (logical `0x01`) both map onto physical `0x01` (`rurp_hw_rev_utils.h:30-31` + `rurp_pinout.h:107`, `:116`). Preserving `DROP` across `set_address` on a 32-pin part drives physical A16 high on **every** address. This is exactly D-02's rationale, now confirmed at the macro level.
+> - Rev 0 / Rev 1, `HARDWARE_REVISION` build: `DROP` (logical `0x100`) and `A16` (logical `0x01`) both map onto physical `0x01` (`rurp_hw_rev_utils.h:30-31` + `rurp_pinout.h:106`, `:116`). Preserving `DROP` across `set_address` on a 32-pin part drives physical A16 high on **every** address. This is exactly D-02's rationale, now confirmed at the macro level.
 > - Rev 2-class: they are distinct (`0x01` vs `0x20`, `rurp_hw_rev_utils.h:24-25`), so preserving `DROP` is safe.
 >
-> Membership therefore depends on a **runtime** revision read and on `handle->pins`. It cannot be a preprocessor constant. Express it as the existing conditional in `memory.cpp:171-189`, extended with a revision test — not as a header composite.
+> Membership therefore depends on a **runtime** revision read and on `handle->pins`. It cannot be a preprocessor constant. Express it as the existing conditional in `memory.cpp:171-193`, extended with a revision test — not as a header composite.
 
 ### Recommended shape
 
@@ -419,7 +419,7 @@ static uint16_t s_mock_vpp_mv = 0;
 extern "C" void set_mock_vpp_mv(uint16_t mv) { s_mock_vpp_mv = mv; }
 extern "C" uint16_t rurp_read_voltage_mv() { return s_mock_vpp_mv; }
 ```
-Exact signature: `extern "C" uint16_t rurp_read_voltage_mv()` — no parameters (declared `rurp_shield.h:145`).
+Exact signature: `extern "C" uint16_t rurp_read_voltage_mv()` — no parameters (declared `rurp_shield.h:140`).
 
 ### ⚠ The hardware-revision landmine this suite will hit first
 
@@ -508,7 +508,7 @@ Every figure in D-16 reproduces exactly. Against `size_baseline_base01.json` (`a
 | **Single-exit wrapper (rename body to `static`, public fn calls it + conditional disable)** | **−10 to +30 B, likely near-neutral** | `static` inner + one caller usually gets a tail-call or is inlined outright; the added cost is one `response_code` compare + one `set_control_register` call ≈ 12-20 B. D-10's "roughly flash-neutral" is plausible. Two wrappers (init + execute) ≈ 2× that. |
 | **Disable call before every `return` (rejected alternative)** | **+40 to +80 B** | 4 call sites in `eprom_write_execute` × ~14 B each. The wrapper is *cheaper* as well as structurally stronger. |
 | **Route resolver replacing two duplicated branches** | **−30 to −80 B (plausible shrink)** | Collapses two `if/else` pairs with two immediate masks each (`eprom.cpp:190-196`, `:340-346`) into one function + two calls, and deletes the `:217-219` branch (D-04). D-16's "plausibly shrinks … but that is a prediction, not a promise" is the right posture. |
-| **Runtime revision gate inside `mem_util_calculate_top_address_register`** | **+20 to +45 B flash; runtime ~1% of a write** | `rurp_get_hardware_revision()` is a real out-of-line call (`rurp_hw_rev_utils.h:100`, declared `rurp_shield.h:156`) that itself calls `rurp_get_config()`. Two CALL/RET pairs + compares ≈ 30-50 cycles ≈ 2-3 µs per `set_address`; `set_address` runs twice per byte ⇒ ~5 µs/byte ⇒ ~0.33 s over a 64 KB write against a ~32 s total. **D-02's "adds no new class of cost" is correct (no ADC read); "free" would not be.** |
+| **Runtime revision gate inside `mem_util_calculate_top_address_register`** | **+20 to +45 B flash; runtime ~1% of a write** | `rurp_get_hardware_revision()` is a real out-of-line call (`rurp_hw_rev_utils.h:100`, declared `rurp_shield.h:151`) that itself calls `rurp_get_config()`. Two CALL/RET pairs + compares ≈ 30-50 cycles ≈ 2-3 µs per `set_address`; `set_address` runs twice per byte ⇒ ~5 µs/byte ⇒ ~0.33 s over a 64 KB write against a ~32 s total. **D-02's "adds no new class of cost" is correct (no ADC read); "free" would not be.** |
 | Cheaper alternative for the gate, if the ceiling bites | — | Resolve the revision **once per block** in `eprom_write_execute` and carry it as a `handle` field (1 B RAM; leonardo has 546 B free). Costs a `firestarter_handle_t` change visible to every protocol — name it as a fallback, not a default. |
 
 ### Native warning watermark
@@ -627,8 +627,8 @@ Whole pytest suite at the Phase 141 tip: **`256 passed in 10.68s`** (`python3 -m
 | X5 `:315` success | **YES, as a negative control** | `test_loop05_a_successful_block_does_not_disable_the_route` (`:1286-1309`) **must stay green** — it is the assertion that stops the wrapper from being an unconditional disable (C-1). |
 | E1/E2 (`eprom_write_init`) | **YES** | Already clear today (C-3); the wrapper is defensive. A single case asserting the last control value is route-clear after a `write_init` that errors is cheap non-regression. |
 | `command_done()` actually zeroes the registers (D-09's owed test) | **YES, but not in a native suite** | `firestarter.cpp` is excluded from every native env's `build_src_filter` (`+<proms/> +<boards/rurp_serial_utils.cpp> +<json_parser.c> +<operation_utils.cpp>`), and `host_stubs_common.inc:317-325` stubs `op_reset_timeout` precisely because that TU is absent. **Two honest options:** (a) a **source-contract pytest** leg in `tests/` asserting `command_done`'s body contains the three `rurp_write_to_register(<reg>, 0x00)` lines and that both call sites (`:176`, `:290`) exist — cheap, greppable, in the `test_write_path_source_contract_v131.py` idiom already used in this repo; (b) widen a native env's `build_src_filter` to include `firestarter.cpp` — costs a `main()` collision and a new env, which D-14 forbids. **Recommend (a), and label it a source-contract claim, not a behavioural one.** |
-| The address-bus `vpp_line` bit is cleared on write-path exit | **NO — EXPLICIT NON-CLAIM (D-11)** | `memory.cpp:346-348` sets `1UL << config.vpp_line` ignoring `read_write`; clearing it would change read-path behaviour. Cleared only by `command_done()` (`firestarter.cpp:167-168` zero the LSB/MSB latches, and `:166` the control register). |
-| Physical de-assertion of the P1/VPP line when logical `A18` is set (Rev 2-class) | **NO — NEW EXPLICIT NON-CLAIM (C-4)** | `rurp_pinout.h:128` aliases them. Not reachable from a 27C write (analysis in C-4), but the composite's guarantee is *logical*, not physical, and the record should say so. |
+| The address-bus `vpp_line` bit is cleared on write-path exit | **NO — EXPLICIT NON-CLAIM (D-11)** | `memory.cpp:418-420` sets `1UL << config.vpp_line` ignoring `read_write`; clearing it would change read-path behaviour. Cleared only by `command_done()` (`firestarter.cpp:167-168` zero the LSB/MSB latches, and `:166` the control register). |
+| Physical de-assertion of the P1/VPP line when logical `A18` is set (Rev 2-class) | **NO — NEW EXPLICIT NON-CLAIM (C-4)** | `rurp_pinout.h:127` aliases them. Not reachable from a 27C write (analysis in C-4), but the composite's guarantee is *logical*, not physical, and the record should say so. |
 
 #### VPP-03 — one shared mask set
 
@@ -654,7 +654,7 @@ Whole pytest suite at the Phase 141 tip: **`256 passed in 10.68s`** (`python3 -m
 2. That the drop resistor actually produces ~13 V — no ADC is read in any native suite; `rurp_read_voltage_mv` is a mock.
 3. **Any timing change.** `delay()` / `delayMicroseconds()` are ArduinoFake free functions; the timing recorder stores **arguments only**. `host_stubs_common.inc:135-145` states it: *"delay()/delayMicroseconds() are not stubbed anywhere in this file at all … the hook that calls `timing_push()` lives in the DEFINING SUITE's own `setUp()`."* A trace diff can prove *which* delay was requested, never how long anything took.
 4. Physical de-assertion where the mapper aliases two logical bits (C-4, and the Rev 0/1 drop↔A16 case).
-5. That `command_done()` runs on the real AVR abort path — the timeout arm (`firestarter.cpp:174-176`) depends on `millis()` and is outside every native suite's reach.
+5. That `command_done()` runs on the real AVR abort path — the timeout arm (`firestarter.cpp:169-171`) depends on `millis()` and is outside every native suite's reach.
 
 ### Sampling rate
 
@@ -705,7 +705,7 @@ The D-18 golden pins `eprom.cpp`'s blob SHA, and the working-tree site test goes
 P2 before P3 matters: P2's preserve-mask change makes the drop bit *survivable* on Rev 2-class; P3's deletion of the explicit `:217-219` clear then becomes the fix rather than a no-op. Landing P3 first would briefly leave `0x08` with no drop route at all.
 
 **L-3 — `mem_util_calculate_top_address_register` is shared by EVERY protocol.**
-`memory.cpp:163-196`, sole caller `mem_util_set_address:230`, which is `handle->firestarter_set_address` for **every** protocol (`memory.cpp:92`). The D-01/D-02 change sits inside the `handle->pins < 32` guard, so a non-EPROM protocol can only be affected if it runs with `pins >= 32` — which includes `PROTO_SRAM_32PIN` (`0x0E`), `PROTO_SRAM_32PIN_NVRAM` (`0x29`), `PROTO_FLASH_INTEL` (`0x10`) and 32-pin flash. **Cheapest no-leak proof:** a native case in the new suite that drives a 32-pin **non-EPROM** protocol (`0x10` is ideal — it uses `CTRL_VPP_P1_ENABLE`, a different route) with `hardware_revision = REVISION_2_2` and asserts the recorded control-value sequence is **identical before and after** the change. Cheaper still, and complementary: assert the new drop-bit membership is reached only when the *protocol-supplied* condition holds, i.e. gate the new mask bit on something no non-EPROM protocol can satisfy. **`test_val_sram` and `test_val_flash_intel` are both in the pinned 17** and will catch a gross regression for free — but they use `HOST_STUBS_RECORD_BUS`, which cannot see the `0x100` bit, so they are **not** sufficient.
+`memory.cpp:163-200`, sole caller `mem_util_set_address:230`, which is `handle->firestarter_set_address` for **every** protocol (`memory.cpp:92`). The D-01/D-02 change sits inside the `handle->pins < 32` guard, so a non-EPROM protocol can only be affected if it runs with `pins >= 32` — which includes `PROTO_SRAM_32PIN` (`0x0E`), `PROTO_SRAM_32PIN_NVRAM` (`0x29`), `PROTO_FLASH_INTEL` (`0x10`) and 32-pin flash. **Cheapest no-leak proof:** a native case in the new suite that drives a 32-pin **non-EPROM** protocol (`0x10` is ideal — it uses `CTRL_VPP_P1_ENABLE`, a different route) with `hardware_revision = REVISION_2_2` and asserts the recorded control-value sequence is **identical before and after** the change. Cheaper still, and complementary: assert the new drop-bit membership is reached only when the *protocol-supplied* condition holds, i.e. gate the new mask bit on something no non-EPROM protocol can satisfy. **`test_val_sram` and `test_val_flash_intel` are both in the pinned 17** and will catch a gross regression for free — but they use `HOST_STUBS_RECORD_BUS`, which cannot see the `0x100` bit, so they are **not** sufficient.
 
 **L-4 — `eprom_check_vpp()` runs for EVERY EPROM command; the blast radius of changing its route resolution is 6 commands, not 1.**
 `eprom_generic_init` (`eprom.cpp:412-420`) calls it at `:413`, and `configure_eprom:43` makes `eprom_generic_init` the **default** `firestarter_operation_init`. `eprom_check_chip_id_init:114` and `eprom_write_init:129` also reach it. Reachable commands: `CMD_READ`, `CMD_WRITE`, `CMD_VERIFY`, `CMD_ERASE`, `CMD_BLANK_CHECK`, `CMD_CHECK_CHIP_ID`. Quantified consequence: making `eprom_check_vpp` resolve the route through `eprom_hv_route_mask(handle)` changes the emitted control-register value for **`0x08` on every one of those six commands**, including reads. Two guards:
@@ -768,7 +768,7 @@ P2 before P3 matters: P2's preserve-mask change makes the drop bit *survivable* 
 
 ### Primary — this repository, read directly (HIGH confidence)
 
-`firestarter/src/proms/eprom.cpp` (whole file, 454 lines) · `firestarter/src/proms/memory.cpp:55-352` · `firestarter/src/proms/eprom_params.cpp` · `firestarter/src/firestarter.cpp:130-296` · `firestarter/include/rurp_pinout.h` · `firestarter/include/rurp_hw_rev_utils.h` · `firestarter/include/rurp_register_utils.h` · `firestarter/include/rurp_types.h` · `firestarter/include/memory_utils.h` · `firestarter/include/eprom_params.h` · `firestarter/include/eprom.h` · `firestarter/include/rurp_shield.h:25-42, :138-165` · `firestarter/include/messages.h:71-107` · `firestarter/platformio.ini` (whole) · `firestarter/test/native/avr/_shared/host_stubs_common.inc` (whole) · `firestarter/test/native/avr/test_loop_eprom_v131/{host_stubs.cpp,test_loop_eprom_v131.cpp}` · `firestarter/test/native/avr/test_val_eprom/{host_stubs.cpp,test_val_eprom.cpp}` · `firestarter/test/native/avr/test_flash_intel_vpp/{host_stubs.cpp,test_flash_intel_vpp.cpp}` · `firestarter/tests/test_protocol_branch_inventory.py` · `firestarter/tests/test_write_path_source_contract_v131.py` · `firestarter/tests/test_flash_path_record_sync.py` · `firestarter/tests/golden/protocol_branch_inventory.json` · `firestarter/scripts/check_size_baseline.py` · `firestarter/scripts/check_build_warnings.py` · `firestarter/scripts/baseline/size_baseline.json` · `firestarter/scripts/baseline/size_baseline_base01.json` · `firestarter/doc/SHIELD-REVISIONS.md` §§6-7 · `firestarter/CLAUDE.md` · `firestarter_app/firestarter/{cli_handlers.py,eprom_operations.py}` · `.planning/{PROJECT.md,ROADMAP.md,REQUIREMENTS.md,STATE.md,v1.7-SHIELD-REVS.md}` · `.planning/phases/141-per-byte-program-loop/141-LOOP-RECORD.md`
+`firestarter/src/proms/eprom.cpp` (whole file, 454 lines) · `firestarter/src/proms/memory.cpp:55-424` · `firestarter/src/proms/eprom_params.cpp` · `firestarter/src/firestarter.cpp:126-291` · `firestarter/include/rurp_pinout.h` · `firestarter/include/rurp_hw_rev_utils.h` · `firestarter/include/rurp_register_utils.h` · `firestarter/include/rurp_types.h` · `firestarter/include/memory_utils.h` · `firestarter/include/eprom_params.h` · `firestarter/include/eprom.h` · `firestarter/include/rurp_shield.h:25-42, :138-165` · `firestarter/include/messages.h:71-107` · `firestarter/platformio.ini` (whole) · `firestarter/test/native/avr/_shared/host_stubs_common.inc` (whole) · `firestarter/test/native/avr/test_loop_eprom_v131/{host_stubs.cpp,test_loop_eprom_v131.cpp}` · `firestarter/test/native/avr/test_val_eprom/{host_stubs.cpp,test_val_eprom.cpp}` · `firestarter/test/native/avr/test_flash_intel_vpp/{host_stubs.cpp,test_flash_intel_vpp.cpp}` · `firestarter/tests/test_protocol_branch_inventory.py` · `firestarter/tests/test_write_path_source_contract_v131.py` · `firestarter/tests/test_flash_path_record_sync.py` · `firestarter/tests/golden/protocol_branch_inventory.json` · `firestarter/scripts/check_size_baseline.py` · `firestarter/scripts/check_build_warnings.py` · `firestarter/scripts/baseline/size_baseline.json` · `firestarter/scripts/baseline/size_baseline_base01.json` · `firestarter/doc/SHIELD-REVISIONS.md` §§6-7 · `firestarter/CLAUDE.md` · `firestarter_app/firestarter/{cli_handlers.py,eprom_operations.py}` · `.planning/{PROJECT.md,ROADMAP.md,REQUIREMENTS.md,STATE.md,v1.7-SHIELD-REVS.md}` · `.planning/phases/141-per-byte-program-loop/141-LOOP-RECORD.md`
 
 ### Primary — commands executed this session (HIGH confidence)
 
@@ -807,10 +807,10 @@ No Context7, WebFetch, or WebSearch lookup was performed. Every claim in this do
 
 | # | Claim | Section | Risk if wrong |
 |---|---|---|---|
-| A1 | The `test_flash_intel_vpp` SIGABRT is caused by `millis()` being unmocked (`flash_intel.cpp:162-163`, `flash_utils.cpp:33-34`) while `setUp` mocks only `delay` | C-2 | Labelled **UNVERIFIED** in place. The *fact* that the suite runs in no env and aborts before its SAF-04 case is measured, not assumed; only the mechanism is a hypothesis. If wrong, the new suite might inherit an abort — mitigated by mocking all four timing functions regardless. |
+| A1 | The `test_flash_intel_vpp` SIGABRT is caused by `millis()` being unmocked (`flash_intel.cpp:162-163`, `flash_utils.cpp:34-35`) while `setUp` mocks only `delay` | C-2 | Labelled **UNVERIFIED** in place. The *fact* that the suite runs in no env and aborts before its SAF-04 case is measured, not assumed; only the mechanism is a hypothesis. If wrong, the new suite might inherit an abort — mitigated by mocking all four timing functions regardless. |
 | A2 | Flash-cost figures per design option | Gate and Budget Posture | Labelled ESTIMATES. If the wrapper + resolver + revision gate net *positive* rather than neutral, leonardo's 2272 B headroom absorbs it comfortably; the risk is to Phase 143, not to this phase. Measure cold per plan. |
 | A3 | The `:174`/`:327`/`:393`/`:409` composite conversions are byte-identical on the wire | Control-Register Assertion Map; VPP-03 | Reasoned from the clear-only semantics of `memory_set_control_register` plus the ordering of `eprom_check_vpp:393` before `eprom_internal_erase`. **Do not assert it in prose — measure the strobe stream.** If wrong, `CMD_ERASE`/`CMD_CHECK_CHIP_ID` behaviour moves, which `PROJECT.md:189-190` forbids. |
-| A4 | The A18/P1 physical aliasing (C-4) is unreachable on the 27C write path | C-4 | Derived from `VPP_P1_32_DIP == 0x15 == 21`, `using_p1_as_vpp` suppressing the bit-21 set at `memory.cpp:346`, and 27C 32-pin parts having VPP on pin 1. Not exhaustively checked against every `0x08` row's `bus_config` in `chip_database.json` (host-side, out of this phase's repo scope). If wrong, an all-off composite naming `P1` could be ineffective on Rev 2-class — which is exactly why the recommended composite does **not** name `P1`. |
+| A4 | The A18/P1 physical aliasing (C-4) is unreachable on the 27C write path | C-4 | Derived from `VPP_P1_32_DIP == 0x15 == 21`, `using_p1_as_vpp` suppressing the bit-21 set at `memory.cpp:418`, and 27C 32-pin parts having VPP on pin 1. Not exhaustively checked against every `0x08` row's `bus_config` in `chip_database.json` (host-side, out of this phase's repo scope). If wrong, an all-off composite naming `P1` could be ineffective on Rev 2-class — which is exactly why the recommended composite does **not** name `P1`. |
 | A5 | The composite `#define` naming `EPROM_HV_*` collides with nothing | Shared Mask Placement | Verified by `grep -rn "EPROM_HV"` → no match, but that only covers today's tree, not ArduinoFake's or avr-libc's macro namespaces. A collision would surface as a macro-redefinition warning against the zero-headroom 1166 watermark — visible immediately on the first `pio test -e native`, so it fails loudly rather than silently. |
 
 ---

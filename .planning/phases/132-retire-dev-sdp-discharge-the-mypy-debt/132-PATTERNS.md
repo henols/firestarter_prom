@@ -71,7 +71,7 @@ def sdp_capability(chip_name: str, db: Any) -> tuple[bool, str]:
 ```
 
 **The three honesty strings to relocate** — verbatim from the span being deleted,
-`cli_handlers.py:2315-2319` (CONTEXT.md said `:2316-2318`; measured `:2315-2319`):
+`cli_handlers.py:2312-2316` (CONTEXT.md said `:2316-2318`; measured `:2315-2319`):
 
 ```python
         click.echo(
@@ -85,7 +85,7 @@ The three greppable tokens the four tests key on are `was emitted` (`:2316`),
 `cannot be read back` (`:2317`), `not a claim about the chip's actual state` (`:2318`). Keep all
 three in the relocated string or the surviving assertions go RED.
 
-**The mechanical-enforcement comment to relocate** (`cli_handlers.py:2304-2314`) — this is the
+**The mechanical-enforcement comment to relocate** (`cli_handlers.py:2301-2311`) — this is the
 rationale the no-fabricated-duration test cites; it must travel with the string:
 
 ```python
@@ -99,7 +99,7 @@ rationale the no-fabricated-duration test cites; it must travel with the string:
         # appears either -- HOST-05's honesty floor.
 ```
 
-**The D-14 unknown-command mapping to relocate** (`cli_handlers.py:2283-2302`) — comment + arm:
+**The D-14 unknown-command mapping to relocate** (`cli_handlers.py:2280-2299`) — comment + arm:
 
 ```python
     # Serial call. D-14: an `EpromOperationError` whose `error_code` is

@@ -47,7 +47,7 @@
 
 The seated AM27C020 (256K×8 CMOS UV-EPROM, 32-pin DIP, `0x08` EPROM-QUICK) programs **0 bits** on the current path — `write` fails deterministically at `0x000000` (`bad bytes 15/16, retries 20`, v1.15 Phase 83/84) while its `0x07` sibling W27C512 wrote clean the same session. Phase 97 does NOT fix this; it produces four diagnostic artifacts on the bench (Leonardo + RURP Rev 2.0, operator DMM at socket pin 1 = VPP and pin 31 = PGM): a Tier-0 writability pre-flight result (PRE-01), a reproduced failure signature (RCA-01), a differential against `0x07` (RCA-02), and a named root cause / ranked hypotheses with disconfirming evidence (RCA-03). SAFE-01 is a standing non-bypass invariant throughout.
 
-Code analysis this session **confirms the RC-1 mechanism at file:line precision** (and sharpens it past the brief). `DIP32_STD` lists DIP **pin 31 as the 19th address-bus pin** [VERIFIED: firestarter_app/firestarter/data/pinouts.json `DIP32_STD.address-bus-pins[18]=31`]; the host maps `pin_conversions[32][31] = 22` [VERIFIED: firestarter_app/firestarter/database.py:141]; the firmware program pulse `memory_set_data` strobes **only CE** with no PGM concept [VERIFIED: firestarter/src/proms/memory.cpp:274-284]; and the top-address register derives bus-line-22's bit from `address>>16` (bit 22 = `CTRL_READ_WRITE` = 0x40) [VERIFIED: memory.cpp:184-198]. At `address 0x000000` (A18=0) pin 31's bus line is **0** — i.e. pin 31 idles low, which *may coincidentally be VIL = program-active*, but that is unverified at the socket and is exactly what the held-rail static proxy (D-05) settles. RC-2 is the converging axis: VPP for the 32-pin part routes to socket **pin 1** via the `CTRL_VPE_ENABLE → CTRL_VPP_P1_ENABLE` rewrite [VERIFIED: firestarter/src/proms/eprom.cpp:319-326], a delivery path never bench-proven on a `0x08` UV chip, and the magnitude is set by a manual pot the firmware cannot control (VPP-low = WARNING-only [VERIFIED: firestarter/src/proms/primitives.cpp:144-145]).
+Code analysis this session **confirms the RC-1 mechanism at file:line precision** (and sharpens it past the brief). `DIP32_STD` lists DIP **pin 31 as the 19th address-bus pin** [VERIFIED: firestarter_app/firestarter/data/pinouts.json `DIP32_STD.address-bus-pins[18]=31`]; the host maps `pin_conversions[32][31] = 22` [VERIFIED: firestarter_app/firestarter/database.py:141]; the firmware program pulse `memory_set_data` strobes **only CE** with no PGM concept [VERIFIED: firestarter/src/proms/memory.cpp:346-356]; and the top-address register derives bus-line-22's bit from `address>>16` (bit 22 = `CTRL_READ_WRITE` = 0x40) [VERIFIED: memory.cpp:187-202]. At `address 0x000000` (A18=0) pin 31's bus line is **0** — i.e. pin 31 idles low, which *may coincidentally be VIL = program-active*, but that is unverified at the socket and is exactly what the held-rail static proxy (D-05) settles. RC-2 is the converging axis: VPP for the 32-pin part routes to socket **pin 1** via the `CTRL_VPE_ENABLE → CTRL_VPP_P1_ENABLE` rewrite [VERIFIED: firestarter/src/proms/eprom.cpp:319-326], a delivery path never bench-proven on a `0x08` UV chip, and the magnitude is set by a manual pot the firmware cannot control (VPP-low = WARNING-only [VERIFIED: firestarter/src/proms/primitives.cpp:144-145]).
 
 **Primary recommendation:** Plan ONE bench session, cheapest-first, that (a) runs the combined Tier-0 micro-probe + RCA-01 reproduction as a single program attempt at `0x000000` with full instrumentation, (b) holds the program-time control register static via `dev reg … -f` for the pin-31/pin-1 DMM proxy, (c) runs the `0x07` W27C512 differential control in the same session, then (d) writes an RCA verdict resolving RC-1 AND RC-2 each individually. Pair every bench measurement with a code-analysis finding so the verdict survives even if a measurement is ambiguous.
 
@@ -76,18 +76,18 @@ Code analysis this session **confirms the RC-1 mechanism at file:line precision*
 |---------|---------|----------|
 | `firestarter info <chip>` | identity + decode confirm (type/pins/size/VPP/protocol/chip-id) | `cli` group present |
 | `firestarter read <chip> -o <file>` | read oracle (one run) | present |
-| `firestarter dev consistency-check <chip> --runs N` | N×byte-identical read oracle (the N≥3 gate) | [VERIFIED: firestarter_app/firestarter/cli_handlers.py:1082] |
+| `firestarter dev consistency-check <chip> --runs N` | N×byte-identical read oracle (the N≥3 gate) | [VERIFIED: firestarter_app/firestarter/cli_handlers.py:1080] |
 | `firestarter blank <chip>` | blank-check (read path; VPP-skip keeps VPP off) | present |
 | `firestarter write <chip> <file> [-b]` | the program attempt (Tier-0 micro-probe = RCA-01) | present |
 | `firestarter verify <chip> <file>` | negative-control verify after the attempt | present |
 | `firestarter vpp` | continuous VPP ADC monitor (measure-only, no socket routing) | [VERIFIED: cli_handlers.py:659] |
 | `firestarter vpe` | VPE rail monitor (un-dropped regulator output) | [VERIFIED: cli_handlers.py:671] |
-| `firestarter dev reg <MSB> <LSB> <CTRL> -f` | direct control-register write, `-f` = Firestarter (hw-rev-remapped) bit definitions — the held-rail static proxy | [VERIFIED: cli_handlers.py:983-1031] |
+| `firestarter dev reg <MSB> <LSB> <CTRL> -f` | direct control-register write, `-f` = Firestarter (hw-rev-remapped) bit definitions — the held-rail static proxy | [VERIFIED: cli_handlers.py:981-1029] |
 | `firestarter hw` | live R1/R2 readback (D-08 discipline) | present |
 
 **Window-capture idiom (continuous monitors):** `timeout -s INT 15 stdbuf -oL firestarter vpp` [CITED: RCA brief §VPP Measurement; reference_v114_bench_erase_rail_and_test_artifact].
 
-**`dev reg -f` control-register bit map** (from the CLI help text, Rev2/HARDWARE_REVISION layout) [VERIFIED: cli_handlers.py:1007-1024 + firestarter/include/rurp_pinout.h:119-128]:
+**`dev reg -f` control-register bit map** (from the CLI help text, Rev2/HARDWARE_REVISION layout) [VERIFIED: cli_handlers.py:1005-1022 + firestarter/include/rurp_pinout.h:118-127]:
 
 ```
 0x100  CTRL_VPP_VPE_DROP_ENABLE
@@ -101,7 +101,7 @@ Code analysis this session **confirms the RC-1 mechanism at file:line precision*
 0x001  CTRL_ADDRESS_LINE_16
 ```
 
-> **Correction vs the brief (HIGH confidence):** the brief said "line 22 corresponds to `CTRL_READ_WRITE` (0x40) territory" — that is the *top-address* derivation. Separately note the Rev2 layout defines `CTRL_ADDRESS_LINE_18_REV2 == CTRL_VPP_P1_ENABLE_REV2` (both 0x08) [VERIFIED: rurp_pinout.h:128]. This is an **alias collision the planner must flag**: on Rev2, address bit 18 and the P1-VPP-enable bit are the *same control-register bit* (0x08). For a 256K AM27C020, A18 is never set, so this collision is dormant at the addresses in play — but it is directly relevant to the RC-1/RC-4 boundary and to any Phase-98 fix. See §RC-1 and §RC-4.
+> **Correction vs the brief (HIGH confidence):** the brief said "line 22 corresponds to `CTRL_READ_WRITE` (0x40) territory" — that is the *top-address* derivation. Separately note the Rev2 layout defines `CTRL_ADDRESS_LINE_18_REV2 == CTRL_VPP_P1_ENABLE_REV2` (both 0x08) [VERIFIED: rurp_pinout.h:127]. This is an **alias collision the planner must flag**: on Rev2, address bit 18 and the P1-VPP-enable bit are the *same control-register bit* (0x08). For a 256K AM27C020, A18 is never set, so this collision is dormant at the addresses in play — but it is directly relevant to the RC-1/RC-4 boundary and to any Phase-98 fix. See §RC-1 and §RC-4.
 
 ### Alternatives Considered
 | Instead of | Could Use | Tradeoff |
@@ -136,11 +136,11 @@ Code analysis this session **confirms the RC-1 mechanism at file:line precision*
                  └► eprom_internal_set_control_register:       [eprom.cpp:319-326]
                       using_p1_as_vpp(handle)==true  ⇒  strip CTRL_VPE_ENABLE,
                                                         set  CTRL_VPP_P1_ENABLE  (route VPP→pin1)
-              for each mismatched byte:  memory_set_data()      [memory.cpp:274]
+              for each mismatched byte:  memory_set_data()      [memory.cpp:346]
                  set address (remap: A18→bus line 22→pin 31)
                  rurp_write_data_buffer(data)
                  delayMicroseconds(3)
-                 rurp_chip_enable()      ◄── ONLY CE strobed, NO PGM pulse  [memory.cpp:281]
+                 rurp_chip_enable()      ◄── ONLY CE strobed, NO PGM pulse  [memory.cpp:353]
                  delayMicroseconds(pulse_delay=100µs)
                  rurp_chip_disable()
         ▼
@@ -182,7 +182,7 @@ Code analysis this session **confirms the RC-1 mechanism at file:line precision*
 - [CLAUDE] `firestarter info AM27C020` → expect: type UV-EPROM, DIP32, size 0x40000 (262144), VPP 13.0V, protocol 0x08, chip-id 0x00000197 [VERIFIED: chip_database.json AM27C020 entry]. Record verbatim.
 
 **Step 2 — Stable read oracle, N≥3 (PRE-01):**
-- [CLAUDE] `firestarter dev consistency-check AM27C020 --runs 3` (writes per-run binaries) [VERIFIED: cli_handlers.py:1082]. Must be byte-identical. If any byte differs (the 0x008004–0x00800f glitch region especially), re-run and treat the oracle as suspect before trusting any write verdict.
+- [CLAUDE] `firestarter dev consistency-check AM27C020 --runs 3` (writes per-run binaries) [VERIFIED: cli_handlers.py:1080]. Must be byte-identical. If any byte differs (the 0x008004–0x00800f glitch region especially), re-run and treat the oracle as suspect before trusting any write verdict.
 - Record the blank-state **SHA256** of the consistent read (PRE-01 deliverable). Known NOT-BLANK: `0x02 @ 0x0000` [CITED: v1.15 EVIDENCE].
 
 **Step 3 — Blank-state note (PRE-01):**
@@ -219,7 +219,7 @@ During `program_mismatched_bytes`, the bits asserted around the data write are [
 - `CTRL_VPP_REGULATOR_ENABLE` (0x080) — regulator on
 - `CTRL_VPP_VPE_DROP_ENABLE` (0x100 on Rev2) — drop VPE to ~13V
 - `CTRL_VPP_P1_ENABLE` (0x008) — route VPP to socket **pin 1** (the rewrite of `CTRL_VPE_ENABLE`)
-- top-address bits for `address 0x000000` = **0** (no A16/A17/A18, no `CTRL_READ_WRITE`) — so bus line 22 / pin 31 = **0** [VERIFIED: memory.cpp:184-198]
+- top-address bits for `address 0x000000` = **0** (no A16/A17/A18, no `CTRL_READ_WRITE`) — so bus line 22 / pin 31 = **0** [VERIFIED: memory.cpp:187-202]
 
 So the held value that reproduces the program-window control state at `address 0` is:
 ```
@@ -227,9 +227,9 @@ CTRL = 0x080 | 0x100 | 0x008 = 0x188   (regulator + VPE-drop + P1-route; A18/pin
 firestarter dev reg 0 0 0x188 -f       [CLAUDE]
 ```
 - **MSB=0 LSB=0** → address 0x0000 (all address lines low, matching the failing address; pin 31 = bus line 22 = A18 = 0).
-- `-f` applies the Firestarter (hw-rev-remapped) bit definitions [VERIFIED: cli_handlers.py:1007].
+- `-f` applies the Firestarter (hw-rev-remapped) bit definitions [VERIFIED: cli_handlers.py:1005].
 
-> **Planner note — bit-collision caveat (HIGH confidence, flag for the plan):** On Rev2, `CTRL_VPP_P1_ENABLE` and `CTRL_ADDRESS_LINE_18` are **the same bit 0x008** [VERIFIED: rurp_pinout.h:122,128]. So asserting 0x008 to route VPP→pin1 *also* drives the A18/pin-31 line. The plan must (a) measure pin 31 with 0x188, and (b) cross-check with `dev reg 0 0 0x180 -f` (P1 route OFF) to see whether pin 31 / pin 1 change — this directly probes the alias collision and is part of the RC-1/RC-4 boundary. Whether this collision is causal or dormant for a 256K part is a verdict the bench must reach.
+> **Planner note — bit-collision caveat (HIGH confidence, flag for the plan):** On Rev2, `CTRL_VPP_P1_ENABLE` and `CTRL_ADDRESS_LINE_18` are **the same bit 0x008** [VERIFIED: rurp_pinout.h:121,127]. So asserting 0x008 to route VPP→pin1 *also* drives the A18/pin-31 line. The plan must (a) measure pin 31 with 0x188, and (b) cross-check with `dev reg 0 0 0x180 -f` (P1 route OFF) to see whether pin 31 / pin 1 change — this directly probes the alias collision and is part of the RC-1/RC-4 boundary. Whether this collision is causal or dormant for a 256K part is a verdict the bench must reach.
 
 **What pin 31 should read (RC-1 disconfirmation):**
 - AM27C020 program requires **PGM = VIL (~0V)** during the CE pulse [CITED: AM27C020.pdf].
@@ -241,7 +241,7 @@ firestarter dev reg 0 0 0x188 -f       [CLAUDE]
 - If pin 1 reads **12.5–13.0V** → **RC-2 (level/routing) OUT**. Cross-check with `firestarter vpp` ADC node — if both agree, the rail reaches the chip.
 - If pin 1 reads **~0V / floating** while the ADC node reads ~13V → rail reaches the monitor but NOT pin 1 → **RC-2 CONFIRMED** (P1 routing defect / JP4). The ADC-node-vs-pin-1 divergence is the single most decisive measurement.
 
-**Back-it-with-code (RC-1):** read-first anchors — `pin_conversions[32][31]=22` [database.py:141]; `DIP32_STD.address-bus-pins` last element = 31 [pinouts.json]; `memory_set_data` strobes only CE [memory.cpp:274-284]; `mem_util_calculate_top_address_register` masks `address>>16` to A16/17/18/RW [memory.cpp:184]. These together prove pin 31 is *modeled as an address line, never as a held program pulse* — the code half of the RC-1 verdict, independent of the DMM.
+**Back-it-with-code (RC-1):** read-first anchors — `pin_conversions[32][31]=22` [database.py:141]; `DIP32_STD.address-bus-pins` last element = 31 [pinouts.json]; `memory_set_data` strobes only CE [memory.cpp:346-356]; `mem_util_calculate_top_address_register` masks `address>>16` to A16/17/18/RW [memory.cpp:187]. These together prove pin 31 is *modeled as an address line, never as a held program pulse* — the code half of the RC-1 verdict, independent of the DMM.
 
 **Cleanup:** [CLAUDE] after measurement, reset the register (`firestarter dev reg 0 0 0 -f` or power-cycle) so the rail is not left held.
 
@@ -253,10 +253,10 @@ firestarter dev reg 0 0 0x188 -f       [CLAUDE]
 
 | RC | Hypothesis | CONFIRM if… | EXONERATE (OUT) if… | Method | Gating? |
 |----|-----------|-------------|---------------------|--------|---------|
-| **RC-1** | PGM pin 31 modeled as address line, not held program-active | pin 31 DMM reads VIH/floats during held proxy | pin 31 DMM reads ~0V (VIL) AND code shows it driven low at addr0 | Held-rail static proxy (0x188) + code-analysis (memory.cpp:274 + database.py:141 + pinouts.json) | **YES (D-03)** |
+| **RC-1** | PGM pin 31 modeled as address line, not held program-active | pin 31 DMM reads VIH/floats during held proxy | pin 31 DMM reads ~0V (VIL) AND code shows it driven low at addr0 | Held-rail static proxy (0x188) + code-analysis (memory.cpp:346 + database.py:141 + pinouts.json) | **YES (D-03)** |
 | **RC-2** | VPP not reaching pin 1 at 12.5–13.0V during pulse | pin 1 DMM ≈0V/floats while ADC≈13V (routing), OR pin1 <12.5V (pot/level) | pin 1 DMM = 12.5–13.0V steady AND ADC agrees | Held-rail proxy (0x188) + DMM pin1 + `firestarter vpp` ADC cross-check | **YES (D-03)** |
 | **RC-3** | JP4 (`JMP_VPP_P1_BYPASS`) position wrong for 32-pin VPP-to-pin-1 | toggling JP4 changes pin-1 VPP delivery decisively | neither JP4 position delivers 12.5–13.0V to pin 1 (⇒ not the lone cause) | [OP] toggle JP4 open↔closed, re-DMM pin 1 — **ASK silkscreen meaning first (D-08)** | only if RC-1+RC-2 incomplete |
-| **RC-4** | 32-pin high-address / control-bit collision corrupts target | writing at a high address (e.g. 0x010000, A16=1) behaves differently than addr0 | addr0 still 0-bits with pin1=13V AND pin31=VIL | code-analysis (memory.cpp:184-198 alias `A18==P1_ENABLE` 0x08) + optional high-addr probe (NOT a second destructive spend at addr0 — use read/dev addr to inspect) | only if RC-1+RC-2 incomplete |
+| **RC-4** | 32-pin high-address / control-bit collision corrupts target | writing at a high address (e.g. 0x010000, A16=1) behaves differently than addr0 | addr0 still 0-bits with pin1=13V AND pin31=VIL | code-analysis (memory.cpp:187-202 alias `A18==P1_ENABLE` 0x08) + optional high-addr probe (NOT a second destructive spend at addr0 — use read/dev addr to inspect) | only if RC-1+RC-2 incomplete |
 | **RC-5** | Chip OTP/dead (total silicon block) | (cannot be confirmed pre-fix — D-01 INDETERMINATE) | any bit flips in the Tier-0 micro-probe | the combined micro-probe (Step 5) | handled via Tier-0; **never triggers deferral pre-fix** |
 
 **Conditional trigger for RC-3/RC-4 (D-03):** pursue only if, after RC-1 and RC-2 each carry a verdict, the resolved pair does **not** fully account for 0-bits — e.g. if both RC-1 (pin 31 = VIL, OK) and RC-2 (pin 1 = 13V, OK) come back EXONERATED yet the chip still flipped 0 bits, then the symptom is unexplained → escalate to RC-3 (JP4) and RC-4 (addressing collision), and the alias-collision finding (0x08 = A18 == P1_ENABLE) becomes the leading RC-4 lead.
@@ -273,7 +273,7 @@ firestarter dev reg 0 0 0x188 -f       [CLAUDE]
 |------|---------------------|------------------------|----------|---------------------|-----------------|
 | Handler | `configure_eprom()` | `configure_eprom()` | NO | same code path passes ⇒ not handler-selection | memory.cpp:122 |
 | Pulse width | 100µs | 100µs | NO | identical ⇒ not pulse width | eprom.cpp pulse_delay |
-| Program pulse model | CE-only strobe | CE-only strobe | NO (same) | but 0x07's PGM(pin27) is tied OK by 28-pin layout; 0x08 needs pin-31 PGM | memory.cpp:274 |
+| Program pulse model | CE-only strobe | CE-only strobe | NO (same) | but 0x07's PGM(pin27) is tied OK by 28-pin layout; 0x08 needs pin-31 PGM | memory.cpp:346 |
 | **VPP routing** | `vpp_line=0xFF` ⇒ VPE-drop bus line, NOT P1 | `vpp_line=21` (VPP_P1_32_DIP=0x15) ⇒ **P1 / socket pin 1** | **YES** | 0x07 proves the regulator+drop network works; only the **P1 leg** is unproven on a UV part | eprom.cpp:319-326; using_p1_as_vpp memory_utils.h:24 |
 | **Program-enable bit** | `CTRL_VPE_ENABLE` reaches VPE/PGM line | rewritten to `CTRL_VPP_P1_ENABLE` | **YES** | 0x07 proves CTRL_VPE_ENABLE path; the rewrite is 0x08-only | eprom.cpp:321-323 |
 | **Pin 31 role** | 28-pin: no pin 31 issue | 32-pin: **pin 31 = bus line 22 (address-driven), not PGM** | **YES** | 0x07 has no 32-pin pin-31 mapping ⇒ exonerates everything except the 32-pin axis | database.py:141; pinouts.json DIP32_STD |
@@ -319,7 +319,7 @@ Capture these fields verbatim into the EVIDENCE row (consistent with v1.15/v1.16
 
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
-| N≥3 read oracle | manual loop + diff | `firestarter dev consistency-check --runs 3` | established, writes per-run binaries, used in v1.6/v1.15 [VERIFIED: cli_handlers.py:1082] |
+| N≥3 read oracle | manual loop + diff | `firestarter dev consistency-check --runs 3` | established, writes per-run binaries, used in v1.6/v1.15 [VERIFIED: cli_handlers.py:1080] |
 | Hold the program rail for DMM | custom firmware sketch | `firestarter dev reg <m> <l> <ctrl> -f` | v1.14 reusable held-rail technique [CITED: reference_v114] |
 | VPP window capture | parsing serial by hand | `timeout -s INT 15 stdbuf -oL firestarter vpp` | measure-only, safe with chip seated [CITED: reference_vpp_vpe_no_socket_routing] |
 | EVIDENCE format | new schema | the v1.15 `EVIDENCE.{md,json}` row shape | LEDGER/Phase-99 consume it; consistency matters |
@@ -363,7 +363,7 @@ Capture these fields verbatim into the EVIDENCE row (consistent with v1.15/v1.16
 **What:** v1.15 saw 12 bytes differ at 0x008004–0x00800f on this chip. **Avoid:** N≥3 byte-identical (consistency-check); an unstable oracle makes "0 bits" un-attributable (D-08).
 
 ### Pitfall 6: bit-alias collision (0x08 = P1_ENABLE == A18 on Rev2)
-**What:** routing VPP to pin 1 also drives the A18/pin-31 line on Rev2 [VERIFIED: rurp_pinout.h:128]. **Why it matters:** confounds RC-1/RC-2/RC-4 — pin 31 and pin 1 may move together. **Avoid:** test the `0x180`-vs-`0x188` pair explicitly; document the collision in the verdict.
+**What:** routing VPP to pin 1 also drives the A18/pin-31 line on Rev2 [VERIFIED: rurp_pinout.h:127]. **Why it matters:** confounds RC-1/RC-2/RC-4 — pin 31 and pin 1 may move together. **Avoid:** test the `0x180`-vs-`0x188` pair explicitly; document the collision in the verdict.
 
 ### Pitfall 7: irreversible UV spend
 **What:** every program is permanent (no eraser). **Avoid:** exactly ONE micro-probe at `0x000000` (D-01); no full-image spend until Phase 98/99 with a fix in place. **Warning sign:** any task that writes a multi-byte image in Phase 97.
@@ -456,7 +456,7 @@ The PROTOCOL-LEDGER `0x08` entry stays `open-defect-carried (FUT-06)` this phase
 ## Open Questions
 
 1. **Does the `0x08 = P1_ENABLE == A18` bit-alias (Rev2) confound the measurement?**
-   - Known: the two are the same control bit (0x08) [VERIFIED: rurp_pinout.h:128].
+   - Known: the two are the same control bit (0x08) [VERIFIED: rurp_pinout.h:127].
    - Unclear: whether asserting P1-route inadvertently sets pin-31/A18 high in a way that matters at addr0.
    - Recommendation: test the `0x180`-vs-`0x188` pair explicitly (a single experiment covering RC-1/RC-2/RC-4).
 
@@ -498,7 +498,7 @@ The PROTOCOL-LEDGER `0x08` entry stays `open-defect-carried (FUT-06)` this phase
 
 **Confidence breakdown:**
 - Bench procedure / command sequencing: HIGH — every command verified present in the live CLI.
-- RC-1 mechanism (pin 31 as address line): HIGH — code-verified end-to-end (pinouts.json → database.py:141 → memory.cpp:274/184). Whether it is *solely* causal: MEDIUM (bench decides).
+- RC-1 mechanism (pin 31 as address line): HIGH — code-verified end-to-end (pinouts.json → database.py:141 → memory.cpp:346/184). Whether it is *solely* causal: MEDIUM (bench decides).
 - RC-2 mechanism (P1 VPP routing/level): HIGH on the code path (eprom.cpp:319-326); MEDIUM on whether the rail actually fails at pin 1 (bench/DMM decides).
 - Held-rail value `0x188`: MEDIUM — derived from verified bits, marked `[ASSUMED]` pending first bench reading (A1).
 - SAFE-01 intact: HIGH — verified file:line.

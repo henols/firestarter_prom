@@ -20,7 +20,7 @@
 **`_check_response` buffer deconstruction**
 - R-01: Delete `response_msg[96]` from `firestarter_handle_t`. SRAM win: ~96 B per operation invocation.
 - R-02: Populate-sites use two-line pattern locked in Phase 7 D-02: `LOG_*_ID_*(MSG_*, args); handle->response_code = RESPONSE_CODE_*;`
-- R-03: `_check_response` minimal strip: drop `log_info(handle->response_msg)` at `operation_utils.cpp:312` and `log_data(handle->response_msg)` at `operation_utils.cpp:317`. Keep `rurp_communication_write(handle->data_buffer, handle->data_size)` in the DATA case. Keep `return false` in the ERROR case. Keep `op_reset_timeout()` and `handle->response_code = RESPONSE_CODE_OK` at the bottom.
+- R-03: `_check_response` minimal strip: drop `log_info(handle->response_msg)` at `operation_utils.cpp:320` and `log_data(handle->response_msg)` at `operation_utils.cpp:325`. Keep `rurp_communication_write(handle->data_buffer, handle->data_size)` in the DATA case. Keep `return false` in the ERROR case. Keep `op_reset_timeout()` and `handle->response_code = RESPONSE_CODE_OK` at the bottom.
 
 **OK_REV / OK_CFG / FW_VERSION / FW_HANDSHAKE payload shape**
 - P-01: `MSG_OK_FW_VERSION` (0x03) uses `ascii_str` as the single param.
@@ -112,9 +112,9 @@ The **catalog additions** are the prerequisite for all call-site conversions, ex
 | `tools/catalog/messages.toml` | 68 entries (1 sentinel + 7 OK + 1 INIT + 1 MAIN + 1 END + 3 DATA + 26 INFO + 5 WARN + 24 ERROR) | Add VPP_VOLTAGE / VPE_VOLTAGE / DATA_CHUNK IDs; reshape OK_REV (0x04) / OK_CFG (0x05) / OK_FW_HANDSHAKE (0x06); add `[debug]` section |
 | `tools/catalog/codegen.py` | Emits `--language cpp` (messages.h) and `--language python` (messages.py) | Extend to emit `DBG_*` defines + `DEBUG_CATALOG` dict for `[debug]` section |
 | `firestarter/include/logging_id.h` | Has `LOG_ID_*` primitives + `LOG_INFO_ID_*` / `LOG_ERROR_ID_*` / `LOG_WARN_ID_*` | Add `LOG_OK_ID_*` / `LOG_INIT_ID_*` / `LOG_MAIN_ID_*` / `LOG_END_ID_*` / `LOG_DATA_ID_*` / `LOG_DEBUG_ID_*` families |
-| `firestarter/src/boards/rurp_serial_utils.cpp:176` | `uint8_t len = (uint8_t)(1 + param_count + 1);` / `SERIAL_PORT.write(len);` | Widen to u16: `uint16_t len_u16 = (uint16_t)(2 + param_count + 1);` / write MSB then LSB |
+| `firestarter/src/boards/rurp_serial_utils.cpp:173` | `uint8_t len = (uint8_t)(1 + param_count + 1);` / `SERIAL_PORT.write(len);` | Widen to u16: `uint16_t len_u16 = (uint16_t)(2 + param_count + 1);` / write MSB then LSB |
 | `firestarter/include/firestarter.h:21,79` | `#define RESPONSE_MSG_SIZE 96` / `char response_msg[RESPONSE_MSG_SIZE];` | Delete both after all populate-sites cleared |
-| `firestarter/src/operation_utils.cpp:292,312,317` | Buffer clear + `log_info(handle->response_msg)` + `log_data(handle->response_msg)` | R-01 clears go away with field; R-03 drops the two log lines |
+| `firestarter/src/operation_utils.cpp:300,320,325` | Buffer clear + `log_info(handle->response_msg)` + `log_data(handle->response_msg)` | R-01 clears go away with field; R-03 drops the two log lines |
 | `firestarter_app/firestarter/serial_comm.py:451-464` | Reads 1-byte `frame_len` | Widen to read 2 bytes big-endian |
 | `firestarter_app/firestarter/serial_comm.py:299-389` | `_decode_id_frame(frame_len: int, body: bytes)` | Unchanged signature; only the caller changes `frame_len` to be u16-derived |
 | `firestarter_app/firestarter/serial_comm.py:123-147` | `EXPECTED_PREFIXES` list includes `"MAIN"`, `"INIT"`, `"END"` / `STATE_MACHINE_PREFIXES` list / `PREFIX_REGEX` | Remove `"MAIN"` / `"INIT"` / `"END"` from `EXPECTED_PREFIXES`, remove or empty `STATE_MACHINE_PREFIXES`; keep `"OK"` / `"DATA"` until both are converted below |
@@ -182,13 +182,13 @@ Based on the Phase 7 per-file commit pattern and Phase 8's larger semantic shift
 - `hardware_operations.cpp`: convert VPP/VPE voltage path (lines 67-69), `send_ack_const("Ready")` (line 44), `fw_get_version` (line 80 → P-01), `hw_get_version` (line 89 → P-02), `hw_get_config` (line 100-102 → P-03)
 - `eprom_operations.cpp`: convert `send_ack_const("Req data")` (line 80) + `log_data_const("Sending data")` (line 121)
 - `firestarter.cpp`: convert `send_ack_format(PARSE_RESPONSE, ...)` at lines 150/153 (P-04 composite)
-- PROM populate-sites (R-02): `eprom.cpp:104`, `eprom.cpp:171`, `flash_type_3.cpp:88`, `flash_type_4.cpp:52`, `memory.cpp:325`
+- PROM populate-sites (R-02): `eprom.cpp:104`, `eprom.cpp:171`, `flash_type_3.cpp:88`, `flash_type_4.cpp:52`, `memory.cpp:397`
 
 **Group 5 — `_check_response` strip + `response_msg` deletion + `copy_to_buffer` deletion**
-- `operation_utils.cpp:312,317`: drop `log_info(handle->response_msg)` and `log_data(handle->response_msg)`
+- `operation_utils.cpp:320,325`: drop `log_info(handle->response_msg)` and `log_data(handle->response_msg)`
 - `firestarter.h:21,79`: delete `RESPONSE_MSG_SIZE` define + `char response_msg[RESPONSE_MSG_SIZE]` field
 - `logging.h`: delete `copy_to_buffer` macro definition (all callers now gone)
-- Remove all `response_msg` clear sites (`firestarter.cpp:67,168`, `operation_utils.cpp:292`)
+- Remove all `response_msg` clear sites (`firestarter.cpp:64,163`, `operation_utils.cpp:300`)
 
 **Group 6 — debug() single-sweep conversion**
 - All `debug()` / `debug_format()` call-sites (46 found in codebase — see Pitfalls note) across all source files
@@ -269,7 +269,7 @@ The `test_oversize_param_count_rejected` test currently pins the 253-byte safe m
 ### Pitfall 5: `DATA:` prefix removal breaks the chip-read host loop
 **What goes wrong:** The host's chip-read receive loop in `eprom_operations.py` (or the equivalent in `serial_comm.py`) currently detects the `DATA:` prefix to know when chip bytes are incoming, then reads `data_size` raw bytes off the wire. After W-04, the chunk arrives as a `MSG_DATA_CHUNK` ID frame. If the host still looks for a `DATA:` text prefix, it will time out.
 **Why it happens:** The DATA streaming path is more complex than the simple log-line paths. The host does not just decode a log message — it drives a state machine (send ACK, receive DATA chunk, decode chunk size from frame, forward to file).
-**How to avoid:** Map the exact host chip-read receive path before committing the firmware-side `eprom_operations.cpp:121` change. The relevant host code is in `firestarter_app/firestarter/eprom_operations.py` (not `serial_comm.py`). The `MSG_DATA_CHUNK` decode needs special handling: the params bytes ARE the chip data, not a rendered string. The host reader must extract the raw bytes from the frame body.
+**How to avoid:** Map the exact host chip-read receive path before committing the firmware-side `eprom_operations.cpp:116` change. The relevant host code is in `firestarter_app/firestarter/eprom_operations.py` (not `serial_comm.py`). The `MSG_DATA_CHUNK` decode needs special handling: the params bytes ARE the chip data, not a rendered string. The host reader must extract the raw bytes from the frame body.
 **Warning signs:** Read operations hang or produce zero-byte output after Group 4 `eprom_operations.cpp` conversion.
 
 ### Pitfall 6: P-04 `send_ack_format` / `format()` macro still references `handle->response_msg`
@@ -279,7 +279,7 @@ The `test_oversize_param_count_rejected` test currently pins the 253-byte safe m
 **Warning signs:** Firmware compile error `'firestarter_handle_t' has no member named 'response_msg'` if Group 5 lands before Group 4.
 
 ### Pitfall 7: `copy_to_buffer` helper deletion — verify all callers
-**What goes wrong:** `logging.h` defines `copy_to_buffer(buf, msg)` as `strcpy_P(buf, PSTR(msg))`. Phase 8 is supposed to eliminate all callers (they're all populate-sites filling `response_msg`). But `copy_to_buffer` may also be used by other code not in the R-02 site list (e.g., `hw_version_override` at `hardware_operations.cpp:111` uses `strcpy_P` directly but similar patterns might exist elsewhere).
+**What goes wrong:** `logging.h` defines `copy_to_buffer(buf, msg)` as `strcpy_P(buf, PSTR(msg))`. Phase 8 is supposed to eliminate all callers (they're all populate-sites filling `response_msg`). But `copy_to_buffer` may also be used by other code not in the R-02 site list (e.g., `hw_version_override` at `hardware_operations.cpp:110` uses `strcpy_P` directly but similar patterns might exist elsewhere).
 **Why it happens:** The R-02 site list focuses on the known `response_msg`-filling sites; other uses of `copy_to_buffer` may exist.
 **How to avoid:** Before Group 5, run `grep -rn "copy_to_buffer" firestarter/src/ firestarter/include/` and verify the result is zero or exclusively the `#define` line in `logging.h`. [VERIFIED: flash_type_3.cpp:88 and flash_type_4.cpp:52 use `copy_to_buffer` directly — both are in the R-02 site list. No other callers found in the initial grep.]
 **Warning signs:** Compile error referencing `copy_to_buffer` after `logging.h` macro deletion.
@@ -459,7 +459,7 @@ params = [{ type = "ascii_str" }]
 | A1 | `DATA_BUFFER_SIZE` is effectively 512 on both boards (platformio.ini sets `DATA_BUFFER_SIZE=512` for Leonardo explicitly; Uno default is 512). | Standard Stack | If Leonardo reverts to 1024 between now and Phase 8 execution, the `MSG_DATA_CHUNK` param-max arithmetic changes — still fits in u16 but the guard threshold changes |
 | A2 | 46 active `debug()`/`debug_format()` call-sites found by grep. The CONTEXT says 34. | Common Pitfalls P1 | If the count is wrong (e.g., some are in `#if 0` blocks or conditional code not compiled), the `[debug]` section sub_id count will be over-allocated — harmless but untidy |
 | A3 | The chip-read host receive loop is in `firestarter_app/firestarter/eprom_operations.py` and reads `DATA:` prefix-tagged lines. The specific function name and line numbers were not verified. | Common Pitfalls P5 | If the read loop is in `serial_comm.py` or elsewhere, the Pitfall 5 advice targets the wrong file |
-| A4 | `hw_version_override()` at `hardware_operations.cpp:108-115` uses `strcpy_P` directly (not `copy_to_buffer`). Confirmed by code read. | Pitfall 7 | [VERIFIED] — not an assumed claim |
+| A4 | `hw_version_override()` at `hardware_operations.cpp:107-114` uses `strcpy_P` directly (not `copy_to_buffer`). Confirmed by code read. | Pitfall 7 | [VERIFIED] — not an assumed claim |
 
 ---
 

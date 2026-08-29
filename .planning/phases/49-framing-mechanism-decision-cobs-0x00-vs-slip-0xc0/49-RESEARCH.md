@@ -142,7 +142,7 @@ host→fw data block    rurp_serial_utils.cpp:44-79   [len_u16 big-endian]
                                                     [xor_checksum][payload]
                                                     2 s timeout
 fw→host data block    rurp_serial_utils.cpp:81-93   same [len_u16][xor][payload]
-fw→host log/telemetry rurp_serial_utils.cpp:95-227  [0xAA55AA55][len_u16][id]
+fw→host log/telemetry rurp_serial_utils.cpp:92-224  [0xAA55AA55][len_u16][id]
                                                     [params][crc8][0x0A]
                                                     (magic preamble, CRC8-CCITT)
 ```

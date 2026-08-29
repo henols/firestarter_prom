@@ -140,13 +140,13 @@ completed: 2026-05-19
 | `send_ack(msg)` | `logging.h:25-26` macro | Plan 09-01 (dev_tools) + Plan 09-02 Task 1 (hardware_operations) |
 | `send_ack_const(msg)` | `logging.h:28-29` macro | Plan 09-02 Task 1 (the sole remaining caller in fw_get_version) |
 | `LOG_OK_MSG` | `logging.c:9` PROGMEM | Plan 09-02 Task 3 (file deletion) |
-| `rurp_log(PGM_P, const char*)` | `rurp_shield.h:132` + `rurp_serial_utils.cpp:246` weak + `uno_rurp_shield.cpp:80` strong | Plan 09-02 Task 3 |
-| `rurp_log_P(PGM_P, PGM_P)` | `rurp_shield.h:133` + `rurp_serial_utils.cpp:249` weak + `uno_rurp_shield.cpp:87` strong | Plan 09-02 Task 3 |
-| `_firestarter_log_ram` | `rurp_serial_utils.cpp:15-20` body + decl in `.h` | Plan 09-02 Task 3 (only caller was rurp_log weak default, also deleted) |
-| `_firestarter_log_progmem` | `rurp_serial_utils.cpp:22-28` body + decl in `.h` | Plan 09-02 Task 3 |
+| `rurp_log(PGM_P, const char*)` | `rurp_shield.h:127` + `rurp_serial_utils.cpp:243` weak + `uno_rurp_shield.cpp:77` strong | Plan 09-02 Task 3 |
+| `rurp_log_P(PGM_P, PGM_P)` | `rurp_shield.h:128` + `rurp_serial_utils.cpp:246` weak + `uno_rurp_shield.cpp:84` strong | Plan 09-02 Task 3 |
+| `_firestarter_log_ram` | `rurp_serial_utils.cpp:12-17` body + decl in `.h` | Plan 09-02 Task 3 (only caller was rurp_log weak default, also deleted) |
+| `_firestarter_log_progmem` | `rurp_serial_utils.cpp:19-25` body + decl in `.h` | Plan 09-02 Task 3 |
 | `debug_setup()` | `logging.h:36` decl + Uno strong + Leonardo stub | Plan 09-02 Task 3 (firestarter.cpp setup() caller removed atomically) |
-| `log_debug(PGM_P, const char*)` | `logging.h:37` decl + `uno_rurp_shield.cpp:160-168` body | Plan 09-02 Task 3 (only caller was Uno rurp_log, also deleted) |
-| `SoftwareSerial debugSerial` | `uno_rurp_shield.cpp:154` | Plan 09-02 Task 3 |
+| `log_debug(PGM_P, const char*)` | `logging.h:37` decl + `uno_rurp_shield.cpp:152-160` body | Plan 09-02 Task 3 (only caller was Uno rurp_log, also deleted) |
+| `SoftwareSerial debugSerial` | `uno_rurp_shield.cpp:146` | Plan 09-02 Task 3 |
 | `#define RX_DEBUG A0`, `#define TX_DEBUG A1` | `uno_rurp_shield.cpp:23-24` | Plan 09-02 Task 3 |
 
 ## Inline LFW-05 Bootstrap Shape

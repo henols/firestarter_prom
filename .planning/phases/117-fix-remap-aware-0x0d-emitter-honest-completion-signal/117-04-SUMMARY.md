@@ -120,7 +120,7 @@ None. The single automated verify gate and every acceptance criterion passed; th
 
 Per the plan's mandatory anti-hollow proof, the production `EEPROM_SDP_DISABLE` table's terminal byte in `src/proms/eeprom_28c.cpp` was temporarily changed from `0x20` (SDP-disable) to `0x10` (chip-erase), the suite was re-run, the RED output below was captured verbatim, the file was restored, and the suite was re-run to confirm 15/15 GREEN — all before this plan's commit. `git diff --exit-code -- src/` was confirmed clean immediately before committing.
 
-**Step 1 — mutation applied** (`{0x5555, 0x20}` → `{0x5555, 0x10}` at `eeprom_28c.cpp:113`, marked `/* TEMPORARY anti-hollow proof mutation -- 117-04, do not commit */`):
+**Step 1 — mutation applied** (`{0x5555, 0x20}` → `{0x5555, 0x10}` at `eeprom_28c.cpp:108`, marked `/* TEMPORARY anti-hollow proof mutation -- 117-04, do not commit */`):
 
 ```
 $ pio test -e native -f "*test_sdp_harness*"

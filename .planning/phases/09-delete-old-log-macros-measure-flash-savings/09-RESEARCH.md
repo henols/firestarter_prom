@@ -98,9 +98,9 @@ Per-symbol grep of `firestarter/src/`, `firestarter/include/`, `firestarter/lib/
 
 | Location | Role | Action |
 |---|---|---|
-| `firestarter/include/rurp_shield.h:132` | Declaration | DELETE |
-| `firestarter/src/boards/rurp_serial_utils.cpp:246-248` | Weak default definition (`__attribute__((weak))`) | DELETE |
-| `firestarter/src/boards/uno_rurp_shield.cpp:80-85` | Uno strong override | DELETE |
+| `firestarter/include/rurp_shield.h:127` | Declaration | DELETE |
+| `firestarter/src/boards/rurp_serial_utils.cpp:243-245` | Weak default definition (`__attribute__((weak))`) | DELETE |
+| `firestarter/src/boards/uno_rurp_shield.cpp:77-82` | Uno strong override | DELETE |
 | `firestarter/test/native/avr/_shared/host_stubs_common.inc:59-62` | Host no-op stub (`extern "C"`) | DELETE (D-03) |
 | `firestarter/include/logging.h:26` (inside `send_ack`) | Macro expansion site | DELETED transitively |
 
@@ -110,9 +110,9 @@ Per-symbol grep of `firestarter/src/`, `firestarter/include/`, `firestarter/lib/
 
 | Location | Role | Action |
 |---|---|---|
-| `firestarter/include/rurp_shield.h:133` | Declaration | DELETE |
-| `firestarter/src/boards/rurp_serial_utils.cpp:249-251` | Weak default definition | DELETE |
-| `firestarter/src/boards/uno_rurp_shield.cpp:87-91` | Uno strong override | DELETE |
+| `firestarter/include/rurp_shield.h:128` | Declaration | DELETE |
+| `firestarter/src/boards/rurp_serial_utils.cpp:246-248` | Weak default definition | DELETE |
+| `firestarter/src/boards/uno_rurp_shield.cpp:84-88` | Uno strong override | DELETE |
 | `firestarter/test/native/avr/_shared/host_stubs_common.inc:64-67` | Host no-op stub | DELETE (D-03) |
 | `firestarter/include/logging.h:29` (inside `send_ack_const`) | Macro expansion site | DELETED transitively |
 
@@ -123,9 +123,9 @@ Per-symbol grep of `firestarter/src/`, `firestarter/include/`, `firestarter/lib/
 | Location | Role | Action |
 |---|---|---|
 | `firestarter/include/rurp_serial_utils.h:15` | Declaration | DELETE |
-| `firestarter/src/boards/rurp_serial_utils.cpp:15-20` | Definition | DELETE |
-| `firestarter/src/boards/rurp_serial_utils.cpp:247` | Called from `rurp_log` weak default | DELETED transitively |
-| `firestarter/src/boards/uno_rurp_shield.cpp:83` | Called from `rurp_log` Uno strong override | DELETED transitively |
+| `firestarter/src/boards/rurp_serial_utils.cpp:12-17` | Definition | DELETE |
+| `firestarter/src/boards/rurp_serial_utils.cpp:244` | Called from `rurp_log` weak default | DELETED transitively |
+| `firestarter/src/boards/uno_rurp_shield.cpp:80` | Called from `rurp_log` Uno strong override | DELETED transitively |
 
 **CONFIRMED clean** — only callers are the `rurp_log` functions that are themselves being deleted.
 
@@ -133,10 +133,10 @@ Per-symbol grep of `firestarter/src/`, `firestarter/include/`, `firestarter/lib/
 
 | Location | Role | Action |
 |---|---|---|
-| `firestarter/include/rurp_serial_utils.h:18` | Declaration | DELETE |
-| `firestarter/src/boards/rurp_serial_utils.cpp:23-28` | Definition | DELETE |
-| `firestarter/src/boards/rurp_serial_utils.cpp:250` | Called from `rurp_log_P` weak default | DELETED transitively |
-| `firestarter/src/boards/uno_rurp_shield.cpp:89` | Called from `rurp_log_P` Uno strong override | DELETED transitively |
+| `firestarter/include/rurp_serial_utils.h:15` | Declaration | DELETE |
+| `firestarter/src/boards/rurp_serial_utils.cpp:20-25` | Definition | DELETE |
+| `firestarter/src/boards/rurp_serial_utils.cpp:247` | Called from `rurp_log_P` weak default | DELETED transitively |
+| `firestarter/src/boards/uno_rurp_shield.cpp:86` | Called from `rurp_log_P` Uno strong override | DELETED transitively |
 
 **CONFIRMED clean** — only callers are the `rurp_log_P` functions that are themselves being deleted.
 
@@ -158,7 +158,7 @@ Per-symbol grep of `firestarter/src/`, `firestarter/include/`, `firestarter/lib/
 |---|---|---|
 | `firestarter/include/logging.h:36` (under `#ifdef SERIAL_DEBUG`) | Declaration | DELETE |
 | `firestarter/include/logging.h:39` (under `#else`) | Empty-macro no-op fallback | DELETE |
-| `firestarter/src/boards/uno_rurp_shield.cpp:156-158` (under `#ifdef SERIAL_DEBUG`) | Definition: `debugSerial.begin(57600);` | DELETE |
+| `firestarter/src/boards/uno_rurp_shield.cpp:148-150` (under `#ifdef SERIAL_DEBUG`) | Definition: `debugSerial.begin(57600);` | DELETE |
 | `firestarter/src/boards/leonardo_rurp_shield.cpp:145` (under `#ifdef SERIAL_DEBUG`) | Empty `void debug_setup() {}` | DELETE |
 | `firestarter/src/firestarter.cpp:39` (inside `#ifdef SERIAL_DEBUG` block at lines 38-40 of `setup()`) | Caller: `debug_setup();` | DELETE entire `#ifdef SERIAL_DEBUG` block at firestarter.cpp:38-40 |
 
@@ -170,8 +170,8 @@ Per-symbol grep of `firestarter/src/`, `firestarter/include/`, `firestarter/lib/
 |---|---|---|
 | `firestarter/include/logging.h:37` (under `#ifdef SERIAL_DEBUG`) | Declaration | DELETE |
 | `firestarter/include/logging.h:40` (under `#else`) | Empty-macro no-op fallback | DELETE |
-| `firestarter/src/boards/uno_rurp_shield.cpp:160-168` (under `#ifdef SERIAL_DEBUG`) | Definition (writes to SoftwareSerial) | DELETE |
-| `firestarter/src/boards/uno_rurp_shield.cpp:81` (inside `rurp_log` Uno override) | Caller | DELETED transitively (the whole `rurp_log` body goes) |
+| `firestarter/src/boards/uno_rurp_shield.cpp:152-160` (under `#ifdef SERIAL_DEBUG`) | Definition (writes to SoftwareSerial) | DELETE |
+| `firestarter/src/boards/uno_rurp_shield.cpp:78` (inside `rurp_log` Uno override) | Caller | DELETED transitively (the whole `rurp_log` body goes) |
 
 **No callers outside `rurp_log` Uno strong override.** Once `rurp_log` is deleted, `log_debug` has zero callers. CONFIRMED — D-08 Claude's discretion "DELETE both" is correct.
 
@@ -247,7 +247,7 @@ CONTEXT.md's line numbers + planned change (convert to `LOG_OK_ID(MSG_OK_READY)`
 | `firestarter/src/proms/flash_intel.cpp:13` | nothing post-Phase-8 | DROP include |
 | `firestarter/src/proms/flash_type_3.cpp:14` | nothing post-Phase-8 | DROP include |
 | `firestarter/src/proms/flash_type_4.cpp:14` | nothing post-Phase-8 | DROP include |
-| `firestarter/src/proms/flash_utils.cpp:11` | nothing post-Phase-8 | DROP include |
+| `firestarter/src/proms/flash_utils.cpp:12` | nothing post-Phase-8 | DROP include |
 | `firestarter/src/proms/memory.cpp:18` | nothing post-Phase-8 | DROP include |
 | `firestarter/src/proms/sram.cpp:12` | nothing post-Phase-8 | DROP include |
 
@@ -727,13 +727,13 @@ The Phase 9 bench-verification task should explicitly close:
 ```bash
 $ grep -rn '#ifdef SERIAL_DEBUG\|#ifndef SERIAL_DEBUG' firestarter/src/ firestarter/include/
 firestarter/src/boards/uno_rurp_shield.cpp:22:#ifdef SERIAL_DEBUG
-firestarter/src/boards/uno_rurp_shield.cpp:152:#ifdef SERIAL_DEBUG
+firestarter/src/boards/uno_rurp_shield.cpp:144:#ifdef SERIAL_DEBUG
 firestarter/src/boards/leonardo_rurp_shield.cpp:144:#ifdef SERIAL_DEBUG
 firestarter/src/firestarter.cpp:38:#ifdef SERIAL_DEBUG
 ```
 
 - `uno_rurp_shield.cpp:22` — `#define RX_DEBUG A0 / #define TX_DEBUG A1` (line 23-24). KEEP for now (still needed if SERIAL_DEBUG is re-enabled) OR delete with the whole SoftwareSerial body at line 152-169. Recommend: delete (the SoftwareSerial body is the only thing that references these).
-- `uno_rurp_shield.cpp:152` — `#include <SoftwareSerial.h>` + `SoftwareSerial debugSerial(...)` + `debug_setup()` body + `log_debug()` body. ENTIRE BLOCK deleted by Phase 9 (per D-08 Claude's discretion + caller deletion).
+- `uno_rurp_shield.cpp:144` — `#include <SoftwareSerial.h>` + `SoftwareSerial debugSerial(...)` + `debug_setup()` body + `log_debug()` body. ENTIRE BLOCK deleted by Phase 9 (per D-08 Claude's discretion + caller deletion).
 - `leonardo_rurp_shield.cpp:144` — single empty `void debug_setup() {}` body. DELETED.
 - `firestarter.cpp:38` — `debug_setup();` caller. DELETED.
 
@@ -802,7 +802,7 @@ $ grep -rn '"OK: "\|"OK:"' /workspaces/firestarter_prom/firestarter_test.sh /wor
 
 ### 10. `dev_tools` SoftwareSerial deletion side-effect
 
-**Risk:** Deleting the `#include <SoftwareSerial.h>` from `uno_rurp_shield.cpp:153` removes a library dependency. PlatformIO's dependency graph (visible in the build header) currently lists `SoftwareSerial @ 1.0`. After deletion, the dependency is no longer needed — but it's still discovered by PlatformIO via LDF (Library Dependency Finder) on a cold build. The dependency might disappear from the build header or remain (LDF default mode is `chain ~ soft`). Either way, this is informational, not load-bearing.
+**Risk:** Deleting the `#include <SoftwareSerial.h>` from `uno_rurp_shield.cpp:145` removes a library dependency. PlatformIO's dependency graph (visible in the build header) currently lists `SoftwareSerial @ 1.0`. After deletion, the dependency is no longer needed — but it's still discovered by PlatformIO via LDF (Library Dependency Finder) on a cold build. The dependency might disappear from the build header or remain (LDF default mode is `chain ~ soft`). Either way, this is informational, not load-bearing.
 
 **Low risk** — does not affect build success or measurement.
 

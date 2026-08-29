@@ -28,8 +28,8 @@ None of these changes a decision; they matter only because a plan that hands an 
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |-------------------|------|-----------|----------------|---------------|
-| `src/proms/eprom.cpp` (M) | protocol handler | per-byte pulse→verify loop | itself (`:143-193` replaced) + `memory.cpp:261-281` `memory_verify_execute` + `memory.cpp:321-390` `mem_util_blank_check` | exact (in-file idioms) |
-| `src/proms/memory.cpp` (M) | utility / primitive layer | transform (pure split) + hardware I/O | `memory.cpp:219-235` (clamp-a-host-timing-value) + `memory.cpp:151-173` (`mem_util_*` computed-value shape) | role-match |
+| `src/proms/eprom.cpp` (M) | protocol handler | per-byte pulse→verify loop | itself (`:143-193` replaced) + `memory.cpp:333-353` `memory_verify_execute` + `memory.cpp:393-460` `mem_util_blank_check` | exact (in-file idioms) |
+| `src/proms/memory.cpp` (M) | utility / primitive layer | transform (pure split) + hardware I/O | `memory.cpp:223-307` (clamp-a-host-timing-value) + `memory.cpp:151-173` (`mem_util_*` computed-value shape) | role-match |
 | `include/memory_utils.h` (M) | header / declaration | n/a | itself, `:17-22` declaration block | exact |
 | `include/messages.h` (G) | generated constants | n/a | the file itself — **ID-only `#define`s, DO NOT EDIT** | exact (generated) |
 | `tools/catalog/messages.toml` (S) | vendored config | n/a | synced by `sync_to_subrepos.sh:38-55` | exact (synced) |
@@ -1239,7 +1239,7 @@ chose distinct IDs for this exact problem.
 ```
 
 For a `(u24 address, u8 pulse_count)` payload, `LOG_ERROR_ID_BYTES(id, _b, 4)` with the `_b[]` packing
-idiom from `eprom.cpp:182-191` / `memory.cpp:266-276`.
+idiom from `eprom.cpp:182-191` / `memory.cpp:338-348`.
 
 ---
 
@@ -1357,7 +1357,7 @@ the full entry list, the exact build+run commands, and the observed case/suite c
 
 ### S1 — File header block (every new C/C++ and Python file)
 
-**Source:** every file in the tree. Firmware/C++ form (`eprom_params.cpp:1-22`,
+**Source:** every file in the tree. Firmware/C++ form (`eprom_params.cpp:1-18`,
 `test_trace_eprom_v131/host_stubs.cpp:1-50`):
 
 ```c
@@ -1380,7 +1380,7 @@ defect class closed, a numbered `Coverage:` list matching the test functions 1:1
 
 ### S2 — PROGMEM read, always through the accessor
 
-**Source:** `test_eprom_params_v131.cpp:179-184` (§6) and `eprom_params.cpp:57`.
+**Source:** `test_eprom_params_v131.cpp:179-184` (§6) and `eprom_params.cpp:53`.
 **Apply to:** `configure_eprom`'s new table read and every table read in the new suite.
 **Hoist all six reads once per block**, into locals, before the byte loop. Never inside it.
 
@@ -1493,7 +1493,7 @@ name the specific trap it is avoiding.
 | `accumulated >= energy_cap_us` without the `energy_cap_us &&` guard | `0x07`/`0x08` abort after the **first** pulse — `0` means uncapped | `eprom_params.h:53`; RESEARCH Pitfall 3 |
 | Branching on `protocol` for the DIP32 case | A **fourth** tier-1 site → `test_exactly_three_protocol_keyed_sites_at_the_pinned_lines` RED. Branch on `handle->pins >= 32` | `test_protocol_branch_inventory.py:443-452` |
 | Replacing the `:145` VPP predicate with the table's `vpp_path` | Tier-1 drops to 2 and the gate's error message becomes correct about a real regression. **Phase 142 owns it** | golden `meta.frozen_for` |
-| Asserting "no CONTROL strobe during a verify read" | False — `mem_util_set_address:186` writes CONTROL unconditionally on **every** byte, for both pulse and verify | `memory.cpp:186`; RESEARCH's correction to the LOOP-08 premise |
+| Asserting "no CONTROL strobe during a verify read" | False — `mem_util_set_address:186` writes CONTROL unconditionally on **every** byte, for both pulse and verify | `memory.cpp:189`; RESEARCH's correction to the LOOP-08 premise |
 | Asserting HV-disabled **after** the command completes | `command_done()` (`firestarter.cpp:162-171`) zeroes CONTROL regardless → passes vacuously | RESEARCH Pitfall 5 |
 | Asserting "exactly one CONTROL strobe per block" | For a chip with `bus_config.rw_line == 22`, alternating pulse↔verify flips `CTRL_READ_WRITE` and re-strobes CONTROL **twice per byte** — expected, not a violation | RESEARCH §"LOOP-08 mechanics" |
 | Adding a new `.cpp` under `src/` | `platform/py32f071/CMakeLists.txt`'s `FIRESTARTER_COMMON_SOURCES` must name it; `test_check_cmake_manifest.py::test_armed_and_passing_on_the_real_tree` runs against the real tree **inside CI-covered `pytest tests/ -v`**. **This is why D-06 puts the helper in `memory.cpp`** | RESEARCH §"Alternatives Considered" |

@@ -57,7 +57,7 @@ Two new sections in `.planning/X88C64-FEASIBILITY.md` (inserted before §7 Sourc
   - The 0x100 / uint8_t-truncation argument: `rurp_internal_write_to_register`
     (`rurp_register_utils.h:63–89`) → `rurp_write_data_buffer(data)` at
     `rurp_register_utils.h:83`, declared `void rurp_write_data_buffer(uint8_t data)` at
-    `rurp_shield.h:118` — so `0x100 & 0xFF == 0x00` and the "9th bit" never reaches the
+    `rurp_shield.h:113` — so `0x100 & 0xFF == 0x00` and the "9th bit" never reaches the
     74HC573.
   - 74HC573 strobe inventory (`rurp_shield.h:53–57`) — all five strobes assigned; no free
     ALE strobe; shared-bus single-strobe write path (`rurp_register_utils.h:83–88`).

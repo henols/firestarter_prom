@@ -25,7 +25,7 @@ The load-bearing findings:
    `electrical.type ∈ {"EEPROM","Flash/EEPROM"}`. Relabeling **SST39SF040 `Flash/EEPROM`→`Flash`
    FLIPS `FLAG_CAN_ERASE` OFF** — precisely the Phase-77 auto-erase perturbation D-40 forbids. The
    FM1608 `SRAM`→`FRAM` relabel does NOT touch CAN_ERASE but DOES flip the VPP-display gate
-   (`eprom_info.py:395`, `ic_layout.py:395`) from hidden to shown. Additionally, **`diff_db.py` will
+   (`eprom_info.py:395`, `ic_layout.py:393`) from hidden to shown. Additionally, **`diff_db.py` will
    classify a type-only change as `unexplained` → exit 1 (BLOCK)** unless a new root-cause rule is added.
 
 3. **FM1608 blank-check "Empty input" (D-30):** "Empty input" is firmware message `0xA4`
@@ -197,8 +197,8 @@ after this block and before `chip_entry` construction. The `_etype` value flows 
 |---------|-------------|-------------|-----|
 | Asserting the DB relabel is label-only | A bespoke JSON differ | `tools/diff_db.py` (GATE-02) | Already classifies per-field deltas vs a pinned baseline; **but you MUST add a root-cause rule** (see Pitfall 3) |
 | Asserting no dispatch/VPP-safety regression | Manual chip-by-chip review | `tools/check_dispatch.py` (GATE-03) | Full-DB structural + WARNING-5 type-keyed VPP-safety scan [CITED: check_dispatch.py header] |
-| N≥3 read oracle for 2516 re-read | A loop calling `read` | `dev consistency-check --runs 3` | Built-in N-read oracle, 3-way verdict, writes per-run binaries [VERIFIED: cli_handlers.py:1049] |
-| Write+readback re-bench (W29C040) | Manual write/verify steps | `dev write-cycle <chip> <image>` or `write -b` | Built-in write→read-back→SHA cycle (default `--runs 5`) [VERIFIED: cli_handlers.py:1139] |
+| N≥3 read oracle for 2516 re-read | A loop calling `read` | `dev consistency-check --runs 3` | Built-in N-read oracle, 3-way verdict, writes per-run binaries [VERIFIED: cli_handlers.py:1047] |
+| Write+readback re-bench (W29C040) | Manual write/verify steps | `dev write-cycle <chip> <image>` or `write -b` | Built-in write→read-back→SHA cycle (default `--runs 5`) [VERIFIED: cli_handlers.py:1137] |
 | Deterministic re-bench image | Random bytes | `tools/gen_test_image.py <size> <seed>` | Reproducible SHA oracle [CITED: EVIDENCE.md Phase 83 image table] |
 | Firmware native dispatch test | Hardware round-trip | `pio test -e native` | Host-side Unity dispatch suite, no board [CITED: firestarter/CLAUDE.md §Native Test] |
 
@@ -242,9 +242,9 @@ label is decoupled from the CAN_ERASE-deciding `electrical.type` string. Prove v
 changed for SST39SF040; the host `flags` for SST39SF040 drop from 0x02 to 0x00.
 
 ### Pitfall 2: FM1608 `FRAM` relabel turns ON the VPP display + falls out of the curated label map
-**What goes wrong:** `eprom_info.py:395` and `ic_layout.py:395` gate VPP display on `electrical-type != "SRAM"`.
+**What goes wrong:** `eprom_info.py:395` and `ic_layout.py:393` gate VPP display on `electrical-type != "SRAM"`.
 FM1608 has `vpp_mv = 12000` in the DB. Relabel `SRAM`→`FRAM` makes `"FRAM" != "SRAM"` true → **VPP starts
-displaying** for FM1608 (`12v`). Also `_ELECTRICAL_TYPE_LABEL` (`ic_layout.py:472`) has no `"FRAM"` key → the
+displaying** for FM1608 (`12v`). Also `_ELECTRICAL_TYPE_LABEL` (`ic_layout.py:469`) has no `"FRAM"` key → the
 Type label falls back to the protocol-based label (`get_chip_type_string(0x28)` = "SRAM (28-pin)"), so the
 visible Type may NOT actually read "FRAM" unless the curated map is extended.
 **Why it happens:** SRAM is special-cased as "no VPP, volatile" throughout the display layer.
@@ -269,7 +269,7 @@ Plan a `tests/test_diff_db_gate.py` assertion update (the gate is exercised by t
 ### Pitfall 4: FM1608 blank-check "Empty input" is a FIRMWARE 0xA4, not a host-generated string
 **What goes wrong:** Treating "Empty input" as a host string to suppress. It is firmware message
 `0xA4 MSG_ERR_EMPTY_INPUT` (`messages.py:437` is the codegen host MIRROR; the firmware emits it at
-`firestarter.cpp:119`/`:194`). FM1608 routes to `configure_sram` (no-op stub, `sram.cpp:15`); `configure_memory`
+`firestarter.cpp:115`/`:194`). FM1608 routes to `configure_sram` (no-op stub, `sram.cpp:15`); `configure_memory`
 sets NO `firestarter_operation_main` for `CMD_BLANK_CHECK` (`memory.cpp:52-62` only handles READ/WRITE/VERIFY),
 so the SRAM/FRAM blank-check has a NULL main op.
 **Why it happens:** SRAM/FRAM has no meaningful "blank" concept; the firmware path was never wired for it.

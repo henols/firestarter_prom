@@ -186,9 +186,9 @@ Phase 113/114.
   `StepResult` with `verdict`/`error_code`/`fingerprint` (~L453–472),
   `derive_plan()` (~L318), `run_plan() -> list[StepResult]` (~L501). The report
   is a NEW consumer of these — it adds no new dispatch and sets no VPP.
-- `firestarter/cli_handlers.py:1377` — `_write_validation_matrix_artifact`
+- `firestarter/cli_handlers.py:1375` — `_write_validation_matrix_artifact`
   (json+md dual-serialization precedent to mirror in *shape*) and
-  `firestarter/cli_handlers.py:1476` — `dev_validate_family` (the sibling handler
+  `firestarter/cli_handlers.py:1474` — `dev_validate_family` (the sibling handler
   + `EpromDatabase(skip_local_override=True)` + mock-operator unit-test seam)
 - `firestarter/serial_comm.py` — MSG_OK_READY identity decode (`version:board`
   source for RPT-02 auto-capture); survey here for any reachable transport

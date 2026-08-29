@@ -37,7 +37,7 @@ None from the discussion. Adjacent concerns owned elsewhere: measured VPP/VPE mV
 
 | ID | Description | Research Support |
 |----|-------------|------------------|
-| RPT-01 | One self-contained report rendered two ways from one source object (`rich` table + fenced JSON with `schema_version`) | `_write_validation_matrix_artifact` (cli_handlers.py:1373) is the json+md dual-serialization *shape* precedent; the single-source-render pattern (§Pattern 1) makes both renders read the same `to_dict()`/field accessors. `rich>=14.0` [VERIFIED: pyproject.toml:51]. |
+| RPT-01 | One self-contained report rendered two ways from one source object (`rich` table + fenced JSON with `schema_version`) | `_write_validation_matrix_artifact` (cli_handlers.py:1371) is the json+md dual-serialization *shape* precedent; the single-source-render pattern (§Pattern 1) makes both renders read the same `to_dict()`/field accessors. `rich>=14.0` [VERIFIED: pyproject.toml:51]. |
 | RPT-02 | Auto-capture FW+board+host version, chip-ID expected-vs-actual, protocol path, per-op exact firmware error code, byte-mismatch fingerprint | Host version = `firestarter.__version__` = `"3.0.0b10"` [VERIFIED: __init__.py:1]. FW+board = `SerialCommunicator.programmer_info` (`version:board` from MSG_OK) [VERIFIED: serial_comm.py:686]. Per-op error code + fingerprint already on `StepResult.error_code`/`.fingerprint` [VERIFIED: chip_test.py:471-472]. chip-ID expected-vs-actual: §Pitfall 2. |
 | RPT-04 | Provenance prompted before sweep; blank provenance ⇒ not submittable | `rich.prompt.Confirm` already imported in firmware.py:20 [VERIFIED]. `Prompt.ask`/`Confirm.ask` are the standard `rich` API. §Pattern 3 gives the injectable-seam unit-test approach. |
 | RPT-05 | Embed DB-diff (`support_status` at test time + proposed change) for flag-only triage | `support_status` read via `db.get_eprom_config(name)[0].get("support_status","supported")` — the exact site chip_resolver.py:54 uses [VERIFIED]. §Pattern 4 maps verdicts → advisory string. |
@@ -62,8 +62,8 @@ None from the discussion. Adjacent concerns owned elsewhere: measured VPP/VPE mV
 |---------|---------|---------|--------------|
 | `rich` | `>=14.0` [VERIFIED: pyproject.toml:51] | `rich.table.Table` + `rich.console.Console` for human render; `rich.prompt.Prompt`/`Confirm` for provenance | Already a declared dependency; already used for prompts (firmware.py:20). No new dependency. |
 | `dataclasses` | stdlib | `DiagnosticReport` + sub-objects | Phase 108/109 already model everything as `@dataclass` (`Fingerprint`, `Step`, `Plan`, `StepResult`, `BannerCounts`); consistency + `dataclasses.asdict` availability. |
-| `json` | stdlib | `json.dumps(obj, indent=2)` for the fenced JSON block | Exact precedent: `_write_validation_matrix_artifact` (cli_handlers.py:1394) uses `json.dumps(artifact, indent=2)`. |
-| `datetime` | stdlib | `generated` UTC timestamp on the report | Precedent: cli_handlers.py:1386 `datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")`. |
+| `json` | stdlib | `json.dumps(obj, indent=2)` for the fenced JSON block | Exact precedent: `_write_validation_matrix_artifact` (cli_handlers.py:1392) uses `json.dumps(artifact, indent=2)`. |
+| `datetime` | stdlib | `generated` UTC timestamp on the report | Precedent: cli_handlers.py:1384 `datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")`. |
 
 ### Supporting
 | Library | Version | Purpose | When to Use |
@@ -171,7 +171,7 @@ Rationale: a dedicated `diagnostic_report.py` keeps SAFE-02 clean (report module
 **When to use:** Whenever a report must be both machine-parseable and human-readable and the two must never drift.
 **Example:**
 ```python
-# Source: pattern derived from firestarter cli_handlers.py:1373-1420 (json+md dual-serialization)
+# Source: pattern derived from firestarter cli_handlers.py:1371-1418 (json+md dual-serialization)
 #         + rich official docs (Table API). Adapted for single-source.
 import json
 from dataclasses import dataclass, field
@@ -285,12 +285,12 @@ def build_db_diff(name: str, db, results: list) -> "DbDiff":
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
 | Human table rendering | Manual column alignment / ASCII tables | `rich.table.Table` | Already a dep; used across the app; handles wrapping/alignment. |
-| JSON pretty-print | Custom serializer | `json.dumps(d, indent=2)` | Exact precedent cli_handlers.py:1394. |
+| JSON pretty-print | Custom serializer | `json.dumps(d, indent=2)` | Exact precedent cli_handlers.py:1392. |
 | Byte-mismatch classification | New fingerprint logic | Phase 108 `Fingerprint` on `StepResult.fingerprint` | Already computed; report is a consumer (chip_test.py:127). |
 | N-of-M banner counting | Recount steps | Phase 109 `count_applicable()` → `BannerCounts` | Already single-derivation-safe (chip_test.py:925). |
 | support_status lookup | New DB parse | `db.get_eprom_config(name)[0].get("support_status","supported")` | Identical site chip_resolver.py:54 uses. |
 | Interactive prompts | `input()` + validation | `rich.prompt.Prompt.ask`/`Confirm.ask` | Choice validation, defaults, styling; precedent firmware.py:20. |
-| UTC timestamp | strftime by hand each time | `datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")` | Exact precedent cli_handlers.py:1386. |
+| UTC timestamp | strftime by hand each time | `datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")` | Exact precedent cli_handlers.py:1384. |
 
 **Key insight:** This phase is almost entirely *composition* of already-built, already-tested Phase 108/109 objects plus thin `rich`/`json` rendering. The only genuinely new logic is the provenance prompt seam, `is_submittable`, and the advisory DB-diff string — all pure and unit-testable.
 

@@ -64,7 +64,7 @@ coverage:
         status: pass
     human_judgment: false
   - id: D3
-    description: "MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE) and TYPE_EPROM/TYPE_SRAM/TYPE_FLASH_TYPE_3/TYPE_FLASH_TYPE_4 removed in the same commit as the dispatch-chain deletion; the 0xAE CRC8 table byte at rurp_serial_utils.cpp:377 left untouched"
+    description: "MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE) and TYPE_EPROM/TYPE_SRAM/TYPE_FLASH_TYPE_3/TYPE_FLASH_TYPE_4 removed in the same commit as the dispatch-chain deletion; the 0xAE CRC8 table byte at rurp_serial_utils.cpp:374 left untouched"
     requirement: "FW-03"
     verification:
       - kind: other
@@ -105,7 +105,7 @@ status: complete
 - Firmware dispatch is now single-axis: `configure_memory()` reads only `handle->protocol`; the four-arm `mem_type` fallback chain (steps 7–11) and its trailing `MSG_ERR_MEM_TYPE_UNSUPPORTED` error path are gone.
 - Collapsed the tail of `configure_memory()` to one unconditional terminal `configure_not_implemented(handle);` call (D-04) — `protocol == 0` and any unrecognized non-zero protocol now share the identical fail-closed exit, proven by a new native test.
 - `firestarter_handle_t.mem_type` removed from the struct; `json_parser.c` no longer parses the `type` JSON key (all 4 allowlist touchpoints removed) — a host still emitting `type` is now silently unknown-field-skipped (WIRE-01, no behavior change needed on the wire beyond the removal itself).
-- `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the four `TYPE_*` `#define`s retired in the same commit as the dispatch-chain deletion (SC#3) — confirmed no orphaned readers remain. The CRC8 table byte `0xAE` at `rurp_serial_utils.cpp:377` is untouched and verified via grep count.
+- `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the four `TYPE_*` `#define`s retired in the same commit as the dispatch-chain deletion (SC#3) — confirmed no orphaned readers remain. The CRC8 table byte `0xAE` at `rurp_serial_utils.cpp:374` is untouched and verified via grep count.
 - Full native suite (80/80), both AVR builds (Uno 71.9% flash, Leonardo 88.3% flash), and the cross-repo `check_dispatch.py` (746 chips, 0 violations) all green — proving the removed fallback was dead code for every real DB chip (SC#4/SAFE-01/GATE-01).
 - **Unplanned but required setup:** performed the D-01 prerequisite (merge `v1.19-protocol-naming-labels` → `beta` in both `firestarter/` and `firestarter_app/`, lockstep, no tag; then forked `v1.20-protocol-only-dispatch` off the updated `beta` in both sub-repos) — this was explicitly operator-authorized in `105-CONTEXT.md` (D-01/D-02/D-03) but had not yet been executed when this plan started running.
 

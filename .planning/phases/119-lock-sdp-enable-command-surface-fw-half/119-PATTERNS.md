@@ -120,7 +120,7 @@ static inline bool is_operation_in_progress(const firestarter_handle_t* handle) 
 }
 ```
 
-Under (b) the one-line call site at `operation_utils.cpp:83` stays natively unproven and D-08's
+Under (b) the one-line call site at `operation_utils.cpp:89` stays natively unproven and D-08's
 cmd × protocol enumeration is **prose, not a test** — record that explicitly if taken.
 
 ---
@@ -176,7 +176,7 @@ CMD_SDP_LOCK}` with **no `#ifdef` inside the body** (D-02).
 
 **Analog:** same file, `:76-95` (the guard being replaced) and `:212-220` (the arm shape to copy).
 
-**Guard site as it stands today** (`firestarter.cpp:76-95`) — the `#ifdef DEV_TOOLS` wrapper around
+**Guard site as it stands today** (`firestarter.cpp:73-91`) — the `#ifdef DEV_TOOLS` wrapper around
 `:79` is **mandatory today**, not gratuitous, because `CMD_DEV_ADDRESS` does not exist in a release
 build (F-C). `is_memory_cmd()` removes the `#ifdef` by not naming those symbols at all:
 
@@ -201,12 +201,12 @@ build (F-C). `is_memory_cmd()` removes the `#ifdef` by not naming those symbols 
     } else if (handle->cmd == CMD_CONFIG) { /* ... */ }
 ```
 
-**⚠ Second live site to check:** `firestarter.cpp:128` carries an independent
+**⚠ Second live site to check:** `firestarter.cpp:124` carries an independent
 `handle->cmd > CMD_IDLE && handle->cmd < CMD_READ_VPP` range test gating three debug lines. It is
 the same ordinal-range idiom and neither CONTEXT.md nor RESEARCH.md names it. Decide explicitly
 whether it also becomes `is_memory_cmd()`; do not let a verifier find it.
 
-**`case` arm pattern** (`firestarter.cpp:212-220`) — `CMD_ERASE` / `CMD_CHECK_CHIP_ID` are the
+**`case` arm pattern** (`firestarter.cpp:207-215`) — `CMD_ERASE` / `CMD_CHECK_CHIP_ID` are the
 payload-free precedent; the new arms are two more of these, **outside** any `#ifdef`:
 
 ```cpp
@@ -221,7 +221,7 @@ payload-free precedent; the new arms are two more of these, **outside** any `#if
             break;
 ```
 
-**`default:` arm to preserve** (`firestarter.cpp:248-251`) — this is what cmd 7/8 fall to in a
+**`default:` arm to preserve** (`firestarter.cpp:243-246`) — this is what cmd 7/8 fall to in a
 release build after D-01, and (per F-B2) what `CMD_IDLE` does *not* reach:
 
 ```cpp
@@ -283,9 +283,9 @@ to the op layer and no per-command precondition flag exists for SDP.
 
 **Analog:** the refusal *idiom* is `eprom_operations.cpp:36-39` above; the *site* is a self-analog.
 
-**Site as it stands** (`operation_utils.cpp:62-84`) — `:83`'s bare `return false` is the
+**Site as it stands** (`operation_utils.cpp:62-90`) — `:83`'s bare `return false` is the
 phantom-success mechanism. Every caller inverts it, so the command reports **finished** with
-`response_code` left at the `RESPONSE_CODE_OK` `loop()` set at `firestarter.cpp:201`, and emits
+`response_code` left at the `RESPONSE_CODE_OK` `loop()` set at `firestarter.cpp:196`, and emits
 nothing at all:
 
 ```cpp
@@ -320,7 +320,7 @@ bool op_execute_stateful_operation(bool (*callback)(firestarter_handle_t* handle
     return false;
 ```
 
-**Response-code store analog** (`eeprom_28c.cpp:509-512`):
+**Response-code store analog** (`eeprom_28c.cpp:480-483`):
 
 ```cpp
         LOG_ERROR_ID_BYTES(MSG_ERR_EEPROM_TIMEOUT, _b, 5);
@@ -342,7 +342,7 @@ fire for cmd 9/10. The wrapper is otherwise generic.
 
 #### (1) `EEPROM_SDP_ENABLE[3]` — copy `EEPROM_SDP_DISABLE`'s shape verbatim
 
-`eeprom_28c.cpp:108-130`. The `extern` line at `:122` is **load-bearing** (it grants external
+`eeprom_28c.cpp:103-124`. The `extern` line at `:122` is **load-bearing** (it grants external
 linkage so the test guard can pin the *production* array); the comment block is the rationale-comment
 format D-10 wants:
 
@@ -366,7 +366,7 @@ const byte_flip_t EEPROM_SDP_DISABLE[6] = {
 };
 ```
 
-**Forward-declaration block to extend** (`eeprom_28c.cpp:101-106`) — new file-`static` ops go here;
+**Forward-declaration block to extend** (`eeprom_28c.cpp:96-101`) — new file-`static` ops go here;
 `eeprom_28c.h` exports only `configure_eeprom28c`, so **no header change is needed** (F-Q), which
 keeps the host gates' scanned surface stable:
 
@@ -381,7 +381,7 @@ static bool eeprom28c_verify_page_readback(firestarter_handle_t* handle, uint32_
 
 #### (2) `configure_eeprom28c`'s new arms
 
-`eeprom_28c.cpp:132-145` — the switch D-05 constrains. `CMD_READ` and `CMD_VERIFY` **reach this
+`eeprom_28c.cpp:126-139` — the switch D-05 constrains. `CMD_READ` and `CMD_VERIFY` **reach this
 switch and fall through it**, keeping the generic mains `configure_memory` pre-set. A `default:`
 arm here refuses them on all 84 chips. If any arm is added, spell it
 `case CMD_ERASE: case CMD_CHECK_CHIP_ID:` — never `default:`:
@@ -428,7 +428,7 @@ void configure_memory(firestarter_handle_t* handle) {
 
 #### (3) The shared emitter — reuse, do NOT touch its body
 
-`eeprom_28c.cpp:222-238`. Its own comment at `:212-221` states the hard constraint: nothing
+`eeprom_28c.cpp:214-230`. Its own comment at `:212-221` states the hard constraint: nothing
 bus-visible beyond `rurp_set_data_output()` and the `set_data` loop, and **no `LOG_` call**:
 
 ```cpp
@@ -479,7 +479,7 @@ the tree's only such call sites. The lock's pair must use the same spelling or a
 
 #### (5) The lock's own wait — D-11 declines reusing this
 
-`eeprom_28c.cpp:272-285`. It is `delay(t_WC)` **plus** up to 32 reads through
+`eeprom_28c.cpp:260-273`. It is `delay(t_WC)` **plus** up to 32 reads through
 `firestarter_get_data`, and a `memory_get_data` read folds `READ_FLAG` into
 `DIP32_28C512_EEPROM`'s CONTROL bit — which is why the lock uses `delay(AT28C_TWC_MAX_MS)` alone:
 
@@ -500,7 +500,7 @@ static void eeprom28c_wait_for_sdp_completion(firestarter_handle_t* handle) {
 
 Constants: `AT28C_TWC_MAX_MS 10` (`:42`), `AT28C_TBLC_MAX_US 100` (`:58`) — both `#define`s local to
 this `.cpp`, **not** exported by `eeprom_28c.h`. A test must mirror the value as a named local with
-an explicit `eeprom_28c.cpp:58` citation (existing Case 11 does this).
+an explicit `eeprom_28c.cpp:54` citation (existing Case 11 does this).
 
 #### (6) D-16's worst-case page-load tracker
 

@@ -151,7 +151,7 @@ _Note: this plan's `commits_land_in: [firestarter, firestarter_app]` — no meta
 ## Decisions Made
 
 - Widened the parse gate (`is_memory_cmd(handle->cmd) || handle->cmd < CMD_READ_VPP`) rather than re-ordering the enum (breaks wire compatibility) or making the read a non-memory command (structurally impossible — `firestarter_get_data` is set only by `configure_memory`). Per OD-3 / 151-DESIGN.md.
-- Left the diagnostic-range ordinal guard at `firestarter.cpp:136-146` completely unchanged; recorded the no-`DBG_*`-output consequence in its comment as a chosen trade, not a defect to fix.
+- Left the diagnostic-range ordinal guard at `firestarter.cpp:132-142` completely unchanged; recorded the no-`DBG_*`-output consequence in its comment as a chosen trade, not a defect to fix.
 - Deliberately did **not** add a `loop()` dispatch arm for `CMD_LOCK_STATUS` — that belongs to Plan 151-08. Command 16 currently produces `MSG_ERR_UNKNOWN_CMD`, a coherent intermediate state.
 - `check_is_memory_cmd_no_ifdef.py`'s PASS message computes the expected-set size from `len(_EXPECTED_CMD_NAMES)` rather than a hardcoded word, so a future growth needs only the one set-literal edit.
 - Ran `check_mypy_watermark.py` under a `uv`-managed Python 3.11 venv rather than this devcontainer's default 3.12, which fails the gate closed on an unrelated numpy/py3.12 stub syntax issue — a previously documented environment trap, not caused by this plan's changes.

@@ -62,7 +62,7 @@ completed: 2026-05-18
 ## Accomplishments
 
 - Converted `flash_type_4.cpp:88` (`firestarter_error_response_format` with 3 params) to `LOG_ERROR_ID_BYTES(MSG_ERR_FL4_VERIFY_TIMEOUT, _b, 5)` with [u8 expected, u24 MSB-first address, u8 observed] packed into named local array
-- Converted `flash_utils.cpp:46` (`firestarter_error_response`) to `LOG_ERROR_ID(MSG_ERR_OP_TIMEOUT)` (zero-param)
+- Converted `flash_utils.cpp:47` (`firestarter_error_response`) to `LOG_ERROR_ID(MSG_ERR_OP_TIMEOUT)` (zero-param)
 - Both conversions preserve `handle->response_code = RESPONSE_CODE_ERROR` after the emit
 - OK-path `copy_to_buffer(handle->response_msg, "Skipping erase.")` at flash_type_4.cpp:51 untouched (out of scope per plan)
 - All 15 native dispatch tests pass; Uno Flash 80.7% (26044/32256); Leonardo Flash 98.4% (28208/28672)
@@ -72,7 +72,7 @@ completed: 2026-05-18
 Each task was committed atomically in the submodule:
 
 1. **Task 1: Convert flash_type_4.cpp:88** - `096812d` (feat)
-2. **Task 2: Convert flash_utils.cpp:46** - `1292826` (feat)
+2. **Task 2: Convert flash_utils.cpp:47** - `1292826` (feat)
 
 **Superproject submodule bump:** `55445ca` (deps)
 

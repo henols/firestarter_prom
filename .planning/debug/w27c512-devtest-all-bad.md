@@ -113,7 +113,7 @@ bench state at handoff: exactly one board present, /dev/ttyACM0; no process hold
     prove the write cleared no bit anywhere in the 65536-byte region
   evidence: DISPROVEN -- those two fields are HARDCODED literals on the unmasked path, not
     measurements. `_resolve_write_target` constructs `WriteTarget(..., masked=False,
-    bits_cleared=0, bits_retained=0, ...)` (chip_test.py:3080-3088) and diagnostic_report.py:806-807
+    bits_cleared=0, bits_retained=0, ...)` (chip_test.py:3080-3088) and diagnostic_report.py:800-801
     copies them straight off the target. Only the `uv-slot` branch ever computes real counts. The
     zeros carry NO information about this run.
   timestamp: 2026-08-22
@@ -201,7 +201,7 @@ bench state at handoff: exactly one board present, /dev/ttyACM0; no process hold
     wire key `pulse-delay`, filled by database.py:401 from `programming.pulse_duration_us` = 100
     for W27C512, in MICROSECONDS. The W27C512 datasheet's CE erase pulse width T_PWE is
     95 ms min / 100 ms typ / 105 ms max. The firmware emits 100 us -- ~950x below the datasheet
-    MINIMUM. The only other use of that value, `memory_set_data` (memory.cpp:337), is the
+    MINIMUM. The only other use of that value, `memory_set_data` (memory.cpp:409), is the
     byte-program pulse, where it is correct.
   implication: The erase is under-pulsed by three orders of magnitude, so it only PARTIALLY
     erases. CMD_ERASE installs `mem_util_blank_check` as its END phase (eprom.cpp:52) and
@@ -218,7 +218,7 @@ bench state at handoff: exactly one board present, /dev/ttyACM0; no process hold
   implication: The #22-passed / #41-failed differential is not a code change. An under-spec erase
     pulse is MARGINAL: it sometimes just manages to blank the part and sometimes does not. The
     measured VPE differs between the two reports (14600 mV in #22 vs 13700 mV in #41 -- these are
-    LIVE sampler readings, cli_handlers.py:2389, not config values) and tunnel-erase rate is
+    LIVE sampler readings, cli_handlers.py:2386, not config values) and tunnel-erase rate is
     exponential in field strength. Under-spec pulse + lower rail = the flip. Both reports are the
     same defect at two points on its margin.
 
@@ -311,7 +311,7 @@ bench state at handoff: exactly one board present, /dev/ttyACM0; no process hold
 
 - timestamp: 2026-08-22 (debugger, BENCH)
   checked: single-shot vpp/vpe sampling via HardwareManager.sample_vpp_mv/sample_vpe_mv -- the
-    SAME seam `dev test`'s own sampler uses (cli_handlers.py:2389). Not the looping `vpe` CLI
+    SAME seam `dev test`'s own sampler uses (cli_handlers.py:2386). Not the looping `vpe` CLI
     monitor, which holds the port until killed.
   found: 3 consecutive samples, all identical: vpp = 12000 mV, vpe = 13700 mV.
   implication: The rails are BYTE-IDENTICAL to the #41 report (vpp 12000, vpe 13700). VPE is

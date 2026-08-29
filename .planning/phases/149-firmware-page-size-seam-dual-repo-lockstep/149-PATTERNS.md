@@ -191,7 +191,7 @@ Also copy the fail-closed and anti-skip legs at `:604-630` (`test_gate_fails_clo
 **The two regexes and the non-vacuity guard** are already drafted in `149-RESEARCH.md` §"Code Examples /
 The parity-scan module skeleton". The source side they must match, read verbatim this session:
 ```c
-// firestarter/src/json_parser.c:56-79
+// firestarter/src/json_parser.c:67
 const char key_mem_size[] PROGMEM = "memory-size";
 const char key_address[] PROGMEM = "address";
 const char key_flags[] PROGMEM = "flags";
@@ -448,7 +448,7 @@ three targets with leonardo headroom **as a number**, MERGE-05 breach **named**)
 
 **(i) PROGMEM key string** — append after `:66`:
 ```c
-// firestarter/src/json_parser.c:63-66
+// firestarter/src/json_parser.c:74-77
 const char key_algorithm[] PROGMEM = "algorithm";
 /* Phase 44 — host-tunable read-timing knobs (D-04 sweep params) */
 const char key_read_settling[] PROGMEM = "read-settling-delay";
@@ -458,7 +458,7 @@ const char key_read_strobe[]   PROGMEM = "read-strobe-us";
 **(ii) `key_parsers[]` row** — the table is **self-sizing** (dispatch loop at `:113` is
 `sizeof(key_parsers)/sizeof(key_parsers[0])`); no count constant anywhere:
 ```c
-// firestarter/src/json_parser.c:68-79
+// firestarter/src/json_parser.c:91
 typedef struct {
     PGM_P key;
     bool (*parser_func)(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle);
@@ -479,7 +479,7 @@ static const key_parser_t key_parsers[] PROGMEM = {
 validation in the handler, so the parse-time clamp idiom is wrong here. `get_chip_id` at `:296-298` is
 the precise model (and it stores into the `uint16_t` field, exactly as `page_size` will):
 ```c
-// firestarter/src/json_parser.c:279-298
+// firestarter/src/json_parser.c:466-497
 #define extract_long(element, register) \
     extract_num(element, register, simple_strtoul)
 
@@ -492,7 +492,7 @@ bool get_chip_id(const char* json, jsmntok_t* tokens, int pos, firestarter_handl
 
 **(v) the optional-key reset in `json_parse` — D-05's exact precedent is line 89:**
 ```c
-// firestarter/src/json_parser.c:81-89
+// firestarter/src/json_parser.c:164-278
 int json_parse(const char* json, jsmntok_t* tokens, int token_count, firestarter_handle_t* handle) {
     handle->address = 0;
     handle->ctrl_flags = 0;
@@ -508,7 +508,7 @@ Do not copy that omission.
 
 **(vi) the unknown-key skip D-11 pins — do not change it, test it:**
 ```c
-// firestarter/src/json_parser.c:132-134
+// firestarter/src/json_parser.c:319-321
         } else {
             // Unknown field — skip key + value token (forward-compatible with new Python fields)
             token_idx += 2;
@@ -526,7 +526,7 @@ Do not copy that omission.
 discretionary choice: `vpp_mv` (`:196`) and `chip_id` (`:201`) are both `uint16_t`; the Phase 44 knobs
 are `uint32_t`. Comment convention: trailing `/* … ; 0 = <default meaning> */`.
 ```c
-// firestarter/include/firestarter.h:188-219 (excerpt :192-204)
+// firestarter/include/firestarter.h:188-224 (excerpt :192-204)
     uint32_t protocol;
     uint8_t pins;
     uint32_t mem_size;
@@ -568,7 +568,7 @@ The struct closes at `:219`. `DATA_BUFFER_SIZE` is at `:16-17` and is the valida
 **(b) The two candidate resolve sites — BOTH extracted so the planner can choose with the code in
 front of it.** `write_init`'s early return:
 ```c
-// firestarter/src/proms/eeprom_28c.cpp:448-456
+// firestarter/src/proms/eeprom_28c.cpp:420-428
 void eeprom28c_write_init(firestarter_handle_t* handle) {
     if (handle->chip_id > 0) {
         eeprom28c_check_chip_id(handle);
@@ -901,7 +901,7 @@ with `AlwaysReturn(0)`), and D-09 asserts counts, not time — so the "native st
 trap does not weaken it.
 
 **D-10's mechanical `PAGE_SIZE` comment refs in this file:** `:204`, `:256` (and
-`test_eeprom28c_sdp.cpp:1475,1486,1540`).
+`test_eeprom28c_sdp.cpp:1532,1543,1603`).
 
 ### 14b. `firestarter/test/native/avr/test_read_timing/test_read_timing_params.cpp` — parse cases
 
@@ -933,7 +933,7 @@ Three existing cases map 1:1 onto the three new ones: `test_read_settling_us_par
 `test_read_settling_us_capped_at_max` (`:105-114`) → **not** copied (D-07 validates in the handler).
 D-11's unknown-key case is new but trivial: place an unknown key **before** a known one and assert the
 known one still lands, because the skip's failure mode is token-walk desynchronisation
-(`json_parser.c:132-134`), not a crash. The stale `json_init` comment at `:62-64` is corrected by the
+(`json_parser.c:319-321`), not a crash. The stale `json_init` comment at `:62-64` is corrected by the
 folded todo's deletion.
 
 ---

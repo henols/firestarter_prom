@@ -33,8 +33,8 @@
 | ID | Description | Research Support |
 |----|-------------|------------------|
 | DISP-01 | No code path writes a chip's `support_status` from a parsed community report — graduation is flag-only and human-gated (locked anti-feature: no auto-graduation). | Confirmed the ONLY DB write locus is `build_db.py:714` (`"support_status": _support_status`). SAFE-03 AST-checker + anti-hollow test pattern (`tools/check_devtest_orchestrator.py` + `tests/test_check_devtest_orchestrator.py`) is the exact template to mirror. §Standard Stack, §DISP-01 Audit Design. |
-| GRAD-01 | `support_status` taxonomy gains community ladder states (`community-reported`/`community-confirmed`/`community-fail`); transition to `confirmed`/`supported` requires a human step keyed on N≥2 consistency. | The three names already exist as advisory prose (`_DISPOSITION_*`, `diagnostic_report.py:206-211`). `build_db_diff` (L230) already maps verdicts→advisory disposition. `dedup_fingerprint` (`diagnostic_report.py:174`) is the N≥2 agreement key. §GRAD-01 Ladder Design. |
-| INBOX-01 | `gsd-inbox` triage auto-parses the report's fenced JSON and surfaces its DB-diff against the current DB for maintainer review. | `to_dict()`/`to_json_block()` fenced-JSON shape (`diagnostic_report.py:386,476`); detection via `[dev test]` title + `schema_version`; parser home `tools/`; inbox.md integration seam (invoke, don't edit). §INBOX-01 Parser Design. |
+| GRAD-01 | `support_status` taxonomy gains community ladder states (`community-reported`/`community-confirmed`/`community-fail`); transition to `confirmed`/`supported` requires a human step keyed on N≥2 consistency. | The three names already exist as advisory prose (`_DISPOSITION_*`, `diagnostic_report.py:203-208`). `build_db_diff` (L230) already maps verdicts→advisory disposition. `dedup_fingerprint` (`diagnostic_report.py:171`) is the N≥2 agreement key. §GRAD-01 Ladder Design. |
+| INBOX-01 | `gsd-inbox` triage auto-parses the report's fenced JSON and surfaces its DB-diff against the current DB for maintainer review. | `to_dict()`/`to_json_block()` fenced-JSON shape (`diagnostic_report.py:380,470`); detection via `[dev test]` title + `schema_version`; parser home `tools/`; inbox.md integration seam (invoke, don't edit). §INBOX-01 Parser Design. |
 </phase_requirements>
 
 ## Summary
@@ -191,7 +191,7 @@ def test_checker_exits_nonzero_on_planted_vpp_set(tmp_path):
 **When to use:** GRAD-01's report-side ladder-state addition.
 **Example:**
 ```python
-# Source: firestarter/diagnostic_report.py:386 (real, current)
+# Source: firestarter/diagnostic_report.py:380 (real, current)
 def to_dict(self) -> dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,        # detection marker for the parser (D-04)
@@ -213,9 +213,9 @@ def to_dict(self) -> dict[str, Any]:
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
 | Detect a `support_status` write in source | Regex/substring grep | `ast` walk with `NodeVisitor` (SAFE-03 pattern) | Substring grep false-positives on comments/docstrings/reads; AST distinguishes an assignment target from a read. D-05 mandates AST. |
-| Report dedup / agreement key | A new hash over report fields | `dedup_fingerprint(report)` (`diagnostic_report.py:174`) | Already deterministic, volatile-field-free, 12-hex; reusing it IS the D-03 rule. |
-| Current-vs-proposed DB-diff | A new DB reader | `build_db_diff(name, db, results)` (`diagnostic_report.py:230`) | Already reads `support_status` via the exact `chip_resolver.py:54` read site and emits advisory (never-write) disposition text. |
-| Ladder-state names | Invent new strings | The existing `_DISPOSITION_*` prose (`diagnostic_report.py:206-211`) | Phase 114 *formalizes*, does not invent (CONTEXT Specifics). |
+| Report dedup / agreement key | A new hash over report fields | `dedup_fingerprint(report)` (`diagnostic_report.py:171`) | Already deterministic, volatile-field-free, 12-hex; reusing it IS the D-03 rule. |
+| Current-vs-proposed DB-diff | A new DB reader | `build_db_diff(name, db, results)` (`diagnostic_report.py:227`) | Already reads `support_status` via the exact `chip_resolver.py:54` read site and emits advisory (never-write) disposition text. |
+| Ladder-state names | Invent new strings | The existing `_DISPOSITION_*` prose (`diagnostic_report.py:203-208`) | Phase 114 *formalizes*, does not invent (CONTEXT Specifics). |
 | Checker subprocess test harness | New test scaffolding | The `_run_checker()` + env-override idiom (`test_check_devtest_orchestrator.py:49`) | Proven, and its clean/planted/PASS-line-naming trio is the anti-hollow contract. |
 
 **Key insight:** This phase is almost entirely *composition and formalization* of code that already shipped in Phases 108–113. The only genuinely new artifacts are the DISP-01 AST checker (a near-clone of the SAFE-03 checker) and the stdlib issue parser.
@@ -223,7 +223,7 @@ def to_dict(self) -> dict[str, Any]:
 ## Grounded Code Findings (the load-bearing facts for the planner)
 
 ### `diagnostic_report.py` — ladder names, DbDiff, dedup, schema, to_dict
-- **The three ladder-state names already exist as advisory prose** `[VERIFIED: firestarter/diagnostic_report.py:206-211]`:
+- **The three ladder-state names already exist as advisory prose** `[VERIFIED: firestarter/diagnostic_report.py:203-208]`:
   ```python
   _DISPOSITION_COMMUNITY_FAIL = "suggests: community-fail signal (advisory -- human triage required)"   # L206-208
   _DISPOSITION_CANDIDATE = "suggests: candidate for community-reported (advisory)"                       # L209
@@ -285,7 +285,7 @@ def to_dict(self) -> dict[str, Any]:
 | `firestarter/diagnostic_report.py:243` | READ (`build_db_diff`) | Read — no concern. |
 | `firestarter/eprom_info.py:148,245-247` | READ (display) | Read — no concern. |
 | `tools/check_dispatch.py:242` | READ (CI gate iterates) | Read — no concern; stays green under D-02 (see below). |
-| `firestarter/diagnostic_report.py:226` `current_support_status: str = "supported"` | Dataclass field default (a `DbDiff` attribute, NOT the `support_status` key) | Different identifier — should not match a `support_status`-key write detector, but note the near-name so the audit's matching is precise. |
+| `firestarter/diagnostic_report.py:223` `current_support_status: str = "supported"` | Dataclass field default (a `DbDiff` attribute, NOT the `support_status` key) | Different identifier — should not match a `support_status`-key write detector, but note the near-name so the audit's matching is precise. |
 
 **Planner action:** the DISP-01 checker's write-detector must (a) treat `build_db.py` as the allowed locus, (b) scan the report/parse path (`diagnostic_report.py`, the new `tools/parse_devtest_issue.py`, and any new ladder code) for a `support_status` DB-write, and (c) NOT flag the `eprom_info.py:150` display-dict copy (either by scoping the scanned target set to the report/parse modules only, or by a precise "assigns a community-* value / writes to a persisted DB object" rule). Recommend scoping the scan to the report + parser modules (mirrors how SAFE-03 scopes its targets) rather than trying to whitelist by value.
 
@@ -510,7 +510,7 @@ def parse_devtest_body(title: str, body: str) -> dict | None:
 | V3 Session Management | no | No sessions. |
 | V4 Access Control | yes (design invariant) | The no-auto-graduate lock IS an access-control invariant: a community report has zero authority to change project claims. Enforced by DISP-01 (D-02 + AST gate). |
 | V5 Input Validation | **yes** | Parser must defensively `json.loads` (catch `JSONDecodeError`), bound body/JSON size, treat all fields as inert data, never `eval`/`exec`, never shell-interpolate body content. `submit.py` already scrubs PII on the outbound side; the inbound parser validates on the way in. |
-| V6 Cryptography | no | `dedup_fingerprint` uses `sha256` as a non-secret distribution function only (explicitly "not a security control", `diagnostic_report.py:186-192`) — do not re-purpose it as one. |
+| V6 Cryptography | no | `dedup_fingerprint` uses `sha256` as a non-secret distribution function only (explicitly "not a security control", `diagnostic_report.py:183-189`) — do not re-purpose it as one. |
 
 ### Known Threat Patterns for this stack
 | Pattern | STRIDE | Standard Mitigation |

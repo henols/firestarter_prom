@@ -34,7 +34,7 @@ Three deliverables, and nothing else:
 
 - **D-02: The firmware read covers protocol `0x06` (AMD Autoselect) and the Winbond Product-ID boot-block status on the `0x05` rows.** Not `0x10`.
 
-  `0x06` is 190 DB rows (`configure_flash_nor_unlock`, per `firestarter/doc/PROTOCOLS.md`); the neighbouring sequence machinery already exists — `flash_util_get_chip_id` (`firestarter/src/proms/flash_utils.cpp:81`) already issues `FLASH_ENABLE_ID` and reads 0x0000/0x0001, and Autoselect sector-protect verify is a read at the same mode's `SA+0x02`.
+  `0x06` is 190 DB rows (`configure_flash_nor_unlock`, per `firestarter/doc/PROTOCOLS.md`); the neighbouring sequence machinery already exists — `flash_util_get_chip_id` (`firestarter/src/proms/flash_utils.cpp:82`) already issues `FLASH_ENABLE_ID` and reads 0x0000/0x0001, and Autoselect sector-protect verify is a read at the same mode's `SA+0x02`.
 
   **`0x10` (39 rows: Intel, AMD, Catalyst, ST) is documented-readable but deliberately unimplemented.** This is a *fourth* answer class, distinct from both "not readable" and "unprotected" — see D-09. It must never be reported as unprotected.
 

@@ -143,7 +143,7 @@ submission tier, not a hardware path. Fully unit-testable via injected seams
   now = auto-capture completeness only). D-03 above builds on this reversal.
 
 ### Reusable code (firestarter_app/)
-- `firestarter/cli_handlers.py:1753` — `dev_test` handler (**wire `--submit` here**): already
+- `firestarter/cli_handlers.py:1751` — `dev_test` handler (**wire `--submit` here**): already
   builds the `DiagnosticReport`, renders it, and **always persists** `dev-test-<chip>.{json,md}`
   to `<config dir>/reports` (or `--output-dir`). The `.md` (results table + `to_json_block()`) is
   the self-contained issue body; `_sanitize_chip_token` (filesystem-safe token) precedent at
@@ -175,13 +175,13 @@ submission tier, not a hardware path. Fully unit-testable via injected seams
   `DiagnosticReport`, renders it, and writes `dev-test-<chip>.{json,md}` on every run. `--submit`
   consumes the in-memory `report` object (and the saved JSON path is what D-05's oversize-guidance
   points to). No re-run, no re-derivation.
-- **`is_submittable(ac)`** ([diagnostic_report.py:153](../../firestarter_app/firestarter/diagnostic_report.py#L153)) —
+- **`is_submittable(ac)`** ([diagnostic_report.py:150](../../firestarter_app/firestarter/diagnostic_report.py#L153)) —
   the D-03 refuse-gate predicate; post-112-04 it is auto-capture completeness only (chip + protocol
   + host_version), no human/provenance field.
 - **stdlib-only submission primitives** — `shutil.which` (gh detection), `subprocess` (gh
   create + `gh auth status`), `webbrowser.open` (URL tier), `urllib.parse.urlencode`/`quote`
   (prefilled URL + encoded-length measurement), `hashlib` (dedup hash). No new third-party dep.
-- **`_sanitize_chip_token`** (cli_handlers.py:1882) — filename-safety precedent; the SUB-02
+- **`_sanitize_chip_token`** (cli_handlers.py:1879) — filename-safety precedent; the SUB-02
   body sanitizer is a sibling concern (content, not filename).
 
 ### Established Patterns
@@ -196,7 +196,7 @@ submission tier, not a hardware path. Fully unit-testable via injected seams
   confirm already in `dev_test`.
 
 ### Integration Points
-- **`--submit` flag added to `dev_test`** (cli_handlers.py:1753) → after render + persist, if
+- **`--submit` flag added to `dev_test`** (cli_handlers.py:1751) → after render + persist, if
   `--submit`: `submit.py` sanitizes → previews → confirms → tiers (gh | browser | drop-JSON).
 - **Feeds Phase 114** — the submitted body's `schema_version` fenced JSON + `gsd-inbox` label are
   what INBOX-01 triage parses; the dedup fingerprint (D-02) is what a maintainer keys repeat

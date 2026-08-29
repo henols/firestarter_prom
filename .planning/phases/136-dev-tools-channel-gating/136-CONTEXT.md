@@ -17,7 +17,7 @@ Every decision below was measured against live source at `firestarter_app@HEAD`,
 | Stable keeps | `read`, `test` | Backlog 999.15 / gh#8 channel-split design (2026-07-28) |
 | Therefore gated | **6**: `reg`, `addr`, `consistency-check`, `write-cycle`, `fault-inject`, `validate-family` | 8 − 2 |
 | Channel detector | `firestarter/channel.py::is_prerelease_build()` — **already exists and already fails closed** | read in full |
-| `dev` group site | `cli_handlers.py:1205` `@cli.group(name="dev")` | read |
+| `dev` group site | `cli_handlers.py:1203` `@cli.group(name="dev")` | read |
 
 ---
 

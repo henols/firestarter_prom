@@ -311,7 +311,7 @@ timeout -s INT 15 stdbuf -oL firestarter vpe   # VPE (program) rail sample
 
 ### Controller identity + hardware readback (bench-discipline row)
 ```bash
-# Source: cli_handlers.py:771 (fw), 688-694 (hw), 697 (config)
+# Source: cli_handlers.py:769 (fw), 688-694 (hw), 697 (config)
 firestarter fw       # controller identity + firmware version/commit — record BEFORE any op, per port
 firestarter hw       # hardware revision (EEPROM byte; silkscreen is the authoritative oracle)
 firestarter config   # R1/R2 calibration readback (record R1≈270000, R2≈44000 per prior sessions)

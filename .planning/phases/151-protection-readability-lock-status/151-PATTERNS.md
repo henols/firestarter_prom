@@ -37,7 +37,7 @@
 | `firestarter_app/doc/package-details.md`, `doc/protocol-flags.md` (mod) | doc pointers | — | **no in-tree one-line-pointer precedent** — see §5 | none |
 | `firestarter/include/firestarter.h` (mod) | config (wire enum) | — | itself, `CMD_SDP_UNLOCK/LOCK:85-86` + `is_memory_cmd:135-142` | exact |
 | `firestarter/src/firestarter.cpp` (mod) | middleware (admission) | request-response | itself, `:77` ordinal gate | exact (but see §4a) |
-| `firestarter/src/proms/flash_utils.{cpp,h}` (mod) | utility (bus sequences) | file-I/O-like (bus) | `flash_util_get_chip_id` at `flash_utils.cpp:80-86`; `byte_flip_t` tables at `flash_utils.h:30-59` | exact |
+| `firestarter/src/proms/flash_utils.{cpp,h}` (mod) | utility (bus sequences) | file-I/O-like (bus) | `flash_util_get_chip_id` at `flash_utils.cpp:81-87`; `byte_flip_t` tables at `flash_utils.h:30-59` | exact |
 | `firestarter/src/proms/flash_nor_unlock.cpp`, `flash_5v_page.cpp` (mod) | dispatcher arms | event-driven | `configure_flash_nor_unlock:31-51` / `configure_flash_5v_page:40-59` | exact |
 | `firestarter/scripts/check_size_baseline.py` (mod) | config (adjudicated literal) | — | `MERGE05_PAGE_SIZE_SEAM_EXEMPTION_BYTES` block, `:186-240` | exact |
 | `firestarter/tests/test_check_size_baseline.py` (mod) | test (tripwire fixtures) | file-I/O | itself (`fullflash` family) — **sever onto a new `*_v151*` family** | exact |
@@ -216,10 +216,10 @@ set `{1,2,3,4,5,6,9,10}`, pinned by `firestarter/tests/test_cmd_admission.cpp:66
 `CMD_READ_PROTECTION 16` needs (i) the define with a comment in `CMD_SDP_LOCK`'s style, (ii) a `case`
 in `is_memory_cmd` — noting `rurp_pinmap_guard.h:37-63` *delegates* to `is_memory_cmd` so the provisional-
 pinmap refusal follows automatically, and `tools/check_is_memory_cmd_no_ifdef.py` forbids any preprocessor
-conditional inside the predicate body, (iii) the ordinal parse gate at `firestarter.cpp:77`
+conditional inside the predicate body, (iii) the ordinal parse gate at `firestarter.cpp:74`
 (`if (handle->cmd < CMD_READ_VPP)`) — RESEARCH §"The ordinal parse gate" `:487-543` settles the fork as
 option (a), `is_memory_cmd(handle->cmd) || handle->cmd < CMD_READ_VPP`. The second ordinal range at
-`firestarter.cpp:136-146` gates debug lines only and its own comment says it was deliberately not
+`firestarter.cpp:132-142` gates debug lines only and its own comment says it was deliberately not
 converted; leaving it is consistent, but a cmd-16 command then produces no debug output — state that
 choice rather than discovering it on the bench.
 
@@ -249,11 +249,11 @@ only `operation_main`. A new `case CMD_READ_PROTECTION:` arm in each of the two 
 AMD/JEDEC two-byte unlock prefix plus one opcode byte; `FLASH_DISABLE_WRITE_PROTECTION:53-59` shows the
 six-entry double-prefix form. Emission is
 `flash_util_byte_flipping(handle, TABLE, sizeof(TABLE)/sizeof(byte_flip_t))`, whose body
-(`flash_utils.cpp:21-27`) brackets the flips with `CTRL_READ_WRITE, 0` on both sides. The read to copy is
-`flash_util_get_chip_id` (`flash_utils.cpp:80-86`) — five lines: `flash_execute_command(FLASH_ENABLE_ID)`,
+(`flash_utils.cpp:22-28`) brackets the flips with `CTRL_READ_WRITE, 0` on both sides. The read to copy is
+`flash_util_get_chip_id` (`flash_utils.cpp:81-87`) — five lines: `flash_execute_command(FLASH_ENABLE_ID)`,
 two `handle->firestarter_get_data(handle, 0x0000/0x0001)`, `flash_execute_command(FLASH_DISABLE_ID)`. A
 protect-verify read is *that function with a different read address*, so declaring it beside
-`flash_util_get_chip_id` in `flash_utils.h:66-70` (which documents itself as shared between
+`flash_util_get_chip_id` in `flash_utils.h:65-69` (which documents itself as shared between
 `flash_nor_unlock` and `flash_5v_page` "to avoid duplicating the sequence") is both the byte-cheapest and
 the precedented placement. `flash_util_check_chip_id_execute:88-104` is the model for the
 `FLAG_FORCE`-downgrades-error-to-warning convention D-07 reuses
@@ -346,7 +346,7 @@ assertion should be updated by whichever plan makes that change, not silently ig
 
 ### 6. `dev` command registration + channel gate
 
-**Analog:** `cli_handlers.py:1471-1507` (`dev addr`). The template is exact:
+**Analog:** `cli_handlers.py:1469-1505` (`dev addr`). The template is exact:
 
 ```python
 if _DEV_TOOLS_ENABLED:

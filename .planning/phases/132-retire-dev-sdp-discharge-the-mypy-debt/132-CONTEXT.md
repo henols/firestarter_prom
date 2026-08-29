@@ -44,7 +44,7 @@ These change what gets built. Each was measured in this session against the mile
 inherited from the record.
 
 1. **Deleting `dev sdp` deletes the honesty caveat's only *production* carrier, not just its test.**
-   All three honesty strings live in exactly one place: `cli_handlers.py:2218`, `:2267`, and
+   All three honesty strings live in exactly one place: `cli_handlers.py:2215`, `:2267`, and
    `:2316-2318` — inside the span being deleted. `eprom_operations.py`'s `sdp_lock` (`:1784`) and
    `sdp_unlock` (`:1736`) carry no such wording, and the D-10 comment at `:2305-2314` explains why
    they cannot: `get_response()` filters the entire INFO band at `serial_comm.py:424`, so the

@@ -18,7 +18,7 @@ line this map cites.
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |-------------------|------|-----------|----------------|---------------|
-| `firestarter/diagnostic_report.py` (NEW) | model + utility | transform (compose engine output → dual serialization) | `firestarter/cli_handlers.py:1373` `_write_artifact` + `firestarter/chip_test.py` dataclasses | role-match (dual-serialize shape) + exact (dataclass composition style) |
+| `firestarter/diagnostic_report.py` (NEW) | model + utility | transform (compose engine output → dual serialization) | `firestarter/cli_handlers.py:1371` `_write_artifact` + `firestarter/chip_test.py` dataclasses | role-match (dual-serialize shape) + exact (dataclass composition style) |
 | `tests/test_diagnostic_report.py` (NEW) | test | request-response (mock operator/prompt/DB) | `tests/test_chip_test.py:570` `_mock_operator` seam | exact |
 
 Sub-object roles inside `diagnostic_report.py` (all `@dataclass`, D-01):
@@ -30,12 +30,12 @@ Sub-object roles inside `diagnostic_report.py` (all `@dataclass`, D-01):
 
 ### `firestarter/diagnostic_report.py` (model + transform)
 
-**Analog A (dual-serialization shape):** `firestarter/cli_handlers.py:1373-1420` `_write_artifact` / `_render_markdown`
+**Analog A (dual-serialization shape):** `firestarter/cli_handlers.py:1371-1418` `_write_artifact` / `_render_markdown`
 **Analog B (dataclass style + composed objects):** `firestarter/chip_test.py` (`StepResult` L453, `Plan` L298, `BannerCounts` L908, `Fingerprint` L127)
 
 ---
 
-#### JSON serialization + UTC timestamp pattern (RPT-01, D-01/D-02) — from `_write_artifact` (cli_handlers.py:1385-1394)
+#### JSON serialization + UTC timestamp pattern (RPT-01, D-01/D-02) — from `_write_artifact` (cli_handlers.py:1383-1392)
 
 ```python
 artifact: Dict[str, Any] = {

@@ -68,7 +68,7 @@
 | Generic behind an explicit allowlist | Generic refusal bounded to an enumerated command set, so no other family changes. | |
 
 **User's choice:** Generic — fix the whole class now.
-**Notes:** Surfaced before asking: `op_execute_stateful_operation` returns `false` at `operation_utils.cpp:83` when `main` is NULL, so the caller reports finished with `response_code == OK` and no error — DEVTEST-01's phantom-erase mechanism. Consequences accepted knowingly: Phase 121's scope and the REQUIREMENTS mapping must be amended in-phase, and a full cross-family trace/regression sweep is required.
+**Notes:** Surfaced before asking: `op_execute_stateful_operation` returns `false` at `operation_utils.cpp:89` when `main` is NULL, so the caller reports finished with `response_code == OK` and no error — DEVTEST-01's phantom-erase mechanism. Consequences accepted knowingly: Phase 121's scope and the REQUIREMENTS mapping must be amended in-phase, and a full cross-family trace/regression sweep is required.
 
 ---
 

@@ -63,7 +63,7 @@ report can now say which firmware produced it. That became true when plan 152-11
 re-read on `origin/beta` rather than inherited:
 
 ```
-firestarter_app  origin/beta:firestarter/cli_handlers.py:2661
+firestarter_app  origin/beta:firestarter/cli_handlers.py:2658
                  fw_board_identity=identity.fw_board_identity
 firestarter      origin/beta:src/proms/eeprom_28c.cpp   eeprom28c_erase_execute  -> 3 refs
 ```
@@ -84,7 +84,7 @@ which yields **9** matches on the same published branch. So the criterion's *int
 command is reachable in what was published — holds, measured at the real site.
 
 This is the **second independent confirmation** of the same defect: plan 152-12 hit it first and
-root-caused it to `cli_handlers.py:1791`. Two plans measuring the same locator wrong makes this a defect
+root-caused it to `cli_handlers.py:1788`. Two plans measuring the same locator wrong makes this a defect
 in the plan set, not a per-plan deviation. Any later plan or phase inheriting this locator should use
 `cli_handlers.py`.
 

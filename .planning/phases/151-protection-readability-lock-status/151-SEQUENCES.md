@@ -42,7 +42,7 @@ Mode entry:
 This is **byte-identical** to the existing `FLASH_ENABLE_ID` table
 (`firestarter/include/flash_utils.h:24-28`). Measured fact worth stating: mode entry costs zero
 new bytes and is already exercised today by `flash_util_get_chip_id`
-(`firestarter/src/proms/flash_utils.cpp:81-86`, called via the `flash_execute_command(FLASH_ENABLE_ID)`
+(`firestarter/src/proms/flash_utils.cpp:82-87`, called via the `flash_execute_command(FLASH_ENABLE_ID)`
 macro).
 
 Mode exit:
@@ -93,10 +93,10 @@ artifact resolves that deferral for this project's bus rather than repeating the
 ### The sector-address problem — a constraint on the design, not solved here
 
 There is no sector map anywhere in this project. `flash_nor_unlock_sector_erase`
-(`firestarter/src/proms/flash_nor_unlock.cpp:118-128`) takes a caller-supplied `sector_address`,
-and the host's `erase --sector-address` option (`firestarter_app/firestarter/cli_handlers.py:878-885`)
+(`firestarter/src/proms/flash_nor_unlock.cpp:117-127`) takes a caller-supplied `sector_address`,
+and the host's `erase --sector-address` option (`firestarter_app/firestarter/cli_handlers.py:876-883`)
 is how it is supplied today — there is no in-repo table of sector base addresses to iterate.
-`fu_flash_fast_address` (`firestarter/src/proms/flash_utils.cpp:61-66`) also writes only the LSB/MSB
+`fu_flash_fast_address` (`firestarter/src/proms/flash_utils.cpp:62-67`) also writes only the LSB/MSB
 address registers, with no A16+ bank register, so any address above 64 KiB would need the
 `mem_util_remap_address_bus` path instead — a second reason a full per-sector scan is not free.
 
@@ -124,7 +124,7 @@ distinct from `FLASH_ENABLE_ID` today, so stating "the same" is itself the findi
 exists to record, not an assumption carried in from elsewhere. This rests on the same structural
 fact Sequence A's citation documents for the AMD family, and on this project's own already-working
 evidence for the Winbond part specifically: `flash_util_get_chip_id`
-(`firestarter/src/proms/flash_utils.cpp:81-86`) already issues `FLASH_ENABLE_ID` and reads back
+(`firestarter/src/proms/flash_utils.cpp:82-87`) already issues `FLASH_ENABLE_ID` and reads back
 `chip_id 0x0000da45` for the `W29C020`/`W29C020C`/`W29C022` DB entry (pinned in the generated
 `chip_database.json`) — i.e. this exact AA/55/90 entry sequence already unlocks the manufacturer
 (`0xDA`, word `0x0000`) and device (`0x45`, word `0x0001`) codes on this part family today. The

@@ -13,7 +13,7 @@
 - **D-01 (Belt-and-suspenders):** Implement the named RCA hand-off surfaces (new `DIP32_27C020` pinout redirecting pin 31 to a PGM concept + hold `CTRL_VPP_P1_ENABLE` / P1 route across the **full** program-pulse window, not only the per-byte data-write window) **PLUS an explicit firmware PGM-pulse/program-sequence change** so pin 31 is a *deliberately asserted* control during the CE pulse — not merely coincidentally-VIL via the address bus. Accepted cost: touches the shared program pulse → D-05 regression discipline + D-04 alias guard become hard constraints.
 - **D-02 (Pin-31 redirect scoping):** New `DIP32_27C020` pinout class (`pinouts.json` + `database.py`), assigned **only** to the `0x08` ≤256K-class chip(s). 27C040 (A18) and SST39SF040 (WE) stay on their existing pinouts, untouched. Reviewable via `diff_db.py` showing only the intended rows.
 - **D-03 (Wire-field appetite):** DB/pinout-only if possible. A new wire field (`firestarter.h` ↔ `constants.py` lockstep, à la v1.17 `page_size`) is allowed **only if** the belt-and-suspenders PGM-assert genuinely cannot be expressed via the new pinout mapping + a protocol-`0x08`-gated firmware branch using existing `CTRL_*` bits. D-01 and D-03 pull against each other — try pinout+protocol-gate first, escalate to a wire field last.
-- **D-04 (BLOCKING — alias-collision guard):** On Rev 2.0, `CTRL_VPP_P1_ENABLE_REV2` and `CTRL_ADDRESS_LINE_18_REV2` are the SAME physical bit (`0x08`) (`rurp_pinout.h:122`/`:128`). Holding P1/asserting PGM via this bit is safe for 256K AM27C020 (A18 never set) but corrupts A18 on 512K 27C040. The fix MUST be gated so the PGM/P1-hold cannot leak to any A18 user (≥512K / 27C040 class).
+- **D-04 (BLOCKING — alias-collision guard):** On Rev 2.0, `CTRL_VPP_P1_ENABLE_REV2` and `CTRL_ADDRESS_LINE_18_REV2` are the SAME physical bit (`0x08`) (`rurp_pinout.h:121`/`:128`). Holding P1/asserting PGM via this bit is safe for 256K AM27C020 (A18 never set) but corrupts A18 on 512K 27C040. The fix MUST be gated so the PGM/P1-hold cannot leak to any A18 user (≥512K / 27C040 class).
 - **D-05 (Regression & test posture):** v1.16 golden register traces + dispatch-mirror guard stay **byte-identical** for the passing `0x07` and `0x0B` paths. Where a `0x08` 32-pin trace legitimately changes, re-pin with cited rationale. Native tests cover the corrected `0x08` write path AND include ≥1 explicit failure-case/mismatch test (P89 CR-01 lesson). The `0x07`/`0x0B` trace-identity check is the primary regression tripwire.
 - **D-06 (SAFE-02):** Over-voltage stays ERROR-blocked (`vpp_check_window` HIGH→ERROR, no `FLAG_FORCE` relaxation); host `chip_resolver.resolve_chip` guard never bypassed; no test-only escape hatch. Host CI green on py3.11 (ruff check + ruff format --check + mypy + diff_db + check_dispatch) — avoid py3.12-masks-CI-3.11 trap.
 
@@ -44,7 +44,7 @@ Phase 98 fixes the AM27C020 0-bits-programmed fault blind, per the Phase-97 conf
 
 The decisive mechanism fact: pin 31 maps via the host `DIP32_STD` pinout (`pin_conversions[32][31] = 22`, `database.py:141`) to **address bus line 22**. The RURP address bus is composed as LSB latch = lines 0-7, MSB latch = lines 8-15, and the **CONTROL_REGISTER** carries the upper address/control bits (lines 16-23). Bit 22 of the address = bit 6 of the CONTROL register = `CTRL_READ_WRITE` (`0x40`) on the Rev 2.0 layout. At address `0x000000` (the failing address), `mem_util_remap_address_bus` clears line 22, so pin 31 is driven to whatever CONTROL-reg bit 6 holds — i.e. VIL during a write (R/W bit context). This is exactly the verifier's caveat: on a 256K part pin 31 is *coincidentally* at the program-active level, yet 0 bits program. The architectural defect (pin 31 modeled as an address line, not a deliberately-driven PGM control) is real even where the level is right.
 
-**Primary recommendation:** Two-surface, protocol-and-size-gated fix. (1) Host: add a `DIP32_27C020` pinout (mirror `DIP32_SST39SF040`'s scoped-variant shape) that moves pin 31 out of `address-bus-pins` into a non-address role, and reassign **only the ≤256K 0x08 chips** (AM27C020 + 27C020-class) to it via `chip_database.json` — leaving 512K/1M (AM27C040/AM27C080, A18-bearing) on `DIP32_STD`. (2) Firmware: a protocol-`0x08` + 32-pin + A18-unused-gated branch that deliberately drives pin 31 (PGM) program-active (= **VIL**, held LOW across the per-byte CE pulse in `memory_set_data`, `memory.cpp:274`), composed from existing `CTRL_*` bits. The PGM-assert vehicle is the firmware hold-LOW branch (NOT `static-high-pins`), per the now-resolved Q1/Q2 below. **The hard blocker is D-04:** there are **127 chips on protocol 0x08 / DIP32_STD across 128K/256K/512K/1M** — a fix gated on "0x08 + 32-pin" alone would corrupt the 512K+ A18 users. Scope must be size-keyed (≤256K) or pinout-keyed (only chips reassigned to `DIP32_27C020`).
+**Primary recommendation:** Two-surface, protocol-and-size-gated fix. (1) Host: add a `DIP32_27C020` pinout (mirror `DIP32_SST39SF040`'s scoped-variant shape) that moves pin 31 out of `address-bus-pins` into a non-address role, and reassign **only the ≤256K 0x08 chips** (AM27C020 + 27C020-class) to it via `chip_database.json` — leaving 512K/1M (AM27C040/AM27C080, A18-bearing) on `DIP32_STD`. (2) Firmware: a protocol-`0x08` + 32-pin + A18-unused-gated branch that deliberately drives pin 31 (PGM) program-active (= **VIL**, held LOW across the per-byte CE pulse in `memory_set_data`, `memory.cpp:346`), composed from existing `CTRL_*` bits. The PGM-assert vehicle is the firmware hold-LOW branch (NOT `static-high-pins`), per the now-resolved Q1/Q2 below. **The hard blocker is D-04:** there are **127 chips on protocol 0x08 / DIP32_STD across 128K/256K/512K/1M** — a fix gated on "0x08 + 32-pin" alone would corrupt the 512K+ A18 users. Scope must be size-keyed (≤256K) or pinout-keyed (only chips reassigned to `DIP32_27C020`).
 
 ## Architectural Responsibility Map
 
@@ -84,7 +84,7 @@ No new external packages. This is an in-repo firmware + host fix using the exist
 |------------|-----------|----------|
 | New `DIP32_27C020` pinout (D-02) | Reuse `DIP32_STD` + firmware-only protocol/size gate | Rejected by D-02: host pinout is the RC-1 primary fix surface and must be data-driven, not firmware-hardcoded |
 | Express PGM-assert via existing `CTRL_*` bits (D-03 preferred) | New wire field (`firestarter.h` ↔ `constants.py`) | D-03: wire field only as last resort. **RESOLVED (Q2): no new wire field needed** — the firmware hold-LOW branch keyed on existing `protocol`/`pins`/`mem_size`/`bus_config` fields suffices. |
-| Express PGM-assert via `static-high-pins` (`static_high_mask`) | Firmware gated hold-LOW of line 22 in `memory_set_data` | **RESOLVED (Q1): `static-high-pins` is RULED OUT** — `static_high_mask` ORs a 1 (HIGH) into line 22 with no inversion (`memory.cpp:330` → CONTROL bit 6 → `rurp_internal_write_to_register` latches bit-for-bit, `rurp_register_utils.h:54,63-89`); PGM program-active is VIL (LOW). HIGH ≠ PGM=VIL, so static-high cannot express the assert. The firmware hold-LOW branch is the vehicle. |
+| Express PGM-assert via `static-high-pins` (`static_high_mask`) | Firmware gated hold-LOW of line 22 in `memory_set_data` | **RESOLVED (Q1): `static-high-pins` is RULED OUT** — `static_high_mask` ORs a 1 (HIGH) into line 22 with no inversion (`memory.cpp:402` → CONTROL bit 6 → `rurp_internal_write_to_register` latches bit-for-bit, `rurp_register_utils.h:54,63-89`); PGM program-active is VIL (LOW). HIGH ≠ PGM=VIL, so static-high cannot express the assert. The firmware hold-LOW branch is the vehicle. |
 | Edit `chip_database.json` AM27C020 row by hand | Regenerate via `build_db.py` + per-chip override | `chip_database.json` is generated ("do NOT edit by hand", `firestarter_app/CLAUDE.md`). `build_db.py resolve_pinout_key` (`:281-296`) is a pure function of decoded fields incl. `mem_size`, so a ≤256K-keyed arm is expressible at generation time (A1 **CONFIRMED** by PATTERNS — no override needed). |
 
 ## Package Legitimacy Audit
@@ -126,7 +126,7 @@ FIRMWARE (firestarter)
         │   set_control_register(programming_bits,1)   ← intercepted by eprom_internal_set_control_register:
         │        using_p1_as_vpp → strips CTRL_VPE_ENABLE, sets CTRL_VPP_P1_ENABLE(0x08)  [eprom.cpp:320-326]
         │        ── P1 bit HELD across the whole byte loop ──
-        │   for each mismatched byte:  firestarter_set_data → memory_set_data [memory.cpp:274]
+        │   for each mismatched byte:  firestarter_set_data → memory_set_data [memory.cpp:346]
         │        set_address(remap(addr))  ← pin 31 = line 22 driven by ADDRESS bit, not held PGM
         │        write_data_buffer(data); delayMicroseconds(3)
         │        rurp_chip_enable() (CE low); delayMicroseconds(pulse_delay=100); rurp_chip_disable()
@@ -143,10 +143,10 @@ FIRMWARE (firestarter)
 
 - `rurp_write_to_register` (`rurp_register_utils.h:24`): `LEAST_SIGNIFICANT_BYTE`→lines 0-7, `MOST_SIGNIFICANT_BYTE`→lines 8-15, `CONTROL_REGISTER`→the `rurp_register_t` upper byte (lines 16-23 + control bits).
 - Address bit 22 (pin 31 via `pin_conversions[32][31]=22`) therefore lands in the **CONTROL register, bit 6** = `CTRL_READ_WRITE` (`0x40`) on the Rev 2.0 layout (`rurp_pinout.h:82/94`).
-- `mem_util_calculate_top_address_register` (`memory.cpp:184`) masks `address>>16` to `CTRL_ADDRESS_LINE_16|17|18|READ_WRITE` then ORs in preserved control bits. `mem_util_remap_address_bus` (`memory.cpp:309-332`) sets line 22 from address bit `i` only when that remap index is active. At addr 0, line 22 is cleared.
+- `mem_util_calculate_top_address_register` (`memory.cpp:187`) masks `address>>16` to `CTRL_ADDRESS_LINE_16|17|18|READ_WRITE` then ORs in preserved control bits. `mem_util_remap_address_bus` (`memory.cpp:381-404`) sets line 22 from address bit `i` only when that remap index is active. At addr 0, line 22 is cleared.
 - **No inversion in the latch path:** `rurp_internal_write_to_register` (`rurp_register_utils.h:63-89`) → `rurp_write_data_buffer(data)` (e.g. `leonardo_rurp_shield.cpp:80-99`) maps each CONTROL-byte bit straight to a port pin — a `1` bit → physical HIGH, a `0` bit → physical LOW. No XOR/complement anywhere. (Load-bearing for Q1.)
 - `CTRL_VPP_VPE_DROP_ENABLE` is `0x100` on Rev 2.0 (16-bit `rurp_register_t`) — **invisible in the 8-bit golden traces** (`golden_trace.h:19-24`). Only the low byte is recorded.
-- **D-04 alias (read direct, `rurp_pinout.h:122,128`):** `CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08`. The host `dev reg -f` namespace presents them distinct (`0x008` P1, `0x020` A18) but the physical Rev2 bit is shared. Any PGM/P1-hold on this bit corrupts A18 for a 512K part.
+- **D-04 alias (read direct, `rurp_pinout.h:121,127`):** `CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08`. The host `dev reg -f` namespace presents them distinct (`0x008` P1, `0x020` A18) but the physical Rev2 bit is shared. Any PGM/P1-hold on this bit corrupts A18 for a 512K part.
 
 ### Pattern 1: Scoped DIP32 pinout variant (the D-02 precedent)
 **What:** A sibling of `DIP32_STD` differing only in pin-1/pin-31 roles, assigned to a named chip family.
@@ -212,7 +212,7 @@ This is a code/config fix, not a rename/migration. The only "stored state" conce
 
 ### Pitfall 1: The "0x08 + 32-pin" gate corrupts 512K/1M A18 users (D-04 — BLOCKING)
 **What goes wrong:** 127 chips share protocol 0x08 + DIP32_STD; 512K (AM27C040) and 1M (AM27C080) use pin 31 = A18. A PGM/P1-hold gated only on protocol+pin-count drives the shared `0x08` Rev2 bit on parts where it means A18, silently corrupting high-address writes.
-**Why it happens:** `CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08` (`rurp_pinout.h:122,128`).
+**Why it happens:** `CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08` (`rurp_pinout.h:121,127`).
 **How to avoid:** size-key the gate (`mem_size <= 262144` ⟺ A18 unused) AND structurally scope the host pinout so only ≤256K chips carry the PGM role. Defense-in-depth.
 **Warning signs:** `diff_db.py` shows AM27C040/AM27C080 (or any 512K/1M row) changed pinout; the firmware gate lacks a size/mem_size term.
 
@@ -275,9 +275,9 @@ void eprom_internal_set_control_register(firestarter_handle_t* handle, rurp_regi
 }
 ```
 
-### The CE-only program pulse (the PGM-assert seam — memory.cpp:274)
+### The CE-only program pulse (the PGM-assert seam — memory.cpp:346)
 ```cpp
-// firestarter/src/proms/memory.cpp:274-284  — memory_set_data: strobes CE only today
+// firestarter/src/proms/memory.cpp:346-356  — memory_set_data: strobes CE only today
 void memory_set_data(firestarter_handle_t* handle, uint32_t address, uint8_t data) {
     rurp_chip_input();
     address = mem_util_remap_address_bus(handle, address, WRITE_FLAG);  // pin 31 = line 22 from address bit
@@ -296,7 +296,7 @@ void memory_set_data(firestarter_handle_t* handle, uint32_t address, uint8_t dat
 
 ### Why static_high_mask is the WRONG vehicle for PGM=VIL (Q1 evidence)
 ```cpp
-// firestarter/src/proms/memory.cpp:330  — mem_util_remap_address_bus
+// firestarter/src/proms/memory.cpp:402  — mem_util_remap_address_bus
     reorg_address |= config.static_high_mask;   // ← ORs a 1 (HIGH) into the line; never clears
 // → bit 22 of reorg_address = CONTROL register bit 6 (mem_util_calculate_top_address_register, :184-185)
 // → rurp_write_to_register(CONTROL_REGISTER, ...) → rurp_internal_write_to_register (rurp_register_utils.h:63-89)
@@ -345,14 +345,14 @@ Line 22 is the last `bus` entry — that is pin 31 mapped as the 19th address li
 ## Open Questions (RESOLVED)
 
 1. **PGM program-active level (LOW) vs `static_high_mask` (drives HIGH).**
-   - What we know: AM27C020 programs with CE=VIL **and PGM=VIL**; `static_high_mask` drives a bus line HIGH (`memory.cpp:330`).
+   - What we know: AM27C020 programs with CE=VIL **and PGM=VIL**; `static_high_mask` drives a bus line HIGH (`memory.cpp:402`).
    - What's unclear: whether the RURP socket inverts pin 31's sense, so that "static-high on line 22" yields PGM=VIL at the socket, or whether a deliberate firmware clear/hold-low of line 22 is required.
-   - **RESOLVED (2026-06-30, verified against live firmware):** There is **NO inversion** anywhere in the line-22 → pin-31 path. `static_high_mask` ORs a `1` into `reorg_address` (`memory.cpp:330`, set-only, never clears); bit 22 of `reorg_address` lands in CONTROL register bit 6 via `mem_util_calculate_top_address_register` (`memory.cpp:184-185`); `rurp_write_to_register(CONTROL_REGISTER, ...)` → `rurp_internal_write_to_register` (`rurp_register_utils.h:54,63-89`) → `rurp_write_data_buffer(data)` maps each CONTROL-byte bit straight to a physical port pin (`leonardo_rurp_shield.cpp:80-99`), so a `1` bit yields a physical **HIGH** at pin 31. PGM program-active is **VIL (LOW)** (AM27C020.pdf). Therefore **static-high on line 22 yields HIGH, NOT PGM=VIL** — the `static-high-pins:[31]` route CANNOT express the program-active assert and is RULED OUT as the PGM vehicle. **Decision:** `DIP32_27C020`'s pin-31 job is only to take pin 31 OFF the address bus (so it is no longer driven as A18); the deliberate program-active PGM=VIL hold-LOW is delivered by Plan 02's gated `0x08` firmware branch in `memory_set_data`, held across the CE pulse. Document this polarity + datasheet citation in both the pinout `comment` and the firmware comment.
+   - **RESOLVED (2026-06-30, verified against live firmware):** There is **NO inversion** anywhere in the line-22 → pin-31 path. `static_high_mask` ORs a `1` into `reorg_address` (`memory.cpp:402`, set-only, never clears); bit 22 of `reorg_address` lands in CONTROL register bit 6 via `mem_util_calculate_top_address_register` (`memory.cpp:184-185`); `rurp_write_to_register(CONTROL_REGISTER, ...)` → `rurp_internal_write_to_register` (`rurp_register_utils.h:54,63-89`) → `rurp_write_data_buffer(data)` maps each CONTROL-byte bit straight to a physical port pin (`leonardo_rurp_shield.cpp:80-99`), so a `1` bit yields a physical **HIGH** at pin 31. PGM program-active is **VIL (LOW)** (AM27C020.pdf). Therefore **static-high on line 22 yields HIGH, NOT PGM=VIL** — the `static-high-pins:[31]` route CANNOT express the program-active assert and is RULED OUT as the PGM vehicle. **Decision:** `DIP32_27C020`'s pin-31 job is only to take pin 31 OFF the address bus (so it is no longer driven as A18); the deliberate program-active PGM=VIL hold-LOW is delivered by Plan 02's gated `0x08` firmware branch in `memory_set_data`, held across the CE pulse. Document this polarity + datasheet citation in both the pinout `comment` and the firmware comment.
 
 2. **Whether the firmware gate needs a new bus-config datum or can reuse `static_high_mask` + size/protocol.**
    - What we know: `static_high_mask` and `pins`/`protocol`/`mem_size` are all already in the wire struct (no new field).
    - What's unclear: if the PGM-assert needs a *distinct* "this line is PGM, hold it across the pulse" signal that `static_high_mask` (a static OR) cannot express (because it must be timed to the CE window).
-   - **RESOLVED (2026-06-30):** `static_high_mask` is a **static unconditional OR** applied on every `mem_util_remap_address_bus` call (`memory.cpp:330`) and drives HIGH, not the timed per-CE-pulse hold-LOW that PGM=VIL requires (Q1). It cannot express the assert on two counts (polarity AND timing). The PGM-assert is therefore a **firmware-internal gated branch** in `memory_set_data`, keyed on the **existing** `handle->protocol`, `handle->pins`, `handle->mem_size`, and `handle->bus_config` (line-22 line index) struct fields. **No new wire field is needed** (D-03 honored — the pinout+protocol-gate route succeeded; no `firestarter.h` ↔ `constants.py` lockstep escalation). The `DIP32_27C020` pinout (Q1) supplies the data-driven "pin 31 is no longer an address line" signal; the firmware reads protocol/size/pins to gate the hold-LOW.
+   - **RESOLVED (2026-06-30):** `static_high_mask` is a **static unconditional OR** applied on every `mem_util_remap_address_bus` call (`memory.cpp:402`) and drives HIGH, not the timed per-CE-pulse hold-LOW that PGM=VIL requires (Q1). It cannot express the assert on two counts (polarity AND timing). The PGM-assert is therefore a **firmware-internal gated branch** in `memory_set_data`, keyed on the **existing** `handle->protocol`, `handle->pins`, `handle->mem_size`, and `handle->bus_config` (line-22 line index) struct fields. **No new wire field is needed** (D-03 honored — the pinout+protocol-gate route succeeded; no `firestarter.h` ↔ `constants.py` lockstep escalation). The `DIP32_27C020` pinout (Q1) supplies the data-driven "pin 31 is no longer an address line" signal; the firmware reads protocol/size/pins to gate the hold-LOW.
 
 3. **Claude's-discretion diagnostic hook.**
    - What we know: Phase 99 needs to separate "path correct but chip OTP/dead" from "still broken"; the held-rail proxy is DTR-reset-fragile (use `hold_rail.py`, port held open — memory `reference_held_rail_dtr_reset_hold_script`).

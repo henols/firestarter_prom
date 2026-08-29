@@ -100,7 +100,7 @@ Content, in the order it appears:
 - **C3** -- states the 32-bit-safe delay helper is for the 75 ms overprogram pulse
   (`3 × 25 × 1000 us`, built from gh#15's own defaults), gives the AVR truncation argument in its strong
   form (`75000 - 65536 = 9464 us`, a silent 12.5% pulse), and cites the program pulse at
-  `memory.cpp:249-258` inside `memory_set_data()` -- never `eprom.cpp:283`. One sentence notes
+  `memory.cpp:321-330` inside `memory_set_data()` -- never `eprom.cpp:283`. One sentence notes
   `handle->pulse_delay`'s double duty as both program and erase pulse, without a line-number citation to
   the erase function at all (see Decisions Made).
 - **The ~6.25V ceiling** -- its own paragraph, framed as a limit on any implementation of gh#15 on this

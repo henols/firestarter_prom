@@ -127,7 +127,7 @@ review.
 
 - **D-07: ⚠ The guard is GENERIC — the whole phantom-success class is fixed here.** Verified:
   `op_execute_stateful_operation` returns `false` immediately when `main` is NULL
-  (`operation_utils.cpp:63,83`), so the calling `eprom_*` returns "finished" with
+  (`operation_utils.cpp:63,89`), so the calling `eprom_*` returns "finished" with
   `response_code == RESPONSE_CODE_OK` **and no error logged at all**. That is precisely
   DEVTEST-01's "reports OK having done nothing" for `CMD_ERASE` on `0x0D`. One refusal in the
   shared path fixes SDP, erase and chip-ID phantom-success together, at the lowest total flash
@@ -175,7 +175,7 @@ review.
 
 - **D-11: After the 3 writes, `delay(AT28C_TWC_MAX_MS)` and stop — no completion poll.**
   LOCK-01's literal shape. Verified: `eeprom28c_wait_for_sdp_completion`
-  (`eeprom_28c.cpp:272-285`) is the `t_WC` delay **plus** up to 33 reads through
+  (`eeprom_28c.cpp:260-273`) is the `t_WC` delay **plus** up to 33 reads through
   `handle->firestarter_get_data`, and a `memory_get_data` read folds `READ_FLAG` into
   `DIP32_28C512_EEPROM`'s `CONTROL` bit `0x10` — so reusing it would inject read-induced
   `CONTROL` churn into all four lock goldens for an outcome D-13 says is never reported. The
@@ -505,7 +505,7 @@ phase adds a NEW one (D-04) — add it to the list for Phases 120–122.**
 ### Verified facts established during this discussion (do NOT re-derive)
 - **`CMD_*` slots 9 and 10 are free, and both sit ABOVE `CMD_DEV_ADDRESS 7`**
   (`firestarter.h:34-51`). This is the whole reason LOCK-03 gates LOCK-02.
-- **The admission guard is `#ifdef DEV_TOOLS`-conditional** (`firestarter.cpp:76-95`). With
+- **The admission guard is `#ifdef DEV_TOOLS`-conditional** (`firestarter.cpp:73-91`). With
   `-D DEV_TOOLS`, only `cmd < 7` reaches `configure_memory`; **without** it, everything
   `< CMD_READ_VPP (11)` does — including 7, 8, 9, 10. So a release build already configures a
   memory handler for dev commands it will refuse (D-01).
@@ -515,7 +515,7 @@ phase adds a NEW one (D-04) — add it to the list for Phases 120–122.**
   generic mains. **A blanket `default:` arm in that switch would refuse them on all 84 chips**
   (D-05).
 - **NULL `main` ⇒ silent OK, no error at all.** `op_execute_stateful_operation` returns `false`
-  at `operation_utils.cpp:83` when `main` is NULL; the caller reports finished with
+  at `operation_utils.cpp:89` when `main` is NULL; the caller reports finished with
   `response_code == RESPONSE_CODE_OK`. This is DEVTEST-01's phantom-erase mechanism, verified in
   code (D-07).
 - **INIT/END with NULL callbacks are not *skipped* — they run empty.**
@@ -535,7 +535,7 @@ phase adds a NEW one (D-04) — add it to the list for Phases 120–122.**
 - **`MSG_ERR_NOT_SUPPORTED` already exists** (`tools/catalog/messages.toml:419`) — D-06 needs no
   new ERROR id, and `eprom_erase` already uses it for the `FLAG_CAN_ERASE` refusal.
 - **`eeprom28c_wait_for_sdp_completion` is `t_WC` delay + up to 33 reads**
-  (`eeprom_28c.cpp:272-285`), and a `memory_get_data` read folds `READ_FLAG` into
+  (`eeprom_28c.cpp:260-273`), and a `memory_get_data` read folds `READ_FLAG` into
   `DIP32_28C512_EEPROM`'s `CONTROL` bit `0x10` — which is why D-11 declines reusing it for the
   lock.
 - **118's t_BLC budget is already length-parameterised** (`sdp_seq_len × AT28C_TBLC_MAX_US`), so
@@ -548,14 +548,14 @@ phase adds a NEW one (D-04) — add it to the list for Phases 120–122.**
   comment states the hard constraint that **nothing bus-visible** may be added inside its body
   beyond `rurp_set_data_output()` and the `set_data` loop, or `SDP_FIXED_*` full-stream equality
   breaks.
-- **`EEPROM_SDP_DISABLE[6]`'s declaration shape** (`eeprom_28c.cpp:108-130`) — the exact template
+- **`EEPROM_SDP_DISABLE[6]`'s declaration shape** (`eeprom_28c.cpp:103-124`) — the exact template
   for `EEPROM_SDP_ENABLE[3]`, including the load-bearing `extern` line and the rationale comment
   format.
 - **117-04's table-identity cross-guard** in `test_sdp_harness` — D-10's three-way guard extends
   this pattern and belongs beside it.
 - **118's `micros()` bracket + budget check** in `eeprom28c_write_init` — D-14 factors it into a
   shared helper rather than copying it.
-- **`eprom_erase`'s precondition-refusal shape** (`eprom_operations.cpp:34-40`) — the model for a
+- **`eprom_erase`'s precondition-refusal shape** (`eprom_operations.cpp:34-38`) — the model for a
   new SDP command entry point, and the existing `MSG_ERR_NOT_SUPPORTED` caller.
 - **`op_execute_simple_operation`** — the single-step wrapper a payload-free command needs; no
   new state-machine work required.

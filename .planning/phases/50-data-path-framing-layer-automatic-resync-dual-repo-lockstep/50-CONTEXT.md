@@ -52,7 +52,7 @@ eliminating the 2 s `len_u16`-corruption timeout-desync cascade.
 - **D-01:** **Resync + fail-fast.** On a CRC8 or COBS-decode failure, the receiver discards bytes up to
   the next `0x00` (desync bounded to one frame) and surfaces a clean error **immediately** — no 2 s hang.
   The existing op-level error path fires (firmware: `LOG_ERROR_ID_U16(MSG_ERR_DATA_ERR_N, …)` →
-  `OP_MSG_ERROR` at `operation_utils.cpp:164-168`); the user re-runs the operation.
+  `OP_MSG_ERROR` at `operation_utils.cpp:173-176`); the user re-runs the operation.
   **No block-level retransmit/ACK is added** — that is a separate future capability (see Deferred), not
   Phase 50. The win is bounded desync + immediate failure, not transparent auto-recovery.
 
@@ -86,7 +86,7 @@ eliminating the 2 s `len_u16`-corruption timeout-desync cascade.
 ### Framing-3 scope resolution (operator-locked 2026-06-01 — resolves D-04 open item via RESEARCH.md deep trace)
 - **D-06:** **Option A.** A live-code trace (RESEARCH.md "Framing-3 Scope Deep Trace") proved the fw→host
   EPROM **read** data block does NOT flow through `rurp_communication_write()` — reads emit over the
-  UNCHANGED `MSG_DATA_CHUNK` magic-preamble frame (`eprom_operations.cpp:119-121`), and
+  UNCHANGED `MSG_DATA_CHUNK` magic-preamble frame (`eprom_operations.cpp:114-116`), and
   `rurp_communication_write()` is dormant (only caller behind the undefined `#ifdef RAW_DATA_PROGRESS`).
   Therefore Phase 50:
   - **Rewrites `rurp_communication_read_data()`** (the host→fw write-receive path — the literal 2 s
@@ -175,7 +175,7 @@ eliminating the 2 s `len_u16`-corruption timeout-desync cascade.
 
 ### Integration Points
 - Firmware decode failure → `LOG_ERROR_ID_U16(MSG_ERR_DATA_ERR_N, (uint16_t)res)` → `OP_MSG_ERROR`
-  (`operation_utils.cpp:164-168`) is the existing error surface the fail-fast recovery (D-01) reuses.
+  (`operation_utils.cpp:173-176`) is the existing error surface the fail-fast recovery (D-01) reuses.
 - The framing layer built here is the direct input to Phase 51 (command channel reuses it) and Phase 52
   (round-trip tests pin it).
 

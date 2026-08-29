@@ -116,7 +116,7 @@ close (Phase 107), and the milestone-level out-of-scope items (`FLAG_VPE_AS_VPP`
 - `firestarter/src/json_parser.c` — remove `extract_int("type", handle->mem_type)`
   (line ~307) and `const char key_type[] PROGMEM = "type";` (line ~64).
 - `firestarter/include/messages.h` — retire `MSG_ERR_MEM_TYPE_UNSUPPORTED 0xAE`
-  (line ~83). NOTE: the `0xAE` at `firestarter/src/boards/rurp_serial_utils.cpp:377`
+  (line ~83). NOTE: the `0xAE` at `firestarter/src/boards/rurp_serial_utils.cpp:374`
   is a CRC8 lookup-table byte, NOT a message-code reference — leave it untouched.
 
 ### Dispatch semantics & non-regression gates

@@ -53,7 +53,7 @@ Each was measured live this session against the milestone branch, not inherited 
    D-06. Both readings must appear in the phase record (the 133-RECORD §4 precedent).
 
 3. **`dev test`'s exit precedence is inverted against its own documentation.** `_VERDICT_EXIT_CODES`
-   maps `marginal → 2`, `BAD → 1` (`cli_handlers.py:1891-1897`) and the code is
+   maps `marginal → 2`, `BAD → 1` (`cli_handlers.py:1888-1894`) and the code is
    `max(_verdict_code(r.verdict) for r in results)` — so `max(1, 2) = 2` and **marginal beats BAD**. The
    source comment at `:1888-1890` says *"BAD beats marginal via `max`"* and `dev_test`'s docstring says
    *"2 if any step is marginal (and none BAD), 1 if any step is BAD"*. Both are false today. D-14 fixes
@@ -194,7 +194,7 @@ Each was measured live this session against the milestone branch, not inherited 
   today: an ALLOW chip takes **6 write passes** over its 256-byte region (A×2 from the shipped write step
   at `runs=2`, then B, A, B, A) against a notice promising "written twice". Rejected: a two-part notice
   with a per-chip second line after `derive_plan` (verified safe on ordering — nothing energises until
-  `read_hardware_revision_value` at `cli_handlers.py:2150`, and ALLOW chips are never UV so no consent
+  `read_hardware_revision_value` at `cli_handlers.py:2147`, and ALLOW chips are never UV so no consent
   prompt precedes it — but it adds a second output surface to keep true); and interpolating the count
   into the first line (breaks D-04's printed-FIRST guarantee and its committed test).
 
@@ -214,7 +214,7 @@ Each was measured live this session against the milestone branch, not inherited 
   phase arms a claim gate over that kind of statement).
 
 - **D-11:** **The `dedup_fingerprint` reset for all 43 ALLOW chips is ACCEPTED and RECORDED as a cost.**
-  `dedup_fingerprint` hashes `op=verdict:cls` per step (`diagnostic_report.py:186`), so six new steps
+  `dedup_fingerprint` hashes `op=verdict:cls` per step (`diagnostic_report.py:183`), so six new steps
   necessarily re-key every ALLOW chip: b14/b15-era reports stop grouping with v1.30-era ones and their
   accumulated N≥2 promotion counts reset. **Name gh#20's orphaned `00e121446ceb` explicitly inside the
   LEG-18 finding** and hand the cost to Phase 137's release notes. Same mechanism v1.21 D-08 relied on to
@@ -235,7 +235,7 @@ Each was measured live this session against the milestone branch, not inherited 
   always-loud line (one string to keep honest, but it is the shape users learn to skim).
 
   **Honest residual, inherited from 133 D-07 and NOT closed here:** after a Ctrl-C mid-leg,
-  `results = run_plan(...)` (`cli_handlers.py:2164`) never completes, so **neither form prints and there
+  `results = run_plan(...)` (`cli_handlers.py:2161`) never completes, so **neither form prints and there
   is no report at all**. The mitigation is D-09's rewritten notice, printed up front where it is
   guaranteed to be seen — not a `finally` handler. Do not claim otherwise (research §3.2's caveat).
 
@@ -389,7 +389,7 @@ entry body, `REQUIREMENTS.md`, the research spine, Phase 133's outputs, and this
 - `.planning/research/FEATURES.md` §1.1–1.4 (lines 40–108) — op names, per-step report text, the
   `StepResult.op` consumer census, and **§1.4: the engine has no flags channel today**
   (`_dispatch_multi_run` passes no `operation_flags`); step 3 must import `FLAG_SKIP_SDP_UNLOCK`
-  (`constants.py:137`, `0x100`) and pass it, deliberately narrowing the module's "sets no VPP, builds no
+  (`constants.py:136`, `0x100`) and pass it, deliberately narrowing the module's "sets no VPP, builds no
   wire dict" contract rather than silently violating it.
 - `.planning/research/FEATURES.md` §2.1–2.6 (lines 112–172) — the status vocabulary (⚠ **a sixth status
   is an anti-feature**), the ten-branch outcome matrix, **§2.4's ambiguous `write_eprom` bool** (D-01's
@@ -522,9 +522,9 @@ entry body, `REQUIREMENTS.md`, the research spine, Phase 133's outputs, and this
   Anything simulating a different environment needs a subprocess.
 
 ### Integration Points
-- **`cli_handlers.py:2164-2166`** — the only production consumer of `run_plan`'s return value, and where
+- **`cli_handlers.py:2161-2163`** — the only production consumer of `run_plan`'s return value, and where
   133 D-07's forfeited-report residual lives. D-12's Ctrl-C caveat is the same line.
-- **`cli_handlers.py:2216-2219`** — the exit computation D-14 and D-15 both change.
+- **`cli_handlers.py:2213-2216`** — the exit computation D-14 and D-15 both change.
 - **`diagnostic_report.py`'s `to_dict()`/`render()`** — LEG-12's two surfaces, and the text that reaches
   strangers on every run. No gate scans it today; CLOSE-03 will.
 - **`tests/test_op_registration_parity.py`'s exemption table** — the mechanical link back to Phase 133;

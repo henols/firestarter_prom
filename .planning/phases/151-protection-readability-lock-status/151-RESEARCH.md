@@ -42,7 +42,7 @@ places the discussion did not reach:
    elided shorthand (`MX29F010 / F020 / F040`). The curation is a human
    token→family mapping, not a lookup.
 4. **`sdp_honesty` already has a landed production caller**, contradicting D-11's
-   premise. `unreadable_state_caveat()` is called from `cli_handlers.py:2408`,
+   premise. `unreadable_state_caveat()` is called from `cli_handlers.py:2405`,
    `:2412` and `chip_test.py:1480`. Only `emission_summary()` and
    `map_unknown_cmd_to_outdated()` are still callerless.
 
@@ -486,7 +486,7 @@ Next unused integer is **16**. But see the fork below: 16 is not usable as-is.
 
 ### ⚠ The ordinal parse gate — the finding that reframes "command number"
 
-`[FILE firestarter/src/firestarter.cpp:77-113]`, quoted at the decision point:
+`[FILE firestarter/src/firestarter.cpp:74-109]`, quoted at the decision point:
 
 ```c
     if (handle->cmd < CMD_READ_VPP) {
@@ -521,7 +521,7 @@ Consequences, stated plainly:
   `firestarter_operation_main`, no `firestarter_get_data`.
 - **There is no free slot below 11.** `CMD_SDP_LOCK`'s own comment says so:
   *"Slots 9 and 10 were the only two free command values"* `[FILE firestarter/include/firestarter.h:73-75]`.
-- A second, independent ordinal-range guard exists at `[FILE firestarter/src/firestarter.cpp:136-146]`
+- A second, independent ordinal-range guard exists at `[FILE firestarter/src/firestarter.cpp:132-142]`
   (`if (handle->cmd > CMD_IDLE && handle->cmd < CMD_READ_VPP)`), gating **three
   DBG_\* debug lines only**. Its comment explicitly says it was *"deliberately
   NOT converted to is_memory_cmd()"* because it *"gates diagnostic output only …
@@ -586,7 +586,7 @@ Every site that mirrors the 8-command set — all must move together
 
 ### The `loop()` dispatch switch
 
-`[FILE firestarter/src/firestarter.cpp:288-359]` — `switch (handle.cmd)` with arms
+`[FILE firestarter/src/firestarter.cpp:283-354]` — `switch (handle.cmd)` with arms
 at `:289 CMD_READ`, `:292 CMD_WRITE`, `:295 CMD_VERIFY`, `:298 CMD_ERASE`,
 `:301 CMD_BLANK_CHECK`, `:304 CMD_CHECK_CHIP_ID`, `:322 CMD_SDP_UNLOCK`,
 `:325 CMD_SDP_LOCK`, `:328-329 CMD_READ_VPP/CMD_READ_VPE`, `:332 CMD_IDLE`,
@@ -655,7 +655,7 @@ sibling is present) or silently passes (when it is not).
 
 **Option 1 — an OK id-frame with u8 params (the cheapest, and the closest working
 precedent).** `hw_get_version` is a single-shot query that returns two `uint8_t`s
-and finishes `[FILE firestarter/src/hardware_operations.cpp:105-114]`:
+and finishes `[FILE firestarter/src/hardware_operations.cpp:104-113]`:
 
 ```c
 bool hw_get_version(firestarter_handle_t* handle) {
@@ -681,7 +681,7 @@ Note the **`0xFF` sentinel convention** for "no value" — directly reusable for
 
 **Option 3 — extend `MSG_OK_READY`.** Confirmed in both repos, and it genuinely
 needs **zero codegen**:
-- Firmware: `[FILE firestarter/src/firestarter.cpp:171]` *"MSG_OK_READY's catalog
+- Firmware: `[FILE firestarter/src/firestarter.cpp:166]` *"MSG_OK_READY's catalog
   entry is a variable-length byte blob"*, emitted at `:227` as
   `LOG_OK_ID_BYTES(MSG_OK_READY, _ready, (uint8_t)(4 + _vlen + 2))`.
 - Host: `[FILE firestarter_app/firestarter/serial_comm.py:387-444]` decodes it
@@ -784,7 +784,7 @@ end `"; protection state is not readable"`.
 
 ### `flash_util_get_chip_id` — the existing Autoselect-adjacent read, in full
 
-`[FILE firestarter/src/proms/flash_utils.cpp:78-86]`:
+`[FILE firestarter/src/proms/flash_utils.cpp:79-87]`:
 
 ```c
 /* Shared AMD/JEDEC chip-ID read: FLASH_ENABLE_ID → read 0x0000/0x0001
@@ -799,7 +799,7 @@ uint16_t flash_util_get_chip_id(firestarter_handle_t* handle) {
 }
 ```
 
-And its mismatch-checking wrapper `[FILE firestarter/src/proms/flash_utils.cpp:88-104]`,
+And its mismatch-checking wrapper `[FILE firestarter/src/proms/flash_utils.cpp:89-105]`,
 which is where `FLAG_FORCE` already downgrades an error to a warning — the exact
 severity-downgrade convention D-07 cites:
 
@@ -825,7 +825,7 @@ void flash_util_check_chip_id_execute(firestarter_handle_t* handle) {
 
 ### `flash_util_byte_flipping` and the `byte_flip_t` idiom
 
-`[FILE firestarter/src/proms/flash_utils.cpp:20-27]`:
+`[FILE firestarter/src/proms/flash_utils.cpp:21-28]`:
 
 ```c
 void flash_util_byte_flipping(firestarter_handle_t* handle, const byte_flip_t* byte_flips, size_t size) {
@@ -912,9 +912,9 @@ prose, and the plan must source it from a datasheet (the `0x06-FLASH-AMD-ALT`
 datasheet folder referenced by `PROTOCOLS.md:117-123` is the in-tree place to
 look) before writing a byte of it. Sector *geometry* — which addresses are sector
 bases — is also absent from the DB and from firmware; `flash_nor_unlock_sector_erase`
-takes a caller-supplied `sector_address` `[FILE firestarter/src/proms/flash_nor_unlock.cpp:118-128]`
+takes a caller-supplied `sector_address` `[FILE firestarter/src/proms/flash_nor_unlock.cpp:117-127]`
 and the host's `erase --sector-address` option is how it is supplied today
-`[FILE firestarter_app/firestarter/cli_handlers.py:878-885]`. **There is no
+`[FILE firestarter_app/firestarter/cli_handlers.py:876-883]`. **There is no
 sector map in this project.** A "per-sector" answer therefore has no data source;
 a device-global or single-sector-at-a-supplied-address answer does.
 
@@ -1749,7 +1749,7 @@ appears only in the constructed message.
 | `tests/test_sdp_honesty.py:68-90` | `"was emitted"`, `"cannot be read back"`, `"not a claim about the chip's actual state"` in `emission_summary(...)` for both directions | Only if `emission_summary` itself is edited. A **new sibling** function leaves it untouched. |
 | `tests/test_sdp_honesty.py:87,108` | no duration figure; no fabricated lock-state boolean | unaffected |
 | `tests/test_chip_test_sdp_leg.py:1241-1250, 2168-2182` | that `chip_test.py` **composes** `unreadable_state_caveat()` rather than re-authoring the sentence | breaks only if the caveat's **text** changes |
-| `firestarter/cli_handlers.py:2408`, `:2412` | production callers composing the caveat | breaks only if the caveat's text changes |
+| `firestarter/cli_handlers.py:2405`, `:2412` | production callers composing the caveat | breaks only if the caveat's text changes |
 | `firestarter/chip_test.py:1480` | production caller | same |
 | `tools/check_no_exists_proxy.py:188` | names `tests/test_sdp_honesty.py` in a list | inert w.r.t. wording |
 
@@ -1761,7 +1761,7 @@ sites green and honours D-11's "one copy of the sentence".
 
 **⚠ D-11's premise is factually wrong** — see Contradiction C-4.
 `unreadable_state_caveat()` has **three landed production callers**
-(`cli_handlers.py:2408`, `cli_handlers.py:2412`, `chip_test.py:1480`), so Phase
+(`cli_handlers.py:2405`, `cli_handlers.py:2409`, `chip_test.py:1480`), so Phase
 134's leg-report rows did land. Only `emission_summary()` and
 `map_unknown_cmd_to_outdated()` are still callerless.
 
@@ -2527,7 +2527,7 @@ three parts of the sequence are separately verifiable:**
 `firestarter id W29C020` already drives `CMD_CHECK_CHIP_ID` →
 `configure_flash_5v_page`'s `CMD_CHECK_CHIP_ID` arm (`flash_5v_page.cpp:54-57`) →
 `flash_5v_page_check_chip_id_execute` (`:133-135`) → `flash_util_check_chip_id_execute`
-→ `flash_util_get_chip_id` (`flash_utils.cpp:81-86`), which issues
+→ `flash_util_get_chip_id` (`flash_utils.cpp:82-87`), which issues
 `FLASH_ENABLE_ID` / reads `0x0000`,`0x0001` / issues `FLASH_DISABLE_ID`. So a
 zero-code bench run on the operator's `W29C020` can establish that the shared mode
 machinery works on this exact part and socket, **and that result is not gated by
@@ -2989,7 +2989,7 @@ are superseded.)*
 
 | leg | part | reachable via | status |
 |-----|------|---------------|--------|
-| **A — mode-entry positive control** | `W29C020` | **`firestarter id W29C020`, an existing shipped command** | **available today, zero new code.** `CMD_CHECK_CHIP_ID` → `configure_flash_5v_page`'s `CMD_CHECK_CHIP_ID` arm (`flash_5v_page.cpp:54-57`) → `flash_util_get_chip_id` (`flash_utils.cpp:81-86`) must return **`0xDA45`**. Not gated by D-03, D-06 or D-07. |
+| **A — mode-entry positive control** | `W29C020` | **`firestarter id W29C020`, an existing shipped command** | **available today, zero new code.** `CMD_CHECK_CHIP_ID` → `configure_flash_5v_page`'s `CMD_CHECK_CHIP_ID` arm (`flash_5v_page.cpp:54-57`) → `flash_util_get_chip_id` (`flash_utils.cpp:82-87`) must return **`0xDA45`**. Not gated by D-03, D-06 or D-07. |
 | **B — the `0x05` status read** | `W29C020` | `dev lock-status W29C020 **--force**` (D-07) — `--force` is required **even on the operator's own part**, because `W29C022` is undocumented and D-06's unanimity refuses the entry regardless of how C-17 is resolved | a **PROBE**; see the two claim-cap readings below |
 | **C — the original D-03 leg** | `W29C040` | same `--force` path | a **PROBE**, explicitly capped by D-03 |
 | **D — the `0x06` Autoselect read** | *none* | — | **no bench leg exists, under D-03 or otherwise** |
@@ -3490,7 +3490,7 @@ and Phase 152's outward-facing text must not repeat it."*
 **Says:** CONTEXT.md D-11.
 **Measured** `[CMD grep -rn "sdp_honesty|unreadable_state_caveat|emission_summary|map_unknown_cmd_to_outdated" --include=*.py]`:
 `unreadable_state_caveat()` has **three landed production callers** —
-`firestarter/cli_handlers.py:2408`, `firestarter/cli_handlers.py:2412`, and
+`firestarter/cli_handlers.py:2405`, `firestarter/cli_handlers.py:2409`, and
 `firestarter/chip_test.py:1480` (imported at `cli_handlers.py:35` and
 `chip_test.py:41`, both with the comment *"unreadable_state_caveat(), called not
 re-authored"*), plus four pinning tests in `tests/test_chip_test_sdp_leg.py`
@@ -3523,7 +3523,7 @@ reasons (one `documented-not-readable`, one `undocumented`), so D-06's refusal
 message must handle a *set* of offending aliases in *different* states, not a
 single one.
 
-### C-7 — CONTEXT.md's `flash_5v_page.cpp:87` citation is a comment-block, not a line
+### C-7 — CONTEXT.md's `flash_5v_page.cpp:86` citation is a comment-block, not a line
 **Says:** CONTEXT.md — *"its :87 comment records that W29C040 ships with SDP enabled"*.
 **Measured:** the comment block spans `:86-90`; the specific W29C040 sentence is on
 `:87`. Not a contradiction, an imprecision — recorded because the planner will cite
@@ -3670,7 +3670,7 @@ CI installs `.[test]` (pytest 8, syrupy, ruff, mypy, pytest-cov, types-pyserial)
 
 ### C-16 — `FLAG_FORCE`'s existing firmware meaning is narrower than D-07's use
 **Measured:** in firmware, `FLAG_FORCE` downgrades a **chip-ID mismatch** from
-error to warning (`flash_utils.cpp:96-102`); on the host it is threaded via
+error to warning (`flash_utils.cpp:97-103`); on the host it is threaded via
 `_build_op_flags(force=force)` on `blank`, `erase`, `id`.
 **Note:** D-07's `--force` is a **host-side** bypass of a **table** refusal — a new
 meaning for the same flag name. Whether the wire bit is even sent is undecided.
@@ -3810,7 +3810,7 @@ Verified patterns, each with its in-tree source.
 
 ### The conditional beta-only `dev` command registration
 ```python
-# Source: firestarter_app/firestarter/cli_handlers.py:1471-1507 (dev addr)
+# Source: firestarter_app/firestarter/cli_handlers.py:1469-1505 (dev addr)
 if _DEV_TOOLS_ENABLED:
 
     @dev.command(name="addr")
@@ -3868,7 +3868,7 @@ if _DEV_TOOLS_ENABLED:
 
 ### The single-shot firmware query that returns values and finishes
 ```c
-// Source: firestarter/src/hardware_operations.cpp:105-114
+// Source: firestarter/src/hardware_operations.cpp:104-113
 bool hw_get_version(firestarter_handle_t* handle) {
     LOG_DEBUG_ID_SUB(DBG_GET_HW_VERSION);
     rurp_configuration_t* rurp_config = rurp_get_config();
@@ -3883,7 +3883,7 @@ bool hw_get_version(firestarter_handle_t* handle) {
 
 ### The chip-ID-mode enter / read / exit sequence to reuse
 ```c
-// Source: firestarter/src/proms/flash_utils.cpp:81-86
+// Source: firestarter/src/proms/flash_utils.cpp:82-87
 uint16_t flash_util_get_chip_id(firestarter_handle_t* handle) {
     flash_execute_command(FLASH_ENABLE_ID);          // AA/55/90
     uint16_t chip_id = handle->firestarter_get_data(handle, 0x0000) << 8;
@@ -3895,7 +3895,7 @@ uint16_t flash_util_get_chip_id(firestarter_handle_t* handle) {
 
 ### The `FLAG_FORCE` severity-downgrade convention
 ```c
-// Source: firestarter/src/proms/flash_utils.cpp:96-102
+// Source: firestarter/src/proms/flash_utils.cpp:97-103
         if (is_flag_set(FLAG_FORCE)) {
             LOG_WARN_ID_BYTES(MSG_WARN_CHIP_ID_MISMATCH, _b, 4);
             handle->response_code = RESPONSE_CODE_WARNING;

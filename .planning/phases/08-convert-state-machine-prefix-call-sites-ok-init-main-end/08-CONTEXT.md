@@ -28,14 +28,14 @@ Phase 8 does NOT delete the legacy `logging.h` macro tower (that's Phase 9 / LFW
 
 ### `_check_response` buffer deconstruction
 
-- **R-01:** Delete `response_msg[96]` from `firestarter_handle_t`. Once every populate-site emits via `LOG_*_ID_*` directly, no code reads or writes the buffer. SRAM win: ~96 B per operation invocation (Uno: 4.7% of 2 KB; Leonardo: 3.8% of 2.5 KB). The buffer-clear sites (`handle->response_msg[0] = '\0'` at firestarter.cpp:67/168, operation_utils.cpp:292, eprom.cpp:169) disappear with the field.
+- **R-01:** Delete `response_msg[96]` from `firestarter_handle_t`. Once every populate-site emits via `LOG_*_ID_*` directly, no code reads or writes the buffer. SRAM win: ~96 B per operation invocation (Uno: 4.7% of 2 KB; Leonardo: 3.8% of 2.5 KB). The buffer-clear sites (`handle->response_msg[0] = '\0'` at firestarter.cpp:64/168, operation_utils.cpp:300, eprom.cpp:169) disappear with the field.
 - **R-02:** Populate-sites use the two-line pattern locked in Phase 7 D-02: `LOG_*_ID_*(MSG_*, args); handle->response_code = RESPONSE_CODE_*;`. No combined "emit + set state" macro — explicit state changes only. OK + DATA sites may omit the `response_code` line where the default `OK` is already correct (e.g., a populate-site that always succeeds may rely on the operation entry-point's response_code = OK initialization). Convert sites to mirror this pattern:
   - `proms/eprom.cpp:104` `copy_to_buffer(handle->response_msg, "Skipping erase.")` → `LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE)` (existing ID 0x58)
   - `proms/eprom.cpp:171` `format(handle->response_msg, "Number of retries: %d", retries)` → `LOG_INFO_ID_U8(MSG_INFO_RETRIES, retries)` (existing ID 0x51)
   - `proms/flash_type_3.cpp:88` `copy_to_buffer(handle->response_msg, "Skipping erase of memory")` → `LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE_MEM)` (existing ID 0x59)
   - `proms/flash_type_4.cpp:52` `copy_to_buffer(handle->response_msg, "Skipping erase.")` → `LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE)` (existing ID 0x58)
-  - `proms/memory.cpp:325` `firestarter_data_response_format("%lu/%lu", addr, mem_size)` → `LOG_DATA_ID_U32_U32(MSG_DATA_PROGRESS, addr, mem_size)` (existing ID 0xE0)
-- **R-03:** `_check_response` minimal strip: drop the `log_info(handle->response_msg)` line at operation_utils.cpp:312 and `log_data(handle->response_msg)` at operation_utils.cpp:317. Keep `rurp_communication_write(handle->data_buffer, handle->data_size)` in the DATA case. Keep `return false` in the ERROR case (operation-flow abort). Keep `op_reset_timeout()` and `handle->response_code = RESPONSE_CODE_OK` at the bottom. Final shape is a switch that drives operation flow only — no log emit. Same 3-branch switch structure preserved.
+  - `proms/memory.cpp:397` `firestarter_data_response_format("%lu/%lu", addr, mem_size)` → `LOG_DATA_ID_U32_U32(MSG_DATA_PROGRESS, addr, mem_size)` (existing ID 0xE0)
+- **R-03:** `_check_response` minimal strip: drop the `log_info(handle->response_msg)` line at operation_utils.cpp:320 and `log_data(handle->response_msg)` at operation_utils.cpp:325. Keep `rurp_communication_write(handle->data_buffer, handle->data_size)` in the DATA case. Keep `return false` in the ERROR case (operation-flow abort). Keep `op_reset_timeout()` and `handle->response_code = RESPONSE_CODE_OK` at the bottom. Final shape is a switch that drives operation flow only — no log emit. Same 3-branch switch structure preserved.
 
 ### OK_REV / OK_CFG / FW_VERSION / FW_HANDSHAKE payload shape
 
@@ -79,7 +79,7 @@ The operator did not lock the following — researcher and planner should propos
 
 ### Phase 6 wire-format spec (the protocol Phase 8 modifies)
 - [firestarter/src/boards/rurp_serial_utils.cpp:120](firestarter/src/boards/rurp_serial_utils.cpp#L120) — wire-format spec comment: `MAGIC | len | id | params | crc | term`.
-- [firestarter/src/boards/rurp_serial_utils.cpp:156-194](firestarter/src/boards/rurp_serial_utils.cpp#L156-L194) — `_firestarter_emit_frame` — the function whose `len` write (line 177) widens from u8 to u16 per W-04.
+- [firestarter/src/boards/rurp_serial_utils.cpp:153-191](firestarter/src/boards/rurp_serial_utils.cpp#L153-L191) — `_firestarter_emit_frame` — the function whose `len` write (line 177) widens from u8 to u16 per W-04.
 - [firestarter_app/firestarter/serial_comm.py:299-378](firestarter_app/firestarter/serial_comm.py#L299-L378) — `_decode_id_frame` — the corresponding host decoder.
 - [firestarter_app/firestarter/serial_comm.py:418-505](firestarter_app/firestarter/serial_comm.py#L418-L505) — `_read_and_parse_lines` — the host byte-stream reader whose state-machine prefix matching path Phase 8 deletes (W-01, W-02).
 - [.planning/phases/06-logging-infrastructure/06-CONTEXT.md](.planning/phases/06-logging-infrastructure/06-CONTEXT.md) §D-01..D-06 — wire-format decisions Phase 6 locked. Phase 8's W-04 changes one of them (len width); other decisions stand.
@@ -104,11 +104,11 @@ The operator did not lock the following — researcher and planner should propos
 - [firestarter/src/proms/eprom.cpp:104](firestarter/src/proms/eprom.cpp#L104), [:171](firestarter/src/proms/eprom.cpp#L171) — OK-path buffer fills (`Skipping erase`, `Number of retries`).
 - [firestarter/src/proms/flash_type_3.cpp:88](firestarter/src/proms/flash_type_3.cpp#L88) — `Skipping erase of memory`.
 - [firestarter/src/proms/flash_type_4.cpp:52](firestarter/src/proms/flash_type_4.cpp#L52) — `Skipping erase`.
-- [firestarter/src/proms/memory.cpp:325](firestarter/src/proms/memory.cpp#L325) — DATA-path `firestarter_data_response_format("%lu/%lu", addr, mem_size)`.
-- [firestarter/src/hardware_operations.cpp:44](firestarter/src/hardware_operations.cpp#L44), [:67-69](firestarter/src/hardware_operations.cpp#L67-L69), [:80](firestarter/src/hardware_operations.cpp#L80), [:89](firestarter/src/hardware_operations.cpp#L89), [:100/102](firestarter/src/hardware_operations.cpp#L100-L102) — `send_ack_const` / `send_ack_format` sites (`Ready`, VPP/VPE voltage, FW_VERSION, HW_REV, R1/R2 config).
-- [firestarter/src/eprom_operations.cpp:80](firestarter/src/eprom_operations.cpp#L80), [:121](firestarter/src/eprom_operations.cpp#L121) — `send_ack_const("Req data")`, `log_data_const("Sending data")`.
+- [firestarter/src/proms/memory.cpp:397](firestarter/src/proms/memory.cpp#L397) — DATA-path `firestarter_data_response_format("%lu/%lu", addr, mem_size)`.
+- [firestarter/src/hardware_operations.cpp:44](firestarter/src/hardware_operations.cpp#L44), [:67-69](firestarter/src/hardware_operations.cpp#L67-L69), [:80](firestarter/src/hardware_operations.cpp#L80), [:89](firestarter/src/hardware_operations.cpp#L89), [:100/102](firestarter/src/hardware_operations.cpp#L99-L101) — `send_ack_const` / `send_ack_format` sites (`Ready`, VPP/VPE voltage, FW_VERSION, HW_REV, R1/R2 config).
+- [firestarter/src/eprom_operations.cpp:80](firestarter/src/eprom_operations.cpp#L80), [:121](firestarter/src/eprom_operations.cpp#L116) — `send_ack_const("Req data")`, `log_data_const("Sending data")`.
 - [firestarter/src/firestarter.cpp:150](firestarter/src/firestarter.cpp#L150), [:153](firestarter/src/firestarter.cpp#L153) — `send_ack_format(PARSE_RESPONSE, ...)` — the per-command FW_HANDSHAKE ack (P-04).
-- [firestarter/src/operation_utils.cpp:312](firestarter/src/operation_utils.cpp#L312), [:317](firestarter/src/operation_utils.cpp#L317) — `_check_response` D-01 OK + DATA log calls (R-03).
+- [firestarter/src/operation_utils.cpp:320](firestarter/src/operation_utils.cpp#L320), [:317](firestarter/src/operation_utils.cpp#L325) — `_check_response` D-01 OK + DATA log calls (R-03).
 
 ### Legacy macros (NOT deleted in Phase 8 — Phase 9 owns deletion)
 - [firestarter/include/logging.h](firestarter/include/logging.h) — `log_info_const`, `log_data_const`, `log_data_format`, `send_ack_const`, `send_ack_format`, `copy_to_buffer`, `firestarter_response_format`, etc. Phase 8 stops calling them (every call-site converts) but leaves the macro definitions in place. Phase 9 (LFW-03/04) deletes them and any remaining `log_*` infrastructure.

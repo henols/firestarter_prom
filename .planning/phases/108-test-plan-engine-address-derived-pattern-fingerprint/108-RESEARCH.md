@@ -45,7 +45,7 @@ Phase 108 builds `firestarter/chip_test.py` — a NEW **orchestration engine** t
 
 Five plannable unknowns were investigated against first-party source (`eprom_operations.py`, `database.py`, `chip_resolver.py`, `exceptions.py`, `cli_handlers.py`, `frame_parser.py`) and resolved with HIGH confidence:
 
-1. **Plan derivation** reads the DB via `db.get_eprom(name)` → `db.convert_to_programmer(full)` — this path **structurally bypasses** the `resolve_chip` support-status guard (the guard lives only inside `resolve_chip`, which the derivation never calls). Op support is a pure function of the `algorithm` (protocol) int, `electrical-type`, and `FLAG_CAN_ERASE` bit — no runtime `classify()`. **Execution** of each op then routes through `resolve_chip(name, db)` (the guard-honoring path) exactly as `dev_validate_family` does at cli_handlers.py:1568.
+1. **Plan derivation** reads the DB via `db.get_eprom(name)` → `db.convert_to_programmer(full)` — this path **structurally bypasses** the `resolve_chip` support-status guard (the guard lives only inside `resolve_chip`, which the derivation never calls). Op support is a pure function of the `algorithm` (protocol) int, `electrical-type`, and `FLAG_CAN_ERASE` bit — no runtime `classify()`. **Execution** of each op then routes through `resolve_chip(name, db)` (the guard-honoring path) exactly as `dev_validate_family` does at cli_handlers.py:1566.
 2. **error_code seam** has a **single chokepoint**: `_raise_for_error_response(response, message)` at `eprom_operations.py:70`. It already reads `response.id` to dispatch `ProtocolNotImplementedError` vs `EpromOperationError` — passing `error_code=response.id` on the `EpromOperationError` raise is a one-line change plus the `__init__` kwarg.
 3. **N≥2 / marginal** mirrors the `runs < 2` reject guard (`eprom_operations.py:703`) and the SHA-256 divergence verdict pattern (`eprom_operations.py:818`).
 4. **Fingerprint classifier** reuses the exact byte-diff-offset math already present in `consistency_check_eprom` (`eprom_operations.py:842-863`): compute mismatch offsets, `pct = 100*len(diffs)/cmp_len`, then classify by *where* the offsets cluster (high-address / power-of-two aliasing) and *what* the read-back bytes are (all-0xFF).
@@ -156,7 +156,7 @@ firestarter_app/tests/
 **When to use:** Every op step.
 **Example:**
 ```python
-# Source: firestarter_app/firestarter/cli_handlers.py:1568 (dev_validate_family)
+# Source: firestarter_app/firestarter/cli_handlers.py:1566 (dev_validate_family)
 eprom_data = resolve_chip(rep_chip, db=app.db)      # guard-honoring execution path
 verdict_int = app.eprom_operator.write_cycle_eprom( # compose, no re-impl
     rep_chip, eprom_data, source_image_path=source, runs=1, ...)
@@ -296,7 +296,7 @@ can_erase = bool(prog["flags"] & 0x02)       # FLAG_CAN_ERASE set in convert_to_
 - **write**: supported (destructive). UV-EPROM write is small-region (Phase 109 caps it via the region-parameterized generator).
 - **erase**: supported only if `FLAG_CAN_ERASE` set AND `protocol != 0x05`; else `NA`. UV-EPROM never has the flag (electrical.type is "UV-EPROM", not in the EEPROM set) → erase `NA`.
 
-**Execution path (guard-honoring):** each executed step calls `resolve_chip(name, db=app.db)` (chip_resolver.py:16) to get the programmer dict and then the operator method — identical to `dev_validate_family` (cli_handlers.py:1568). If `resolve_chip` raises `ChipNotImplementedError` / `ChipNotFoundError`, that step's verdict is `SKIPPED` (or `NA`) with the reason recorded — the guard stays authoritative for real hardware ops while derivation still listed the op.
+**Execution path (guard-honoring):** each executed step calls `resolve_chip(name, db=app.db)` (chip_resolver.py:16) to get the programmer dict and then the operator method — identical to `dev_validate_family` (cli_handlers.py:1566). If `resolve_chip` raises `ChipNotImplementedError` / `ChipNotFoundError`, that step's verdict is `SKIPPED` (or `NA`) with the reason recorded — the guard stays authoritative for real hardware ops while derivation still listed the op.
 
 **⚠ Planning nuance (important):** the programmer dict from `convert_to_programmer` does **NOT** contain `electrical-type` or `protocol-id` keys — but `check_eprom_blank` reads `eprom_data_dict.get("electrical-type")` / `.get("protocol-id")` (eprom_operations.py:1667-1668) for its SRAM/FRAM short-circuit. In the normal CLI path the operator receives the programmer dict, so those keys are ABSENT and the short-circuit only trips on the `protocol-id in _SRAM_PROTO_IDS` branch when `protocol-id` happens to be present, or not at all. The engine should either (a) let `derive_plan` mark SRAM/FRAM blank-check `NA` up front (recommended — the plan already knows the type), or (b) merge `electrical-type`/`protocol-id` into the dict it passes to `check_eprom_blank`. Recommend (a): the plan owns the NA decision, the operator call is only made for supported steps.
 

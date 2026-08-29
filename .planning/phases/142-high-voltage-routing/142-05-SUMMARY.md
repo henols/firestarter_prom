@@ -61,7 +61,7 @@ coverage:
         ref: "pio test -e native_loop_v131 -f \"*test_vpp_eprom_v131*\" -- test_vpp01_route_0x0b_takes_the_direct_path, test_vpp01_route_vpeasvpp_forces_the_direct_path_onto_0x07, test_vpp01_route_0x08_on_rev1_still_strips_the_drop_bit all PASSED"
         status: pass
       - kind: other
-        ref: "Manual bit-trace against mem_util_calculate_top_address_register (memory.cpp:163-231) and rurp_map_ctrl_reg_for_hardware_revision (rurp_hw_rev_utils.h:15-41) confirming the REVISION_1 case's expected physical bytes (0x81 at index 0, 0x80 thereafter) before the case was run -- confirmed correct on first execution"
+        ref: "Manual bit-trace against mem_util_calculate_top_address_register (memory.cpp:163-303) and rurp_map_ctrl_reg_for_hardware_revision (rurp_hw_rev_utils.h:15-41) confirming the REVISION_1 case's expected physical bytes (0x81 at index 0, 0x80 thereafter) before the case was run -- confirmed correct on first execution"
         status: pass
     human_judgment: false
   - id: D3

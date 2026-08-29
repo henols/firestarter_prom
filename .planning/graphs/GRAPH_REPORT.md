@@ -2996,7 +2996,7 @@ Nodes (19): Accomplishments, Decisions Made, Dependency graph, Deviations from P
 
 ### Community 230 - "Community 230"
 Cohesion: 0.10
-Nodes (19): `_b[]` byte-packing idiom (big-endian, manual), Build pickup — NO platformio.ini change required (RESEARCH Pattern 1, CONFIRMED), Error / WARN-vs-ERROR frame idiom (the universal FORCE-downgrade), File Classification, Header structure — copy `include/eprom.h` guard/`extern "C"` skeleton, NOT `flash_utils.h`'s in-header definitions, Metadata, Module-comment convention — copy `flash_utils.cpp:8-27` banner style, New-Module Patterns (D-03 — `primitives.{cpp,h}`) (+11 more)
+Nodes (19): `_b[]` byte-packing idiom (big-endian, manual), Build pickup — NO platformio.ini change required (RESEARCH Pattern 1, CONFIRMED), Error / WARN-vs-ERROR frame idiom (the universal FORCE-downgrade), File Classification, Header structure — copy `include/eprom.h` guard/`extern "C"` skeleton, NOT `flash_utils.h`'s in-header definitions, Metadata, Module-comment convention — copy `flash_utils.cpp:8-28` banner style, New-Module Patterns (D-03 — `primitives.{cpp,h}`) (+11 more)
 
 ### Community 231 - "Community 231"
 Cohesion: 0.10
@@ -3472,7 +3472,7 @@ Nodes (16): Accomplishments, Auto-fixed Issues, Decisions Made, Dependency graph
 
 ### Community 349 - "Community 349"
 Cohesion: 0.12
-Nodes (16): 3. Multi-Param Composer Recommendation, 4. host_stubs.cpp Link-Time Impact, 5. The `firestarter.cpp:176` Hybrid, 6. `_check_response` Surgical Edit (operation_utils.cpp:321-342), 8. Commit Cadence Recommendation, 9. Build + Size Measurement Protocol, Architectural Responsibility Map, Assumptions Log (+8 more)
+Nodes (16): 3. Multi-Param Composer Recommendation, 4. host_stubs.cpp Link-Time Impact, 5. The `firestarter.cpp:171` Hybrid, 6. `_check_response` Surgical Edit (operation_utils.cpp:329-350), 8. Commit Cadence Recommendation, 9. Build + Size Measurement Protocol, Architectural Responsibility Map, Assumptions Log (+8 more)
 
 ### Community 350 - "Community 350"
 Cohesion: 0.12
@@ -7288,7 +7288,7 @@ Nodes (6): Anti-Patterns to Avoid, Architecture Patterns, Key bus-line / registe
 
 ### Community 1303 - "Community 1303"
 Cohesion: 0.33
-Nodes (6): Code Examples, Failure-case / mismatch test pattern (D-05 mandatory, P89 CR-01 lesson), How the host wire-emit currently builds the AM27C020 command (verified live, RCA brief), The CE-only program pulse (the PGM-assert seam — memory.cpp:274), The existing P1-hold across the program window (already implemented — extend, don't rebuild), Why static_high_mask is the WRONG vehicle for PGM=VIL (Q1 evidence)
+Nodes (6): Code Examples, Failure-case / mismatch test pattern (D-05 mandatory, P89 CR-01 lesson), How the host wire-emit currently builds the AM27C020 command (verified live, RCA brief), The CE-only program pulse (the PGM-assert seam — memory.cpp:346), The existing P1-hold across the program window (already implemented — extend, don't rebuild), Why static_high_mask is the WRONG vehicle for PGM=VIL (Q1 evidence)
 
 ### Community 1304 - "Community 1304"
 Cohesion: 0.33
@@ -8296,7 +8296,7 @@ Nodes (4): Primary (HIGH confidence), Secondary (MEDIUM confidence), Sources, Te
 
 ### Community 1556 - "Community 1556"
 Cohesion: 0.50
-Nodes (4): Code Examples, Existing atomic write (eprom_operations.py:380-390 — change CONTENTS only), Firmware decode return-code contract (operation_utils.cpp:159-171 — UNCHANGED surface), Host streaming COBS decode helper (frame_parser.py — recommended home)
+Nodes (4): Code Examples, Existing atomic write (eprom_operations.py:380-390 — change CONTENTS only), Firmware decode return-code contract (operation_utils.cpp:167-179 — UNCHANGED surface), Host streaming COBS decode helper (frame_parser.py — recommended home)
 
 ### Community 1557 - "Community 1557"
 Cohesion: 0.50

@@ -225,14 +225,14 @@ live source (line numbers current as of this plan's own read):
 
 1. `eprom_internal_report_budget_failure` sets `handle->response_code = RESPONSE_CODE_ERROR` and
    disables `CTRL_VPP_REGULATOR_ENABLE` before returning.
-2. `_process_incoming_data` (`src/eprom_operations.cpp:120-122`) — `if (!op_execute_function(handle
+2. `_process_incoming_data` (`src/eprom_operations.cpp:115-117`) — `if (!op_execute_function(handle
    ->firestarter_operation_main, handle)) { return false; }` — returns `false` **immediately**. Line
    124 (`handle->address += handle->data_size;`) is never reached: **`handle->address` does not
    advance.**
 3. `op_execute_stateful_operation` (`src/operation_utils.cpp`) propagates that `false` back up through
    `eprom_write`'s own `!op_execute_stateful_operation(...)` negation, which resolves to `finished =
-   true` in `firestarter.cpp`'s main dispatch switch (`src/firestarter.cpp:215-291`).
-4. `if (finished) { command_done(&handle); }` (`firestarter.cpp:289-291`) fires immediately.
+   true` in `firestarter.cpp`'s main dispatch switch (`src/firestarter.cpp:210-286`).
+4. `if (finished) { command_done(&handle); }` (`firestarter.cpp:284-286`) fires immediately.
    `command_done()` (`firestarter.cpp:162-171`) zeroes `CONTROL_REGISTER`, `LEAST_SIGNIFICANT_BYTE`
    and `MOST_SIGNIFICANT_BYTE`, disables the chip, and sets `handle->cmd = CMD_IDLE`.
 
@@ -296,7 +296,7 @@ either id.
 
 Plan 141-07 drove protocol `0x0B` for its LOOP-06 cases instead of the `0x07` its own action prose
 named — the correct call, verified directly from source
-(`src/proms/eprom.cpp:296-314`, `src/proms/eprom_params.cpp:50-52`):
+(`src/proms/eprom.cpp:296-314`, `src/proms/eprom_params.cpp:46-48`):
 
 | Protocol | `verify_mode` | Final full-block pass |
 |---|---|---|
@@ -439,8 +439,8 @@ adjacent gate hygiene.**
 | # | Finding | Owner |
 |---|---|---|
 | H1 | D-09's corrected mechanism: the drop bit dies via the `pins < 32` **preserve-mask** guard at `memory.cpp:172` (current line; comment block spans ~159-190), **not** via a bit collision — on every shipped build (`-D HARDWARE_REVISION` in every `[env]`'s shared `build_flags`) `CTRL_ADDRESS_LINE_16` is `0x01` and `CTRL_VPP_VPE_DROP_ENABLE` is `0x100`, two distinct bits. `0x08` (`pins == 32`, `vpp_path = VPP_PATH_DROP_RESISTOR`) is the row where the exclusion actually bites. The in-file comment that previously stated the collision theory was corrected during this phase (141-04/141-05). | **Phase 142 / VPP-01, VPP-03** (route choice: P1 vs. drop resistor; mask-set consolidation) |
-| H2 | D-12's finding: the roadmap calls Phase 143 "independent of 140-142 (different repo)", but HOST-02's own named precedent — `mem_util_blank_check`'s operation-in-progress + `progress_data` pattern, `memory.cpp:307-341`-ish (CONTEXT.md's `:307-341` citation predates this phase's line shifts; re-locate before relying on the exact range) — is a **firmware** pattern. If HOST-02 needs intra-block emission, part of Phase 143 lands in `firestarter/`, despite the roadmap's framing. Named here **before** Phase 143 plans, as D-12 requires. | **Phase 143** |
-| H3 | Milestone C3 correction: `pulse-delay` is parsed by `extract_long` into an **unclamped** `uint32_t` (`json_parser.c:305`) — an over-ceiling `delayMicroseconds` value is reachable **today**, before `--pulse-us` ships. C3's "no bare pulse comes near [the 16383 µs ceiling]" is true of `chip_database.json` data (whose full pulse-width set is 10/20/50/100/200/500/1000 µs) and **false** of the wire. | **Phase 146 / CLOSE-04**, alongside F-140-05 and F-140-07 |
+| H2 | D-12's finding: the roadmap calls Phase 143 "independent of 140-142 (different repo)", but HOST-02's own named precedent — `mem_util_blank_check`'s operation-in-progress + `progress_data` pattern, `memory.cpp:379-413`-ish (CONTEXT.md's `:307-341` citation predates this phase's line shifts; re-locate before relying on the exact range) — is a **firmware** pattern. If HOST-02 needs intra-block emission, part of Phase 143 lands in `firestarter/`, despite the roadmap's framing. Named here **before** Phase 143 plans, as D-12 requires. | **Phase 143** |
+| H3 | Milestone C3 correction: `pulse-delay` is parsed by `extract_long` into an **unclamped** `uint32_t` (`json_parser.c:503`) — an over-ceiling `delayMicroseconds` value is reachable **today**, before `--pulse-us` ships. C3's "no bare pulse comes near [the 16383 µs ceiling]" is true of `chip_database.json` data (whose full pulse-width set is 10/20/50/100/200/500/1000 µs) and **false** of the wire. | **Phase 146 / CLOSE-04**, alongside F-140-05 and F-140-07 |
 | H4 | The honest energy-cap ceiling: exactly **50 ms** on every shipped `0x0B` width (200/500/1000 µs give exactly 250/100/50 pulses, `accumulated` landing on exactly 50000), and a worst case of **99998 µs** (not 99999 — §9) for an arbitrary width under D-03's refusal. `141-CONTEXT.md` D-01's larger, roughly-double figure (`50000 + 65535` µs) describes the bound **without** D-03 and is arithmetically unreachable now that D-03 ships — this record deliberately does not restate that figure's numeral. | **Phase 146 / CLOSE-04**, alongside F-140-05 and F-140-07 |
 | H5 | Two dispositions this phase **decided rather than deferred**, so Phase 144 does not re-litigate them: (a) `verify_mode` is **consumed** — `0x07`/`0x08` run one additional, unconditional final full-block verify pass after the byte loop; `0x0B` does not. (b) `eprom_overprogram_us(..., cap_us=0)` yields **0 us** with no special-case branch, since a positive product always compares greater than a zero cap. | **Phase 144** (informational — not to be re-decided) |
 | H6 | The Phase 144 seam: **TEST-01 owns the requirement flip and the consolidated cross-phase accounting; this phase's own suite is its own verification.** Same split as 140-04 vs. TEST-01. | **Phase 144 / TEST-01** |

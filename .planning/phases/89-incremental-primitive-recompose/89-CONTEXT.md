@@ -19,10 +19,10 @@ shrinking. The four extractions:
   `FLASH_ENABLE_WRITE_PROTECTION` table and the `EEPROM_SDP_DISABLE` duplicate; handler
   behavior unchanged under the native suites. Targets `include/flash_utils.h` const
   tables + `eeprom_28c.cpp`'s local SDP sequence (`{0x5555,0x80}`-style table at
-  `eeprom_28c.cpp:50`).
+  `eeprom_28c.cpp:46`).
 - **P4 — chip-ID compare/report** (PRIM-03): a shared `chip_id_report` primitive
   handling compare + MSG frame + FORCE downgrade for all four call sites — eprom,
-  flash_intel, eeprom28c (`eeprom_28c.cpp:77`), flash4 (via `flash_utils`,
+  flash_intel, eeprom28c (`eeprom_28c.cpp:73`), flash4 (via `flash_utils`,
   `flash_type_4.cpp:143-148`). Split the shared report logic from the protocol-specific
   read mechanism.
 - **P3 — VPP gate** (PRIM-04): a shared `vpp_check_window` primitive (HIGH/LOW

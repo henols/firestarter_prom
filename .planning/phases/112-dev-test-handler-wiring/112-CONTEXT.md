@@ -196,7 +196,7 @@ already exist (108–111) — this phase only *invokes and renders* them.
   before/after write-step wiring **deferred to Phase 112** (this phase).
 
 ### Reusable code (firestarter_app/)
-- `firestarter/cli_handlers.py:1452` — `dev_validate_family` (**the sibling to
+- `firestarter/cli_handlers.py:1450` — `dev_validate_family` (**the sibling to
   model**: `@dev.command`, `@click.option --output-dir`, `@click.pass_obj`,
   `@map_typed_errors`, `EpromDatabase(skip_local_override=True)` + mock-operator
   seam, `sys.exit(overall_verdict)` 3-way) and `:1373` `_write_artifact` /

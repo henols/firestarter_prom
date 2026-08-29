@@ -69,7 +69,7 @@ completed: 2026-06-30
 ## Q1 RESOLVED — Polarity (load-bearing for this plan)
 
 Static-high-pins is RULED OUT as the PGM vehicle. Evidence chain (verified against live firmware):
-- `static_high_mask` ORs a `1` (HIGH) into `reorg_address` at `memory.cpp:330` (set-only, never clears)
+- `static_high_mask` ORs a `1` (HIGH) into `reorg_address` at `memory.cpp:402` (set-only, never clears)
 - Bit 22 of `reorg_address` → CONTROL register bit 6 via `mem_util_calculate_top_address_register` (`memory.cpp:184-185`)
 - `rurp_write_to_register(CONTROL_REGISTER, ...)` → `rurp_internal_write_to_register` (`rurp_register_utils.h:63-89`) → `rurp_write_data_buffer(data)` maps each bit straight to a port pin with NO inversion (`leonardo_rurp_shield.cpp:80-99`)
 - A `1` bit = physical HIGH at pin 31; AM27C020.pdf: PGM program-active = VIL (LOW)
@@ -167,7 +167,7 @@ The re-baselined `chip_database.baseline.json` git diff (in commit `362bfa0`) is
 ## Next Phase Readiness
 
 - **Plan 02 (firmware PGM-assert)**: bus-config contract delivered — pin 31 is NO LONGER an address line in the wire bus-config for 0x08 ≤256K chips. The firmware branch can now gate on `handle->protocol == 0x08 && handle->pins == 32 && handle->mem_size <= 262144` and deliberately drive pin 31's bus line to PGM=VIL (hold LOW) across the CE pulse.
-- **Plan 02 must** use the size gate (`mem_size <= 262144`) for D-04 alias safety — `CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08` on Rev 2.0 (`rurp_pinout.h:122,128`); driving this bit on a 512K AM27C040 corrupts A18.
+- **Plan 02 must** use the size gate (`mem_size <= 262144`) for D-04 alias safety — `CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08` on Rev 2.0 (`rurp_pinout.h:121,127`); driving this bit on a 512K AM27C040 corrupts A18.
 - **Phase 99 (bench)**: this plan does not claim to flip bits on silicon. Phase 99 is the sole empirical gate.
 
 ## Self-Check: PASSED

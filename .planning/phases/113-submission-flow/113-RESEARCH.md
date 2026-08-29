@@ -40,7 +40,7 @@
 ## Summary
 
 Phase 113 adds a new `firestarter/submit.py` module plus a `--submit` Click flag on the
-existing `dev_test` handler (`cli_handlers.py:1753`). On `--submit` after a completed run,
+existing `dev_test` handler (`cli_handlers.py:1751`). On `--submit` after a completed run,
 `submit.py` consumes **this run's in-memory `DiagnosticReport`** — it never re-runs the sweep —
 sanitizes it, previews the exact bytes to the tester, and (on an interactive confirm) files it
 to the maintainer's tracker via one of two tiers: `gh issue create --repo henols/firestarter_app
@@ -96,12 +96,12 @@ label, or omit the param and rely on the title marker + fenced-JSON `schema_vers
 | `getpass.getuser()` | stdlib | Portable current-username lookup for the PII scrub | Checks `LOGNAME`/`USER`/`LNAME`/`USERNAME` env, falls back to `pwd` [CITED: docs.python.org/3/library/getpass] |
 | `re` | stdlib | Path / serial-device / username scrub regexes | — |
 | `base64` | stdlib | Forward-looking raw-byte-dump encoder (no byte fields exist today) | — |
-| `sys.stdin.isatty` | stdlib | TTY detection (via existing `_is_interactive`) | Precedent `cli_handlers.py:1719-1726` [VERIFIED: codebase] |
+| `sys.stdin.isatty` | stdlib | TTY detection (via existing `_is_interactive`) | Precedent `cli_handlers.py:1717-1724` [VERIFIED: codebase] |
 
 ### Supporting (already project dependencies — not new)
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
-| `rich.prompt.Confirm` | present | Interactive confirm before send | Precedent `firmware.py:20`, `cli_handlers.py:32`, the `--destructive` confirm at `cli_handlers.py:1820` [VERIFIED: codebase] |
+| `rich.prompt.Confirm` | present | Interactive confirm before send | Precedent `firmware.py:20`, `cli_handlers.py:32`, the `--destructive` confirm at `cli_handlers.py:1817` [VERIFIED: codebase] |
 | `rich.console.Console` | present | Preview rendering | `cli_handlers.py:31` [VERIFIED: codebase] |
 | `click` | present | The `--submit` flag on `dev_test` | `cli_handlers.py:29` [VERIFIED: codebase] |
 
@@ -135,7 +135,7 @@ optional runtime CLI tool detected via `shutil.which`, not a pip package.
 firestarter dev test <chip> --submit
         │
         ▼
- dev_test handler (cli_handlers.py:1753)
+ dev_test handler (cli_handlers.py:1751)
    builds DiagnosticReport ──► render() to stdout ──► ALWAYS persist dev-test-<chip>.{json,md}
         │                                                    │ (json_file path)
         │ report (in-memory) + json_file path                │
@@ -213,7 +213,7 @@ def submit_report(report, chip, saved_json_path, *,
 Test seam mirrors `tests/test_dev_test_cmd.py` `make_app_context` + `Mock(spec=…)` and the
 `patch("firestarter.cli_handlers._is_interactive", …)` idiom (patch the function, NOT
 `sys.stdin.isatty`, because `CliRunner.invoke` swaps `sys.stdin`) [VERIFIED: codebase,
-`cli_handlers.py:1719-1726` docstring + `test_dev_test_cmd.py:1-20`].
+`cli_handlers.py:1717-1724` docstring + `test_dev_test_cmd.py:1-20`].
 
 ### Pattern 2: gh shell-out with stdin body (no cap)
 **What:** Pipe the full (uncapped) body over stdin via `--body-file -`; capture stdout for the URL.
@@ -254,26 +254,26 @@ from standard input)"; the manual's examples show the created issue URL printed 
 | Current username | Parse `$HOME`/`/etc/passwd` | `getpass.getuser()` | Portable across Linux/macOS/Windows env vars |
 | Finding `gh` | Scan PATH dirs | `shutil.which("gh")` | Handles PATHEXT on Windows, exec-bit on POSIX |
 | Detecting auth | Parse `~/.config/gh/hosts.yml` | `gh auth status` exit code | Robust to token env vars, enterprise hosts, expiry |
-| Report → dict | New serializer | `report.to_dict()` (already the single source) | `diagnostic_report.py:352` already whitelists fields |
+| Report → dict | New serializer | `report.to_dict()` (already the single source) | `diagnostic_report.py:346` already whitelists fields |
 | Byte-diff / verdict logic | Recompute | Read `StepResult.verdict` / `.fingerprint.classification` | Phase 108 froze these |
 
 **Key insight:** The report model was deliberately built so `to_dict()` is the ONE canonical
-mapping both renders consume (`diagnostic_report.py:352-369` docstring). Sanitizing and
+mapping both renders consume (`diagnostic_report.py:346-363` docstring). Sanitizing and
 fingerprinting must respect that — scrub/hash the dict, do not fork a second field list.
 
 ## Sanitization (SUB-02) — grounded field & regex set
 
 **The whitelist is the guarantee; the scrub is the backstop.** `to_dict()`
-(`diagnostic_report.py:352`) emits only a fixed field set — no filesystem paths, no arbitrary
+(`diagnostic_report.py:346`) emits only a fixed field set — no filesystem paths, no arbitrary
 data. The only *free-text* leak vectors are exception/reason strings that may embed a path or
 device name:
 
 | Leak vector | Exact source | Risk |
 |-------------|--------------|------|
 | `StepResult.reason` | `chip_test.py:481` field; populated from `str(exc)` of `EpromOperationError`/`resolve_chip` refusals (`chip_test.py:698-708`, `_run_step`), and template strings (`_dispatch_multi_run:926`, `_dispatch_read:810`, `_dispatch_id:764-768`) | An operator/serial exception can embed a device name (`/dev/ttyACM0`) or a temp path (`C:\Users\<user>\AppData\Local\Temp\...` on Windows, which leaks the username) |
-| `AutoCapture.chip_id_mismatch_reason` | `diagnostic_report.py:96`, filled from the id-step reason via `_chip_id_fields` (`cli_handlers.py:1707-1716`) | Hex ids only today — low risk, scrub anyway for uniformity |
-| `.md` Reason column | `cli_handlers.py:1893-1894` (`r.reason`) | Same content as `StepResult.reason` — covered by scrubbing the dict, since the md body is rebuilt from the sanitized dict |
-| `hw_revision` / `fw_board_identity` | `diagnostic_report.py:90-91` | Coarse bucket string / `None` today — no PII |
+| `AutoCapture.chip_id_mismatch_reason` | `diagnostic_report.py:93`, filled from the id-step reason via `_chip_id_fields` (`cli_handlers.py:1705-1714`) | Hex ids only today — low risk, scrub anyway for uniformity |
+| `.md` Reason column | `cli_handlers.py:1890-1891` (`r.reason`) | Same content as `StepResult.reason` — covered by scrubbing the dict, since the md body is rebuilt from the sanitized dict |
+| `hw_revision` / `fw_board_identity` | `diagnostic_report.py:87-88` | Coarse bucket string / `None` today — no PII |
 | Raw byte dumps | none exist in `to_dict()` today | Forward-looking guard: base64-encode any `bytes` leaf |
 
 **Recommended approach — sanitize the DICT (not re-render):** `submit.py` calls
@@ -314,9 +314,9 @@ so it lands in the JSON automatically (single-source invariant) and Phase-114 tr
 `submit.py` reads `report.to_dict()["dedup_fingerprint"]` for the title.
 
 **Inputs (deterministic, volatile fields EXCLUDED):**
-- `auto_capture.chip` (`diagnostic_report.py:92`)
+- `auto_capture.chip` (`diagnostic_report.py:89`)
 - `auto_capture.protocol` (`diagnostic_report.py:93`; set to `str(prog.get("algorithm"))` at
-  `cli_handlers.py:1865`)
+  `cli_handlers.py:1862`)
 - ordered per-step `(op, verdict)` — `StepResult.op` / `.verdict` (`chip_test.py:479-480`),
   vocabulary `OK`/`BAD`/`NA`/`SKIPPED`/`marginal` (`chip_test.py:445-449`)
 - per-step `fingerprint.classification` when present — `Fingerprint.classification`
@@ -325,8 +325,8 @@ so it lands in the JSON automatically (single-source invariant) and Phase-114 tr
   write/verify, `chip_test.py:483`) → the id naturally collapses to `chip+protocol+verdicts`
   (D-02 graceful degradation, verified against the code path).
 
-**EXCLUDE** (volatile): `generated` timestamp (`diagnostic_report.py:361`), `host_version`,
-measured `vpp_*_mv`/`vpe_*_mv` (`diagnostic_report.py:260-265`), `error_code`, and free-text
+**EXCLUDE** (volatile): `generated` timestamp (`diagnostic_report.py:355`), `host_version`,
+measured `vpp_*_mv`/`vpe_*_mv` (`diagnostic_report.py:254-259`), `error_code`, and free-text
 `reason` (which carries the scrubbable PII — must not enter the hash anyway).
 
 **Impl:**
@@ -345,8 +345,8 @@ Claude's discretion per D-02.]
 
 **Overall verdict for the title** (submit.py-local; cosmetic, not the process exit code): FAIL if
 any step verdict is `BAD`, else INCONCLUSIVE if any `marginal`, else PASS. Note: this is *not* the
-same as the handler's exit-code `max()` at `cli_handlers.py:1904` (where `marginal=2 > BAD=1`,
-`cli_handlers.py:1659-1662`) — the title verdict should read FAIL-dominant for human legibility;
+same as the handler's exit-code `max()` at `cli_handlers.py:1901` (where `marginal=2 > BAD=1`,
+`cli_handlers.py:1657-1660`) — the title verdict should read FAIL-dominant for human legibility;
 do not reuse `_verdict_code` for the title.
 
 ## gh CLI Facts (verified)
@@ -402,7 +402,7 @@ do not reuse `_verdict_code` for the title.
 6. The gist/attachment tier is **RESERVED, not wired** (SUB-F1 → v2). Do not implement it.
 
 **The `dev-test-<chip>.json` the note points to** is written unconditionally at
-`cli_handlers.py:1884-1885` (`json_file = out_path / f"dev-test-{safe_chip}.json"`), default
+`cli_handlers.py:1881-1882` (`json_file = out_path / f"dev-test-{safe_chip}.json"`), default
 `<config dir>/reports`. Pass that resolved path into `submit_report` so the note prints the real,
 already-scrubbed-for-filename location (use just the filename in the public body, not the full
 `out_path`, to avoid leaking the tester's home dir — the full path is a local hint printed to
@@ -410,7 +410,7 @@ their own console, not embedded in the issue body).
 
 ## Guardrails (D-03, D-04)
 
-- **D-03 refuse-gate:** call `is_submittable(report.auto_capture)` (`diagnostic_report.py:153`,
+- **D-03 refuse-gate:** call `is_submittable(report.auto_capture)` (`diagnostic_report.py:150`,
   auto-capture-only: `chip` ∧ `protocol` ∧ `host_version`). If `False`, print which of the three
   is empty and return without sending. `submit.py` should re-derive the failing field names
   (`is_submittable` returns only a bool):
@@ -418,22 +418,22 @@ their own console, not embedded in the issue body).
   missing = [n for n, v in (("chip", ac.chip), ("protocol", ac.protocol),
                             ("host_version", ac.host_version)) if not v]
   ```
-- **D-04 TTY gate:** reuse the `_is_interactive()` pattern (`cli_handlers.py:1719-1726`,
+- **D-04 TTY gate:** reuse the `_is_interactive()` pattern (`cli_handlers.py:1717-1724`,
   `sys.stdin.isatty()`), injectable so tests patch it. On a TTY: preview the exact body (rich
   Console) → `Confirm.ask("Submit this report to henols/firestarter_app?", default=False)` → send.
   Off-TTY: print the sanitized body + the issue URL, and **return without** opening the browser or
   running `gh`. (Do NOT reuse the `-y/--yes` destructive-bypass for submission — SUB-02 wants an
   explicit submit confirm regardless; `--yes` is scoped to the `--destructive` chip-sacrifice
-  prompt at `cli_handlers.py:1819`.)
+  prompt at `cli_handlers.py:1816`.)
 
 ## Wiring Point + Test Seams
 
 - **Flag:** add `@click.option("--submit", is_flag=True, default=False, help=…)` to the `dev_test`
-  decorator stack (`cli_handlers.py:1753-1784`) and a `submit: bool` parameter to `def dev_test(…)`
-  (`cli_handlers.py:1786-1792`).
-- **Call site:** after the report is rendered and persisted — i.e. after `cli_handlers.py:1900`
+  decorator stack (`cli_handlers.py:1751-1781`) and a `submit: bool` parameter to `def dev_test(…)`
+  (`cli_handlers.py:1783-1789`).
+- **Call site:** after the report is rendered and persisted — i.e. after `cli_handlers.py:1897`
   (`console.print("Report written to …")`) and **before** the `sys.exit(code)` at
-  `cli_handlers.py:1902-1905`. Pass the in-memory `report`, `chip`, and the `json_file` path:
+  `cli_handlers.py:1899-1902`. Pass the in-memory `report`, `chip`, and the `json_file` path:
   ```python
   if submit:
       from firestarter import submit as submit_mod

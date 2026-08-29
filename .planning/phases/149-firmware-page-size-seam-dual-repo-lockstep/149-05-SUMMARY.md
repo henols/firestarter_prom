@@ -13,7 +13,7 @@ provides:
   - "two committed planted-violation fixtures (key-string drift, undispatched key), each observed RED with a distinguishable message and leg isolation, staying live in app CI with no requires_fw decorator"
   - "src/json_parser.c added to tests/scan_paths.py's committed cross-repo inventory; two stale prose counts corrected 6 -> 8"
   - "the empty-FIRESTARTER_FW_ROOT skip-leg transcript proving the gate's 8 live legs SKIP cleanly while both planted legs stay live -- the exact state app CI runs in"
-  - "constants.py:145's previously-false \"Firmware sync\" note is now enforced"
+  - "constants.py:144's previously-false \"Firmware sync\" note is now enforced"
 affects: [149-06, 149-07, 149-08]
 
 # Tech tracking
@@ -145,7 +145,7 @@ status: complete
   scanned by plan 04 and this plan without ever being named there, exactly the off-inventory scan the
   module exists to prevent. Corrected two stale prose counts (both read "6"; the tuple has held 7
   entries since Phase 147 added `src/firestarter.cpp`, now 8 with this entry).
-- **`constants.py:145`'s "Firmware sync" note is now enforced.** It read `json_parser.c
+- **`constants.py:144`'s "Firmware sync" note is now enforced.** It read `json_parser.c
   (key_page_size)` since plan 03's wording fix — a claim measured false at kickoff, since no such
   key existed until plan 04. This plan's gate is what makes that claim a machine-checked fact rather
   than an unverified comment.
@@ -235,7 +235,7 @@ Each task committed atomically, split across the two repos per `commits_land_in`
   pass, including the name-collision guard for the new entry.
 - **Committed in:** `693b466` (Task 3 commit)
 
-**3. [Rule 1 - Bug] Truth #7 was initially missed: `constants.py:145`'s "Firmware sync" note was
+**3. [Rule 1 - Bug] Truth #7 was initially missed: `constants.py:144`'s "Firmware sync" note was
 never corrected**
 - **Found during:** Post-completion coordinator review, after this plan's first pass was reported
   done.
@@ -300,7 +300,7 @@ requirement checkbox or traceability row was touched — plan 08 alone flips the
 - FOUND commit: `0744348` (firestarter_app — post-completion truth-#7 correction)
 - FOUND commit: `2a0567a1` (meta)
 - FOUND commit: `f76d648e` (meta)
-- CONFIRMED: `constants.py:151-154`'s page-size "Firmware sync" note now states the key exists in
+- CONFIRMED: `constants.py:150-153`'s page-size "Firmware sync" note now states the key exists in
   `firestarter/src/json_parser.c` (plan 04, commit `58c6a3c`) rather than the stale "does not yet
   exist" claim — must_have truth #7 satisfied
 - CONFIRMED: `python3 -m pytest tests/test_json_key_parity.py -o addopts="" -q -rs` — 10 passed, 0 skipped

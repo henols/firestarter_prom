@@ -79,7 +79,7 @@ Wave 4 simple-conversion complete — all unconditional OK/INIT/MAIN/END/DATA ma
 - eprom.cpp:171 `format(response_msg, "Number of retries: %d", retries)` → `LOG_INFO_ID_U8(MSG_INFO_RETRIES, retries)`
 - flash_type_3.cpp:88 `copy_to_buffer(response_msg, "Skipping erase of memory")` → `LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE_MEM)`
 - flash_type_4.cpp:52 `copy_to_buffer(response_msg, "Skipping erase.")` → `LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE)`
-- memory.cpp:325 `firestarter_data_response_format("%lu/%lu", addr, mem_size)` → `LOG_DATA_ID_U32_U32(MSG_DATA_PROGRESS, addr, mem_size)`
+- memory.cpp:397 `firestarter_data_response_format("%lu/%lu", addr, mem_size)` → `LOG_DATA_ID_U32_U32(MSG_DATA_PROGRESS, addr, mem_size)`
 
 **Total call-sites converted: 10**
 

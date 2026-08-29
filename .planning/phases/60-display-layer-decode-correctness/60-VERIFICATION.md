@@ -32,7 +32,7 @@ re_verification: false
 | 8 | Both test layers exist: synthetic fixtures per electrical.type AND parametrized real-DB smoke set covering EEPROM set + UV-EPROM control set (D-04) | VERIFIED | 14 synthetic + smoke tests exist in `test_eprom_info.py`; all pass |
 | 9 | `firestarter info` renders full output without crashing for every smoke chip (D-06) | VERIFIED | All 7 smoke-set chips pass `test_type_label_and_erase_smoke`; no crash |
 | 10 | test_info_known_chip snapshot reflects corrected W27C512 EEPROM output (regression canary) | VERIFIED | Snapshot L313-362 shows EEPROM, electrically erasable, VPP=12.0v, no NOT VERIFIED; 2 snapshot tests pass |
-| 11 | SRAM no longer shows spurious VPP row (WR-01 fix) | VERIFIED | `etype != "SRAM"` guard at ic_layout.py:544; live DS1220 check: `vpp_str not in result` |
+| 11 | SRAM no longer shows spurious VPP row (WR-01 fix) | VERIFIED | `etype != "SRAM"` guard at ic_layout.py:541; live DS1220 check: `vpp_str not in result` |
 
 **Score:** 11/11 truths verified
 

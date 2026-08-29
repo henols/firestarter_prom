@@ -100,8 +100,8 @@ Every place the old names appear (grep-verified 2026-07-02 across `firestarter/`
 | `src/proms/flash_type_3.cpp:17-135` | `flash3_*` internal fns + `configure_flash3` (lines 17,18,19,20,21,23,25,31,33,36,37,40,48,53,55,60,64,71,74,82,96,108,111,118,131,135) | rename `configure_flash3` (Q1); `flash3_*` static helpers = optional cosmetic (Q2) |
 | `src/proms/memory.cpp:14` | `#include "flash_type_3.h"` | update include path |
 | `src/proms/memory.cpp:86,130` | `configure_flash3(handle);` call | rename if func renamed (Q1) |
-| `include/flash_utils.h:66` | comment "Used by flash_type_3 and flash_type_4" | update comment text |
-| `src/proms/flash_utils.cpp:79` | comment "Used by flash3 and flash4" | update comment text |
+| `include/flash_utils.h:65` | comment "Used by flash_type_3 and flash_type_4" | update comment text |
+| `src/proms/flash_utils.cpp:80` | comment "Used by flash3 and flash4" | update comment text |
 | `test/native/avr/test_val_flash3/test_val_flash3.cpp` | comments + test fn names referencing `configure_flash3`/`flash3` (lines 10,15,19,24,84,90,94,100,104,110,114,120,128-131) | update comments; rename `configure_flash3` refs if func renamed (Q1) |
 | `test/native/avr/test_dispatch/test_configure_memory.cpp:71,166,203` | `test_protocol_0x06_dispatches_flash3` + comment | update if func/family renamed |
 | `test/native/avr/_shared/validation_matrix.h:21` | `{ 0x06, "flash3", "configure_flash3" }` | **GENERATED FILE — do NOT hand-edit**; regenerate via host `tools/gen_validation_header.py` after editing `tools/validation_matrix_spec.json` (Q1 lockstep) |

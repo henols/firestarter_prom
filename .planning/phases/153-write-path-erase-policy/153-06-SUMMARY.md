@@ -155,7 +155,7 @@ not assumed by symmetry with `0x0D`.
 Unity failure line, verbatim:
 
 ```
-test/native/avr/test_val_5v_page/test_val_5v_page.cpp:333: test_5v_page_write_init_no_blank_check_with_flag_clear_erase02: ERASE-02: is_operation_in_progress must be FALSE after exactly one flash_5v_page_write_init call with FLAG_SKIP_BLANK_CHECK clear -- mem_util_blank_check is the only setter of this flag on the write-INIT path, so TRUE here would mean the pre-write blank check still ran and left a multi-call INIT loop pending	[FAILED]
+test/native/avr/test_val_5v_page/test_val_5v_page.cpp:334: test_5v_page_write_init_no_blank_check_with_flag_clear_erase02: ERASE-02: is_operation_in_progress must be FALSE after exactly one flash_5v_page_write_init call with FLAG_SKIP_BLANK_CHECK clear -- mem_util_blank_check is the only setter of this flag on the write-INIT path, so TRUE here would mean the pre-write blank check still ran and left a multi-call INIT loop pending	[FAILED]
 ```
 
 Assertion 1 fired first (assertions 2-4 were never reached in that run, since

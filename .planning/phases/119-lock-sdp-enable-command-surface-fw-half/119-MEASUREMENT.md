@@ -418,7 +418,7 @@ UNO328PB MEASURED PAGE LOAD WORST INTERVAL:    88 microseconds  (clean within-pa
 ```
 
 **Per-byte datasheet maximum, stated as context, not a gate:** `AT28C_TBLC_MAX_US` = **100 µs**
-(`eeprom_28c.cpp:58`). D-16 explicitly declined a runtime budget check on this path — there is no
+(`eeprom_28c.cpp:54`). D-16 explicitly declined a runtime budget check on this path — there is no
 pass/fail threshold being tested here, only a number reported against a named constant for a
 reader's own judgement.
 

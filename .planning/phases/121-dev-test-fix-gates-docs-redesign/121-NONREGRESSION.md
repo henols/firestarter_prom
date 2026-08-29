@@ -219,7 +219,7 @@ not open that file:
 | C-6 | `<specifics>`: `count_applicable`'s N-of-M banner "never fires again" once every run writes | The banner row renders unconditionally and `n_ran` excludes NA/SKIPPED, so it still carries signal whenever the chip-ID gate closes | `locked_destructive` was **kept**, not deleted — `derive_plan`'s `write_scope` parameter is genuinely three-valued (`"none"`/`"partial"`/`"full"`) at the API level (Plan 121-05's deliberate choice, per `STATE.md`), even though the live `dev_test` handler never invokes it with `"none"` under D-04's always-writes contract. This makes 121-05 a pure refactor rather than a narrowing, and keeps the banner's own machinery live for any future caller that does pass `"none"` |
 | C-7 | D-15: "edit only `messages.toml`, then regenerate" | There are three byte-identical `messages.toml` copies; `tools/catalog/sync_to_subrepos.sh` is the one command that copies the meta catalog to both sub-repos **and** regenerates both codegen artifacts | Plan 121-12 edited the **meta** copy only, then ran `sync_to_subrepos.sh` — never hand-copied or hand-normalised any generated file. Re-confirmed in this sweep (§2 rows 17-20) |
 | C-8 | D-13 (as originally worded): "`--skip-erase` and `-b` on a `0x0D` chip warn and proceed" | `-b`/`--no-blank-check` has skipped only the blank check since Phase 92's decouple — it no longer implies skip-erase, and is genuinely useful on `0x0D` (required for a non-blank AT28C, since there is no erase to make it blank) | The **warn** landed on `--skip-erase` only (Plan 121-10); `-b`'s `0x0D` treatment became a **documentation** statement (GATE-02, Plan 121-13), not a runtime warning — a factually-wrong warning on `-b` was avoided |
-| C-9 | `REQUIREMENTS.md:88` cites SAFE-01's lock at `cli_handlers.py:1760-1762` | Line-number drift only — the actual anchors moved to `:1838-1846` (declaration) / `:1880` (`dev_test` def) by the time plans executed | Plans used the live anchors, not the cited ones; no requirement wording was edited for a line-number drift |
+| C-9 | `REQUIREMENTS.md:88` cites SAFE-01's lock at `cli_handlers.py:1758-1760` | Line-number drift only — the actual anchors moved to `:1838-1846` (declaration) / `:1880` (`dev_test` def) by the time plans executed | Plans used the live anchors, not the cited ones; no requirement wording was edited for a line-number drift |
 | D-06 (own correction) | ROADMAP framing: the closed six/seven-string op vocabulary is "consumed by the issue parser" | `tools/parse_devtest_issue.py` has **no op vocabulary at all** — it keys on the `[dev test]` title marker, `schema_version` presence, and `dedup_fingerprint` grouping; it never reads step ops or verdicts | Recorded as a correction to the ROADMAP's own framing (D-06); `REQUIREMENTS.md` and `ROADMAP.md` text left unedited per the established response |
 | D-17 (own correction) | GATE-02's requirement text names five docs + both READMEs | D-04's always-writes reality most affects two docs GATE-02's literal text never named: `doc/community-validation.md` and `doc/beta-testing-install.md` | Plan 121-13 corrected both anyway (the named-list **widening**), recorded the correction in the traceability sentence, and left `REQUIREMENTS.md`'s own GATE-02 wording unedited |
 
@@ -241,7 +241,7 @@ reversal, with its constraints named, never silently absorbed):
      (`112-UAT.md`) — this phase reintroduces exactly one prompt, the UV-only stop-and-ask
      (DEVTEST-04).
    - SAFE-01's lock that `--destructive` is CLI-only and never read from config/environment
-     (`cli_handlers.py:1760-1762`, now `:1838-1846`) — this phase removes the flag entirely
+     (`cli_handlers.py:1758-1760`, now `:1838-1846`) — this phase removes the flag entirely
      (DEVTEST-02), so the lock's own subject no longer exists.
    - SAFE-03's statement that interactive input was reduced to "only" the confirm prompt — this
      phase adds a second interactive point (the filing ask, DEVTEST-05) and reframes destructive
@@ -250,7 +250,7 @@ reversal, with its constraints named, never silently absorbed):
    *safety* concern — it re-scopes the gate from "all writable parts" to "UV-erasable parts only"
    (DEVTEST-03), a narrower and more precise axis than the one SAFE-01 originally locked around.
 
-2. **The erase-capability note in the database transform (D-12).** `database.py:592` (now
+2. **The erase-capability note in the database transform (D-12).** `database.py:591` (now
    rewritten) previously carried an explicit note that leaving `FLAG_CAN_ERASE` set on protocol
    `0x0D` was firmware-inert and "must stay unchanged" (a Phase 121 D-03-era note, itself
    predating this phase). D-12 reverses that **policy**, not the underlying **fact**: the `0x0D`

@@ -177,11 +177,11 @@ Live category breakdown (cross-checked against `09-MEASUREMENT.md` §"SC#1 — P
 
 | Source location | Symbol/site | Category |
 |-----------------|-------------|----------|
-| `boards/rurp_serial_utils.cpp:107` | `MAGIC_PREAMBLE[4] PROGMEM` | (a1) MAGIC_PREAMBLE (frame infra) |
-| `boards/rurp_serial_utils.cpp:110` | `CRC8_TABLE[256] PROGMEM` | (a2) CRC8_TABLE (frame infra) |
-| `json_parser.c:55-63` (9 entries) | `key_mem_size` … `key_algorithm` `PROGMEM` | (a3) json_parser keys |
-| `json_parser.c:70` | `key_parsers[] PROGMEM` | (a3) key_parsers[] table |
-| `hardware_operations.cpp:86`, `rurp_shield.h:133`, `rurp_serial_utils.{h:13,cpp:13,cpp:230}`, `boards/uno_rurp_shield.cpp:78`, `boards/rurp_serial_utils.cpp:151,195`, `logging_id.h:255` (9 hits) | Comment-only references | Not a declaration; excluded from gate |
+| `boards/rurp_serial_utils.cpp:105` | `MAGIC_PREAMBLE[4] PROGMEM` | (a1) MAGIC_PREAMBLE (frame infra) |
+| `boards/rurp_serial_utils.cpp:108` | `CRC8_TABLE[256] PROGMEM` | (a2) CRC8_TABLE (frame infra) |
+| `json_parser.c:66-74` (9 entries) | `key_mem_size` … `key_algorithm` `PROGMEM` | (a3) json_parser keys |
+| `json_parser.c:97` | `key_parsers[] PROGMEM` | (a3) key_parsers[] table |
+| `hardware_operations.cpp:86`, `rurp_shield.h:128`, `rurp_serial_utils.{h:13,cpp:13,cpp:230}`, `boards/uno_rurp_shield.cpp:75`, `boards/rurp_serial_utils.cpp:148,192`, `logging_id.h:255` (9 hits) | Comment-only references | Not a declaration; excluded from gate |
 
 Result: 12 named-symbol declarations, all categorized; 0 uncategorized log-purposed PROGMEM hits. **Matches 09-MEASUREMENT.md byte-for-byte.** PASS.
 

@@ -266,7 +266,7 @@ void flash4_write_execute(firestarter_handle_t* handle) {
 
 ### VPP safety — confirmed safe fix
 
-The SDP fix (`flash_execute_command(FLASH_ENABLE_WRITE)`) uses `flash_util_byte_flipping` which calls `handle->firestarter_set_control_register(handle, CTRL_READ_WRITE, 0)` only — it does NOT set `CTRL_VPP_REGULATOR_ENABLE`, `CTRL_VPP_P1_ENABLE`, or `CTRL_VPP_VPE_DROP_ENABLE`. This is confirmed by `flash_utils.cpp:20-27` [VERIFIED: direct read]. The fix cannot accidentally enable the VPP boost regulator.
+The SDP fix (`flash_execute_command(FLASH_ENABLE_WRITE)`) uses `flash_util_byte_flipping` which calls `handle->firestarter_set_control_register(handle, CTRL_READ_WRITE, 0)` only — it does NOT set `CTRL_VPP_REGULATOR_ENABLE`, `CTRL_VPP_P1_ENABLE`, or `CTRL_VPP_VPE_DROP_ENABLE`. This is confirmed by `flash_utils.cpp:21-28` [VERIFIED: direct read]. The fix cannot accidentally enable the VPP boost regulator.
 
 The existing `test_val_flash4.cpp` suite already asserts that configure_flash4 + CMD_WRITE does not set VPP bits in the CONTROL_REGISTER during the configure phase. The new recording-stub test for FIX-02B must additionally assert that `flash4_write_execute` (operation phase) does not set VPP bits — an operation-phase VPP test, not just configure-phase.
 

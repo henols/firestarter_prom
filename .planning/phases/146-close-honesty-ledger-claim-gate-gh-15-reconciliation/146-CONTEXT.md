@@ -95,7 +95,7 @@ vendor algorithms assume is unreachable on this shield.
   (1) 143 D-01's `ROADMAP.md`/`PROJECT.md` prose — Phase 143 is factually **not** independent of
   Phases 140–142 and **is** dual-repo; (2) the milestone's matching sequencing-spine sentence;
   (3) 141 H3 / milestone C3 — `pulse-delay` is parsed by `extract_long` into an **unclamped**
-  `uint32_t` (`json_parser.c:305`), so an over-ceiling `delayMicroseconds` value is reachable
+  `uint32_t` (`json_parser.c:503`), so an over-ceiling `delayMicroseconds` value is reachable
   **today**, before `--pulse-us` ships; (4) 141 H4 — the honest energy-cap ceiling is exactly **50 ms**
   on every shipped `0x0B` width and **99998 µs** worst case for an arbitrary width, not
   `141-CONTEXT.md` D-01's larger figure; (5) **F-140-05** — `PROJECT.md`'s throughput table implies
@@ -322,7 +322,7 @@ closed with `reason: could-not-parse`.
   correction; §10 **H5** (`--pulse-us` documentation is CLOSE-03's) and **H6** (the CLOSE-04 queue);
   §11 the deferred list with each item's owner.
 - `.planning/phases/141-per-byte-program-loop/141-LOOP-RECORD.md` §12 — **H3** (C3, the unclamped
-  `extract_long` at `json_parser.c:305`) and **H4** (the honest 50 ms / 99998 µs energy-cap ceiling),
+  `extract_long` at `json_parser.c:503`) and **H4** (the honest 50 ms / 99998 µs energy-cap ceiling),
   both routed to CLOSE-04; §"Findings" **F-141-01** (MERGE-05 RED, operator-owned) and **F-141-07**.
 - `.planning/phases/140-parameter-table/140-PARAM-TABLE-RECORD.md` — §3 and §10 for **F-140-05** and
   **F-140-07** verbatim (F-140-07: the TI TMS 2516 datasheet states total programming time of **100

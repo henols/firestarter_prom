@@ -24,7 +24,7 @@ under one new catalog id `MSG_DATA_PROTECTION_STATUS`, allocated in the DATA ban
 Byte 0 is the raw byte read from silicon, unmodified. Byte 1 is a firmware decode code:
 `0x00` reads-as-unprotected, `0x01` reads-as-protected, `0xFF` indeterminate/not-obtainable
 — reusing `hw_get_version`'s established `0xFF` sentinel convention
-(`firestarter/src/hardware_operations.cpp:105-114`, `P-02 sentinel: no override active`).
+(`firestarter/src/hardware_operations.cpp:104-113`, `P-02 sentinel: no override active`).
 
 **Why the raw byte rides the wire.** D-03's probe legs must record the raw result either
 way — a plausible locked-boot-block reading corroborates v1.17 from the read side, and
@@ -202,7 +202,7 @@ lists exactly eight cases: `CMD_READ`, `CMD_WRITE`, `CMD_ERASE`, `CMD_BLANK_CHEC
 `CMD_CHECK_CHIP_ID`, `CMD_VERIFY`, `CMD_SDP_UNLOCK`, `CMD_SDP_LOCK`. `CMD_LOCK_STATUS`
 becomes a ninth case, admitted to `configure_memory` the same way the existing eight are.
 
-The second ordinal range at `firestarter/src/firestarter.cpp:136-146` gates three `DBG_*`
+The second ordinal range at `firestarter/src/firestarter.cpp:132-142` gates three `DBG_*`
 diagnostic lines (`DBG_MEM_SIZE`, `DBG_ADDR_MASK`, `DBG_MATCH_LINES`) on
 `handle->cmd > CMD_IDLE && handle->cmd < CMD_READ_VPP` — and its own comment records that
 it was deliberately **not** converted to `is_memory_cmd()` because it "gates diagnostic

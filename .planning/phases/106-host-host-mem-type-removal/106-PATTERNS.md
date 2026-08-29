@@ -168,7 +168,7 @@ this axis.
 LAST tier (numeric `type_map`) and the now-dead `type_int` / `chip_type_int`
 parameter from both signatures; the `electrical.type` and protocol tiers stay.
 
-**Tier 1 — `electrical.type` ground truth** (`ic_layout.py:502-534`, `resolve_type_label`):
+**Tier 1 — `electrical.type` ground truth** (`ic_layout.py:499-531`, `resolve_type_label`):
 ```python
     def resolve_type_label(
         self,
@@ -376,7 +376,7 @@ Prove HOST-01 by asserting `type` is ABSENT — do not keep-and-mutate the old
 positive assertion.
 
 ### Single-source label helper (tiered fallback)
-**Source:** `ic_layout.py:502-534` + `:203-223` (`resolve_type_label` →
+**Source:** `ic_layout.py:499-531` + `:203-223` (`resolve_type_label` →
 `get_chip_type_string`); callers `ic_layout.py:562-566` + `eprom_info.py:405-410`.
 **Apply to:** D-03. Editing the helper once fixes both `info` (build_specifications)
 and `list`/`search` (print_eprom_list_table) views. Keep tier 1 (`_ELECTRICAL_TYPE_LABEL`)

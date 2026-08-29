@@ -131,7 +131,7 @@ _Note: this is a firmware-submodule-only plan; the meta repo's docs commit is se
 
 - Followed 117-CONTEXT.md's D-07 (separate completion from data-landed proof), D-08 (read-back always on, no opt-out, window-scoped per decision 2 in the plan's discretion section), and D-09 (executable side-by-side old-vs-new contrast, address-keyed planted mock with a single stale address) exactly as specified.
 - Reworded 4 in-code comment mentions of the literal deleted function name `eeprom28c_wait_for_write` (and 1 comment mention of `MSG_ERR_VERIFY`) to avoid colliding with the plan's literal, non-comment-filtered acceptance-criteria greps (`grep -c 'eeprom28c_wait_for_write'` must be exactly `0`; `grep -c 'MSG_ERR_VERIFY'` must be exactly `1`, the real call site) — meaning fully preserved (still refers to "the old, now-deleted, poll" / "the deleted function"), following the identical pattern plan 117-02 used for its own comment-wording adjustments.
-- The DQ7-complement poll's double-read confirmation shape was modeled directly on `flash_util_verify_operation`'s idiom (`flash_utils.cpp:29-50`, READ-ONLY ANALOG, FIX-04 frozen) per 117-PATTERNS.md's guidance — no in-tree DQ7-*complement* analog exists, only DQ7-mask-*equality* and last-byte-*equality*, so the double-read confirmation was the only reusable shape.
+- The DQ7-complement poll's double-read confirmation shape was modeled directly on `flash_util_verify_operation`'s idiom (`flash_utils.cpp:30-51`, READ-ONLY ANALOG, FIX-04 frozen) per 117-PATTERNS.md's guidance — no in-tree DQ7-*complement* analog exists, only DQ7-mask-*equality* and last-byte-*equality*, so the double-read confirmation was the only reusable shape.
 
 ## Deviations from Plan
 

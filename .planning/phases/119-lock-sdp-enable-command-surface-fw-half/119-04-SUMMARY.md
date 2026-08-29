@@ -73,7 +73,7 @@ coverage:
     requirement: LOCK-01
     verification:
       - kind: unit
-        ref: "manual source inspection of eeprom28c_sdp_lock_execute/eeprom28c_sdp_unlock_execute bodies (eeprom_28c.cpp:422-446) -- no eeprom28c_wait_for_sdp_completion call in the lock body, no firestarter_get_data call anywhere in either op"
+        ref: "manual source inspection of eeprom28c_sdp_lock_execute/eeprom28c_sdp_unlock_execute bodies (eeprom_28c.cpp:395-418) -- no eeprom28c_wait_for_sdp_completion call in the lock body, no firestarter_get_data call anywhere in either op"
         status: pass
     human_judgment: false
   - id: D4

@@ -121,7 +121,7 @@ fail-closed direction is the response to that, not a claim against it. See
   `dev test`'s `--destructive` exists because that command has a genuine non-destructive mode and
   the flag *selects* between two; `dev sdp enable|disable` has no such mode, so the flag would be
   mandatory on every invocation and therefore carry no information. The reusable half of the v1.21
-  pattern is the confirm gate at `cli_handlers.py:1836-1842`, not the mode flag. Rejected:
+  pattern is the confirm gate at `cli_handlers.py:1833-1839`, not the mode flag. Rejected:
   mirroring `--destructive` for consistency — SDP-F4 (write-probe state inference) is explicitly
   deferred, so no second mode is coming. Rejected: a typed chip-name confirmation — stronger than
   the risk warrants, since `enable` is reversible via `disable`, and it invents a second confirm
@@ -145,7 +145,7 @@ fail-closed direction is the response to that, not a claim against it. See
 
 - **D-08: Gate order is absent → capability → support-status → confirm → serial.**
   SAFE-04's `get_eprom`-emptiness hard-fail first (keyed strictly off DB emptiness, never a
-  `resolve_chip` refusal — the `cli_handlers.py:1844-1850` pattern), then one `sdp_capability()`
+  `resolve_chip` refusal — the `cli_handlers.py:1841-1847` pattern), then one `sdp_capability()`
   call, then `resolve_chip`'s support-status refusal, then the confirm, then the port opens.
   Capability outranks support-status deliberately: an `adapter-required` `0x0D` part with no SDP
   hears *"this part has no SDP"* rather than *"get an adapter"*, and no adapter would have helped.
@@ -524,7 +524,7 @@ fail-closed direction is the response to that, not a claim against it. See
   `cli_handlers.py:275` — it is not merely the argparse-era shim.
 
 ### Reusable Assets
-- **`dev test`'s gate trio** (`cli_handlers.py:1718-1850`) — `_is_interactive()`, the `Confirm.ask`
+- **`dev test`'s gate trio** (`cli_handlers.py:1716-1847`) — `_is_interactive()`, the `Confirm.ask`
   gate, and SAFE-04's `get_eprom`-emptiness hard-fail, in that order. Copy the shape, drop the
   mode flag (D-05).
 - **`erase_eprom`** — the payload-free operation wrapper both SDP commands need.

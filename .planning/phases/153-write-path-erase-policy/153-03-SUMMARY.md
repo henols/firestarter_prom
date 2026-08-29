@@ -31,7 +31,7 @@ key-decisions:
   - "Followed D-153-01 form (a) verbatim: six inline handle->firestarter_set_data calls, no new byte_flip_t table -- confirmed 0 B RAM by construction (no .data object created)"
   - "Followed D-153-02 verbatim: SDP-disable prefix via eeprom28c_sdp_unlock_execute(handle), then rurp_set_data_output() to re-arm the bus for output before the first erase write"
   - "Followed D-153-04: no post-erase blank check wired; erase is device-global and ignores sector address"
-  - "Referred to the sibling hardware-erase path (flash_5v_page.cpp:196-231) by file and line only in the new comment, never by control-register token name, so the hazard-token occurrence-count criteria stay meaningful"
+  - "Referred to the sibling hardware-erase path (flash_5v_page.cpp:195-230) by file and line only in the new comment, never by control-register token name, so the hazard-token occurrence-count criteria stay meaningful"
   - "Placed the case CMD_ERASE: arm immediately after CMD_BLANK_CHECK (destructive next to diagnostic), assigning only firestarter_operation_main -- no init/end, per D-153-04"
   - "Deferred CLAUDE.md / doc/PROTOCOLS.md updates (both now contain a stale 'no erase operation at all' claim for 0x0D) to plan 13, which owns doc updates for this phase and is outside this plan's files_modified scope"
 
@@ -123,7 +123,7 @@ No new decisions — this plan implements `D-153-01` through `D-153-04` exactly 
 - **D-153-01 (form (a), inline writes):** the six erase bytes are six literal `handle->firestarter_set_data(handle, address, byte)` call arguments, never a `const byte_flip_t[]` table. Verified 0 B RAM by construction — no `.data` object is created (`grep -c 'EEPROM_CHIP_ERASE'` = 0).
 - **D-153-02 (SDP-disable prefix):** the erase op's first bus-visible action is `eeprom28c_sdp_unlock_execute(handle)`, reusing the existing `EEPROM_SDP_DISABLE` table and `MSG_INFO_SDP_UNLOCK*` ids verbatim — 0 B additional RAM, no new catalog id.
 - **Load-bearing consequence of D-153-02, stated in the plan and honoured here:** `eeprom28c_wait_for_sdp_completion` (inside the prefix) ends in reads through `handle->firestarter_get_data`, leaving the data bus configured as an input. `rurp_set_data_output()` is called immediately after the prefix and before the first erase write, or every erase byte would be silently dropped.
-- **D-153-03 (GATE-03 mechanism):** the new comment above `eeprom28c_erase_execute` refers to the sibling hardware path (`flash_5v_page.cpp:196-231`, `flash_5v_page_erase_execute`) by file and line only — no control-register token name appears in that comment — so the file's occurrence-count invariance for `CTRL_VPE`/`CTRL_VPP`/`firestarter_set_control_register`/`rurp_chip_enable`/`rurp_chip_disable` stays a meaningful signal rather than being self-defeated by the comment's own prose.
+- **D-153-03 (GATE-03 mechanism):** the new comment above `eeprom28c_erase_execute` refers to the sibling hardware path (`flash_5v_page.cpp:195-230`, `flash_5v_page_erase_execute`) by file and line only — no control-register token name appears in that comment — so the file's occurrence-count invariance for `CTRL_VPE`/`CTRL_VPP`/`firestarter_set_control_register`/`rurp_chip_enable`/`rurp_chip_disable` stays a meaningful signal rather than being self-defeated by the comment's own prose.
 - **D-153-04 (no post-erase blank check, device-global):** the new comment states explicitly that this erase is device-global and ignores any sector address, and that no post-erase blank check is wired.
 - **The six address/byte pairs were read from `flash_utils.h` lines 34-41 in this session** (`FLASH_ERASE[]`, terminal byte `0x10`), not retyped from memory: `{0x5555,0xAA}, {0x2AAA,0x55}, {0x5555,0x80}, {0x5555,0xAA}, {0x2AAA,0x55}, {0x5555,0x10}`.
 - **CLAUDE.md / `doc/PROTOCOLS.md` deferred, not forgotten:** `firestarter/CLAUDE.md`'s protocol table and its "Protocol 0x0D notes" section both state "no erase operation at all" for `0x0D` — that claim is now stale. This plan's `files_modified` scope is `eeprom_28c.cpp` only; plan `153-13` owns doc updates for this phase and is the correct place to correct both documents. Left untouched here deliberately, flagged for plan 13's attention.
@@ -174,7 +174,7 @@ test/native/avr/test_dispatch/test_configure_memory.cpp:314: test_case_group4_0x
 **`test_eeprom28c_sdp` — `test_case25_cmd_erase_on_0x0d_refused_end_to_end_devtest01`, verbatim:**
 
 ```
-test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1415: test_case25_cmd_erase_on_0x0d_refused_end_to_end_devtest01: Case 25 precondition: configure_eeprom28c must leave CMD_ERASE's main NULL on 0x0D -- no case CMD_ERASE: arm exists in its switch	[FAILED]
+test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1472: test_case25_cmd_erase_on_0x0d_refused_end_to_end_devtest01: Case 25 precondition: configure_eeprom28c must leave CMD_ERASE's main NULL on 0x0D -- no case CMD_ERASE: arm exists in its switch	[FAILED]
 ```
 
 **`pio test -e native` full-suite result (run after Task 3):** `166 test cases: 2 failed, 164 succeeded` — exactly the two failures above (`native/avr/test_dispatch` and `native/avr/test_eeprom28c_sdp`, both reported `ERRORED` due to the SIGHUP artifact noted above), with every other suite `PASSED`.

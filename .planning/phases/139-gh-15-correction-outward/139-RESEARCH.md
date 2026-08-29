@@ -92,7 +92,7 @@ implement them rather than re-open them.
     `pulse_delay == 0` fallback, `:177` the adaptive growth formula, `:283` the pulse) and
     `delayMicroseconds()`'s 16383 µs ceiling against the `3 × 25 × 1000 µs = 75 ms` overprogram pulse.
 
-  > ⚠ **See F-02 below — `eprom.cpp:283` is the ERASE pulse. The program pulse is `memory.cpp:257`.**
+  > ⚠ **See F-02 below — `eprom.cpp:283` is the ERASE pulse. The program pulse is `memory.cpp:329`.**
 
 - **D-07: Citations pin to commit SHAs, never branch names — and permalink reachability is a hard
   posting precondition, measured rather than assumed.** `henols/firestarter_prom` is **PUBLIC** and
@@ -202,7 +202,7 @@ after the fact, with the exact normalization recorded ("GitHub appended exactly 
 inferred. gh#15 has **nine** acceptance-criteria boxes, not the seven CONTEXT.md and ROADMAP both
 state — and D-03's whole deliverable is an item-for-item mapping onto them. `eprom.cpp:283`, listed as
 C3's "the pulse" anchor, is the **erase** pulse inside `eprom_internal_erase()`; the program pulse is
-`memory.cpp:257`, in a different file. PROJECT.md's and STATE.md's summary claim "all three gh#15
+`memory.cpp:329`, in a different file. PROJECT.md's and STATE.md's summary claim "all three gh#15
 constants disagree with the modal value" is **false for `0x08`**, where gh#15's `100 us` *is* the mode
 (104 of 127) — copying that sentence into a public comment beside a link to the distribution that
 disproves it is precisely the credibility failure the correction exists to prevent. The v1.30
@@ -221,7 +221,7 @@ from the citation set so **no push is required and the phase's only outward act 
 pin every sub-repo citation to `origin/beta` (all four cited files are blob-identical there and at the
 milestone tip) and every meta citation to `b6aa1dcb`, verifying each anchor by fetching raw and
 `sed`-slicing the pinned line range rather than trusting a 200; replace the C3 anchor set with the
-corrected `memory.cpp:257`; restate C2 with the honest per-protocol *wrong-pulse counts* (203 of 329
+corrected `memory.cpp:329`; restate C2 with the honest per-protocol *wrong-pulse counts* (203 of 329
 chips) instead of the false "all three disagree with the modal value"; and implement D-05 as a small
 Phase-139-scoped forbidden-phrase check seen to fail on a planted violation, **not** by reusing the
 v1.30 checker.
@@ -302,16 +302,16 @@ The **program** pulse is in a different file:
 258:    rurp_chip_disable();
 ```
 
-`grep -rn 'pulse_delay' src/ include/` confirms the complete usage set: `json_parser.c:305` (wire
+`grep -rn 'pulse_delay' src/ include/` confirms the complete usage set: `json_parser.c:503` (wire
 ingest), `eprom.cpp:69-77` (fallback), `eprom.cpp:161/172/177/178` (adaptive growth), `eprom.cpp:283`
-(erase), `memory.cpp:257` (**program**), plus `eeprom_28c.cpp` (a different family).
+(erase), `memory.cpp:329` (**program**), plus `eeprom_28c.cpp` (a different family).
 
 **Consequence:** `program_mismatched_bytes()` (`eprom.cpp:114-126`) contains **no delay at all** — the
 per-byte program pulse is applied inside the `firestarter_set_data` function pointer, which
 `memory.cpp:86` binds to `memory_set_data`. A comment citing `eprom.cpp:283` as the program pulse is
 checkably wrong, and a reader who follows the link lands in the erase function.
 
-**Corrected C3 anchor set:** `eprom.cpp:20`, `eprom.cpp:69-77`, `eprom.cpp:177`, **`memory.cpp:249-258`**
+**Corrected C3 anchor set:** `eprom.cpp:20`, `eprom.cpp:69-77`, `eprom.cpp:177`, **`memory.cpp:321-330`**
 (and optionally `eprom.cpp:283` explicitly labelled *the erase pulse* — which is itself relevant, since
 `handle->pulse_delay` doing double duty as both program and erase pulse is a real design observation).
 
@@ -670,7 +670,7 @@ citations to the pushed tip **`b6aa1dcb`**. Never pin to a branch *name*.
 | 10 | `firestarter/src/proms/eprom.cpp:69-77` | ✅ **exact** | L69 comment + the `if (handle->pulse_delay == 0)` switch: `0x08 → 100`, `0x0B → 500`, `default → 1000`. Note this line range shows **the firmware already defaults `0x0B` to 500 µs**, which is independent corroboration of C1 straight out of the code gh#15 asks to change. |
 | 11 | `firestarter/src/proms/eprom.cpp:177` | ✅ **exact** | `handle->pulse_delay = org_delay + (org_delay * retries / NUMBER_OF_RETRIES);` |
 | 12 | `firestarter/src/proms/eprom.cpp:283` | ⚠️ resolves, **wrong semantics** | Inside `eprom_internal_erase()` — the **erase** pulse. **F-02.** |
-| 13 | **`firestarter/src/proms/memory.cpp:249-258`** ← *corrected C3 anchor* | ✅ **exact** | `memory_set_data()`; L256-258 = `rurp_chip_enable(); delayMicroseconds(handle->pulse_delay); rurp_chip_disable();` — **the program pulse**. |
+| 13 | **`firestarter/src/proms/memory.cpp:321-330`** ← *corrected C3 anchor* | ✅ **exact** | `memory_set_data()`; L256-258 = `rurp_chip_enable(); delayMicroseconds(handle->pulse_delay); rurp_chip_disable();` — **the program pulse**. |
 | 14 | minipro `t48.c:250-267` | ⚠️ **not local** | Present only in *another session's* scratchpad (`/tmp/claude-1000/-workspaces/7668f856-…/minipro`), which is ephemeral and uncitable. Must cite the public **GitLab** URL. |
 
 ### minipro — repo, SHA and the load-bearing lines `[VERIFIED: local clone @ cae74c0]`
@@ -747,7 +747,7 @@ against the blob that ships.*
    │ infoic-dict:210-17│   │             │        │              │
    │ database.py:128   │   │             ▼        ▼              │
    │ eprom.cpp 20/69/177   │   139-GH15-      139-GH15-BODY-     │
-   │ memory.cpp:257    │   │   COMMENT.md     AMENDMENT.md       │
+   │ memory.cpp:329    │   │   COMMENT.md     AMENDMENT.md       │
    │ 8de307f / 12286df │   │   (deliverable)  (optional, D-01)   │
    │ minipro t48.c     │   │        │              │             │
    └───────────────────┘   └────────┼──────────────┼─────────────┘
@@ -1419,7 +1419,7 @@ carries it; none required re-opening a locked decision.
      originals preserved below"). The mandated column order is original box · disposition · reason in
      both files; 139-04 Task 2's box-anchored cross-check reads the second column and depends on it.
 
-4. **Is `handle->pulse_delay` serving as both the program pulse (`memory.cpp:257`) and the erase pulse
+4. **Is `handle->pulse_delay` serving as both the program pulse (`memory.cpp:329`) and the erase pulse
    (`eprom.cpp:283`) worth stating publicly?**
    - Known: it is true, it was discovered while correcting F-02, and it is directly relevant to gh#15's
      "shared implementation helpers" section.
@@ -1429,7 +1429,7 @@ carries it; none required re-opening a locked decision.
    - **RESOLVED — recommendation taken.** Owned by **139-03 Task 1**, C3 paragraph ("At most one
      sentence, framed as an observation rather than a defect claim, may note that `handle->pulse_delay`
      currently does double duty as both the program pulse and the erase pulse"). The two anchors are
-     kept distinct throughout the phase: `memory.cpp:249-258` / `memory_set_data()` is the program
+     kept distinct throughout the phase: `memory.cpp:321-330` / `memory_set_data()` is the program
      pulse, `eprom.cpp:274-283` / `eprom_internal_erase()` is the erase pulse.
 
 ---

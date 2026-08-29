@@ -180,7 +180,7 @@ them is `electrical.type` (`"EEPROM"` vs `"UV-EPROM"`). The current display keys
 ### Risk / landmine (FLAG for planner — verify, don't assume)
 - **`vpp-pin <= pin_count` TypeError (list-vs-int)** in `ic_layout` was the **GATE-1.8b witness**
   (`test_eprom_info.py` historically avoided the full `prepare_detailed_eprom_data` happy path
-  because of it). It now **appears mitigated**: `ic_layout.py:406-414` extracts scalars from
+  because of it). It now **appears mitigated**: `ic_layout.py:404-412` extracts scalars from
   list-valued pin maps via `_first_pin`, and a live call to `prepare_detailed_eprom_data` for
   `W27C512` / `27C256` returned cleanly (no crash, full `output_data`). So D-04's real-DB smoke
   set is most likely safe on the full path — but the planner should **confirm** against the

@@ -111,7 +111,7 @@
   "algorithm-controlled" (417 chips) or "decode fault on a 0x07/0x08/0x0B chip". Make that
   `except (TypeError, ValueError)` branch **fatal** — the build fails rather than emitting a wrong
   `0`. Then `0` has exactly one meaning by construction. Wire behaviour is unchanged (the host
-  already sends `0` for algorithm-controlled chips), and `ic_layout.py:608-610` **already** omits
+  already sends `0` for algorithm-controlled chips), and `ic_layout.py:605-607` **already** omits
   the "Pulse delay:" row on `0`, so the display convention is in place today.
   **Rejected:** shipping `0` with the conflation intact (a build emitting a wrong `0` still
   succeeds and the WARN scrolls past in CI); omitting the key for algorithm-controlled chips
@@ -179,7 +179,7 @@
   passes it, and criterion 3 would rest on an assertion nobody wrote).
 
 - **D-15: The render helper emits byte-identical output to today — `"5.0v"`, `"12.0v"`, `"4.5v"`.**
-  One-decimal, lowercase `v`, exactly as `ic_layout.py:571` produces now from the coerced float.
+  One-decimal, lowercase `v`, exactly as `ic_layout.py:568` produces now from the coerced float.
   `tests/__snapshots__/test_characterization.ambr:432` pins `VCC:  5.0v` / `VPP:  12.0v`, so the
   snapshot diff then changes on **exactly** the AT28C-family lines (`4.0v` → `5.0v`) and that diff
   *is* the proof that the migration changed nothing visible while the rule changed precisely what
@@ -192,7 +192,7 @@
 - **D-16: One shared helper, in `database.py`.** It sits beside the code that owns the millivolt
   convention, in the same file the coercion layer is being deleted from — so `database.py` goes
   from "parses strings into numbers" to "owns the numeric convention and renders it", one clean
-  reversal. Imported by all three call sites: `ic_layout.py:571` (`vcc_str`), `ic_layout.py:597`
+  reversal. Imported by all three call sites: `ic_layout.py:568` (`vcc_str`), `ic_layout.py:597`
   (`vpp_str`), `eprom_info.py:401` (list-view `vpp_str`). One definition, one format, one place to
   change.
   **Rejected:** hosting it in `ic_layout.py` (makes `eprom_info.py` import a formatting concern
@@ -600,12 +600,12 @@ this phase. Re-measured by the planner 2026-08-19. The golden's header says *"DO
 
 | File:line | Current code | Reads |
 |---|---|---|
-| `firestarter/ic_layout.py:571` | `"vcc_str": f"{eprom_data.get('vcc','N/A')}v"` | mapped-dict `vcc` (a **float**) |
+| `firestarter/ic_layout.py:568` | `"vcc_str": f"{eprom_data.get('vcc','N/A')}v"` | mapped-dict `vcc` (a **float**) |
 | `firestarter/ic_layout.py:592-597` | `try: _vpp_mv=int(eprom_data.get("vpp_mv",0) or 0) except…: _vpp_mv=0` ; `if etype not in {"SRAM","FRAM"} and _vpp_mv>0: output_data["vpp_str"]=f"{eprom_data.get('vpp_volts','N/A')}v"` | gate on `vpp_mv`, render from `vpp_volts` |
 | `firestarter/eprom_info.py:391-403` | same gate; `vpp_str = f"{ic.get('vpp_volts','N/A')}v"` else `"-"` | same |
 
 Supporting (no change needed, but verified):
-- `ic_layout.py:606-610` — pulse row already omitted on `0` (`_pulse_delay = eprom_data.get("pulse-delay",0) or 0; if _pulse_delay:`). D-08's sentinel needs no display work. ✅
+- `ic_layout.py:603-607` — pulse row already omitted on `0` (`_pulse_delay = eprom_data.get("pulse-delay",0) or 0; if _pulse_delay:`). D-08's sentinel needs no display work. ✅
 - `eprom_info.py:256-264` — the info-card rows that print `vcc_str` / `vpp_str` / `pulse_delay_us_str`.
 - `eprom_info.py:421` — the list-view row f-string (`vpp_str` in a 5-char cell).
 - `eprom_info.py:88-91` — `_clean_config_for_export` pops `vdd` from a **`voltages` sub-dict**.
@@ -642,7 +642,7 @@ all 13. Independently corroborated by the pinned snapshots, whose VPP column con
 **Unresolved edge:** today's `'N/A'` fallback renders `N/Av`. With `vpp_volts` deleted the helper
 receives `vpp_mv` (always present, gated `> 0`), so the fallback becomes unreachable for the DB
 path — but a user-override entry could still supply a non-int. The existing `try/except` coercion
-at `ic_layout.py:592-595` / `eprom_info.py:391-394` guards the *gate*; the plan should decide
+at `ic_layout.py:589-592` / `eprom_info.py:391-394` guards the *gate*; the plan should decide
 whether the helper mirrors that tolerance. (Not a locked decision; flagged so it is not missed.)
 
 ### `pulse_duration` value census
@@ -666,7 +666,7 @@ Grepped across the whole `firestarter_app/` tree (source, tools, tests, snapshot
 | `tools/build_db.py:821` | `chip_entry["electrical"]["vcc"] = …["vdd"]` | SRAM normalization |
 | `firestarter/database.py:382` | `electrical.get("vcc","0").replace("V","")` | **coercion — deleted** |
 | `firestarter/database.py:416` | `"vcc": vcc` (mapped dict) | float → migrate |
-| `firestarter/ic_layout.py:571` | `eprom_data.get('vcc','N/A')` | **render site** |
+| `firestarter/ic_layout.py:568` | `eprom_data.get('vcc','N/A')` | **render site** |
 | `tools/diff_db.py:309,313` | `_RULE_FIELD_PATHS` tuples | rename |
 | `tools/diff_db.py:447` | `bl_elec.get("vcc") != cu_elec.get("vcc")` | rename |
 | `tests/test_diff_db_gate.py:86,118` | fixture literal `"vcc": "5V"` | **update** |
@@ -689,7 +689,7 @@ Grepped across the whole `firestarter_app/` tree (source, tools, tests, snapshot
 
 ### `electrical.vpp_mv` (int — **name and type unchanged**)
 
-Producer `build_db.py:742`. Consumers: `database.py:393,415,545,554` · `ic_layout.py:593` ·
+Producer `build_db.py:742`. Consumers: `database.py:393,415,545,554` · `ic_layout.py:590` ·
 `eprom_info.py:392` · `check_dispatch.py:314,371` (**GATE-03**) ·
 `diff_db.py:324,335,452,459` · `tests/test_check_dispatch_invariants.py` (many) ·
 `tests/test_variant_decode_evidence_stability.py:102,126` (`_WIRE_FIELDS`, baseline-pinned) ·
@@ -710,7 +710,7 @@ Producer `build_db.py:742`. Consumers: `database.py:393,415,545,554` · `ic_layo
 
 ### Wire key `pulse-delay` (**unchanged on the wire**)
 
-`database.py:417,555` · `ic_layout.py:608` · `cli_handlers.py:685` ·
+`database.py:417,555` · `ic_layout.py:605` · `cli_handlers.py:685` ·
 `eprom_operations.py:1894` · `eprom_info.py:71` (legacy `key_map` string `"0"`) ·
 `tools/check_devtest_orchestrator.py:204` (orchestrator wire-key gate) ·
 `tests/test_pulse_us_override.py` (14 assertions) · `.ambr:375,1265` (help text only).
@@ -1224,7 +1224,7 @@ read standalone; the binding statement lives in the cited plan.
    > (direct indexing, so an absent key raises rather than resolving to a valid-looking `0`), which
    > means every value reaching a render site is already an int. A tolerant fallback inside the
    > helper would recreate in the display layer exactly the tolerant-reader shape D-07 forbids. The
-   > *existing* `try/except` int-coercion at `ic_layout.py:592-595` and `eprom_info.py:391-394`
+   > *existing* `try/except` int-coercion at `ic_layout.py:589-592` and `eprom_info.py:391-394`
    > stays — it guards the `vpp_mv > 0` **gate**, a separate concern — and its already-coerced
    > `_vpp_mv` local is what is passed to `format_mv`.
 
@@ -1282,7 +1282,7 @@ from a tracked file.*
 - `firestarter_app/tools/diff_db.py` — `:1-45, 306-370, 373-392, 400-597, 603-700`
 - `firestarter_app/tools/audit_coverage_matrix.py` — `:59-68, 106-119, 516-542, 1717-1739, 1885-1936`
 - `firestarter_app/tools/check_dispatch.py` — `:58-108, 180-215, 310-376`
-- `firestarter_app/firestarter/ic_layout.py:560-615`, `eprom_info.py:60-92, 240-270, 383-425`
+- `firestarter_app/firestarter/ic_layout.py:557-612`, `eprom_info.py:60-92, 240-270, 383-425`
 - `firestarter_app/tests/test_chip_database_field_inventory.py:36-110, 290-445` + `tests/golden/chip_database_field_inventory.json` (`meta` read in full)
 - `firestarter_app/tests/test_diff_db_gate.py:28-132`, `tests/test_audit_coverage_matrix.py:440-620`
 - `firestarter_app/tests/__snapshots__/test_characterization.ambr`, `tests/test_characterization.py:345-358`

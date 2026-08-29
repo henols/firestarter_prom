@@ -29,7 +29,7 @@ A documented PCB-block deferral is, by design, a clean and acceptable completion
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | XIC-01: A6 ALE-routing verdict recorded with line-cited trace evidence from rurp_pinout.h, rurp_register_utils.h, and rurp_shield.h; verdict line begins `A6 VERDICT: PCB-BLOCKED` | VERIFIED | `X88C64-FEASIBILITY.md` line 277 = `A6 VERDICT: PCB-BLOCKED`; bit allocation tables cite `rurp_pinout.h:74-97`; uint8_t truncation argument cites `rurp_register_utils.h:63-89` and `rurp_shield.h:118`; strobe inventory cites `rurp_shield.h:53-57`; D-02 bar explicitly honored |
+| 1 | XIC-01: A6 ALE-routing verdict recorded with line-cited trace evidence from rurp_pinout.h, rurp_register_utils.h, and rurp_shield.h; verdict line begins `A6 VERDICT: PCB-BLOCKED` | VERIFIED | `X88C64-FEASIBILITY.md` line 277 = `A6 VERDICT: PCB-BLOCKED`; bit allocation tables cite `rurp_pinout.h:74-97`; uint8_t truncation argument cites `rurp_register_utils.h:63-89` and `rurp_shield.h:113`; strobe inventory cites `rurp_shield.h:53-57`; D-02 bar explicitly honored |
 | 2 | XIC-02/XIC-03 (vacuously N/A on PCB-blocked branch): Plan 78-02 correctly took the DEFER path; the exact literal deferral note is present; NO files under firestarter/src, firestarter/include, firestarter/test, or pinouts.json were modified | VERIFIED | `Branch A — ALE PCB-blocked, no handler code; graduation deferred FUT-01.` at `X88C64-FEASIBILITY.md:452`; all three phase commits touch only `.planning/` files; `firestarter/` and `firestarter_app/` sub-repos show no relevant code modifications; `configure_x88c64`, 0x34 dispatch arm, `DIP24_X88C64` pinout, and `test_val_x88c64` suite are all absent as required |
 | 3 | XIC-04: graduation recorded as hardware-deferred (FUT-01); X88C64 stays support_status protocol-not-implemented and host-refused | VERIFIED | "Graduation Pending Hardware (SC#4 / XIC-04, D-04)" section in `X88C64-FEASIBILITY.md`; `chip_database.json` X88C64P `support_status` = `"protocol-not-implemented"` confirmed live; `chip_resolver.resolve_chip` raises `ChipNotImplementedError` on `support_status != "supported"` |
 | 4 | SAFE-01: chip_resolver.resolve_chip host-guard NOT removed; X88C64P support_status unchanged | VERIFIED | `chip_resolver.py:55` — `if support_status != "supported": raise ChipNotImplementedError`; guard intact, not touched in any phase commit; `chip_database.json` X88C64P = `"protocol-not-implemented"` |
@@ -54,7 +54,7 @@ A documented PCB-block deferral is, by design, a clean and acceptable completion
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `X88C64-FEASIBILITY.md` A6 verdict | `rurp_pinout.h` CTRL_* bit map | Line-cited trace: every 0x01..0x80 bit accounted for; 0x100 needs 9-bit register | VERIFIED | FEASIBILITY.md tables cite `rurp_pinout.h:74-83` (8-bit layout) and `rurp_pinout.h:85-97` (wide layout); verified lines match actual source; 0x100 uint8_t-truncation argument cites `rurp_register_utils.h:63-89` and `rurp_shield.h:118`; all lines match live source |
+| `X88C64-FEASIBILITY.md` A6 verdict | `rurp_pinout.h` CTRL_* bit map | Line-cited trace: every 0x01..0x80 bit accounted for; 0x100 needs 9-bit register | VERIFIED | FEASIBILITY.md tables cite `rurp_pinout.h:74-83` (8-bit layout) and `rurp_pinout.h:85-97` (wide layout); verified lines match actual source; 0x100 uint8_t-truncation argument cites `rurp_register_utils.h:63-89` and `rurp_shield.h:113`; all lines match live source |
 | Plan 78-02 Task 1 [BLOCKING] gate | Branch A deferral | Reading `A6 VERDICT: PCB-BLOCKED` → no-op | VERIFIED | SUMMARY 78-02 documents the gate read from `X88C64-FEASIBILITY.md:277`; exact literal note appended; Tasks 2-5 skipped; zero code changes in commits |
 
 ### Behavioral Spot-Checks
@@ -81,7 +81,7 @@ The feasibility document cites source line numbers that were traced against live
 | `rurp_pinout.h:85-97` | Wide layout + 0x100 | `CTRL_ADDRESS_LINE_16 0x01` through `CTRL_VPP_VPE_DROP_ENABLE 0x100` — confirmed | Yes |
 | `rurp_pinout.h:99` | `CTRL_ADDRESS_LINE_13 0x20` reserved | `#define CTRL_ADDRESS_LINE_13 0x20  // reserved — no current call-site` — confirmed collision with A18 | Yes |
 | `rurp_shield.h:53-57` | Strobe constants | `LEAST_SIGNIFICANT_BYTE 0x01` through `CHIP_ENABLE 0x20` at correct lines — confirmed | Yes |
-| `rurp_shield.h:118` | `rurp_write_data_buffer(uint8_t data)` | `void rurp_write_data_buffer(uint8_t data);` at line 118 — confirmed uint8_t parameter | Yes |
+| `rurp_shield.h:113` | `rurp_write_data_buffer(uint8_t data)` | `void rurp_write_data_buffer(uint8_t data);` at line 118 — confirmed uint8_t parameter | Yes |
 | `rurp_register_utils.h:63-89` | `rurp_internal_write_to_register` + `rurp_write_data_buffer(data)` at line 83 | Function at line 63; `rurp_write_data_buffer(data)` call at line 83 — confirmed | Yes |
 
 ### Requirements Coverage

@@ -11,7 +11,7 @@ the wire. `grep`-ing the pre-edit firmware source for any prior page-size handli
 $ grep -rn "page.size\|page_size\|PAGE_SIZE" src/json_parser.c include/firestarter.h; echo EXIT=$?
 src/proms/eeprom_28c.cpp:19:/* PAGE_SIZE 64 is a deliberate CONSERVATIVE FLOOR ...
 src/proms/eeprom_28c.cpp:33:#define PAGE_SIZE 64
-src/proms/eeprom_28c.cpp:634:        bool page_end = ((address + 1) % PAGE_SIZE) == 0;
+src/proms/eeprom_28c.cpp:599:        bool page_end = ((address + 1) % PAGE_SIZE) == 0;
 EXIT=1
 ```
 

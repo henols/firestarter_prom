@@ -137,18 +137,18 @@ Raw `grep -rn 'PROGMEM' firestarter/src firestarter/include` returned **21 hits*
 
 | # | File:line | Symbol | Category | Exempt class | Notes |
 |---|-----------|--------|----------|--------------|-------|
-| 1 | `firestarter/src/boards/rurp_serial_utils.cpp:107` | `static const uint8_t MAGIC_PREAMBLE[4] PROGMEM` | (a1) | **MAGIC_PREAMBLE** (frame infra) | 4-byte frame-start sentinel; emitted unconditionally as the first 4 bytes of every id-frame; not log-related. |
-| 2 | `firestarter/src/boards/rurp_serial_utils.cpp:110` | `static const uint8_t CRC8_TABLE[256] PROGMEM` | (a2) | **CRC8_TABLE** (frame infra) | 256-entry lookup table for the per-frame CRC8 checksum; not log-related. |
-| 3 | `firestarter/src/json_parser.c:55` | `const char key_mem_size[] PROGMEM = "memory-size"` | (a3) | **json_parser keys** (parser infra) | EPROM JSON command-payload key (consumed by `parse_json`); not log-related. |
-| 4 | `firestarter/src/json_parser.c:56` | `const char key_address[] PROGMEM = "address"` | (a3) | **json_parser keys** | same; parser infra. |
-| 5 | `firestarter/src/json_parser.c:57` | `const char key_flags[] PROGMEM = "flags"` | (a3) | **json_parser keys** | same; parser infra. |
-| 6 | `firestarter/src/json_parser.c:58` | `const char key_chip_id[] PROGMEM = "chip-id"` | (a3) | **json_parser keys** | same; parser infra. |
+| 1 | `firestarter/src/boards/rurp_serial_utils.cpp:105` | `static const uint8_t MAGIC_PREAMBLE[4] PROGMEM` | (a1) | **MAGIC_PREAMBLE** (frame infra) | 4-byte frame-start sentinel; emitted unconditionally as the first 4 bytes of every id-frame; not log-related. |
+| 2 | `firestarter/src/boards/rurp_serial_utils.cpp:108` | `static const uint8_t CRC8_TABLE[256] PROGMEM` | (a2) | **CRC8_TABLE** (frame infra) | 256-entry lookup table for the per-frame CRC8 checksum; not log-related. |
+| 3 | `firestarter/src/json_parser.c:66` | `const char key_mem_size[] PROGMEM = "memory-size"` | (a3) | **json_parser keys** (parser infra) | EPROM JSON command-payload key (consumed by `parse_json`); not log-related. |
+| 4 | `firestarter/src/json_parser.c:67` | `const char key_address[] PROGMEM = "address"` | (a3) | **json_parser keys** | same; parser infra. |
+| 5 | `firestarter/src/json_parser.c:68` | `const char key_flags[] PROGMEM = "flags"` | (a3) | **json_parser keys** | same; parser infra. |
+| 6 | `firestarter/src/json_parser.c:69` | `const char key_chip_id[] PROGMEM = "chip-id"` | (a3) | **json_parser keys** | same; parser infra. |
 | 7 | `firestarter/src/json_parser.c:59` | `const char key_pin_count[] PROGMEM = "pin-count"` | (a3) | **json_parser keys** | same; parser infra. |
-| 8 | `firestarter/src/json_parser.c:60` | `const char key_pulse_delay[] PROGMEM = "pulse-delay"` | (a3) | **json_parser keys** | same; parser infra. |
-| 9 | `firestarter/src/json_parser.c:61` | `const char key_vpp_mv[] PROGMEM = "vpp_mv"` | (a3) | **json_parser keys** | same; parser infra. |
+| 8 | `firestarter/src/json_parser.c:71` | `const char key_pulse_delay[] PROGMEM = "pulse-delay"` | (a3) | **json_parser keys** | same; parser infra. |
+| 9 | `firestarter/src/json_parser.c:72` | `const char key_vpp_mv[] PROGMEM = "vpp_mv"` | (a3) | **json_parser keys** | same; parser infra. |
 | 10 | `firestarter/src/json_parser.c:62` | `const char key_type[] PROGMEM = "type"` | (a3) | **json_parser keys** | same; parser infra. |
-| 11 | `firestarter/src/json_parser.c:63` | `const char key_algorithm[] PROGMEM = "algorithm"` | (a3) | **json_parser keys** | same; parser infra. |
-| 12 | `firestarter/src/json_parser.c:70` | `static const key_parser_t key_parsers[] PROGMEM` | (a3) | **key_parsers[] table** (parser infra) | Table of `(key, handler)` pairs binding each key string to its parse callback; not log-related. |
+| 11 | `firestarter/src/json_parser.c:74` | `const char key_algorithm[] PROGMEM = "algorithm"` | (a3) | **json_parser keys** | same; parser infra. |
+| 12 | `firestarter/src/json_parser.c:97` | `static const key_parser_t key_parsers[] PROGMEM` | (a3) | **key_parsers[] table** (parser infra) | Table of `(key, handler)` pairs binding each key string to its parse callback; not log-related. |
 
 **Categorization summary:**
 - (a1) MAGIC_PREAMBLE (frame infra): **1 hit**
@@ -158,7 +158,7 @@ Raw `grep -rn 'PROGMEM' firestarter/src firestarter/include` returned **21 hits*
 
 **SC#1 acceptance gate: PASS** — every named-symbol PROGMEM declaration falls in a documented exemption class; zero hits in an "uncategorized log-purposed PROGMEM" bucket. LFW-04 satisfied.
 
-The 9 comment-only hits (lines containing the word `PROGMEM` in a `//` comment) are NOT declarations and so are correctly excluded from the gate. For completeness, those 9 are: `hardware_operations.cpp:86` (D-01 rationale comment for the inline `F("OK: FW: ")` literal); `rurp_shield.h:133`, `rurp_serial_utils.h:13`, `rurp_serial_utils.cpp:13,230`, `uno_rurp_shield.cpp:78` (six breadcrumb comments describing the deleted `_firestarter_log_ram` + `_firestarter_log_progmem` "RAM body + PROGMEM body" helpers — per Plan 09-02 grep-gate-safety convention); `logging_id.h:255` (debug-channel doc commentary mentioning PROGMEM as the contrast for "no PROGMEM allocation"); `rurp_serial_utils.cpp:151,195` (two `// Magic preamble (4 bytes from PROGMEM)` comments describing the emit-frame helpers).
+The 9 comment-only hits (lines containing the word `PROGMEM` in a `//` comment) are NOT declarations and so are correctly excluded from the gate. For completeness, those 9 are: `hardware_operations.cpp:86` (D-01 rationale comment for the inline `F("OK: FW: ")` literal); `rurp_shield.h:128`, `rurp_serial_utils.h:13`, `rurp_serial_utils.cpp:13,227`, `uno_rurp_shield.cpp:75` (six breadcrumb comments describing the deleted `_firestarter_log_ram` + `_firestarter_log_progmem` "RAM body + PROGMEM body" helpers — per Plan 09-02 grep-gate-safety convention); `logging_id.h:255` (debug-channel doc commentary mentioning PROGMEM as the contrast for "no PROGMEM allocation"); `rurp_serial_utils.cpp:148,192` (two `// Magic preamble (4 bytes from PROGMEM)` comments describing the emit-frame helpers).
 
 ### Table (d) — Inline `F("...")` Arduino-macro literal sites (informational, exempt by definition)
 

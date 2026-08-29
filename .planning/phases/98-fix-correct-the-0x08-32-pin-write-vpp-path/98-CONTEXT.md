@@ -22,7 +22,7 @@ OTP/dead disposition are Phase-99 verdicts, not Phase-98 outcomes.
 
 **RC-1 (locked from Phase 97):** pin 31 is modeled as address line A18 in
 `DIP32_STD`, not as a held PGM control; firmware `memory_set_data`
-(`memory.cpp:274`) strobes **CE only** — no PGM concept. Classification:
+(`memory.cpp:346`) strobes **CE only** — no PGM concept. Classification:
 **host-pinout** (primary) + **firmware-algorithm** (secondary). RC-2 (P1 VPP
 routing/level) is **EXONERATED** — pin 1 measured 13.0V, P1 route asserted.
 
@@ -80,7 +80,7 @@ rewritable proof).
 ### Alias-Collision Guard (hard safety constraint)
 - **D-04:** On Rev 2.0 the firmware control bits **`CTRL_VPP_P1_ENABLE_REV2`
   and `CTRL_ADDRESS_LINE_18_REV2` are the SAME physical bit (`0x08`)**
-  (`rurp_pinout.h:122`/`:128`). Holding P1 across the pulse and/or asserting a
+  (`rurp_pinout.h:121`/`:128`). Holding P1 across the pulse and/or asserting a
   PGM control via this bit is safe for a 256K AM27C020 (A18 never set) but would
   **corrupt A18 on a 512K 27C040**. The fix MUST be gated so the PGM/P1-hold
   behavior cannot leak to any chip that uses A18 (≥512K / 27C040 class). This

@@ -18,7 +18,7 @@ re_verification:
 gaps:
   - truth: "The matrix bakes in a NON-VACUOUS PASS oracle: a PASS requires an independent post-write full read + SHA compare (SC#3 / HARN-03)"
     status: closed-verified-2026-08-09
-    reason: "In dev_validate_family (cli_handlers.py:1558-1564), when write_cycle_eprom returns 0, the code calls _classify_sha_result(evidence_sha, evidence_sha, board) where BOTH arguments are the source-image SHA — the same object compared to itself. The comparison is always equal so the oracle call always yields PASS regardless of what was read back. _classify_sha_result is a correctly-implemented comparator but is never given a readback SHA to compare against. No test exercises a case where write_cycle_eprom returns 0 but the oracle call would fail — the negative-control test only exercises the verdict_int==1 (FAIL) return path, which bypasses _classify_sha_result entirely."
+    reason: "In dev_validate_family (cli_handlers.py:1556-1562), when write_cycle_eprom returns 0, the code calls _classify_sha_result(evidence_sha, evidence_sha, board) where BOTH arguments are the source-image SHA — the same object compared to itself. The comparison is always equal so the oracle call always yields PASS regardless of what was read back. _classify_sha_result is a correctly-implemented comparator but is never given a readback SHA to compare against. No test exercises a case where write_cycle_eprom returns 0 but the oracle call would fail — the negative-control test only exercises the verdict_int==1 (FAIL) return path, which bypasses _classify_sha_result entirely."
     artifacts:
       - path: "firestarter_app/firestarter/cli_handlers.py"
         issue: "Lines 1558-1564: _classify_sha_result(evidence_sha, evidence_sha, board) — first arg should be readback_sha, second should be source_sha; passing the same SHA for both is a self-comparison that never fails"
@@ -62,7 +62,7 @@ gaps:
 |---|-------|--------|----------|
 | 1 | Three-tier harness (Tier-1 native Unity recording stubs, Tier-2 host wire pytest, Tier-3 dev validate-family runner composing cycle methods) exists and runs in CI; zero production flash added | VERIFIED | host_stubs_common.inc has HOST_STUBS_RECORD_BUS guard; 6 Tier-1 suites under native/ all in platformio.ini test_filter; 6 Tier-2 test_val_wire_*.py files; dev validate-family subcommand in cli_handlers.py; production envs are uno/uno328pb/leonardo only |
 | 2 | Declarative per-family matrix data file (validation_matrix_spec.json) drives native suites and bench runner; committed validation-matrix.{json,md} artifact emitted per cell | VERIFIED | validation_matrix_spec.json exists in tools/; gen_validation_header.py emits validation_matrix.h (committed, 13-row struct); dev validate-family emits validation-matrix.json/.md; artifact is distinct from spec (hyphens vs underscores per D-02) |
-| 3 | Non-vacuous PASS oracle: Leonardo-only authoritative PASS, negative control proving verify CAN fail, retry-count capture, per-task r1 precondition, uno328pb hard-coded N/A | FAILED | Hardware-path oracle is vacuous: cli_handlers.py:1558-1564 calls _classify_sha_result(evidence_sha, evidence_sha, board) — same SHA compared to itself, always PASS regardless of actual readback. The negative-control test only exercises the verdict_int==1 branch (write_cycle_eprom returning 1), which bypasses _classify_sha_result entirely. _classify_sha_result, uno328pb N/A, r1 precondition, and retry_count are all correctly implemented individually; the bug is specifically in the two-arg call site where readback_sha is not distinct from source_sha |
+| 3 | Non-vacuous PASS oracle: Leonardo-only authoritative PASS, negative control proving verify CAN fail, retry-count capture, per-task r1 precondition, uno328pb hard-coded N/A | FAILED | Hardware-path oracle is vacuous: cli_handlers.py:1556-1562 calls _classify_sha_result(evidence_sha, evidence_sha, board) — same SHA compared to itself, always PASS regardless of actual readback. The negative-control test only exercises the verdict_int==1 branch (write_cycle_eprom returning 1), which bypasses _classify_sha_result entirely. _classify_sha_result, uno328pb N/A, r1 precondition, and retry_count are all correctly implemented individually; the bug is specifically in the two-arg call site where readback_sha is not distinct from source_sha |
 | 4 | check_dispatch.py extended with per-family VPP dispatch invariants AND hollow non_supported_dispatchable inverse detector populated (HARN-04) | FAILED | _FAMILY_VPP_INVARIANTS and family_vpp_violations are implemented and wired. non_supported_dispatchable is populated for dual-violation (VPP mismatch + non-supported). However: dispatch() host mirror only maps 0x05 to configure_flash4; firmware dispatches {0x05, 0x35, 0x39} to configure_flash4 per memory.cpp + CLAUDE.md. Spec declares [5, 53, 57] as flash4 protocols. Host mirror would return not_implemented for 0x35/0x39 — a structural inconsistency between harness tiers. REQUIREMENTS.md marks HARN-04 as [ ] Pending. |
 
 **Score (2026-06-16, historical):** 2/4 truths verified (SC#1 VERIFIED, SC#2 VERIFIED, SC#3 FAILED, SC#4 FAILED)
@@ -98,7 +98,7 @@ negative control added, 19/19 oracle tests pass); SC#4 closed (CR-02 spec/mirror
 | host_stubs_common.inc #ifdef HOST_STUBS_RECORD_BUS | rurp_write_to_register recording | define guard + function replacement | WIRED | All 6 Tier-1 host_stubs.cpp define HOST_STUBS_RECORD_BUS before including the shared .inc |
 | test_val_*.cpp | recording API (clear_bus_recording/bus_recording_count) | extern "C" declarations in each test file | WIRED | Verified in test_val_eprom.cpp:48-52 and test_val_sram.cpp pattern |
 | gen_validation_header.py | validation_matrix.h | codegen from spec | WIRED | Drift gate test verifies byte-identical output; committed header present |
-| dev_validate_family | write_cycle_eprom | composes cycle method (D-10 no re-impl) | WIRED | cli_handlers.py:1541-1548 calls app.eprom_operator.write_cycle_eprom |
+| dev_validate_family | write_cycle_eprom | composes cycle method (D-10 no re-impl) | WIRED | cli_handlers.py:1539-1546 calls app.eprom_operator.write_cycle_eprom |
 | dev_validate_family verdict_int==0 path | _classify_sha_result oracle | oracle call at 1558-1564 | WIRED (VACUOUS) | Oracle is called but with evidence_sha as both args — self-comparison always PASS |
 | check_dispatch.py scan loop | _FAMILY_VPP_INVARIANTS | per-chip vpp_mv range check | WIRED (scoped to flash_intel only) | _DB_CHECKED_VPP_INVARIANTS limits DB-level enforcement to configure_flash_intel; 5V-family invariants proven only via synthetic fixtures |
 | dispatch() | configure_flash4 | protocol 0x35/0x39 | NOT WIRED | dispatch() only maps 0x05; 0x35 and 0x39 return not_implemented |
@@ -137,7 +137,7 @@ Step 7c: No probe scripts found or declared in PLAN files. Skipped.
 |-------------|------------|-------------|--------|----------|
 | HARN-01 | Plans 01, 04, 05 | Three-tier harness: recording stub + wire tests + Tier-3 runner | SATISFIED | All three tiers implemented and wired; flash unchanged |
 | HARN-02 | Plans 02, 06 | Declarative per-family matrix spec driving suites + artifact | SATISFIED | validation_matrix_spec.json + gen_validation_header.py + validation-matrix.json emitter all present and functional |
-| HARN-03 | Plan 06 | Non-vacuous PASS oracle | BLOCKED | Hardware-path oracle call site at cli_handlers.py:1558-1562 passes source_sha as both args — always self-matches; negative-control test exercises verdict_int==1 bypass path only |
+| HARN-03 | Plan 06 | Non-vacuous PASS oracle | BLOCKED | Hardware-path oracle call site at cli_handlers.py:1556-1560 passes source_sha as both args — always self-matches; negative-control test exercises verdict_int==1 bypass path only |
 | HARN-04 | Plan 03 | check_dispatch per-family VPP invariants + non_supported_dispatchable populated | BLOCKED | VPP invariants implemented and flash_intel enforced against DB; dispatch() host mirror missing 0x35/0x39 → configure_flash4; REQUIREMENTS.md marks this [ ] Pending |
 
 ---
@@ -161,7 +161,7 @@ Step 7c: No probe scripts found or declared in PLAN files. Skipped.
 The code review finding CR-01 is confirmed by direct code inspection:
 
 ```python
-# cli_handlers.py:1550-1564
+# cli_handlers.py:1548-1562
 evidence_sha: Optional[str]
 try:
     evidence_sha = hashlib.sha256(Path(source).read_bytes()).hexdigest()
@@ -235,7 +235,7 @@ Two blockers prevent goal achievement:
 
 **Secondary findings (not blockers for plan-phase, noted for awareness):**
 - WR-03: SRAM Tier-1 dispatch tests cover only 0x0E/0x27; 0x28/0x29 have no dispatch-level VPP assertion (the BLOCKER-2 guarantee is not fully exercised).
-- WR-01: `datetime.utcnow()` deprecation in cli_handlers.py:1358.
+- WR-01: `datetime.utcnow()` deprecation in cli_handlers.py:1356.
 - IN-03: `_EVIDENCE_SHA_SOFTWARE_SENTINEL` defined but never used.
 
 ---
@@ -254,7 +254,7 @@ work; this record simply was never re-run. **Status: `gaps_found` → `passed` (
 
 The vacuous call site is **gone**. `_classify_sha_result` is no longer called from
 production code at all — `grep -rn "_classify_sha_result" firestarter/ tests/` returns
-one definition (`firestarter/cli_handlers.py:1777`) and test call sites only. No
+one definition (`firestarter/cli_handlers.py:1775`) and test call sites only. No
 `cli_handlers.py` caller remains.
 
 The fix taken is the second option this very report recommended — "trust

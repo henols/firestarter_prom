@@ -730,6 +730,7 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.23     | 8      | 88    | 4    | New largest plan count. **A fourth board target landed beneath the dispatch contract without disturbing it**, on a non-Arduino CMake/arm-none-eabi toolchain — and **entirely without hardware**, so the validation ceiling *is* the deliverable. Gates-before-content promoted to a milestone-wide ordering rule (6 fail-provable checkers + a flash-**and-RAM** baseline before any firmware moved; a 41-leg cross-repo gate authored before the record it judges, 31 RED → 0 RED). A stacked branch pair landed **atomically** after research measured the inherited "HAL prep leads" order as a trap (141 passing → 0 passing / 17 ERRORED). **"The merge had no conflicts" retired as a quality statement** — a zero-conflict merge still produced a tree failing at CMake *configure* on a rename git could not see, with no `push` trigger to report it. Release mechanics proven by **two real CI dispatches** (happy path + planted ARM break), which also established `outcome` ≠ `conclusion` for a contained step. Honesty ledger restructured into **six evidence tiers** with two orthogonal keys, each claim paired with its non-claim. **Fact-vs-mechanism boundary** codified: amend a false fact in place, record a narrowed mechanism in the phase artifact. Claim ceiling **narrowed** when a premise collapsed (toolchain present ⇒ delta + byte-identity only). Three gates found lying in three different ways (fail-OPEN presence proxy; fail-open mypy watermark hiding 69 errors; an **unreachable** gate leg); a phase's own validation procedure found wrong in a way that would have produced false evidence; `gsd-tools` state writers corrupted STATE.md in the same unanchored-regex class as v1.22; sixth consecutive `override_closeout` on the same 14 items |
 | v1.31     | 9      | 74    | 13   | **A public issue implemented as *corrected*, with the corrections posted before implementation** — two wrong numbers and one inverted premise in gh#15, the pulse distribution re-derived live through the **production parser** rather than restated (170/127/32 chips), amending the issue's own acceptance criteria rather than quietly failing them. **The evidence ceiling was fixed before the first line of code** (~6.25 V program-VCC unreachable on every shield revision owned), so "fidelity, not improvement" is a design constraint the milestone was built inside — no comparative claim, no control run (declined deliberately), no datasheet-conformance claim in either direction. Architecture adjudicated **against** the issue: one shared per-byte loop plus a `const` PROGMEM table keyed on `protocol_id`, not three state machines, on a measured AVR flash budget. **First milestone whose bench gate caught a defect the milestone itself introduced** — a deleted `CTRL_VPE_ENABLE` assert, invisible to every register-stream oracle, failing byte 0 of the first cycle; halted, debug-sessioned, fixed, then 3/3 byte-exact, with the failure left in the record as a **fail**. Research falsified a locked decision in **three** phases (BF-1 the branch refused every connection; BF-2 the naive emission would convert a program failure into a transport timeout; BF-3 a 2× under-estimate would time out a *working* write) — in two of three the naive implementation would have been worse than not shipping. **Pre-registered size predictions** made a 14× miss visible instead of retro-rationalised. Asymmetric bench coverage by inventory with dispositions **named, never inferred** across protocols, and the fail/pass taxonomy fixed *before* any run. Twelve carry-forwards tagged with the literal phrase `no v1.31 owner`; **sixteen un-taken readings each given their blocker**. MERGE-05 green **because its anchor moved**, not because growth stayed in band — carried open. Eighth consecutive `override_closeout`, but down 14 → 9 after an evidence-based sweep. **Two GSD tooling defects mis-reported this milestone's own completion** (a state writer for the third close running; a plan scanner counting a phantom 14th plan) — both found by diffing rather than trusting output; the retrospective step itself was skipped at v1.30 and v1.21 |
 | v1.32     | 6 executed of 7 (150 deferred) | 72 | 4 | **Fix the instrument before pointing it** — the milestone was scoped from a root-cause pass over gh#21 rather than the issue text, and found that the question was *unanswerable*: `cli_handlers.py` hardcoded `fw_board_identity=None`, so every `dev test` report ever filed was un-attributable to any firmware. That fix was sequenced first (D-01) and everything else rests on it. Also: a phase (153) added mid-milestone from the *close* phase's discuss session and sequenced to run **before** it (D-08); publishing moved INSIDE the authoring phase after two milestones' release notes were written and never posted; a criterion **corrected rather than satisfied** (GATE-03 structurally cannot see the hazard it was named for); and the largest close phase to date at 20 plans / 14 waves |
+| v1.33     | 6      | 45    | 2    | **Measurement supersedes scoping prose, by appended clause** — 5+10+22+13 corrections across four phases overturned three of the ROADMAP's own predictions, including a −138 B flash result where +30 B was scoped. Also: a **close-blocking marker file** as the mechanism for a deliberate four-phase staleness window, and `verbatim_oracle_applied: false` as a per-record admission that an oracle did not cover 269 of 515 records. First milestone whose premise was byte-level behavioural equivalence — zero product-code behaviour changed. |
 
 ### Cumulative Quality
 
@@ -743,6 +744,7 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.23     | 7/8 formal `passed` (123, 124, 125, 127, 128, 129, 130 — Phase 130 verified 4/4); Phase 126 `passed-with-findings` (5/5 criteria substantively achieved, 7/7 reqs, 1 informational) | `override_closeout` — 47/47 v1 reqs Complete, 0 unmapped, no v1.23-originated gap; overrides = Phase 126's finding + the same 14 pre-v1.17 carry-forwards (sixth consecutive) | **Zero hardware E2E flows, by physical necessity** — no PY32F071 PCB exists, so the ceiling is software-only and machine-enforced by `check_permitted_claims.py` over four contracted closing artifacts, with the negative space explicitly enumerated (provisional pin map · absent ARM bus-trace oracle · unmeasured USB-ISR-vs-PROM timing · mock-only DFU readback). Proven instead: the ARM target configures and links in CI (run `30722352902`, 22/22 steps `success`) and its `.hex` publishes as a real release asset; AVR non-regression measured on all three targets (Leonardo −56 B, Uno +22 B, uno328pb +28 B, RAM unchanged) with native at 141 cases / 17 suites and golden register traces byte-identical per-array; firmware suite 180 → 221 and host suite 1158 → 1293 / 0 failed / 0 skipped; failure containment proven by a *second* real dispatch with a planted ARM break (three AVR assets still published); and both channels independently verified public at the observed tag `3.0.0b15` — never via a green CI tick. **Known RED, deliberately unfixed:** 69 inherited mypy errors + the fail-open watermark tool (app primary `ci` job), and `check_ledger.py`'s 2 `LEDGER-01` violations |
 | v1.31     | 9/9 formal `passed` (138–146). Phase 145's `145-VERIFICATION.md` was **authored at milestone close** from the existing bench record — the phase shipped a four-criterion verdict into `145-BENCH-LOG.md` but never emitted the artifact — and is the one verification report in this project that **cannot be re-run**, because the hardware is not attached | `override_closeout` — 45/45 v1 reqs Complete, 0 unmapped, no v1.31-originated gap; overrides = **9** pre-existing carry-forwards (eighth consecutive, down from 14 after the 2026-08-09 evidence sweep closed Phases 71 and 85 and retired two debug sessions into trackers) | **A real hardware E2E flow, for the first time since v1.15 — and narrow on purpose.** Three full 65536-byte write→read→verify cycles on a Winbond W27C512 (`0xda08`), `leonardo`, shield **Rev 2.0**: three *distinct* images so no cycle could pass by rewriting bytes already present, nine clean cells across two oracles (the independence living entirely in the host-side read-to-file + `sha256sum` column, because `verify` is a second *firmware-side* pass), read stability N=3 at one SHA each, write timing 106.06/105.69/106.06 s (0.37 s spread), and the erase **proven** to fire (99.8 % / 90.6 % of inter-cycle bytes need a `0`→`1` transition). No `--force`/`--skip-erase`/`--no-blank-check` in any silicon-touching invocation. **Scope is exactly one part, one controller, one shield revision:** `0x08` (AM27C020) and `0x0B` (M2716/M2732) have **never run** on the new loop — both `skipped-with-reason` with the missing parts named and nothing transferred from `0x07`. Software side: firmware suite 314, host suite 1590 / 82.92 % coverage, `native_loop_v131` 79/79, `native_params_v131` 9/9, both pinned native envs 141/17, mypy 33 against the 35 watermark, all four CI-scoped legs green on the 3.11 replica; all three AVR targets build (uno 24920 B, uno328pb 24970 B, leonardo 27002 B / 93.8 %). **Known RED / open, deliberately:** MERGE-05's **+96 B** leonardo band breach un-adjudicated with the operator as named owner; `0x07`/`0x08` ship `energy_cap_us = 0`, i.e. **UNCAPPED** in firmware, with only the host's `IntRange` bounding `--pulse-us` (Backlog 999.31); `native_params_v131`/`native_loop_v131`/`native_trace_v131` run in **no CI leg of either repository**, and neither repo's CI has run any v1.31 code beyond Phase 138; program-window VPP/VCC under load **never measured** (Phase-97 DTR-reset-on-close gap), so every VPP figure on record is an *idle* firmware-ADC sample |
 | v1.32     | **6/6 executed phases formal `passed`** (147, 148, 149, 151, 152, 153 — Phase 152 verified 5/5 with all five public artifacts live-read, Phase 153 verified 9/9). Phase **150** carries no verification because it was **deferred at its discuss step** and never planned or executed — no `150-*/` directory exists, so `ALL_PHASES_VERIFIED` is structurally false and `milestone.complete` needed `--force` for that one reason | `override_closeout` — **35/35 in-scope v1 requirements Complete** (42 defined; 7 RELOCK moved to Backlog 999.28 by the Phase 150 deferral), 0 unmapped, no v1.32-originated verification gap. The **9** acknowledged `audit-open` items are the *identical* set from v1.31, unchanged in count and membership; **none of the 4 UAT/verification entries originate in v1.32**. Ninth consecutive acknowledgement | **0 on silicon, by design and by declared ceiling** — no AT28C part has ever been in operator inventory, no bench phase existed in the milestone, `0x0D` stays `UNVERIFIED`, zero `support_status` changes (machine-checked; `chip_database.json` byte-unchanged). Software-side: 84-of-746 row scope proved twice by independent mechanisms, 746-chip wire golden held byte-identical through a whole-schema migration, and one exploratory bench probe taken against a **W29C020** — explicitly *not* an AT28C and explicitly not a state claim |
+| v1.33     | **6/6 formal `passed`** (154–159; 13/13, 6/6, 4/4, 7/7, 8/8, 17/17 must-haves) | `override_closeout` — **no milestone audit was run** (matching v1.30/v1.31/v1.32). 42/43 requirements Complete: SWEEP-13 deliberately unticked, its one-meta-commit clause measurably not met at 9. Ten inherited `audit-open` carry-forwards acknowledged — the **tenth consecutive close** to acknowledge substantially this set. | **None — no bench phase existed and no silicon was tested.** Two changes with runtime consequences (the 32-bit voltage reformulation, the `flash_5v_page` per-byte model) went unmeasured on hardware, stated rather than implied. |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -773,6 +775,9 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 25. **An unguarded limit is more dangerous than a guarded one at zero headroom.** The enforced band at 0 B is visible in every build; the hard boundary beyond it, enforced by nothing, is the one that will actually destroy a board (v1.32: MERGE-05 `leonardo` headroom 0 B and honest, while the Caterina USB-bootloader cliff 1042 B further on is not checked by `board_upload.maximum_size` at all).
 26. **Make the classifier structurally incapable of the claim it is not entitled to make.** A function that *cannot* return the strong answer beats one that is merely careful about when it does, because the guarantee survives refactors that a convention does not (v1.32 D-09/D-10: `protection_gate_for_entry` cannot return `protected`/`unprotected` at all — frozen by an AST invariant gate and walked over all 746 rows).
 27. **Sever a re-based baseline onto a NEW fixture family; never re-anchor the retired one** — re-anchoring makes a satisfied constraint and a moved goalpost indistinguishable by exit code, which is the same failure class as lesson 20 seen one step earlier (v1.31 taught it as a finding; v1.32 Phase 153 applied it as the default, on a thirteen-file `*_v153*` family with every plant seen RED first).
+28. **A plan that is not committed is not the plan of record — and nothing will tell you.** v1.33's Phase 159 executed for six hours against eight uncommitted plan revisions; `HEAD` carried a materially different plan, and the divergence was provable only because the summaries cited figures absent from the committed text. Commit plan revisions before execution begins, or the archive documents work that never happened.
+29. **A sha quoted in a requirement is a fact with an expiry date.** v1.33's SWEEP-13 named an app commit that had been amended hours later; the record was never updated and the stale sha propagated into a downstream phase's plan as a remap base. It was harmless only by luck of timing (net-zero lines, a day early). Anchor to content, or re-verify shas at close.
+30. **When an oracle cannot be applied uniformly, record which records it missed — in the data, not in prose.** v1.33 could not close 269 of 515 remap records on verbatim source-text equality because the cited comments had been deliberately reworded. Each carries `verbatim_oracle_applied: false`, and every closure text says the criterion is not universally satisfied. Weakening the oracle for all records would have been invisible.
 
 ## Milestone: v1.17 — Implement & Test the W29C040 Programming Protocol
 
@@ -1223,3 +1228,108 @@ PROTOCOL-LEDGER exactly as it stood at the open, and every write-path change v1.
   gh#32 listed as OPEN when it had been closed ten days before the milestone opened, "retires Backlog
   999.29 / folds Backlog 999.28" when neither happened, and a stale one-firmware-workstream count. A
   close that only archives is not auditing.
+
+---
+
+## Milestone: v1.33 — Source Hygiene & Firmware Size Reduction
+
+**Shipped:** 2026-08-24
+**Phases:** 6 executed (154–159) | **Plans:** 45 | **Tasks:** ≥66 enumerated | 42/43 requirements Complete (SWEEP-13 open by design)
+
+### What Was Built
+
+**Make the source shorter without changing what it does — and prove the second half rather than assert
+it.** Two halves sharing that one property. First, the promoted Backlog 999.34 provenance sweep: the GSD
+`// Phase NNN (REQ-NN):` comments that ~150 phases had stamped into shipped source across both sub-repos
+were swept, and the `.planning/` `file:LINE` citations that shift as a result were repaired by a
+purpose-built remap tool applied **exactly once**, at the end, over the composite pre-154 → post-158 diff
+— 2,706 citations rewritten across 562 documents out of 14,391 records / 1,291 documents examined, then
+proven a byte-stable dry-run fixed point. Second, five measured firmware size reductions: the heap
+allocator (whose only caller malloc'd 4 bytes and dereferenced the result unchecked on a part with ~470 B
+free RAM), the 64-bit runtime (one user-code caller), two report blocks copy-pasted 4× each that between
+them held 24 of the image's 30 `__udivmodhi4` call sites, `json_parser.c`'s `key_parsers[]` double-match
+costing 1012 B across 11 PROGMEM stubs, and — found during landing, not scoping — an 8→6 B `jsmntok_t`
+narrowing. The firmware is now **heap-free**, and Leonardo Caterina headroom went **502 B → 3440 B**.
+
+**The milestone-level non-claim, stated once here in this milestone's own canonical wording:**
+**no bench phase existed and no silicon was tested.** Two changes have runtime consequences a bench could
+have measured — the 32-bit voltage reformulation (Phase 155) and the `flash_5v_page` per-byte model
+(Phase 157) — and neither was. Every v1.33 claim is a build-and-test fact, not a bench fact.
+
+### What Worked
+
+- **Splitting the sweep from the remap (D-01), and bounding the resulting staleness with a gate instead
+  of discipline.** Applying the remap in Phase 154 would have remapped 723 citations twice, 41 % of them
+  because of four added `#include` lines. The split opened a knowingly-wrong citation window across four
+  phases — and closed it with a *close-blocking* marker file that Phase 159 removed as its final
+  mutation. The window was a decision with a receipt, not an oversight.
+- **Correcting scoping figures publicly, by appended clause, in every single phase.** 5 + 10 + 22 + 13
+  corrections across Phases 155–158, never as silent replacements. Three of them overturned the
+  ROADMAP's *own* predictions — `jsmntok_t` measured −138/−138/−136 B where +30 B was predicted; LAND-06
+  DECLINED **with** its +22/+24/+22 B measurement rather than quietly skipped; LAND-07's "57 tokens /
+  7 headroom" refuted by three independently re-derived bounds and then closed on the
+  forward-compatibility budget rather than on arithmetic it could not support.
+- **Choosing an honest oracle over a green one.** 269 exception records could not be closed by verbatim
+  source-text equality, because Phase 154 had deliberately *reworded* the comments being cited. Rather
+  than weaken the oracle silently, each record carries an explicit `verbatim_oracle_applied: false`, and
+  every closure text — including this one — says that ROADMAP criterion 2 is not universally satisfied.
+- **Leaving SWEEP-13 unticked.** Three clauses proven, one measurably not met at 9 versus 1. Rewriting
+  meta history to manufacture a single commit was dispositioned accept/declined. An open box with a
+  paragraph of cause beats a tick that would have to be un-ticked by whoever next reads it.
+- **A size milestone that a one-sided gate could not have caught.** `check_size_baseline.py` gates
+  `flash_delta > allowance` — growth only — so every reduction here passed with no named exemption. The
+  phases recorded that the pass was *one-sided* rather than letting a green gate imply verification.
+
+### What Was Inefficient
+
+- **Eight Phase-159 artifacts executed uncommitted and were only caught at close.** A second plan-check
+  revision round at 13:32–13:56 on 2026-08-24 was never committed, so `HEAD` carried a materially
+  different plan than the one that ran for the following six hours — provable only because the summaries
+  cite figures and an interpreter path absent from the committed plans. The plan of record and the plan
+  that executed must not be allowed to diverge silently; nothing in the workflow noticed.
+- **The `firestarter` gitlink sat stale at the Phase-154 commit for four phases.** Phases 155–158 are
+  firmware-only, so the meta repo's pointer was wrong about its own firmware for the entire second half
+  of the milestone, and it took the close to re-pin it.
+- **A stale sha propagated from SWEEP-13 into the Phase-159 plan text.** The app's Phase-154 commit was
+  amended (`bc9d592` → `38f0d83`) on day one; the amended sha never made it back into the records that
+  named it. Harmless here — re-verified as net-zero lines, a day before the remap ran — but it was
+  harmless by luck of timing, not by construction.
+- **149 of the 176 retired exception records were citations that had simply been hand-deleted from their
+  citing documents since the sweep.** Roughly a third of the ledger's manual review budget went to
+  confirming that `.planning/` had been edited normally in the interim.
+
+### Patterns Established
+
+- **A close-blocking marker file as the mechanism for a deliberate staleness window.** Not a note, not a
+  todo — a file whose presence a gate refuses to close over, deleted as the last mutation of the phase
+  that earns its removal.
+- **`verbatim_oracle_applied: false` as a per-record field.** When an oracle cannot be applied uniformly,
+  record which records it did *not* cover, in the data, rather than weakening the oracle for all of them.
+- **Cold-vs-warm build labelling as load-bearing.** Phase 158 re-recorded the baseline cold and severed
+  the size fixtures onto a new `*_v158*` family rather than comparing across labels. The
+  before/after table in this milestone's records carries the WARM/COLD mismatch as an explicit caveat
+  instead of presenting a single clean delta it cannot support.
+- **Recording a one-sided gate pass as one-sided.**
+
+### Key Lessons
+
+- **A plan that is not committed is not the plan of record, and nothing will tell you.** Commit plan
+  revisions before execution begins, or the archived milestone documents work that never happened.
+- **A sha named in a requirement is a fact with an expiry date.** Amends are routine; the records that
+  quote pre-amend shas are not automatically updated. Anchor to content, or re-verify at close.
+- **"Measured, not estimated" has to survive contact with the measurement.** This milestone's most
+  valuable output was arguably the five predictions it *refuted* — including three of its own ROADMAP's.
+- **The carry-forward audit set has now been acknowledged ten closes running without shrinking.** That is
+  no longer a per-close footnote; Phases 08, 09 and 84 have been "human_needed" since v1.24-era numbering.
+  Either they get scheduled or their status should be changed to something honest about never being done.
+
+### Cost Observations
+
+- Sessions: chained autonomous execution across 2 days (2026-08-23 → 2026-08-24), 155 meta commits.
+- Notable: **Phase 159 alone was 6 of the 45 plans and produced a 510 KB summary** for its checkpoint
+  round — the review of 515 exception records over four operator rounds was the single largest
+  human-in-the-loop cost of the milestone, and 149 of those records turned out to be about ordinary
+  hand-editing rather than about the remap.
+- Notable: the size work itself (Phases 155–158, four phases, 26 plans) was cheap and almost entirely
+  mechanical, because the implementation already existed as a measured patch before the milestone opened.
+  The expensive half was the bookkeeping the sweep created.

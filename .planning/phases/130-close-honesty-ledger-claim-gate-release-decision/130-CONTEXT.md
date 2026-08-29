@@ -332,7 +332,7 @@ artifact.
   `⚠ RESEARCH CORRECTIONS` block; edited in place (D-05).
 - `.planning/notes/py32f071-port-branch-state.md` — a dated 2026-07-28 capture; gets an
   append-only SUPERSEDED section (D-05). Confirmed to still contain `27 commits behind`, `311eacf`,
-  `cli_handlers.py:821` and the `PORTING.md` citation R-8 refutes.
+  `cli_handlers.py:819` and the `PORTING.md` citation R-8 refutes.
 - `.planning/todos/pending/correct-v128-py32-roadmap-prior-art.md` — CLOSE-03 owns it; its header
   note records that v1.23 research re-verified all five corrections and found a sixth (A-6/R-8).
 

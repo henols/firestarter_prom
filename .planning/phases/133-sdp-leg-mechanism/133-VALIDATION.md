@@ -84,7 +84,7 @@ column is authoritative: **only** LEG-09, LEG-10, LEG-11, LEG-15 may be marked C
 - [ ] `tests/test_check_devtest_orchestrator.py` — **append** ~4 legs for the new broad-except bucket. **Subprocess only** — its three env seams (`:86`, `:98`, `:113`) bind at module import, so `monkeypatch.setenv` is defeated; reuse the module's existing `_run_checker(env)` helper (`:72`).
 - [ ] **Framework install: none needed.**
 
-*Settled, no longer Wave-0 design questions:* the `chip_test.py:1035` exemption mechanism (**D-14** — exemption table with mandatory reason + stale-row guard) and test-module placement (**D-15**). Still a required plan-level decision: **the drain must not append into `results`** (research Pitfall 2 — seven consumers at `cli_handlers.py:2164-2219`; latent in 133, detonates in 134).
+*Settled, no longer Wave-0 design questions:* the `chip_test.py:1035` exemption mechanism (**D-14** — exemption table with mandatory reason + stale-row guard) and test-module placement (**D-15**). Still a required plan-level decision: **the drain must not append into `results`** (research Pitfall 2 — seven consumers at `cli_handlers.py:2161-2216`; latent in 133, detonates in 134).
 
 ---
 
@@ -111,7 +111,7 @@ transport error, and the op registries fail closed.* It proves **nothing** about
 Any artifact claiming more is the v1.22 C-5 overclaim class.
 
 Two further residuals belong in the phase record, not in a footnote:
-1. **D-07:** after a Ctrl-C mid-leg the chip has an unlock *attempted* but the user sees **no `dev test` report at all** (`results = run_plan(...)` at `cli_handlers.py:2164` never completes).
+1. **D-07:** after a Ctrl-C mid-leg the chip has an unlock *attempted* but the user sees **no `dev test` report at all** (`results = run_plan(...)` at `cli_handlers.py:2161` never completes).
 2. **D-16:** a **failed** unlock is **not user-visible** until Phase 134's `HELD`/`NOT-RUN` field (LEG-12).
 3. **D-05:** ROADMAP criterion 4's clause *"an op with `group=None` takes the exact pre-existing dispatch path"* is satisfied **vacuously** — there is no `group` field. The record must say the criterion's *intent* was met by a different mechanism and must **not** restate its literal words as tested.
 

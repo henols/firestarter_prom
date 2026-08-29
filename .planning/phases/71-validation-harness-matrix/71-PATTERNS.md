@@ -422,7 +422,7 @@ def test_eprom_wire_dict_dispatches_to_configure_eprom(make_comm, fake_serial):
 
 ### `firestarter_app/tests/test_validate_family_cmd.py` (Tier-3 scaffold)
 
-**Analog:** existing Click CLI tests in `firestarter_app/tests/` that invoke `cli_handlers.py` subcommands. The `dev consistency-check` handler at `cli_handlers.py:1044` is the direct structural match.
+**Analog:** existing Click CLI tests in `firestarter_app/tests/` that invoke `cli_handlers.py` subcommands. The `dev consistency-check` handler at `cli_handlers.py:1042` is the direct structural match.
 
 **Core pattern — invoke CLI via Click's test runner:**
 ```python

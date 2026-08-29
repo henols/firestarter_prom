@@ -39,7 +39,7 @@ requirements-completed: [ERASE-07]
 
 coverage:
   - id: D1
-    description: "Drop algorithm 13 from the FLAG_CAN_ERASE exclusion tuple at database.py:620; algorithm 5 stays excluded"
+    description: "Drop algorithm 13 from the FLAG_CAN_ERASE exclusion tuple at database.py:617; algorithm 5 stays excluded"
     requirement: "ERASE-03"
     verification:
       - kind: unit
@@ -85,7 +85,7 @@ status: complete
 
 ## Accomplishments
 
-- **Task 1 — Dropped algorithm 13 from the exclusion tuple** (`database.py:620`, confirmed
+- **Task 1 — Dropped algorithm 13 from the exclusion tuple** (`database.py:617`, confirmed
   correct line by direct grep — the ROADMAP/REQUIREMENTS' cited `:621` is the `simple_flags |=`
   body, not the edit site). `algo not in (5, 13)` became `algo not in (5,)`. Algorithm 5 remains
   excluded for its own, unrelated, still-valid hardware-hazard reason (setting the flag for 0x05

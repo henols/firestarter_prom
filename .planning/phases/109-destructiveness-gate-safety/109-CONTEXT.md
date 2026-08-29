@@ -158,7 +158,7 @@ this phase. Must stay fully unit-testable via mock operator +
   (must add) non-zero on a planted violation fixture — the anti-hollow contract
 - `.github/workflows/ci.yml` — the `Run pytest with coverage` step is the real
   enforcement point (py3.11 target; watch the py3.12-masks-CI ruff/codegen trap)
-- `firestarter/cli_handlers.py:1476` — `dev_validate_family` (the sibling handler
+- `firestarter/cli_handlers.py:1474` — `dev_validate_family` (the sibling handler
   + `EpromDatabase(skip_local_override=True)` + mock-operator unit-test seam; the
   `@dev.command("test")` handler that the SAFE-03 checker will also scan is
   **Phase 112**, not this phase)

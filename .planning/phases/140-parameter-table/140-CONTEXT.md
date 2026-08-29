@@ -74,7 +74,7 @@ VPP/VPE mask rewrite and disable-on-every-exit (Phase 142), `--pulse-us` and hos
   **exactly 0** against Phase 138's baseline. On AVR a `const` struct array without `PROGMEM` lands
   in `.data` and is copied into RAM at startup, so a plain `const` table fails the gate on arrival.
   Follow the existing precedent: `static const key_parser_t key_parsers[] PROGMEM` at
-  `firestarter/src/json_parser.c:73`. Uno-class flash headroom is **42 B (`uno`) / 36 B
+  `firestarter/src/json_parser.c:164`. Uno-class flash headroom is **42 B (`uno`) / 36 B
   (`uno328pb`)** against the 64 B MERGE-05 band at the fork base — and materially less at the live
   `beta` tip (F-138-02: 8 B / 2 B). Budget accordingly.
 
@@ -280,7 +280,7 @@ VPP/VPE mask rewrite and disable-on-every-exit (Phase 142), `--pulse-us` and hos
 - `firestarter/src/proms/memory.cpp:115` — the only call site that reaches `configure_eprom`, and the
   fail-closed chain (steps 6a/6b/7) D-05 mirrors.
 - `firestarter/include/firestarter.h` — `firestarter_handle_t`, `protocol`, `pulse_delay`, `pins`.
-- `firestarter/src/json_parser.c:73` — `static const key_parser_t key_parsers[] PROGMEM`, the
+- `firestarter/src/json_parser.c:164` — `static const key_parser_t key_parsers[] PROGMEM`, the
   storage precedent D-04 follows.
 - `firestarter/CLAUDE.md` §"Protocol Dispatch", §"Algorithm Handlers", §"Native (Host) Test
   Environment" — the dispatch contract and the positive-allowlist `test_filter` / `-I` plumbing D-11
@@ -327,7 +327,7 @@ VPP/VPE mask rewrite and disable-on-every-exit (Phase 142), `--pulse-us` and hos
 ## Existing Code Insights
 
 ### Reusable Assets
-- **`static const key_parser_t key_parsers[] PROGMEM` (`src/json_parser.c:73`)** — the firmware's
+- **`static const key_parser_t key_parsers[] PROGMEM` (`src/json_parser.c:164`)** — the firmware's
   existing const-table-in-PROGMEM pattern, including the `pgm_read_*` access idiom. D-04's model.
 - **`[env:native_trace_v131]` (`platformio.ini:293-328`)** — a complete worked instance of adding a
   native env that names only its own suite, stays out of `default_envs`, and is deliberately

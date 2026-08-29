@@ -16,7 +16,7 @@
 
 | New/Modified File | Repo | Role | Data Flow | Closest Analog | Match |
 |-------------------|------|------|-----------|----------------|-------|
-| `include/eprom_params.h` | fw | model (type + const-data decl) | table lookup (read-only) | `include/rurp_platform_compat.h` (dependency-free header shape) + `src/json_parser.c:68-79` (struct + PROGMEM table typedef) | role-match |
+| `include/eprom_params.h` | fw | model (type + const-data decl) | table lookup (read-only) | `include/rurp_platform_compat.h` (dependency-free header shape) + `src/json_parser.c:91` (struct + PROGMEM table typedef) | role-match |
 | `src/proms/eprom_params.cpp` | fw | model (PROGMEM table + accessor) | table lookup (read-only) | `src/proms/not_implemented.cpp` (**include block — the warning-critical one**) + `src/json_parser.c:73-79,113-118` (storage + `pgm_read_ptr` scan) | exact (composite) |
 | `test/native/avr/test_eprom_params_v131/host_stubs.cpp` | fw | test harness (link stub TU) | n/a (link-only) | `test/native/avr/test_not_implemented/host_stubs.cpp` | **exact** |
 | `test/native/avr/test_eprom_params_v131/test_eprom_params_v131.cpp` | fw | test (native Unity unit) | request-response (call → assert on handle) | `test/native/avr/test_trace_eprom_v131/test_trace_eprom_v131.cpp` | exact role, simpler data flow |
@@ -76,7 +76,7 @@ no `rurp_pinout.h`.)*
 
 `eprom_params.cpp` needs **none** of these. Its only include is `"eprom_params.h"`.
 
-**Analog B — PROGMEM const-table storage + access idiom:** `src/json_parser.c:56-79` and `:113-118`.
+**Analog B — PROGMEM const-table storage + access idiom:** `src/json_parser.c:67` and `:113-118`.
 
 ```c
 const char key_mem_size[] PROGMEM = "memory-size";
@@ -95,7 +95,7 @@ static const key_parser_t key_parsers[] PROGMEM = {
     {key_read_settling, get_read_settling},                              {key_read_strobe, get_read_strobe},
 };
 ```
-*(`src/json_parser.c:56,68-79`)*
+*(`src/json_parser.c:67,91-79`)*
 
 The **scan-not-switch** access idiom — this is exactly the shape the accessor must take, because a
 `switch` in the accessor would be the second selector TABLE-05 forbids:
@@ -107,7 +107,7 @@ The **scan-not-switch** access idiom — this is exactly the shape the accessor 
                 bool (*parser_func)(const char*, jsmntok_t*, int, firestarter_handle_t*) = (void*)pgm_read_ptr(&key_parsers[j].parser_func);
                 parser_func(json, tokens, token_idx, handle);
 ```
-*(`src/json_parser.c:113-117` — a linear `for` over `sizeof(x)/sizeof(x[0])` with `pgm_read_ptr`
+*(`src/json_parser.c:301-305` — a linear `for` over `sizeof(x)/sizeof(x[0])` with `pgm_read_ptr`
 on the member address. RESEARCH § Code Examples' `eprom_params_for()` is this shape with
 `pgm_read_byte`.)*
 
@@ -784,7 +784,7 @@ numbered `Coverage:` list (`tests/test_golden_trace_identity_eprom_v131.py:1-67`
 for a gate module and is what makes the planted-failure obligation legible.
 
 ### S2 — PROGMEM const table + `pgm_read_*` access
-**Source:** `src/json_parser.c:56-79`, `:113-118`
+**Source:** `src/json_parser.c:67`, `:113-118`
 **Apply to:** `src/proms/eprom_params.cpp`
 The array is `static const … PROGMEM`; every field read goes through `pgm_read_byte` /
 `pgm_read_word` / `pgm_read_dword` / `pgm_read_ptr` on `&array[i].member`. Never dereference
@@ -830,7 +830,7 @@ depth-1 clone). A blob-SHA pin only needs HEAD's tree, but stay inside the exist
 (F-140-11) — `native_params_v131` is a local, run-by-name obligation.
 
 ### S8 — Native-suite handle hygiene
-**Source:** `test_trace_eprom_v131.cpp:215-229`; root cause at `src/json_parser.c:81-89`
+**Source:** `test_trace_eprom_v131.cpp:215-229`; root cause at `src/json_parser.c:164-278`
 **Apply to:** the TABLE-03 suite.
 `json_parse` resets `address`, `ctrl_flags`, four `bus_config` fields and `chip_id` — **not**
 `pulse_delay`, `protocol`, `mem_size`, `vpp_mv` or `pins`:
@@ -996,7 +996,7 @@ seen to pass** — which triggers D-15 trap (2), "a pre-authored gate leg can be
 
 **Files read for extraction (15):**
 `src/proms/not_implemented.cpp`, `src/proms/eprom.cpp` (4 targeted ranges), `src/proms/memory.cpp:108-142`,
-`src/json_parser.c:50-124`, `include/rurp_platform_compat.h`, `include/proto_constants.h:14-33`,
+`src/json_parser.c:42-312`, `include/rurp_platform_compat.h`, `include/proto_constants.h:14-33`,
 `include/memory_utils.h:18-31`, `platformio.ini` (4 ranges), `test/native/avr/_shared/host_stubs_common.inc:1-60`,
 `test/native/avr/test_not_implemented/host_stubs.cpp`, `test/native/avr/test_val_eprom/host_stubs.cpp`,
 `test/native/avr/test_trace_eprom_v131/host_stubs.cpp`, `test/native/avr/test_trace_eprom_v131/test_trace_eprom_v131.cpp` (2 ranges),

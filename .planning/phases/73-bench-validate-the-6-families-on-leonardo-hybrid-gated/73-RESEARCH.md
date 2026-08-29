@@ -130,7 +130,7 @@ No packages installed this phase.
 
 ## The `dev validate-family` Invocation Contract
 
-[VERIFIED: direct code read of `firestarter_app/firestarter/cli_handlers.py:1419-1593`]
+[VERIFIED: direct code read of `firestarter_app/firestarter/cli_handlers.py:1417-1591`]
 
 ### Full command signature
 
@@ -309,7 +309,7 @@ matrix artifact JSON.
 
 ## The Non-Vacuous PASS Oracle (Phase 71 D-08)
 
-[VERIFIED: `cli_handlers.py:1390-1411`, `eprom_operations.py:766-873`, `tests/test_validate_oracle.py`]
+[VERIFIED: `cli_handlers.py:1388-1409`, `eprom_operations.py:766-873`, `tests/test_validate_oracle.py`]
 
 ### What "non-vacuous" means
 
@@ -318,10 +318,10 @@ A PASS is only valid if:
    image, then reads the whole chip back and computes SHA-256. The compare is `readback_sha ==
    source_sha` inside `write_cycle_eprom`. The runner calls `write_cycle_eprom` and trusts its
    return code directly (0 = PASS) — it does NOT re-compare source vs. source. [VERIFIED:
-   `cli_handlers.py:1557-1575` comments: "The real readback compare already happened inside
+   `cli_handlers.py:1555-1573` comments: "The real readback compare already happened inside
    write_cycle_eprom."]
 2. **Leonardo-authoritative** — only `board == "leonardo"` yields `pass_type = "authoritative"`.
-   All others yield "advisory". [VERIFIED: `cli_handlers.py:1562-1563`]
+   All others yield "advisory". [VERIFIED: `cli_handlers.py:1560-1561`]
 3. **Passing negative control** — the oracle is proven non-vacuous by the test in
    `tests/test_validate_oracle.py:TestNegativeControl.test_classify_sha_mismatch_is_fail_on_leonardo`:
    `_classify_sha_result(wrong_sha, source_sha, "leonardo")` returns `"FAIL"` (not `"PASS"`).
@@ -335,7 +335,7 @@ A PASS is only valid if:
    R1=270000 confirmed via `firestarter config`. The plan must persist r1 into local config or
    verify it live before each Tier-3 task.
 6. **uno328pb hard N/A** — `board == "uno328pb"` → N/A cell, no cycle attempted. [VERIFIED:
-   `cli_handlers.py:1482-1499`]
+   `cli_handlers.py:1480-1497`]
 
 ### R1 precondition practical notes
 
@@ -410,7 +410,7 @@ The standard `dev validate-family sram` runner calls `write_cycle_eprom` which i
 
 ### Approach: `dev write-cycle` with FLAG_SKIP_ERASE equivalent or raw write
 
-The `dev write-cycle` command (`cli_handlers.py:1139-1189`) also calls `write_cycle_eprom`.
+The `dev write-cycle` command (`cli_handlers.py:1137-1187`) also calls `write_cycle_eprom`.
 To skip the erase step, the plan needs to use `firestarter write` (which skips blank-check and
 erase when `--no-blank-check` / `-b` is passed) followed by `firestarter read` + `firestarter
 verify`.
@@ -833,7 +833,7 @@ verified by the Tier-1 recording-bus tests (already GREEN) not by new code in th
 
 ### Primary (HIGH confidence)
 
-- `firestarter_app/firestarter/cli_handlers.py:1259-1593` — `dev validate-family` implementation
+- `firestarter_app/firestarter/cli_handlers.py:1257-1591` — `dev validate-family` implementation
 - `firestarter_app/firestarter/eprom_operations.py:766-873` — `write_cycle_eprom` implementation
 - `firestarter_app/tools/validation_matrix_spec.json` — authored matrix spec with rep chips
 - `firestarter/test/native/avr/_shared/host_stubs_common.inc:54-80` — recording bus stub
