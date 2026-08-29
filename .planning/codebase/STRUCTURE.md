@@ -1,20 +1,207 @@
+---
+last_mapped_commit: 3e2f7d89
+last_mapped_at: 2026-08-26T20:42:40.949Z
+mapped_paths: .claude,.devcontainer,.github,.gitignore,.gitmodules,.vscode,CLAUDE.md
+---
 # Structure
 
-**Analysis Date:** 2026-05-08
+**Analysis Date:** 2026-05-08 (submodule sections) / 2026-08-26 (meta-repo sections)
+
+> **Scope note.** The 2026-08-26 remap covered only the meta-repo's own tracked
+> infrastructure (`.claude`, `.devcontainer`, `.github`, `.vscode`, `.gitignore`,
+> `.gitmodules`, `CLAUDE.md`). The `firestarter/` and `firestarter_app/` sections
+> below date from 2026-05-08 and were not re-verified —
+> `[unverified in 2026-08-26 scoped remap]`.
 
 ## Repository Layout
 
-This is a monorepo containing two independent sub-projects — the Python host application and the Arduino firmware — each with their own git history, dependencies, and build system.
+This is **not a monorepo.** It is a **meta-repo with two git submodules**. `.gitmodules`
+declares both code sub-projects as gitlinks pointing at independent GitHub repos:
 
+```ini
+[submodule "firestarter"]      path = firestarter        url = git@github.com:henols/firestarter.git
+[submodule "firestarter_app"]  path = firestarter_app    url = git@github.com:henols/firestarter_app.git
 ```
-firestarter_prom/                    # Monorepo root
-├── firestarter_app/                 # Python host CLI application (pip package)
-└── firestarter/                     # Arduino C++ firmware (PlatformIO project)
+
+The meta-repo itself tracks only planning and agent-tooling artifacts — `.planning/`,
+`.claude/skills/` (hand-authored skills only), `.devcontainer/`, `.github/`, `.vscode/`,
+`tools/`, `CLAUDE.md`, `.gitignore`, `.gitmodules`. Everything else at the root is
+gitignored local state. Evidence: `.gitmodules` (the two gitlinks) and `.gitignore`
+(`.claude/*` with `!.claude/skills/`, plus the generated `platformio.ini`, `.pio/`,
+`graphify-out/`, extra worktrees, and bench artifacts).
+
+Consequence: code changes are committed **inside** the submodule; a meta-repo commit only
+re-pins the gitlink. A fresh git worktree of the meta-repo leaves both submodule
+directories empty.
+
+### Top-level directory tree
+
+```text
+/workspaces/                          # meta-repo root (bind-mounted here in the devcontainer)
+├── .claude/                          # GSD agent runtime — GITIGNORED except skills/
+│   ├── commands/                     #   [ignored] 69 gsd-*.md slash commands
+│   ├── agents/                       #   [ignored] 34 gsd-*.md subagent definitions
+│   ├── gsd-core/                     #   [ignored] workflows, references, templates, bin/
+│   ├── hooks/                        #   [ignored] 18 gsd-* hooks + lib/, registry
+│   ├── scripts/                      #   [ignored] changeset/, lib/, fix-slash-commands.cjs
+│   ├── worktrees/                    #   [ignored] parallel worktree area (empty)
+│   ├── skills/                       #   TRACKED (devtest-triage, devtest-rootcause only)
+│   ├── settings.json                 #   [ignored] shared permission allowlist (95) + autoMode
+│   ├── settings.local.json           #   [ignored] hook wiring, worktree, plugins
+│   ├── gsd-file-manifest.json        #   [ignored] 536 managed files @ 1.6.1, mode "full"
+│   ├── gsd-install-state.json        #   [ignored] schemaVersion 1, 4 migrations
+│   ├── gsd-migration-journal/        #   [ignored] one JSON per applied migration
+│   ├── .gsd-profile                  #   [ignored] "full"
+│   └── package.json                  #   [ignored] {"type":"commonjs"}
+├── .devcontainer/                    # TRACKED — dev environment definition
+│   ├── devcontainer.json             #   mounts, features, containerEnv, postCreateCommand
+│   ├── Dockerfile
+│   ├── devcontainer-lock.json        #   pins the devcontainer features
+│   ├── post-create.sh                #   provisioning: platformio.ini, pip -e, pio pkg, graphify
+│   ├── gen-platformio-ini.py         #   emits the gitignored root platformio.ini
+├── .github/workflows/
+│   └── catalog-sync-check.yml        # TRACKED — the repo's ONLY workflow
+├── .vscode/                          # TRACKED — mostly PlatformIO-generated
+│   ├── c_cpp_properties.json         #   AUTO-GENERATED; /home/henrik/... host paths
+│   ├── launch.json                   #   AUTO-GENERATED; 3 platformio-debug configs (uno)
+│   ├── settings.json                 #   one clang-tidy path (host-specific)
+│   └── extensions.json               #   recommends platformio-ide; unwants cpptools pack
+├── .planning/                        # TRACKED — the durable project record
+├── tools/catalog/messages.toml       # TRACKED — authoritative message catalog (CI-asserted)
+├── CLAUDE.md                         # TRACKED — agent onboarding brief (48 lines)
+├── .gitmodules                       # TRACKED
+├── .gitignore                        # TRACKED
+├── firestarter/                      # SUBMODULE (gitlink) — Arduino firmware
+├── firestarter_app/                  # SUBMODULE (gitlink) — Python host CLI
+│
+│   ── everything below is GITIGNORED local state ──
+├── platformio.ini                    # GENERATED by gen-platformio-ini.py
+├── .pio/                             # PlatformIO build cache
+├── .agents/                          # npx-skills real install dir (skill-creator lives here)
+├── skills-lock.json                  # npx-skills manifest
+├── package.json / package-lock.json  # root tool artifacts
+├── graphify-out/                     # knowledge-graph scratch output (~24 MB cache)
+├── firestarter-runs/                 # dev-diagnostic run output
+├── chip-test/                        # `dev test` reports + onboarding transcripts
+├── consistency-check-* / write-cycle-*  # legacy ungrouped run dirs
+├── firestarter_app_py32/             # extra worktree (never gitlinked)
+├── firestarter_py32_ci/              # extra worktree (never gitlinked)
+├── *.bin                             # raw chip dumps at root (e.g. W29C040.bin)
+├── .mypy_cache/ .pytest_cache/ .ruff_cache/ __pycache__/
+└── scratchpad/
 ```
+
+Also gitignored inside tracked trees: `.planning/graphs/graph.json`,
+`.planning/graphs/.last-build-snapshot.json`, `.planning/research/.cache/`, and everything
+under `.planning/v1.7/**` except `*.md` (raw chat dumps and photo binaries stay local).
+
+---
+
+## Meta-Repo Key File Locations
+
+| Need | File |
+|------|------|
+| Repo layout + cross-repo sync rules | `CLAUDE.md` |
+| Which submodule points where | `.gitmodules` |
+| Tracking policy (and why) | `.gitignore` — heavily commented |
+| Add/modify a slash command | `.claude/commands/gsd-<name>.md` + `.claude/gsd-core/workflows/<name>.md` |
+| Add/modify a subagent | `.claude/agents/gsd-<name>.md` |
+| Deep-dive guidance loaded on demand | `.claude/gsd-core/references/*.md` (94) |
+| Artifact skeletons | `.claude/gsd-core/templates/` (46) |
+| Persona presets | `.claude/gsd-core/contexts/{dev,review,research}.md` |
+| GSD state/query CLI | `.claude/gsd-core/bin/gsd-tools.cjs` (+ `bin/lib/*.cjs`) |
+| Installed GSD version | `.claude/gsd-core/VERSION` (`1.6.1`) |
+| Hook implementations | `.claude/hooks/gsd-*.{js,sh}` |
+| Hook wiring | `.claude/settings.local.json` → `hooks` |
+| Permission allowlist | `.claude/settings.json` → `permissions.allow` (95), `autoMode.allow` (3) |
+| Project-specific skills | `.claude/skills/devtest-triage/`, `.claude/skills/devtest-rootcause/` |
+| Release-note tooling | `.claude/scripts/changeset/cli.cjs` |
+| Discord bridge state | removed 2026-08-26 (commit `3e2f7d89`); a token copy remains at `~/.claude/channels/discord/.env`, outside the repo — **never quote it** |
+| Container definition | `.devcontainer/devcontainer.json`, `.devcontainer/Dockerfile` |
+| Provisioning steps | `.devcontainer/post-create.sh` |
+| Root PlatformIO wrapper generator | `.devcontainer/gen-platformio-ini.py` |
+| CI | `.github/workflows/catalog-sync-check.yml` |
+| Firmware debug launch | `.vscode/launch.json` |
+| Firmware IntelliSense include paths | `.vscode/c_cpp_properties.json` |
+
+### `.planning/` role
+
+Not deep-scanned in this remap. It is the durable, tracked project record that every GSD
+workflow reads and writes: roadmap, state, requirements, per-phase directories, the
+`codebase/` documents (including this file), research output, and the distilled
+`graphs/GRAPH_REPORT.md`. Treat it as the source of truth for project status, and never
+`rm -rf` `firestarter_app/.planning/codebase/` — that submodule keeps its own copy.
+
+---
+
+## Meta-Repo Naming Conventions
+
+**Slash commands** — `.claude/commands/gsd-<verb>-<noun>.md`, kebab-case, always the
+`gsd-` prefix: `gsd-plan-phase.md`, `gsd-map-codebase.md`, `gsd-audit-uat.md`. Namespaced
+clusters use `gsd-ns-<cluster>.md` (`gsd-ns-workflow`, `gsd-ns-context`, `gsd-ns-review`,
+`gsd-ns-project`, `gsd-ns-ideate`, `gsd-ns-manage`). Frontmatter carries `name`,
+`description`, `argument-hint`, `allowed-tools`, `requires`.
+
+**Workflows** — `.claude/gsd-core/workflows/<name>.md`, the command name **without** the
+`gsd-` prefix (`gsd-plan-phase.md` → `plan-phase.md`). A large workflow adds a sibling
+directory of split steps (`execute-phase.md` + `execute-phase/`). A shell fragment uses
+`_<name>.snippet.sh`.
+
+**Agents** — `.claude/agents/gsd-<role>.md`, role as a noun-agent
+(`gsd-planner`, `gsd-executor`, `gsd-verifier`, `gsd-codebase-mapper`,
+`gsd-code-reviewer`, `gsd-security-auditor`).
+
+**References** — `.claude/gsd-core/references/<topic>.md`, kebab-case, frequently prefixed
+by the consumer (`planner-*.md`, `execute-phase-*.md`, `thinking-models-*.md`).
+
+**Hooks** — `.claude/hooks/gsd-<purpose>.js` for Node, `.sh` for bash; shared code in
+`hooks/lib/`. Guards are named `*-guard`, observers `*-monitor`/`*-scanner`.
+
+**Node tooling** — `.cjs` extension for anything under `.claude/gsd-core/bin/` or
+`.claude/scripts/` (`.claude/package.json` declares `{"type":"commonjs"}`).
+
+**Skills** — `.claude/skills/<kebab-case-name>/SKILL.md`, with owned code in
+`scripts/*.py` (snake_case) and test data in `fixtures/*.md`.
+
+**Workflows (CI)** — `.github/workflows/<kebab-case>.yml`; the `name:` is sentence case
+("Catalog sync check"), the job id kebab-case (`sync-check`).
+
+---
+
+## Where to Add New Meta-Repo Code
+
+**A new GSD command:** `.claude/commands/gsd-<name>.md` (dispatch shell) +
+`.claude/gsd-core/workflows/<name>.md` (steps). Note both are gitignored — a durable
+change belongs upstream in the GSD package, not here.
+
+**A new project skill:** `.claude/skills/<name>/SKILL.md`, scripts copied into
+`<name>/scripts/` (never imported from a submodule), fixtures in `<name>/fixtures/`.
+This is the one part of `.claude/` that is tracked and reviewable.
+
+**A new hook:** implement in `.claude/hooks/gsd-<purpose>.{js,sh}` and wire it under
+`.claude/settings.local.json` → `hooks` with a tool matcher. Use the absolute nvm node
+path — node is not on `PATH`.
+
+**A new provisioning step:** append to `.devcontainer/post-create.sh`, idempotently
+(it re-runs on every rebuild). Mounts, features, and env go in `.devcontainer/devcontainer.json`.
+
+**A new CI check:** `.github/workflows/<name>.yml`. Check out only what the job reads;
+do not add `submodules: recursive`; resolve sub-repo refs by branch name with a `beta`
+fallback rather than hardcoding `main`.
+
+**A cross-repo invariant:** the authoritative copy goes in `tools/`, the vendored copies
+in both submodules, and a CI assertion in `.github/workflows/`.
+
+**Firmware/host-app code:** not here. Commit inside `firestarter/` or `firestarter_app/`
+on the milestone branch; the meta-repo only re-pins the gitlink.
+
+---
 
 ---
 
 ## Python Application: `firestarter_app/`
+
+*[unverified in 2026-08-26 scoped remap — submodule contents, out of scope]*
 
 ```
 firestarter_app/
@@ -88,6 +275,8 @@ firestarter_app/
 ---
 
 ## Arduino Firmware: `firestarter/`
+
+*[unverified in 2026-08-26 scoped remap — submodule contents, out of scope]*
 
 ```
 firestarter/
@@ -164,6 +353,8 @@ firestarter/
 
 ## Build Environments
 
+*[unverified in 2026-08-26 scoped remap — submodule contents, out of scope]*
+
 ### Python Application
 - **Python:** 3.9+
 - **Build:** `pip install -e .` (setuptools + setuptools_scm)
@@ -179,6 +370,8 @@ firestarter/
 ---
 
 ## Where to Find Things
+
+*[unverified in 2026-08-26 scoped remap — submodule contents, out of scope]*
 
 | Task | Location |
 |------|----------|
@@ -196,4 +389,5 @@ firestarter/
 
 ---
 
-*Structure analysis: 2026-05-08*
+*Meta-repo structure analysis: 2026-08-26 (scoped remap)*
+*Submodule structure analysis: 2026-05-08*

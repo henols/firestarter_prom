@@ -1,95 +1,130 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.33
-milestone_name: — Source Hygiene & Firmware Size Reduction
-current_phase: 159
-current_phase_name: Citation Remap + Milestone Close — LAST phase of v1.33, milestone CLOSED
-status: milestone-complete
-stopped_at: Milestone v1.33 CLOSED and archived 2026-08-24. Closeout type override_closeout (SWEEP-13 deliberately unticked + 10 pre-existing audit-open carry-forwards, none from v1.33). LOCAL CLOSE ONLY — meta tagged v1.33, nothing pushed, no PR, no merge, no beta cut, no release; all three repos remain on gsd/v1.33-source-hygiene-firmware-size-reduction and every outward-facing step stays operator-gated. REQUIREMENTS.md removed via git rm — recreate with /gsd-new-milestone.
-last_updated: "2026-08-24T20:40:00.000Z"
-last_activity: 2026-08-24
-last_activity_desc: "Quick task 260825-cmt complete -- narrative comments stripped from shipped source and maintenance tooling. Superseded: Milestone v1.33 (Source Hygiene & Firmware Size Reduction) CLOSED and archived 2026-08-24 — 6 phases (154-159), 45 plans, 42/43 requirements Complete; firmware heap-free, Leonardo Caterina headroom 502 B -> 3440 B, 2706 citations remapped across 562 documents in one application; zero product-code behaviour changed."
+milestone: v1.34
+milestone_name: — Pre-Merge Hardware Regression Validation
+current_phase: 162
+current_phase_name: CHIP — 11-Part `dev test` Sweep on the Reference Rig
+status: executing
+stopped_at: Completed 162-06-PLAN.md
+last_updated: "2026-08-28T23:53:59.015Z"
+last_activity: 2026-08-28
+last_activity_desc: Phase 162 execution started
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 45
-  completed_plans: 45
-  percent: 100
+  total_phases: 7
+  completed_phases: 2
+  total_plans: 28
+  completed_plans: 24
+  percent: 29
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-08-22
+**Updated:** 2026-08-25
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-22 — v1.33 started)
+See: `.planning/PROJECT.md` (updated 2026-08-25 — v1.34 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
-authoritative dispatch key end to end. v1.33 does not touch that contract at all: its entire premise is
-byte-level equivalence. **Make the source shorter without changing what it does.**
-**Current focus:** Planning the next milestone — v1.33 is CLOSED.
+authoritative dispatch key end to end. v1.34 does not touch that contract, or any product code, unless
+the bench proves v1.33 broke something. **Prove on silicon that v1.33 changed nothing behavioural, before
+the merge.**
+**Current focus:** Phase 162 — CHIP — 11-Part `dev test` Sweep on the Reference Rig
 
-**v1.33 CLOSED 2026-08-24** by `/gsd-complete-milestone`. All six phases (154–159) complete and
-verified; 42/43 requirements Complete (SWEEP-13 open by design); closeout type `override_closeout`.
+**v1.34 Pre-Merge Hardware Regression Validation** — ACTIVATED 2026-08-25. Phases continue at **160**
+(v1.33 ran 154–159; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
+by-number cross-reference keeps resolving).
+
+**The gate exists because v1.33 has never run on an Arduino.** It shipped **−2938 B flash / −13 B RAM**
+across all three AVR targets on a premise of byte-level equivalence — heap allocator removed (the firmware
+is now heap-free), the 438 B 64-bit runtime dropped, `jsmntok_t` narrowed 8 → 6 B, the `key_parsers[]`
+command-decode table rewritten, handle types narrowed. Every claim is backed by native tests, golden
+traces and cold builds; **none by silicon.** Three PRs are open and unmerged:
+[`prom#43`](https://github.com/henols/firestarter_prom/pull/43),
+[`fw#56`](https://github.com/henols/firestarter/pull/56),
+[`app#54`](https://github.com/henols/firestarter_app/pull/54).
+
+**Five distinct board×shield cells** — Leonardo + Rev 2.0 is the intersection of both sweeps and runs once:
+
+| Cell | Board | Shield | Note |
+|------|-------|--------|------|
+| A1 | Uno (ATmega328P) | Rev 2.0 | |
+| A2 | uno328pb (ATmega328PB) | Rev 2.0 | Write expected red on both arms — Backlog 999.2 |
+| A3/B2 | Leonardo (ATmega32U4) | Rev 2.0 | Shared; the v1.31 reference rig |
+| B1 | Leonardo | Modified Rev 0 | Voltage-divider-retrofitted Rev 1.0 |
+| B3 | Leonardo | Rev 2.2 | R41 = 10 kΩ vs 4k7 on Rev 2.0 |
+
+**A/B per cell, control arm first.** Pre-v1.33 control = the exact merge-bases the v1.33 branches forked
+from: firmware **`8695ee5`**, host app **`6bfa645`** (35 and 7 commits behind their branch HEADs). Two
+chips per arm — **W27C512** (DIP28, `0x07`, 64 KiB) and **W29C020** (DIP32, `0x05`, 256 KiB page-write),
+each a full write → read → verify. **20 W→R→V cycles.** The control arm is the deliverable, not a
+formality: it is the only thing separating "v1.33 broke this" from "this was always broken here." v1.31
+closed with **no comparative claim and no control run** and said so plainly; v1.34 buys the comparison it
+declined to make.
+
+**Chip sweep:** Leonardo + Rev 2.0, `firestarter dev test <chip>` over all 11 v1.15 inventory parts on
+v1.33 firmware — W27C512, W27E512, SST27SF512, W27E040, ST M27C512, SST39SF040, W29C040, W29C020, FM1608,
+AM27C020, 2516. Reports carry `fw_board_identity` since Phase 147, so each is firmware-attributable. A
+control re-run fires only where a result diverges from that chip's recorded v1.15 disposition.
+
+**Failure policy:** every failure gets an evidence row and a root cause; **only v1.33-caused regressions
+are fixed in-milestone.** Pre-existing faults are recorded as known-and-carried, never adopted.
+
+**Known faults declared BEFORE the bench runs** — so a red cell is not misread as a v1.33 break:
+uno328pb cannot finish a program (Backlog **999.2**, chip-PROGRAM brownout); **W27E512** @0x3d and
+**W27E040** @0x7db carry stuck erase bits (D-32, deterministic across reseats); **W29C040**'s §6.6 boot
+block is permanently locked so a full-device verify is physically impossible (CR-01 open since v1.15);
+**AM27C020** is marginal not deterministic (write#1 60/64, write#2 0/64) and cannot arbitrate anything.
+
+**Second deliverable — the Modified Rev 0 rework trace.** That board is on the bench for B1 anyway.
+`.planning/v1.7/MODIFICATIONS.md` has been a stub since v1.7 with **ten** `TBD pending Phase 35` cells in
+`v1.7-SHIELD-REVS.md` §4/§5 — two `Rev 0 → Modified Rev 0` rows of five cells each — blocked all that time
+on operator photos. v1.34 photographs it, traces each cut and jumper against the upstream Rev 0 schematic
+(blob `d2a7f691`), and fills those cells.
+
+**Merge posture: v1.34 does NOT merge.** It closes with a signed-off evidence table and an explicit
+recommendation. Every outward-facing step has been operator-gated since v1.21, and a merge to `beta`
+auto-fires a pre-release cut — not a side effect to trigger from a bench milestone.
+
+**Bench rules that bind every cell** (standing, not v1.34 inventions): verify `controller:` identity per
+port each task — `ttyACM*` numbers shuffle across replug; **chip OUT before sideload on Uno-class only**,
+Leonardo exempt; the operator adjusts the voltage pot himself — state the target, wait, take ONE read, no
+live monitor loops; photographs, multimeter work and chip handling are operator-only, everything else
+Claude drives over USB passthrough; `vpp`/`vpe` monitors do not route to the socket, so a blank or `0x303`
+reading means a contact fault, not a rail fault.
+
+**Declined at activation — three seeds triggered and all three were left planted** to keep v1.34 a
+regression gate rather than a feature milestone: white-box voltage-reading calibration (its
+"accuracy/hardware-focused milestone" trigger fired literally), the Rev 2.2 3-pin header + 2516-family
+support (opportunistic only — its own v1.24 trigger has not fired, and its blocker list needs a new DB
+field, `build_db.py` support and firmware pin-strobe verification), and the per-pin-map jumper table
+(host-only, no bench dependency at all).
+
+**Branch model — a deliberate exception to the fork-off-`beta` rule.** Meta runs on
+`gsd/v1.34-pre-merge-hardware-regression-validation`, forked off the **v1.33 branch tip** (`42a46889`),
+**not** off `beta`: `beta` does not yet carry v1.33's archive, and every v1.34 artifact cites it. All
+three repos still sit on `gsd/v1.33-source-hygiene-firmware-size-reduction` with the PRs open against
+`beta`. **The firmware and host builds under test are the v1.33 PR heads**, not v1.34's own branch,
+because the v1.33 tree is the thing being validated — and RCA-03 fixes are committed on the **v1.33**
+branch, where fw#56 and app#54 point.
+
+**⚠ `gsd-tools query commit` switched branches mid-activation** (2026-08-25). Before `ROADMAP.md` had a
+§v1.34 section there was no prose to scrape, so the verb derived `gsd/v1.34-milestone`, silently moved
+there and landed the first three commits on it; once the roadmap section existed it derived the
+descriptive name and moved back, stranding the todos commit on a tree reverted to v1.33 state. Repaired
+by cherry-pick + branch rename onto the descriptive name — all four commits are in order and there is
+exactly one `gsd/v1.34*` branch. **Check `git branch --show-current` after every `query commit` call.**
+
+**v1.33 Source Hygiene & Firmware Size Reduction** — ✅ **SHIPPED 2026-08-24** (activated 2026-08-22), six
+phases **154–159**, 45 plans, 42/43 requirements (SWEEP-13 open by design), closeout `override_closeout`.
 Archived to [`.planning/milestones/v1.33-ROADMAP.md`](milestones/v1.33-ROADMAP.md) and
 [`.planning/milestones/v1.33-REQUIREMENTS.md`](milestones/v1.33-REQUIREMENTS.md); full entry in
-`.planning/MILESTONES.md` §v1.33. Meta tagged `v1.33`. **⚠ LOCAL CLOSE ONLY — nothing pushed, no PR,
-no merge, no beta cut, no release.** All three repos remain on
-`gsd/v1.33-source-hygiene-firmware-size-reduction`; every outward-facing step stays operator-gated and
-was deliberately untaken. `.planning/REQUIREMENTS.md` was removed via `git rm` so the next milestone
-starts fresh — recreate it with `/gsd-new-milestone`.
-
-**v1.33 Source Hygiene & Firmware Size Reduction** — ✅ **SHIPPED 2026-08-24** (activated 2026-08-22). Six phases,
-**154–159**. Phase 154 is dual-repo lockstep; Phases 155–158 are firmware-only; Phase 159 touches
-`.planning/` only. Retires Backlog **999.34**; files Backlog **999.35** rather than carrying it.
-
-**⚠ The scoping was done on 2026-08-22 by `/gsd-explore` routing, NOT by this activation.**
-`ROADMAP.md` §v1.33 and `REQUIREMENTS.md` (31 requirements — SWEEP / DEAD / DEDUP / DECODE / LAND / REMAP)
-are **hand-authored** and must be **pointed at, never regenerated**: the GSD roadmap/requirements verbs
-normalise whole files and would reformat six phase entries, five D-labels and 31 requirements.
-`phases.clear` was **skipped** — 126 phase directories exist and it hard-deletes them. This activation
-contributed exactly three things: PROJECT.md §"Current Milestone: v1.33", this frontmatter switch, and the
-commits.
-
-**Phases 155–158 are review, decomposition and landing — not greenfield.** The work is **already
-implemented** on firmware branch `size-reduction-survey` (off `8695ee5`), with 11 files modified and
-**uncommitted**, and captured as an applyable patch at
-`.planning/notes/firmware-size-reduction-measured.patch`. Read
-`.planning/notes/firmware-size-reduction-survey.md` before planning any of them. Measured total:
-**−2938 B flash / −13 B RAM on all three AVR targets for a net −2 lines of source**, validated at
-**172/172 native across seven runs** plus `native_nodevtools`. The firmware becomes **heap-free**, and
-Leonardo Caterina headroom goes **502 B → 3440 B (6.9×)** — which matters because v1.32 Phase 151 left that
-target at zero MERGE-05 headroom.
-
-**Five decisions binding on every phase** (full statements in `ROADMAP.md` §v1.33):
-**D-01** Phase 154 sweeps source and *builds* the remap tool; **Phase 159 applies it once** over the
-composite diff — measured, **723** citations would otherwise be remapped twice and 41% of that rework traces
-to four added `#include` lines. **D-02** No success criterion requires a physical board. **D-03** MERGE-05
-is one-sided (`check_size_baseline.py:697` is `if flash_delta > allowance`), so a shrink needs **no** named
-exemption — recorded *as* one-sided so nobody reads the green run as "nothing moved". **D-04** The native
-suite is **load-flaky** (172/172 at ~35 s ×5; 171/172 at 1:13; 158-cases-2-ERRORED at 1:44 — failure tracks
-run *duration*, not tree content) — no phase may blame its own change on N=1. **D-05** The Phase-154→159
-citation staleness is temporary, **marked, and close-blocking** via REMAP-04.
-
-**Two ceilings, stated not buried.** `src/boards/rurp_common.cpp` compiles in **no** native environment
-(`[env:native]`'s `src_filter = +<proms/>`), so the 32-bit voltage reformulation has **no native coverage**
-and Phase 155 must establish a committed numerical oracle. And `check_size_baseline.py` runs in **no CI
-workflow at all** — every gate this milestone leans on is a local-run obligation; its canonical
-`--policy merge05` invocation is **already RED on `beta`** for a pre-existing reason (`native: cases
-baseline=141 observed=172`, BASE-01 frozen at Phase 124's count), failing on case counts before it ever
-reports flash.
-
-**Explicitly OUT of scope: replacing JSON with a binary command protocol** (operator, 2026-08-22) —
-measured **−3728 B flash / −512 B RAM** on `leonardo`, the largest single saving the survey found, and
-deliberately not taken because it is a breaking cross-repo wire change rather than a refactor. Stays queued
-as **v1.28**, filed as Backlog **999.35**. It **overlaps DECODE-01**, so the two figures are **not
-additive**.
-
-**Branch model:** meta on `v1.33-source-hygiene-size-reduction`, forked off local `beta` @ `59a9ff5d`.
-Sub-repos fork off their `beta` tips per phase; the firmware already has `size-reduction-survey` to rename
-or rebase.
+`.planning/MILESTONES.md` §v1.33. Meta tagged `v1.33`. **⚠ LOCAL CLOSE ONLY — nothing pushed, no merge,
+no beta cut, no release**; the three PRs above were opened 2026-08-25 and are what v1.34 gates. Leonardo
+Caterina headroom went **502 B → 3440 B (6.9×)**, which mattered because v1.32 Phase 151 left that target
+at zero MERGE-05 headroom. Retired Backlog **999.34**; filed Backlog **999.35** (binary command protocol)
+rather than carrying it.
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ✅ **SHIPPED 2026-08-21** (activated 2026-08-18, ~~folding Backlog
 **999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
@@ -152,77 +187,79 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 159 (Citation Remap + Milestone Close) — COMPLETE, verified 17/17
-Plan: 6 of 6
-Status: v1.33 phases all complete — awaiting operator-gated `/gsd-complete-milestone`
-Next: **Phase 159 -- Citation Remap + Milestone Close** -- apply the Phase 154 remap tool exactly once over the composite pre-154-to-post-158 diff, then close the milestone. Not yet planned.
-**Plan 158-05 complete (2026-08-24):** BASE-01's native inventory axis re-anchored 141->184 on
-both `native`/`native_nodevtools` (`avr_targets` byte-unchanged; new
-`meta.native_inventory_axis_phase158` note) -- `fix(158-05)` `7894dec` -- flipping the canonical
-`--policy merge05 --baseline size_baseline_base01.json --rebuild` invocation from plan 01's
-recorded exit 1 (two `cases baseline=141 observed=184` lines) to exit 0 with a full `PASS:` line.
-`test_checker_convention.py`'s named carry-forward closed as a tightening, not a repair:
-`FLOOR` 7->8, `FIXTURE_FLOOR` 16->31, both counted on the tree (`test(158-05)` `5dca69d`), with a
-non-vacuity probe (`FIXTURE_FLOOR=32` fails with `assert 31 >= 32`) recorded then reverted. Two
-in-tree docstrings (`test_check_size_baseline.py`, `meta_presence.py`) corrected, comment-only,
-to state the checker's own pytest suite DOES run in CI via `build.yml:161` on every branch except
-`beta` (`docs(158-05)` `2ccda8d`), verified by an AST-diff with docstrings stripped showing zero
-assertion/import/constant/def changes. `python3 -m pytest tests/ -q -o addopts=""` green (360
-passed, 0 skipped) after each of the three commits. See `158-05-SUMMARY.md`.
-**Stopped at:** Phase 158 complete and verified 8/8 -- jsmntok_t narrowed 8->6 B on AVR for a measured -138/-138/-136 B flash and -128 B RAM cold-to-cold on uno/uno328pb/leonardo (the ROADMAP's +30 B flash prediction superseded, C-2); size_baseline.json re-recorded cold (22952/1434, 23000/1440, 25098/1875, native+native_nodevtools 184/184/17) with fixtures severed onto the *_v158* family; BASE-01 fixed on a third native test-inventory axis 141->184 with its growth axis byte-unchanged; LAND-06's mask rewrite DECLINED with the measurement (+22/+24/+22 B flash, no linkage saving); LAND-07's 57-tokens/7-headroom figure refuted by three re-derived bounds (50/14, 51/13, 55/9) and closed on the forward-compatibility budget, not arithmetic. Thirteen corrections C-1..C-13 and ten decisions OD-1..OD-10 closed in .planning/v1.33/158-after-figures.md. Firmware HEAD 2ccda8d; 360 pytest + 184/184 native + 184/184 native_nodevtools green.
-**Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
-as a compiler-derived `{key, clamp, offset, width}` `field_desc_t` table (`19df431`), replacing the
-PROGMEM function-pointer column and its ten dispatch stubs (`get_memory_size`, `get_address`,
-`get_chip_id`, `get_pin_count`, `get_delay`, `get_vpp_mv`, `get_algorithm`, `get_read_settling`,
-`get_read_strobe`, `get_page_size`) with one shared, inlined `store_field`. `offset`/`width` are
-compiler-derived (`offsetof`/`sizeof`), never a literal; twelve `_Static_assert` guards stand
-behind the raw `memcpy` and were PROVEN to fire against two planted negatives (a struct reorder, a
-duplicated table row) in a throwaway `git worktree`, discarded before the task ended. `ctrl_flags`
-uses `FIELD_MASK` (mask semantics, OD-1) rather than saturating; `get_flags` now references
-`key_flags` directly (OD-3), and one key-string block survives on all three AVR targets --
-re-measured, not merely re-derived. Measured flash delta, RAM unchanged: `uno` 24234->23350
-(-884 B), `uno328pb` 24282->23398 (-884 B), `leonardo` 26378->25494 (-884 B); the 6 B divergence
-from the reference's -890 B is attributed to OD-1's policy column (C-19), not chased by editing
-code. Both native envs still 172/172, both local check scripts pass, and `firestarter_app`'s host
-wire-key parity gate reports 24 passed with zero host files touched. Next: plan 157-03 (the
-`protocol`/`ctrl_flags` type narrowing, DECODE-04).
+Phase: 166 (CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger) — MILESTONE CLOSED
+Plan: n/a — v1.34 closed early by operator direction 2026-08-29
+Status: CLOSED (scope-reduced). Phases 160/161 complete; 162 PARTIAL at 5 of 11 chips; 163 SHIELD and 164 REV0 NOT RUN; 165/166 discharged on the evidence that exists. Full scope statement, evidence table, merge recommendation and honesty ledger in `.planning/v1.34/CLOSE-RECORD.md`. Verdict: MERGE WITH CAVEATS. Six findings filed as backlog 999.37–999.42.
+**SAFETY (end of plan 161-05, 2026-08-27): cell A3/B2 CLOSED — ALL TWELVE SWEEP POSITIONS OF PHASE 161 NOW EXIST. The Leonardo (Rev 2.0 shield mounted) is CONNECTED at `/dev/ttyACM0` (`2341:8036`), W27C512 (DIP28) SEATED (the only cell in the phase ending with a chip in), v1.33 arm flashed (fw `5759dc8d`), gitlink clean. Pot NOT adjusted since P-06's ruling — firmware reads 12.3V, a multimeter simultaneously reads 11.44V (in band per eprom.cpp:713/:736, target window 11.4-12.5V). DO NOT "correct" the pot down toward 12.0V against the firmware's own reading — the on-board ADC reads roughly 7.5% HIGH (see HEADLINE below), so a firmware-chasing correction would drive the REAL rail toward ~11.2V and make the rig worse while looking like a fix. If a future session needs a different real rail, set it from a multimeter reading, never from the firmware's own vpp figure.** All four A3/B2 positions (`A3-B2__{control,v133}__{w27c512,w29c020}`) are `validated` — clean SHA-judged matches, including two N=3-stable v1.33 reads (`distinct_read_shas=1` on both) — appended to `EVIDENCE.jsonl`, `run_gates.sh` 12/12 selftests + 5/5 live gates exit 0, `gate_record.py` 0 violations. **HEADLINE FINDING, ESCALATED BEYOND A2: the VPP ADC error is RATIOMETRIC (~+7.5%, range 6.8-8.3%), consistent with (not proven as) a shield-wide gain/divider fault rather than a board-specific EEPROM miscalibration** — three paired firmware-vs-meter readings across two independently-calibrated boards (A2 uno328pb 12.5/11.70; this Leonardo 12.9-13.0/12.00 and 12.3/11.44) all cluster near the same ratio. This REVISES A2's leading low-VPP hypothesis for its four write failures: if the error is shield-wide, A1's firmware 12.0V also meant a real rail near ~11.0-11.2V, and A1 PASSED all four positions there — substantially weakening low-VPP as A2's explanation. Full reasoning in `bench/cells/A3-B2/POT.md`, `CELL.md`, and `161-05-SUMMARY.md`; `161-04-SUMMARY.md` is NOT edited, this is a forward supersession for Phase 165. **The N=3 read-instability question from A2 position 3 (same physical W27C512, same v133 arm, 3 distinct SHAs there, escalation blocked/UNDETERMINED) got a relevant but non-resolving data point here: this cell's same arm/chip pairing read perfectly STABLE on a different board** — points away from the chip, toward the uno328pb or its state; still UNDETERMINED for A2 itself. **`~/.firestarter/config.json` CHANGED again (mtime only, content byte-identical to baseline)** — a THIRD recurrence of the same P-H1 finding (A1, A2, now A3/B2), not fixed here (D-16 boundary, handed to Phase 165). **The shared W27C512's condition caveat (never assessed across eight handlings in A1/A2) is now CLOSED** — operator inspection at handling nine reported "nothing looks of[f]"; this is a visual check, not a measurement, and is NOT retroactive clearance for A2's own `0x303` fault. **Treat every recorded node in this file as a hint, never an identity** — re-derive per task from the descriptor or a `controller:`/signature probe; nodes have shuffled multiple times this phase.
+Last activity: 2026-08-29 — v1.34 closed; the three v1.33 PRs merged to beta by operator direction
+Next: **v1.34 is closed.** The three v1.33 PRs are MERGED to `beta` — firestarter #56 (merge commit `01be7885`), firestarter_app #54 (`db262331`), firestarter_prom #43 (`ee562a03`); meta's beta gitlinks now read fw `a218b4f` / app `cb189a9`, and each merge fires its own beta pre-release cut. NO sub-repo tag and NO stable release were made — those remain operator-gated. Outstanding: this v1.34 meta branch still needs to reach `beta` (close tail cannot fast-forward onto meta's beta — open a PR, never push). The bench rig is left assembled: Leonardo on `/dev/ttyACM0` carrying the **v133 arm** (`5759dc8`, read-back judged), W27C040 seated and blank, pot untouched — note that arm image does NOT contain the blank-check fix. Resuming the unfinished sweep is backlog **999.42**.
 
-Last activity: 2026-08-24 — Phase 159 complete and verified 17/17
+## Roadmap Summary (v1.34)
 
-**The manifest is on disk and committed, and it is the point of no return for Phase 159.**
-`.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents
-against a **171**-file candidate set, generated at the pre-sweep shas `firestarter 8695ee5` /
-`firestarter_app 6bfa645` (both written into its own header record). **10,445** records target a candidate
-swept file (10,169 occurrence-equivalent, vs the pre-registered **10,054**, +1.1%); **7,249** are shifting
-(7,076 vs the recorded **6,939**). It cannot be regenerated after the sweep — the pre-sweep
-`(target_line, source_text)` pairs exist nowhere on disk once the sweep lands. Reconciliation, per-variant
-and per-resolution counts, and the Ruling B answer:
-`.planning/v1.33/sweep-citation-manifest-report.md`.
+**Created:** 2026-08-25 by `gsd-roadmapper`. **No `research/SUMMARY.md` for this milestone** — project-level
+research was skipped at activation (operator decision, 2026-08-25): v1.34 adds no features, so the four
+generic project researchers had nothing to research.
 
-**Three things a later plan must not re-litigate.** (1) `.planning/v1.33/tools/citation_paths.py` is the
-**single** resolver, imported by both the generator and plan 05's `remap_citations.py`, so the same citation
-cannot resolve two different ways — do not re-implement resolution in the remapper. (2) ~~Every record is `retarget: false` and the field exists **to be flipped** in plan 12~~ — **DONE 2026-08-23 by plan 12: 815 rows flipped to `retarget: true`, in place, with five declared added keys and no schema re-emission.** `target_line` was deliberately **not** advanced: every row keeps its pre-154 anchor, because Phase 159 maps a composite pre-154 -> post-158 diff and a row advanced to post-154 while its 12,877 siblings stayed pre-154 would be silently mis-mapped; the hand-chosen target lives in `retarget_new_line`. (3) The manifest's `source_text` convention is
-"without the line terminator, compare against `splitlines()`", and an unreadable endpoint carries the
-`<UNREADABLE>` sentinel with `text_status` saying why — Phase 159's oracle must skip a non-`read` row **by
-name**, never treat it as a match.
+**Authored into a separate file and spliced by hand.** `ROADMAP.md` is 4,595 lines carrying every prior
+milestone and its §v1.33 section is marked never-regenerate, so the roadmapper was forbidden from writing
+`ROADMAP.md` or `STATE.md` directly. Verified after splice: **174 insertions, 0 deletions**, two pure-addition
+hunks; `STATE.md` byte-identical through the roadmapper's run; `REQUIREMENTS.md` diff confined to
+`## Traceability`.
 
-**Detail.** Phase 154 was discussed and planned on 2026-08-23 (12 plans, 5 waves) and its phase directory
-exists. Its `SWEEP-01…NN` placeholder resolved to **13** requirements, now carried in `REQUIREMENTS.md` §1;
-the other 30 (DEAD / DEDUP / DECODE / LAND / REMAP) were already written. **Was:** not yet discussed,
-planned or given a directory, with SWEEP-01…NN deliberately UNSET pending `/gsd-discuss-phase 154`.
+**Phases:** 7 (**160–166**). Numbering continues from v1.33's 154–159; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving.
+**Coverage:** 31 requirements, all mapped, 0 orphans, 0 duplicates.
 
-**Branch posture — settled 2026-08-23 by Plan 154-01.** All three repos are on
-`gsd/v1.33-source-hygiene-firmware-size-reduction`, each forked off its own `beta`: meta @ `717757f`,
-`firestarter` @ `8695ee5` (`FW_PRE_SHA`), `firestarter_app` @ `6bfa645` (`APP_PRE_SHA`). The firmware
-tree's 11 uncommitted files were **committed, not discarded**, onto
-`wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8`, then proven byte-identical to `beta` +
-`.planning/notes/firmware-size-reduction-measured.patch` by an **empty** recursive tree diff **before** the
-tree stopped being dirty. No `reset --hard`, `clean`, `checkout --` or `stash` ran. **That branch is the
-only ref carrying Phases 155-158's implemented work — do not delete or force-update it during v1.33.**
-All anchors and every pre-sweep number: `.planning/v1.33/baseline-pre-sweep.md`. **Was:** meta on
-`v1.33-source-hygiene-size-reduction` off local `beta` @ `59a9ff5d`; `firestarter` on
-`size-reduction-survey` @ `8695ee5` with 11 files modified and uncommitted; `firestarter_app` still on
-`beta`.
+| # | Phase | Requirements | Depends on |
+|---|-------|--------------|------------|
+| 160 | RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure | RIG-01…05 (5) | — |
+| 161 | BOARD — Board Sweep, Three Boards on Rev 2.0 (12 positions) | BOARD-01…04 (4) | 160 |
+| 162 | CHIP — 11-Part `dev test` Sweep on the Reference Rig | CHIP-01…05 (5) | 161 |
+| 163 | SHIELD — Shield Sweep, Three Shields on the Leonardo (8 positions) | SHIELD-01…04 (4) | 161, 162 |
+| 164 | REV0 — Modified Rev 0 Rework Trace | REV0-01…03 (3) | 163 (cell B1) |
+| 165 | RCA — Regression Triage, Root Cause & PR-Branch Fix | RCA-01…05 (5) | 161, 162, 163 |
+| 166 | CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger | CLOSE-01…05 (5) | 160–165 |
+
+**Three ordering decisions, made for bench economy rather than narrative tidiness:**
+
+**O-1 — CHIP sits at 162, between the two sweeps.** Phase 161's last cell (A3/B2) leaves the Leonardo +
+Rev 2.0 rig assembled *and carrying the v1.33 arm* — exactly CHIP-01's required configuration — so the
+11-part sweep runs with no reconfiguration and no re-flash, and the Rev 2.0 shield comes off exactly once.
+Every physical reconfiguration on this bench costs a re-verified `controller:` identity and a re-declared
+shield revision. RCA is unaffected: it still follows all three sweeps.
+
+**O-2 — Cell A3/B2 executes in Phase 161; Phase 163 cites it.** SHIELD-03 is mapped to 163 deliberately —
+the requirement's content is the *non-duplication and citation* obligation, which is the shield phase's to
+discharge. Criterion 5 of 161 and criterion 2 of 163 are a matched pair: milestone-wide, exactly one result
+row and one duration figure per (arm × chip) position bearing the `A3/B2` id.
+
+**O-3 — Phase 163 runs B3 (Rev 2.2) first, then B1 (Modified Rev 0).** B1 last means the Modified Rev 0
+board is the final shield on the bench and stays out for Phase 164's operator-only photography with no
+re-mount.
+
+**Two findings surfaced during criteria derivation, both verified against the tree:**
+
+**F-1 — the "six TBD rows" figure was wrong.** `v1.7-SHIELD-REVS.md` carries the `TBD pending Phase 35`
+sentinel across **two** `Rev 0 → Modified Rev 0` rows of **five cells each — ten cells**, plus one prose
+mention at §4. Corrected 2026-08-25 in `REQUIREMENTS.md` (REV0-03), `PROJECT.md`, this file and the roadmap
+section. Phase 164 criterion 4 still re-measures at phase start rather than trusting the planning text.
+
+**F-2 — `MODIFICATIONS.md` carries a standing 2026-06-01 correction notice** recording that **no Modified
+Rev 0 physical inspection has ever occurred** — the 2026-06-01 session believed it was on that board and was
+actually on a Rev 2.0. The file's own §Board identity note states Modified Rev 0 decodes mid-band as
+`Rev 2.3`, and that a `Rev 2.0-class` reading means the board is **not** the Modified Rev 0. So Phase 163's
+B1 ADC reading becomes an independent identity falsifier, quoted into `MODIFICATIONS.md` by Phase 164
+criterion 3. The same fact sharpens SHIELD-04: Rev 2.2 also carries R41 = 10 kΩ, so a label collision
+between two physically distinct shields is live — criterion 3 requires the **raw** reading, not only the
+decoded label, plus an explicit statement if the plumbing cannot separate them.
+
+**Criteria are written to be falsifiable, not narrated.** RIG-01 requires the flash-verification oracle be
+**proven able to fail** — a deliberate wrong-arm flash during bring-up must be detected and recorded as
+detected — so no later cell rests on an oracle only ever seen green. RCA-02 rejects any root cause that
+stops at "v1.33" or "the size reduction". CLOSE-04 requires pasted command output, not an assertion, that
+no merge, push, tag, beta cut or release occurred.
+
+**Full phase detail:** `.planning/ROADMAP.md` §v1.34.
 
 ## Roadmap Summary (v1.33)
 
@@ -1674,6 +1711,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - `fold-response-code-into-log-macro.md` (medium) — captured during v1.22; blocked on Phase 117 (shares `eeprom_28c.cpp`).
 - `2026-08-05-dev-test-issue-triage-diagnosis-skill.md` (tooling) — skill to triage community `dev test` issues: analyse the report, diagnose against the datasheet/DB/ledger, comment, close passes into a tested-good IC list. Captured during v1.30; needs discuss-phase (datasheet corpus is 3 PDFs; outward-facing comment/close needs a structural gate).
 - `2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md` (general) — strip ~646 GSD provenance comments across 167 files in both sub-repos, condensing the load-bearing ones (notably `database.py`'s Phase 121/153 REVERSAL RECORD). Captured during v1.32; **filed as Backlog 999.34, ⭐ promote first into the next milestone**; needs discuss-phase — ~20 host gates scan firmware source and fail open, and 6,939 `.planning/` `file:LINE` citations shift. **Operator decided 2026-08-22: repair the citations, archives included — scripted remap committed atomically with the source edit, verified by a before/after round-trip on the cited text.**
+- `2026-08-27-safe-state-outputs-on-powerup-and-fault.md` (firmware) — operator requirement captured during the v1.34 bench campaign: outputs/pins must be driven to a safe state ASAP on power-up and on ANY fault, not only via the 1 s `TIMEOUT_MS` poll in `loop()`. Three concrete gaps found at fw `5759dc8`: Leonardo's `rurp_board_setup()` omits the `chip_disable`/`chip_input`/register-zero that the Uno path does; `setup()` runs config load + hw-revision detect BEFORE safing the pins; and the dirty-path teardown is reachable only between commands. Needs discuss-phase.
 
 ### Quick Tasks Completed
 
@@ -2530,6 +2568,51 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 158-05: test_checker_convention.py FLOOR/FIXTURE_FLOOR floors raised 7/16 -> 8/31 as a tightening of a loose gate, both counted on the tree; carry-forward closed
 - [Phase ?]: 158-05: corrected two in-tree docstrings (test_check_size_baseline.py, meta_presence.py) that falsely claimed no CI leg runs the checker's own pytest suite -- build.yml:161 does, on every branch except beta
 - [Phase ?]: 158-06: LAND-06's mask-cost figures transcribed from plan 03's SUMMARY (mask exists in no committed tree); the two re-derivable probes (__udivmodsi4 call count, jsmntok_t sizeof) re-run and confirmed identical on the shipped tree
+- [Phase 160]: Task 2 checkpoint: operator approved all six [SUS] transitive deps (click, pyserial, requests, rich, tqdm, packaging) verbatim 'Approved' — pre-existing pyproject.toml floors, none held
+- [Phase 160]: Config dir seeded via ConfigManager.set_value() API directly, not CLI — every firestarter subcommand that persists state requires a live serial handshake and no board is attached
+- [Phase 160]: Dependency-set equality (Pitfall 8) measured with 'uv pip freeze --python <venv>' not 'python -m pip freeze' — uv venv 0.12.6 installs no pip module
+- [Phase 160-03]: gen_addr_image.py keeps the Phase 145 sys.exit(main(sys.argv)) entry point; --stamp-width/--decode are hand-parsed, not argparse — rig-pins.json pins this file as the one documented exception to the sys.exit(main()) convention
+- [Phase 160-03]: check_arms.py measures the CLI surface by importing each arm's live Click app from its own venv, not by static AST — six @dev.command blocks are registered conditionally under the channel gate; a live import reflects the true runtime-registered set (25 entries both arms, zero set difference)
+- [Phase 160-03]: Help-text diff between the two arms measured empty; investigated the 'restore Click docstrings' commit and confirmed it restores text the control arm already carries — avoids asserting a research-flagged risk away without checking it
+- [Phase 160-03]: config-dir content-SHA algorithm reverse-engineered by matching four candidate schemes against the recorded 160-01 value; canonicalized in check_arms.py's compute_config_dir_sha() — the exact byte sequence was underspecified upstream; later plans should reuse this function rather than re-deriving it
+- [Phase 160-04]: board identity comes from a phase-owned avrdude signature probe, never a firmware handshake -- probe_board.py reuses the pending todo's two bench-verified parse routes and refuses when neither parses or the mcu mismatches
+- [Phase 160-04]: capture_provenance.py's __file__ probe is kept as a local literal copy (not delegated to check_arms.py) so the -P flag is textually present in this tool's own source, per this plan's acceptance criteria; the other host-arm probes (git HEAD, porcelain, config-dir SHA, interpreter, dep freeze) are reused from check_arms.py
+- [Phase 160-04]: gate_record.py reads its required-field list and outcome domain from a _schema block embedded in the record under examination (both --cell and --jsonl modes), rather than from a module constant, so the gate's correctness does not depend on staying in sync with a schema a later plan settles on
+- [Phase 160]: judge_wrv.py's incomplete-read-set is triggered by app_verdict==2 or read_count==0, never by comparing against a tracked expected N -- neither the plan's frozen flag list nor its verdict-key list carries an expected-count field
+- [Phase 160]: verdict_disagreement in judge_wrv.py is one uniform XOR of (app_verdict==0) vs (sha_verdict_judged=='match') across all four verdict states, not a hand-enumerated per-state table
+- [Phase ?]: Control arm's hex spans diverge from size_baseline.json (pre-Phase-158 tree); recorded and named rather than reconciled
+- [Phase ?]: check_rebuild.py decouples --images (candidate) from --expect (reference manifest + sibling original file) so one tool serves both self-check and rebuild-verification without a rebuild-invoking flag
+- [Phase 160]: PROCEDURE.md P-04 flashes via an in-place firmware checkout (git checkout <fw_sha> in /workspaces/firestarter), not a second firmware worktree -- mitigated by recording the post-checkout fw_sha + empty porcelain check, same class of mitigation D-08 applies to the host app
+- [Phase 160]: render_steps.py flattens each step's full body (not just its heading) into its emitted render line, so literal command-shape tokens like $ARM_BIN are visible in the diffed output rather than only in prose the gate never touches
+- [Phase 160]: EVIDENCE.jsonl header carries both outcome_domain (D-15 pinned name) and outcome_values (gate_record.py's actual field name), identical two-value lists — Without outcome_values, gate_record.py --jsonl would flag every future row's outcome field as unjudgeable the moment Phase 161 appends its first row
+- [Phase 160]: run_gates.sh's tool-advertises-a-selftest check greps for the literal double-quoted argparse token "--selftest", not a loose substring — A fixture docstring merely mentioning --selftest in prose was wrongly treated as advertising the mode by a looser grep during this plan's own red-leg authoring
+- [Phase 160]: Resolved rig-pins.json's arm-agnostic hex_span_expected by adding a per-arm hex_span_expected_by_arm map (all three targets); BUILD-MANIFEST.json's per-image hex_span is authoritative. — The plan's own task 2 acceptance criterion and rig-pins.json's flat hex_span_expected both stated the v133 arm's uno span (22952 B) for a quantity that is genuinely arm-dependent (control's own span is 26026 B); judge_readback.py's cross-check would have rejected a correctly-flashed control-arm read-back.
+- [Phase 160]: gate_record.py's check_commands had no allowance for git as an argv0; added git_binary to rig-pins.json and to gate_record.py's allowed set. — PROCEDURE.md's P-04 mandates recording the firmware-arm git checkout in every cell's commands field, which every future EVIDENCE.jsonl row would have failed against gate_record.py without this fix.
+- [Phase 160]: capture_provenance.py's two-phase --pending-readback/--patch-readback split proves RIG-02's before-any-test-step ordering via log timestamps rather than a hardcoded step constant
+- [Phase 160]: The vpp CLI's single confirming reading is the FIRST sample of one invocation, never a second launch -- the command has no single-shot exit mode and exposing one would be a host-app source change outside this phase's D-16 boundary
+- [Phase 160-12]: RIG-04's write-read-verify oracle exercised on real silicon (BRINGUP-wrv, W27C512): clean full-device SHA match, judge_wrv.py's SHA verdict AND dev consistency-check's own exit-code verdict AGREE (verdict_disagreement=false) -- this run did not need to exercise the Pitfall-6 false-green path, only prove the judge works on real reads
+- [Phase 160-12]: 160-12-PLAN.md's own Task 2 second verify leg greps logs for the literal string "consistency-check" (hyphenated), but the app's real printed verdict-block string is "Consistency check: PASS" (capitalized, spaced) -- a plan-authoring defect of the measurement-trap class named for plans 08-10's span literals. Corrected, case-insensitive assertion run instead; no measurement was adjusted to force a green, only the check's own pattern
+- [Phase 160-12]: ~/.firestarter was found to exist at this plan's P-11 teardown check (a P-H1 rig finding standing bench rule 9 itself predicts) -- traced circumstantially (timing + content correlation, not a proven trace) to an unlogged, shell-timeout-killed first `vpp` invocation in plan 11 task 3. This plan's own two chip-facing invocations both set FIRESTARTER_CONFIG_DIR inline and never touched it (mtime unchanged all session); the FROZEN FIRESTARTER_CONFIG_DIR is independently confirmed unchanged (check_arms.py --expect-config-sha exit 0, D-07 holds). Removal was attempted and denied by this session's sandbox (home-directory deletion outside the repo) -- recorded as an open item rather than hidden, not fixed in-session
+- [Phase 160-13]: D-17's fresh-context reconstruction was performed by spawning a genuinely separate, tool-less `claude -p` subprocess per round (no shared conversation history, no filesystem/web tools via --disallowedTools, isolated cwd outside /workspaces so no CLAUDE.md/auto-memory loaded), given only the two documents pasted verbatim into a one-shot prompt -- the separation mechanism itself is named in RECONSTRUCTION.md because the property being tested is exactly what a party holding nothing else can rebuild
+- [Phase 160-13]: Round 1's record insufficiency (provenance.json never carried image_mask/image_stamp_width/image_sha, though EVIDENCE.jsonl's own later-stage record already carried the identical values under the same field names) was fixed at capture_provenance.py itself (RECORD_KEYS +3, a resolve_image_plan_fields() lookup against bench/IMAGE-PLAN.json requiring zero device I/O, and a new --patch-image-plan retrofit mode) rather than by hand-patching the JSON -- BRINGUP-wrv's record was re-captured via that mode with a 3-line-added diff and nothing else touched
+- [Phase 160-13]: Round 2's prescription ambiguity (PROCEDURE.md's P-11 teardown re-probe had prose but no literal command block, unlike every other step) was fixed by amending PROCEDURE.md itself (Amendment 2) rather than accepting the reconstruction's guessed output path -- render_steps.py's arm-agnostic empty-diff gate was re-confirmed empty after the edit since probe_board.py carries no $ARM_BIN token
+- [Phase 160-13]: A second, distinct finding surfaced by the same reconstruction (not fixed, disclosed): BRINGUP-wrv's own actual P-11 teardown (plan 12) never re-ran probe_board.py at all, only the config-dir check -- a genuine compliance gap against the (pre-amendment) prescription, not backfilled now because doing so would require an avrdude signature probe against a board this plan's own constraints forbid touching while a chip is seated
+- [Phase 160-13]: PHASE-160-GATE.md's operator sign-off records that every non-claim and carried-forward item was explicitly PRESENTED and explicitly ACCEPTED by the operator's own verbatim response ("Approved -- close Phase 160"), not merely disclosed in a document -- sections 1-7 of the gate document are unchanged from the version reviewed; only the header and the sign-off section were updated in place to record the approval
+- [Phase 160-13]: RIG-05 marked Complete on this plan's own two-part discharge (the script gate from plan 04/07 proving the record is complete, PLUS this plan's fresh-context reconstruction proving the record is sufficient) -- all five phase requirements (RIG-01...05) are now Complete; phase-level completion and Phase 161's unlock are left to the orchestrator, not recorded here
+- [Phase ?]: append_evidence.py's build_row() split into validate_position()+build_row() (not a single (row,violations) tuple) so the selftest can exercise cross-checks and pure assembly independently
+- [Phase ?]: PROCEDURE.md Amendment 3: evidence-append moves from P-11 into P-07/P-09 (D-06), P-11 gains a cell-agnostic leave-state declaration (D-12), per-position paths become $POSITION_ID-keyed under $CELL_DIR/reads/$POSITION_ID/ (PD-1), and the ~/.firestarter teardown assertion is restated to unchanged-from-baseline since it is a known Phase 160 carry-forward
+- [Phase ?]: 162-01: rig-pins.json chips map derived from v1.33 arm DB by script (PD-4), cross-checked against RESEARCH R7 with zero disagreement
+- [Phase ?]: 162-01: capture_provenance.py's _CHIP_CHOICES derived from rig-pins.json at import time, never a duplicated literal; --pins override does not affect the argparse gate
+- [Phase ?]: 162-01: FM1608 vcc_mv:3300 classified as a pre-existing build_db.py decode gap (ordering interaction between _PHASE84_RELABEL and the SRAM vcc-vdd correction), filed as backlog, not fixed
+- [Phase ?]: 162-02: Rule 2 deviation — added family_label to rig-pins.json chips[*] via v1.16 PROTOCOL-LEDGER.json bucket->proposed_name lookup
+- [Phase ?]: 162-02: copy-out 'assert pristine before' reinterpreted as move-aside-then-restore of the position's own expected report files (OS temp dir, not a same-directory rename) around one unmodified check_arms.compute_config_dir_sha() call
+- [Phase ?]: 162-02: added --arms-provenance CLI flag (not in the plan's enumerated list) as the source of the pristine config_dir_sha pin, matching check_arms.py's own documented convention
+- [Phase ?]: 162-03: row partition driven from _schema.primary_arm + record_keys' named_absence column, no literal fallback (control rows identified as arm != primary_arm rather than a literal 'control' comparison)
+- [Phase ?]: 162-03: run_gates.sh gates CHIP-EVIDENCE.md/.jsonl on every wave — suite measured at 14/14 tool selftests, 7/7 live gates, exit 0; negative control (one-byte drift) observed to fire and recover
+- [Phase 162]: render_steps.py generalised to --section {P,C}, defaulting to P for byte-identical existing behavior, so PROCEDURE.md's new Chip-sweep step list (C-01..C-09) gets its own gated arm-agnosticism check inside the existing run_gates.sh gate (no eighth gate).
+- [Phase 162]: PROCEDURE.md Amendment 4: two cell shapes named explicitly (WRV vs chip-sweep), five P steps shared by reference, six named not-applicable, and the stale ~/.firestarter mtime baseline re-pinned inside P-11 (fourth recurrence) so no chip-sweep position books a false P-H1 halt.
+- [Phase ?]: append_chip_evidence.py's vpp_firmware_mv derivation was silently reading not-measured on every real chip-sweep position (console-log scrape never matches dev test's own output); fixed to read report.voltage.vpp_before_mv directly, and positions 1-2's already-committed rows were re-derived through the same fix after an initial wrong scope call was reversed
+- [Phase ?]: FM1608's phase-plan-pre-booked diverges verdict (D-03) was overridden live by the operator ruling: dev test ran alone first, returned OK, so the row is same/validated with zero flashes and zero control arbitration -- the second live override of a plan pre-booking in this sweep
 
 ## Performance Metrics
 
@@ -2875,11 +2958,31 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 158 P04 | 40min | 3 tasks | 8 files |
 | Phase 158 P05 | 35min | 3 tasks | 4 files |
 | Phase 158 P06 | 55min | 2 tasks | 1 files |
+| Phase 160 P01 | 22min | 3 tasks | 6 files |
+| Phase 160 P03 | 62min | 3 tasks | 5 files |
+| Phase 160 P04 | ~55min | 3 tasks | 3 files |
+| Phase 160 P05 | 50min | 3 tasks | 3 files |
+| Phase 160 P02 | 50min | 3 tasks | 10 files |
+| Phase 160 P06 | 65min | 2 tasks | 3 files |
+| Phase 160 P07 | 70min | 3 tasks | 4 files |
+| Phase 160 P08 | ~2h | 3 tasks | 35 files |
+| Phase 160 P09 | 23min | 3 tasks | 26 files |
+| Phase 160 P10 | ~20min | 3 tasks | 31 files |
+| Phase 160 P11 | 39min | 3 tasks | 29 files |
+| Phase 160 P12 | 24min | 3 tasks | 17 files |
+| Phase 160 P13 | ~100min | 3 tasks (task 3 a checkpoint, operator-approved) | 3-round fresh-context reconstruction, capture_provenance.py extended, PROCEDURE.md amended, validation map (38 rows) filled, PHASE-160-GATE.md assembled and signed off |
+| Phase 161 P01 | 55min | 3 tasks | 2 files |
+| Phase 162 P01 | 45min | 3 tasks | 7 files |
+| Phase 162 P02 | 33min | 2 tasks | 3 files |
+| Phase 162 P03 | 45min | 2 tasks | 3 files |
+| Phase 162 P04 | 20min | 3 tasks | 3 files |
+| Phase 162 P06 | 45m | 4 tasks | 34 files |
 
 ## Session
 
-**Last session:** 2026-08-24T11:23:26.546Z
-**Stopped at:** **PHASE 158 COMPLETE and VERIFIED 8/8.** LAND-05 landed: `jsmntok_t` narrowed 8 -> 6 B on AVR with
+**Last session:** 2026-08-28T23:53:58.959Z
+**Stopped at:** Completed 162-06-PLAN.md
+**Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
