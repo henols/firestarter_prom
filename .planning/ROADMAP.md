@@ -4672,6 +4672,64 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog)
 
+
+### Phase 999.37: 64 KiB `Empty input` occurrences during `dev test` — unexplained, NOT covered by the v1.34 blank-check fix (BACKLOG — filed 2026-08-29 at the v1.34 close)
+
+**Goal:** Explain, or affirmatively rule out, the `ERROR: Empty input` (`MSG_ERR_EMPTY_INPUT`, 164/0xA4) text that appeared during the Phase 162 chip sweep on **64 KiB** parts, at differing steps and without changing any step verdict: `CHIP__v133__w27c512`, `CHIP__v133__w27e512`, the superseded `CHIP__control__w27e512`, and `CHIP__v133__sst27sf512`.
+
+**Why this is its own item and not closed by the v1.34 fix.** The v1.34 debug session root-caused a *different*, deterministic instance of the same error id on a 512 KiB part (`.planning/debug/resolved/blank-check-empty-input-98pct.md`) — standalone blank-check emitting `MSG_DATA_PROGRESS` per chunk without consuming the host ack. That fault triggers on **cumulative TX volume of roughly 4–5 KB**, proven by instrumentation (17 B/chunk→251 chunks, ~25 B→176, ~57 B→92). A 64 KiB part at the then-current 2048 B chunk is **32 chunks ≈ 544 B** — an order of magnitude under the threshold. **These occurrences cannot be that bug.** Phase 162-07's original reading of the whole cluster as "intermittent, arm-independent frame corruption" is superseded for the 512 KiB case only; for these it stands as an unexplained, unreproduced observation.
+
+**Recorded as INCONCLUSIVE per RCA-04 and explicitly not resolved by assumption in either direction.** Arm-independent (it appears on both arms), so nothing here is v1.33-attributable. Start from the two `serial_comm.py` re-sync detection sites (`:520-526` magic-preamble-then-timeout, `:536-541` truncated frame body) — 999.36 Class C notes those events are observed and logged but never counted, so the counters that would make this diagnosable do not yet exist. **Sequence 999.36 first, or at least its Class C, or this investigation has no instrumentation to stand on.**
+
+### Phase 999.38: Ratiometric VPP ADC error (~+7.5 %) — board-specific calibration or shield-wide divider fault? (BACKLOG — filed 2026-08-29 at the v1.34 close)
+
+**Goal:** Determine whether the firmware's VPP reading is high by a *ratio* because of a shield-wide gain/divider fault, or because of per-board EEPROM miscalibration, and correct whichever it is.
+
+**The measurement, from v1.34 Phase 161.** Three paired firmware-vs-multimeter readings across **two independently calibrated boards** cluster near **+7.5 % (range 6.8–8.3 %)**: A2 uno328pb 12.5 / 11.70; the A3/B2 Leonardo 12.9–13.0 / 12.00 and 12.3 / 11.44. That two separately calibrated boards land on the same ratio is **consistent with — not proof of** — a shield-wide fault. Full reasoning in `.planning/v1.34/bench/cells/A3-B2/POT.md` and `161-05-SUMMARY.md`.
+
+**Why it matters beyond tidiness:** it materially **weakens** the leading hypothesis for cell A2's four write failures. If the error is shield-wide, then cell A1's firmware-reported 12.0 V also meant a real rail near ~11.0–11.2 V — and **A1 passed all four positions there**. Low-VPP therefore explains A2 much less well than it appeared to. A2's cause is left **UNDETERMINED** in the v1.34 honesty ledger (H-7) on exactly this basis.
+
+**Standing operational rule while this is open, and the reason it is dangerous to "fix" naively:** do **not** correct the pot down toward 12.0 V against the firmware's own reading. The on-board ADC reads roughly 7.5 % high, so a firmware-chasing correction drives the real rail toward ~11.2 V — making the rig worse while looking like a fix. Set any target from a multimeter reading, never from the firmware's `vpp` figure.
+
+### Phase 999.39: App writes `~/.firestarter/config.json` despite `FIRESTARTER_CONFIG_DIR` (BACKLOG — filed 2026-08-29 at the v1.34 close)
+
+**Goal:** Make `FIRESTARTER_CONFIG_DIR` actually contain every config write. It does not today.
+
+**Evidence: three recurrences across three independent v1.34 cells** — A1, A2 and A3/B2 — each time mtime-only, with content byte-identical to baseline. The bench harness was audited and is clean; the frozen `FIRESTARTER_CONFIG_DIR` is independently confirmed unchanged (D-07 holds), so this is not a rig defect. **The leak is in `ConfigManager`.** Held at the v1.34 D-16 boundary (that milestone changed no host source) and handed forward.
+
+**Operational note for anyone touching this at the bench: do NOT delete `~/.firestarter/`.** A saved port there makes `test_no_programmer_found_*` fail, which is an environment artifact rather than a regression — deleting the directory to "clean up" mid-investigation destroys the evidence of what is writing to it.
+
+### Phase 999.40: `MSG_ERR_EMPTY_INPUT` (0xA4) is overloaded — give frame-integrity failures their own id (BACKLOG — filed 2026-08-29 at the v1.34 close)
+
+**Goal:** Stop reporting four distinct transport conditions as "Empty input".
+
+**The defect.** `firestarter/src/firestarter.cpp` emits `MSG_ERR_EMPTY_INPUT` from two places: a genuine empty-buffer check, and the frame-integrity path — **CRC mismatch, COBS violation, buffer overflow, or read underrun** — which reuses the id. The code comment concedes why: a distinct `MSG_ERR_BAD_FRAME` "requires a TOML catalog update — deferred."
+
+**Why it earns its own item rather than living as a comment.** It has now misled twice, in two separate investigations, in the direction the name suggests. The resolved write-path regression records that `0xA4`'s name "misled toward a transport bug — it was a handshake desync"; the v1.34 blank-check RCA records the mirror-image error, an operator or triager reading "Empty input" on a blank-check reasonably concluding something about the chip or the input file when the actual condition was a frame fault. **An error name that reliably points away from its own cause is a defect, not a cosmetic gap.**
+
+**Cost, stated so it is not rediscovered:** `include/messages.h` is **codegen-generated and id-only** — never hand-edit it. The change is an entry in the meta repo's `firestarter/tools/catalog/messages.toml` plus a `codegen.py` regeneration for both cpp and python targets, then the emit-site split. Both sides of the protocol constant surface move together.
+
+### Phase 999.41: Re-record `size_baseline.json` at v1.33 land time (+16 B, three targets) (BACKLOG — filed 2026-08-29 at the v1.34 close)
+
+**Goal:** Return `firestarter/scripts/baseline/size_baseline.json`'s default-mode gate to green after the v1.34 blank-check fix, using the severance pattern.
+
+**The measurement, cold** (`rm -rf .pio/build/<env>` then exactly one `pio run -e <env>`; logs captured 2026-08-29): uno **22952 → 22968**, uno328pb **23000 → 23016**, leonardo **25098 → 25114**. **+16 B flash on each; RAM byte-unchanged** at 1434 / 1440 / 1875. Attributable to firmware commits `1e8bbae` + `a218b4f`.
+
+**What is NOT wrong, and must not be "fixed" by authoring an exemption.** The `--policy merge05` growth guard against BASE-01 **passes with large margin** — leonardo `-1792<=724`, uno `-1856<=788`, uno328pb `-1858<=788`. v1.33's own reductions dwarf this fix, so it is a net reduction against the judged reference point and **no new named exemption is needed or justified**. Only the *default byte-identity* mode reports the delta, which is that tripwire behaving correctly on a changed tree.
+
+**Why it is deliberately deferred rather than done at the fix.** `tests/test_check_size_baseline.py` hard-codes 22952 / 23000 / 25098 in roughly six places and feeds frozen `captured_build_v158_*.log` fixtures to the default gate. A re-record therefore demands the **fixture-severance pattern** — a NEW version-named fixture family at the post-change figures, re-point only the legs that must track the live baseline, leave the frozen families byte-unchanged, verify with an empty `git diff` over the old paths. Re-capturing in place silently destroys the arms that deliberately depend on pre-change figures. **Never write a "tests byte-unchanged" acceptance criterion into the plan that does this** — it is unsatisfiable. Note also that CI arms none of this (`build.yml:142/155/193`, `beta-build.yml:122/128/145` run only `pio test -e native`, `native_nodevtools`, `pio run`), so nothing is red in automation today.
+
+### Phase 999.42: Finish the v1.34 sweep — six chips, two shields, and the Rev 0 rework trace (BACKLOG — filed 2026-08-29 at the v1.34 close)
+
+**Goal:** Complete the evidence base v1.34 was scoped for and closed without, so the "merge with caveats" verdict can be upgraded or corrected on measurement rather than left standing on a partial sweep.
+
+**What v1.34 never measured** (see `.planning/v1.34/CLOSE-RECORD.md` §1):
+- **Six of eleven chips**, never swept: ST M27C512, SST39SF040, W29C040, W29C020, AM27C020, 2516. Three carry known prior trouble and are the ones most worth having — SST39SF040, W29C040 (permanently locked §6.6 boot block, CR-01) and AM27C020 (non-deterministic marginality). Discharges the remainder of CHIP-01…05.
+- **Two of three shields**, never swept: Rev 2.2 (cell B3) and Modified Rev 0 (cell B1), 8 positions. **Every v1.34 result is Rev 2.0.** Discharges SHIELD-01, -02, -04 (SHIELD-03's citation obligation was already met by executing A3/B2 exactly once in Phase 161).
+- **The Modified Rev 0 rework trace**, REV0-01…03. The **ten** `TBD pending Phase 35` cells in `v1.7-SHIELD-REVS.md` §4/§5 — two `Rev 0 → Modified Rev 0` rows of five cells each, plus the §4 prose mention — **remain TBD**, now pending this item rather than Phase 35. Note the board has never been physically inspected: the 2026-06-01 session that was believed to have examined it was on a Rev 2.0, and A3 ADC cannot distinguish it (Rev 2.2 collides on 10 kΩ), so operator silkscreen identification is mandatory before any electrical claim.
+
+**Two things that make a resumption cheaper than a restart.** The rig procedure, arm provenance, pinned images and gate tooling all exist and are proven on silicon (`.planning/v1.34/PROCEDURE.md`, `arms-provenance.json`, `images/`, `tools/`). And **the arm images do not contain the v1.34 blank-check fix** — so if this item resumes against the same pinned images, expect blank-check to fail at ~98 % on the three 512 KiB parts (W27E040, W29C040, SST39SF040) on **both** arms; that is the known, explained, pre-existing defect of 999.37's sibling, not a new finding. Re-pinning both arms to carry the fix is the alternative and **invalidates every row already recorded**, which is why v1.34 did not do it.
+
 ---
 
 ### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)

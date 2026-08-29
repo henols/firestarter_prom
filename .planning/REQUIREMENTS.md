@@ -47,40 +47,40 @@ v1.33 branches forked from: firmware **`8695ee5`**, host app **`6bfa645`**.
 
 ### Shield Sweep — three shields on the Leonardo (SHIELD)
 
-- [ ] **SHIELD-01**: Cell B1 (Leonardo / Modified Rev 0) completes both arms × both chips
-- [ ] **SHIELD-02**: Cell B3 (Leonardo / Rev 2.2) completes both arms × both chips
-- [ ] **SHIELD-03**: Cell A3/B2 is executed exactly once and cited by both sweeps — no duplicate run and no duplicate evidence row
-- [ ] **SHIELD-04**: Each shield cell records the firmware's own shield-version detection result (the v1.7 A3 ADC band read) next to the operator's declared revision, so a detection mismatch is caught — the first time that plumbing is swept across all three physical shields
+- [ ] **SHIELD-01**: Cell B1 (Leonardo / Modified Rev 0) completes both arms × both chips **[NOT RUN — v1.34 closed early 2026-08-29; carried to backlog 999.42]**
+- [ ] **SHIELD-02**: Cell B3 (Leonardo / Rev 2.2) completes both arms × both chips **[NOT RUN — carried to backlog 999.42]**
+- [x] **SHIELD-03**: Cell A3/B2 is executed exactly once and cited by both sweeps — no duplicate run and no duplicate evidence row **[MET — A3/B2 executed once in Phase 161 and cited, no duplicate row]**
+- [ ] **SHIELD-04**: Each shield cell records the firmware's own shield-version detection result (the v1.7 A3 ADC band read) next to the operator's declared revision, so a detection mismatch is caught — the first time that plumbing is swept across all three physical shields **[NOT RUN — carried to backlog 999.42]**
 
 ### Chip Sweep — 11 parts on the reference rig (CHIP)
 
-- [ ] **CHIP-01**: `firestarter dev test` runs under v1.33 firmware on Leonardo + Rev 2.0 against all 11 v1.15 inventory parts — W27C512, W27E512, SST27SF512, W27E040, ST M27C512, SST39SF040, W29C040, W29C020, FM1608, AM27C020, 2516 — each producing a report artifact
-- [ ] **CHIP-02**: Every report is firmware-attributable with a non-null `fw_board_identity`; a null is treated as a defect to investigate, not an accepted gap
-- [ ] **CHIP-03**: Each chip's result is compared against its recorded v1.15 disposition and every divergence is listed explicitly
-- [ ] **CHIP-04**: A control-arm re-run is performed for every diverging chip and for no other, keeping the sweep at 11 runs plus divergences
-- [ ] **CHIP-05**: Known-dead and known-limited parts are reported with their prior disposition cited inline — W27E512 stuck bit @0x3d and W27E040 stuck bit @0x7db (D-32 silicon wear), W29C040's permanently locked §6.6 boot block (CR-01), AM27C020's non-deterministic marginality — so their reds are never counted as v1.34 findings
+- [ ] **CHIP-01**: `firestarter dev test` runs under v1.33 firmware on Leonardo + Rev 2.0 against all 11 v1.15 inventory parts — W27C512, W27E512, SST27SF512, W27E040, ST M27C512, SST39SF040, W29C040, W29C020, FM1608, AM27C020, 2516 — each producing a report artifact **[PARTIAL — 5 of 11 parts swept; carried to backlog 999.42]**
+- [ ] **CHIP-02**: Every report is firmware-attributable with a non-null `fw_board_identity`; a null is treated as a defect to investigate, not an accepted gap **[MET for the 5 parts swept — fw_board_identity non-null since Phase 147]**
+- [ ] **CHIP-03**: Each chip's result is compared against its recorded v1.15 disposition and every divergence is listed explicitly **[PARTIAL — applies only to the 5 parts swept]**
+- [ ] **CHIP-04**: A control-arm re-run is performed for every diverging chip and for no other, keeping the sweep at 11 runs plus divergences **[MET for the one divergence that occurred (W27E040 control re-run)]**
+- [ ] **CHIP-05**: Known-dead and known-limited parts are reported with their prior disposition cited inline — W27E512 stuck bit @0x3d and W27E040 stuck bit @0x7db (D-32 silicon wear), W29C040's permanently locked §6.6 boot block (CR-01), AM27C020's non-deterministic marginality — so their reds are never counted as v1.34 findings **[PARTIAL — W27E512's stuck bit cited inline; W29C040 and AM27C020 never swept]**
 
 ### Regression Triage (RCA)
 
-- [ ] **RCA-01**: Every failure in every cell is classified **v1.33-caused / pre-existing / inconclusive**, with the specific A/B evidence supporting the classification named alongside it
-- [ ] **RCA-02**: Every v1.33-caused regression is root-caused to a specific v1.33 change — which phase, which commit, which mechanism — not merely to "v1.33"
-- [ ] **RCA-03**: Every v1.33-caused regression is fixed **on the v1.33 PR branch** so the open PR ships fixed, and the fix is re-validated in the cell that caught it
-- [ ] **RCA-04**: Inconclusive results are recorded as inconclusive and are never resolved by assumption in either direction
-- [ ] **RCA-05**: Pre-existing failures are linked to their existing backlog item — 999.2 for the uno328pb brownout, CR-01 for W29C040 — and explicitly not fixed in v1.34
+- [x] **RCA-01**: Every failure in every cell is classified **v1.33-caused / pre-existing / inconclusive**, with the specific A/B evidence supporting the classification named alongside it
+- [x] **RCA-02**: Every v1.33-caused regression is root-caused to a specific v1.33 change — which phase, which commit, which mechanism — not merely to "v1.33"
+- [x] **RCA-03**: Every v1.33-caused regression is fixed **on the v1.33 PR branch** so the open PR ships fixed, and the fix is re-validated in the cell that caught it
+- [x] **RCA-04**: Inconclusive results are recorded as inconclusive and are never resolved by assumption in either direction
+- [x] **RCA-05**: Pre-existing failures are linked to their existing backlog item — 999.2 for the uno328pb brownout, CR-01 for W29C040 — and explicitly not fixed in v1.34
 
 ### Modified Rev 0 Rework Trace (REV0)
 
-- [ ] **REV0-01**: Operator photographs the Modified Rev 0 board — top, bottom, silkscreen, and one frame per rework region — while it is on the bench for cell B1
-- [ ] **REV0-02**: Each cut and jumper is traced against the upstream Rev 0 schematic (blob `d2a7f691`) and written up in `.planning/v1.7/MODIFICATIONS.md`, replacing the stub that has stood since v1.7
-- [ ] **REV0-03**: The **ten** `TBD pending Phase 35` cells in `v1.7-SHIELD-REVS.md` §4/§5 — two `Rev 0 → Modified Rev 0` rows of five cells each, plus the §4 prose mention — are filled from that trace, or each cell that stays TBD is named with the specific reason it could not be resolved
+- [ ] **REV0-01**: Operator photographs the Modified Rev 0 board — top, bottom, silkscreen, and one frame per rework region — while it is on the bench for cell B1 **[NOT RUN — carried to backlog 999.42]**
+- [ ] **REV0-02**: Each cut and jumper is traced against the upstream Rev 0 schematic (blob `d2a7f691`) and written up in `.planning/v1.7/MODIFICATIONS.md`, replacing the stub that has stood since v1.7 **[NOT RUN — carried to backlog 999.42]**
+- [ ] **REV0-03**: The **ten** `TBD pending Phase 35` cells in `v1.7-SHIELD-REVS.md` §4/§5 — two `Rev 0 → Modified Rev 0` rows of five cells each, plus the §4 prose mention — are filled from that trace, or each cell that stays TBD is named with the specific reason it could not be resolved **[NOT RUN — the ten TBD cells remain TBD; carried to backlog 999.42]**
 
 ### Close (CLOSE)
 
-- [ ] **CLOSE-01**: One evidence table covers all five cells × two arms × two chips, where every position holds either a result or a named reason for its absence — no silent gaps
-- [ ] **CLOSE-02**: An explicit merge recommendation — merge / merge-with-caveats / do-not-merge — stating the evidence it rests on
-- [ ] **CLOSE-03**: An honesty ledger pairs each claim with its explicit non-claim; in particular it records that program-window VPP/VCC **under load** remains unmeasured (the DTR-reset-on-close tooling gap stands), so v1.34 makes no electrical claim
-- [ ] **CLOSE-04**: v1.34 performs no merge, no push to `beta`, no sub-repo tag, no beta cut and no release — every outward-facing step is left to the operator
-- [ ] **CLOSE-05**: Anything found and not fixed is filed as a backlog item rather than carried as prose in a closing document
+- [x] **CLOSE-01**: One evidence table covers all five cells × two arms × two chips, where every position holds either a result or a named reason for its absence — no silent gaps
+- [x] **CLOSE-02**: An explicit merge recommendation — merge / merge-with-caveats / do-not-merge — stating the evidence it rests on
+- [x] **CLOSE-03**: An honesty ledger pairs each claim with its explicit non-claim; in particular it records that program-window VPP/VCC **under load** remains unmeasured (the DTR-reset-on-close tooling gap stands), so v1.34 makes no electrical claim
+- [ ] **CLOSE-04**: v1.34 performs no merge, no push to `beta`, no sub-repo tag, no beta cut and no release — every outward-facing step is left to the operator **[DEVIATED by explicit operator instruction 2026-08-29 — the three v1.33 PRs WERE merged as part of this close; see CLOSE-RECORD.md §7]**
+- [x] **CLOSE-05**: Anything found and not fixed is filed as a backlog item rather than carried as prose in a closing document
 
 ## Future Requirements
 
