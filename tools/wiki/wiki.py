@@ -281,6 +281,10 @@ def _git(
     )
 
 
+def safe_remote(remote: str) -> str:
+    return re.sub(r"//[^/@]*@", "//<redacted>@", remote)
+
+
 def cmd_publish(args: argparse.Namespace) -> int:
     if cmd_check(args) != 0:
         print(
@@ -293,12 +297,12 @@ def cmd_publish(args: argparse.Namespace) -> int:
     if probe.returncode != 0:
         if args.require_wiki:
             print(
-                f"ERROR: wiki remote not reachable: {args.wiki_remote}",
+                f"ERROR: wiki remote not reachable: {safe_remote(args.wiki_remote)}",
                 file=sys.stderr,
             )
             return 1
         print(
-            f"ERROR: wiki remote does not exist: {args.wiki_remote}",
+            f"ERROR: wiki remote does not exist: {safe_remote(args.wiki_remote)}",
             file=sys.stderr,
         )
         print(
@@ -402,13 +406,13 @@ def cmd_publish(args: argparse.Namespace) -> int:
         )
         push = _git("push", "-q", "origin", WIKI_BRANCH, cwd=wt, check=False)
         if push.returncode != 0:
-            redacted = push.stderr.replace(args.wiki_remote, "<redacted>")
+            redacted = push.stderr.replace(args.wiki_remote, safe_remote(args.wiki_remote))
             print("ERROR: push to wiki failed", file=sys.stderr)
             print(redacted, file=sys.stderr)
             return 1
 
         print(
-            f"OK: published {pages} pages to {args.wiki_remote} on "
+            f"OK: published {pages} pages to {safe_remote(args.wiki_remote)} on "
             f"{WIKI_BRANCH}."
         )
         return 0
