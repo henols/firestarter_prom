@@ -24,6 +24,9 @@ Subcommands:
   sidebar   generate or check _Sidebar.md from the wiki source tree
   links     check reachability from Home.md, internal link resolution and
             page filename legality
+  check     run every offline integrity leg in one pass
+  publish   mirror the in-repo source to the wiki git remote; dry-run by
+            default, the dry-run result IS the drift check (--push writes)
 """
 
 from __future__ import annotations
@@ -31,8 +34,10 @@ from __future__ import annotations
 import argparse
 import difflib
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 DEFAULT_WIKI_REMOTE = "https://github.com/henols/firestarter_prom.wiki.git"
@@ -268,10 +273,154 @@ def cmd_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def _git(
+    *args: str, cwd: Path | None = None, check: bool = True
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", *args], cwd=cwd, check=check, capture_output=True, text=True
+    )
+
+
+def cmd_publish(args: argparse.Namespace) -> int:
+    if cmd_check(args) != 0:
+        print(
+            "ERROR: offline legs failed; nothing was sent to the wiki.",
+            file=sys.stderr,
+        )
+        return 1
+
+    probe = _git("ls-remote", args.wiki_remote, check=False)
+    if probe.returncode != 0:
+        if args.require_wiki:
+            print(
+                f"ERROR: wiki remote not reachable: {args.wiki_remote}",
+                file=sys.stderr,
+            )
+            return 1
+        print(
+            f"ERROR: wiki remote does not exist: {args.wiki_remote}",
+            file=sys.stderr,
+        )
+        print(
+            "WIKI-01 is blocked: the operator must create the wiki before "
+            "publish can reach it.",
+            file=sys.stderr,
+        )
+        print(
+            "Save one page at "
+            "https://github.com/henols/firestarter_prom/wiki -- GitHub "
+            "creates the wiki repository only on the first web-UI page "
+            "save; there is no API for it.",
+            file=sys.stderr,
+        )
+        return 2
+
+    wt = Path(tempfile.mkdtemp(prefix="wiki-publish-"))
+    try:
+        clone = _git("clone", args.wiki_remote, str(wt), check=False)
+        if clone.returncode != 0:
+            print("ERROR: could not clone wiki remote.", file=sys.stderr)
+            return 1
+
+        branch_probe = _git(
+            "rev-parse", "--abbrev-ref", "HEAD", cwd=wt, check=False
+        )
+        if branch_probe.returncode == 0:
+            branch = branch_probe.stdout.strip()
+        else:
+            symref_probe = _git(
+                "symbolic-ref", "--short", "HEAD", cwd=wt, check=False
+            )
+            branch = (
+                symref_probe.stdout.strip()
+                if symref_probe.returncode == 0
+                else ""
+            )
+        if branch != WIKI_BRANCH:
+            print(
+                f"ERROR: wiki worktree is on branch {branch!r}, expected "
+                f"{WIKI_BRANCH!r}",
+                file=sys.stderr,
+            )
+            return 1
+
+        if not wt.is_absolute() or not (wt / ".git").exists():
+            print(
+                f"ERROR: refusing to modify {wt}: not the expected wiki "
+                "worktree",
+                file=sys.stderr,
+            )
+            return 1
+        origin_probe = _git("remote", "get-url", "origin", cwd=wt, check=False)
+        if (
+            origin_probe.returncode != 0
+            or origin_probe.stdout.strip() != args.wiki_remote
+        ):
+            print(
+                f"ERROR: refusing to modify {wt}: not the expected wiki "
+                "worktree",
+                file=sys.stderr,
+            )
+            return 1
+
+        for entry in wt.iterdir():
+            if entry.name == ".git":
+                continue
+            if entry.is_dir():
+                shutil.rmtree(entry)
+            else:
+                entry.unlink()
+
+        pages = 0
+        for src_file in sorted(args.source_dir.iterdir()):
+            if src_file.is_file():
+                shutil.copy2(src_file, wt / src_file.name)
+                pages += 1
+
+        _git("add", "-A", cwd=wt)
+        staged = _git("diff", "--cached", "--quiet", cwd=wt, check=False)
+
+        if staged.returncode == 0:
+            print(f"OK: wiki matches source ({pages} pages); no change.")
+            return 0
+
+        if not args.push:
+            print("ERROR: wiki differs from in-repo source.", file=sys.stderr)
+            print(_git("diff", "--cached", cwd=wt).stdout)
+            return 1
+
+        _git(
+            "-c",
+            "user.name=wiki-publish",
+            "-c",
+            "user.email=wiki-publish@users.noreply.github.com",
+            "commit",
+            "-q",
+            "-m",
+            "Publish wiki from in-repo source",
+            cwd=wt,
+        )
+        push = _git("push", "-q", "origin", WIKI_BRANCH, cwd=wt, check=False)
+        if push.returncode != 0:
+            redacted = push.stderr.replace(args.wiki_remote, "<redacted>")
+            print("ERROR: push to wiki failed", file=sys.stderr)
+            print(redacted, file=sys.stderr)
+            return 1
+
+        print(
+            f"OK: published {pages} pages to {args.wiki_remote} on "
+            f"{WIKI_BRANCH}."
+        )
+        return 0
+    finally:
+        shutil.rmtree(wt, ignore_errors=True)
+
+
 COMMANDS = {
     "sidebar": cmd_sidebar,
     "links": cmd_links,
     "check": cmd_check,
+    "publish": cmd_publish,
 }
 
 
@@ -339,6 +488,34 @@ def _build_argparser() -> argparse.ArgumentParser:
         "by publish before the remote is touched. Both legs always run, "
         "even if the first fails. It writes nothing under any "
         "circumstance.",
+    )
+
+    publish_parser = subparsers.add_parser(
+        "publish",
+        parents=[common],
+        help="Mirror the in-repo wiki source to the wiki git remote. "
+        "Dry-run by default: without --push nothing is written to the "
+        "remote, and the dry-run result IS the drift check.",
+        description="publish computes the same staged diff for both the "
+        "dry-run and --push case through one comparison, so the check can "
+        "never report agreement while --push would do something "
+        "different. The wiki worktree is wiped and re-laid from source, "
+        "so a wiki-side edit or addition is destroyed and a source-side "
+        "deletion propagates.",
+    )
+    publish_parser.add_argument(
+        "--push",
+        action="store_true",
+        help="Write the computed diff to the wiki remote. Without this "
+        "flag publish only computes and reports the diff; nothing is "
+        "sent to the remote.",
+    )
+    publish_parser.add_argument(
+        "--require-wiki",
+        action="store_true",
+        help="Treat an absent wiki remote as a hard failure (exit 1) "
+        "instead of the distinguishable operator-gated exit 2, for use "
+        "once the wiki exists.",
     )
 
     return parser

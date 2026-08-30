@@ -450,6 +450,7 @@ case_deleted_page_removed() {
     fi
 
     rm "$src/Page-One.md"
+    printf '%s\n' '# Home' '' 'Fixture body with no internal links.' > "$src/Home.md"
     python3 "$WIKI_PY" sidebar --source-dir "$src" >/dev/null
 
     local push2_rc
