@@ -4,17 +4,17 @@ milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 167
 current_phase_name: WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
-status: verifying
-stopped_at: Phase 167 complete — all 6 plans executed, WIKI-01..05 demonstrated live, WIKI-06 pre-existing; A1 (CI token) left unproven
+status: complete
+stopped_at: Phase 167 complete — verification passed (6/6 must-haves); A1 (CI wiki-push token) left unproven by design
 last_updated: "2026-08-30T20:05:03.367Z"
 last_activity: 2026-08-30
 last_activity_desc: Phase 167 — all 6 plans complete; live wiki publish/drift/idempotence demonstrated (167-06); ready for phase verification
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
   completed_plans: 6
-  percent: 0
+  percent: 14
 ---
 
 # Project State
