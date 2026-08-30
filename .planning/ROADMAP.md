@@ -270,7 +270,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2)*
 
 - [x] 167-03-PLAN.md — `wiki.py publish`: mirror-and-relay, commit-only-on-staged-diff, `master` assertion, wipe guard, and the exit-2 wiki-absent contract naming WIKI-01
-- [ ] 167-04-PLAN.md — `wiki/` content tree: hand-authored `Home.md`, the D-12 `How-This-Wiki-Is-Published.md`, the generated committed `_Sidebar.md`, and the D-04 migration provenance table
+- [x] 167-04-PLAN.md — `wiki/` content tree: hand-authored `Home.md`, the D-12 `How-This-Wiki-Is-Published.md`, the generated committed `_Sidebar.md`, and the D-04 migration provenance table
 
 **Wave 4** *(blocked on Wave 3)*
 
