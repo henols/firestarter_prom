@@ -9,7 +9,7 @@ This is a meta-repo / planning repo for the Firestarter EPROM programmer project
 - `firestarter/` — Arduino C++ firmware (PlatformIO). See `firestarter/CLAUDE.md`.
 - `firestarter_app/` — Python host CLI application (pip package). See `firestarter_app/CLAUDE.md`.
 
-This repo tracks only `.planning/` (GSD project management artifacts) and `.claude/` (project settings). Neither sub-repo is committed here.
+This repo tracks `.planning/` (GSD project management artifacts), `.claude/` (project settings), `tools/` and `.github/` (repo-level tooling and CI). Neither sub-repo is committed here. `wiki/` holds the in-repo source for the `firestarter_prom` GitHub wiki, and `tools/wiki/` holds its publish and check tooling.
 
 ## System Overview
 
