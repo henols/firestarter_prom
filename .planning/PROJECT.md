@@ -39,7 +39,89 @@
 
 **v1.31 shipped:** 2026-08-18 (27C Programming-Algorithm Fidelity — 9 phases (138–146), 74 plans, 164 tasks; **45/45 v1 requirements**; firmware-touching, dual-repo lockstep. Implements [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected, not as filed** — two wrong numbers and one inverted premise, all three corrected *publicly and before implementation* (comment `#5233463320`): `0x0B`'s pulse is **500 µs**, not `50000 us`; pulse width is a **database datum**, not a per-protocol constant (re-derived live through the production parser — 170/127/32 chips); and the safe 32-bit delay helper is for the overprogram pulse, not any bare pulse. Delivered: **one shared per-byte pulse-to-verify loop** driven by a `const` PROGMEM `eprom_params_t` table keyed on `protocol_id` (**D-01** — protocol owns *shape*, the database owns the *pulse*), **not** gh#15's three state machines; fixed-width pulses that never grow between attempts; hard-fail at `max_pulses` reporting the failing **address and pulse count**; one shared `eprom_hv_route_mask()` with every **error** exit disabling every HV route through a single-exit wrapper; `write --pulse-us N` bounded 1..65535 and pre-validated before a serial byte, riding the existing wire field with **no new DB field and no second algorithm selector**; plus a host long-write timeout fix and intra-block progress, scoped to the `leonardo` class only — on `SERIAL_ON_IO` boards the emission is compiled out **structurally**, because a buffered progress frame there could displace a later `MSG_ERR_MAX_PULSES` and convert a program failure into a transport timeout. **Bench-validated on real silicon:** three full 65536-byte write→read→verify cycles on a Winbond **W27C512** (`0xda08`), **Leonardo**, shield **Rev 2.0** — three distinct images, nine clean oracle cells, read stability N=3 at one SHA each, write timing consistent to **0.37 s**. A firmware defect this milestone itself introduced (Phase 141 deleted the only `CTRL_VPE_ENABLE` assert) failed the **first** bench cycle on byte 0; it was root-caused by a debug session, fixed, and **stands in the record with its cause** rather than being counted out. **Evidence Ceiling stands: the ~6.25 V program-VCC rail all four vendor algorithms assume is unreachable on every shield revision this project owns** — so this milestone claims **fidelity, not improvement**, with no comparative claim, no control run, and no datasheet-conformance claim in either direction. `0x08` (AM27C020) and `0x0B` (M2716/M2732) are **skipped-with-reason** with the missing parts named, never inferred from `0x07`. Twelve items carry forward with the literal phrase `no v1.31 owner`; **MERGE-05's +96 B leonardo band breach is open and un-adjudicated** with the operator as its named owner. Eighth consecutive `override_closeout` (9 carry-forward items, none originating in v1.31). Closed via **PRs to `beta` in all three repos, not direct merges**, per operator decision — meta tagged `v1.31`, gitlinks re-pinned; **no beta cut yet**, and stable stays operator-gated. See `.planning/MILESTONES.md` §v1.31.)
 
-## Current Milestone: v1.34 — Pre-Merge Hardware Regression Validation
+## Current Milestone: v1.35 — Documentation Consolidation & Wiki Migration
+
+**Activated:** 2026-08-30 · **Phases continue at 167** (v1.34 ran 160–166; the vacated **150** slot
+and the v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving)
+
+**Goal:** Make `firestarter_prom` the single documented front door — one simple get-started README per
+repo, all project documentation in the `firestarter_prom` wiki authored in-repo and checked against
+reality — and enforce in repo configuration the centralization the docs will claim.
+
+**Target features:**
+
+- **`firestarter_prom` becomes the front door.** The central repo has *no README at all* today. It gets
+  its first: a short get-started page — what Firestarter is, how to get the RURP shield, install the
+  CLI, flash the firmware, read a first chip — that links into the wiki for everything deeper.
+- **Wiki source lives in the repo, not only in the wiki.** Pages are authored as markdown under
+  `firestarter_prom/`, pushed to the wiki by a sync script, with a drift check so the wiki cannot
+  silently diverge from the code it documents.
+- **All 13 sub-repo `doc/` files migrate.** `firestarter/doc/` (3 files) and `firestarter_app/doc/`
+  (10 files) are emptied and removed; their content lands in the wiki.
+- **Three simple, repo-scoped READMEs.** Each README carries only what is specific to its own repo and
+  links up to the prom docs for the rest. Legacy is stripped, not relocated.
+- **The repo policy is enforced, not just documented** (Backlog 999.13 / gh#6, in full): a single issue
+  tracker stated in the docs and true in configuration, and `Protect main` rulesets actually enforcing
+  on all three repos.
+
+**Decisions taken at activation** (operator, 2026-08-30):
+
+| # | Decision | Consequence accepted |
+|---|----------|----------------------|
+| 1 | All three READMEs become simple get-started pages; **prom is the front door** | `firestarter_app/README.md` is the PyPI `long_description` — a short README means a **thin PyPI listing** |
+| 2 | Sub-repo READMEs hold **only repo-specific information** and point at the parent docs | Nothing about Firestarter-at-large is restated in a sub-repo |
+| 3 | **Everything out of `doc/`** — all 13 files move, both directories removed | 3 files currently appear in the app sdist (`package-details.md`, `protocol-flags.md`, `protocol-id.md`); the sdist manifest changes. No doc ships offline with the package any more |
+| 4 | **Relocate + correct only** — no new content authored | The compatibility matrix, per-family pages and task tutorials carried into 999.12 from the retired 999.14/gh#7 stay **deferred** |
+| 5 | Wiki pages **sourced in `firestarter_prom`** and synced to the wiki | One sync script and one drift check to build and keep working; buys version control, review and mechanical honesty checking |
+| 6 | **Full 999.13**, branch protection included | `/gsd-complete-milestone` pushes `main` directly today; under PR-only `main` that must become a PR flow or a documented admin bypass |
+| 7 | Sub-repo wikis **disabled** | Done 2026-08-30 at activation — `henols/firestarter` and `henols/firestarter_app` now have `has_wiki=false`; `firestarter_prom` keeps its wiki |
+
+**Measured starting state** (verified 2026-08-30, not assumed):
+
+| Fact | Value |
+|------|-------|
+| `firestarter_prom` README | **does not exist** |
+| `firestarter/README.md` | 151 lines |
+| `firestarter_app/README.md` | **779 lines**, and is the PyPI `long_description` |
+| `firestarter/doc/` | 3 files — `PROTOCOLS.md` (556 lines), `SHIELD-REVISIONS.md` (128), `AT28C04-ADAPTER.md` (160) |
+| `firestarter_app/doc/` | 10 files, ~1880 lines |
+| Wiki repos | **none initialized** — `firestarter_prom.wiki.git` returns `Repository not found` |
+| Issues enabled | `firestarter_prom` only (23 open); already `false` on both sub-repos |
+| Branch rulesets | `firestarter` has one named `Protect main` with **`enforcement: disabled`**; `firestarter_prom` and `firestarter_app` have **none** |
+| Dead issue links in docs | 6 — in both READMEs and `doc/beta-testing-install.md`, pointing at the two now-disabled trackers |
+| App README TOC drift | lists `Id`, `Vpe`, `Hw`; the body has `List`, `Search`, `VCC` instead |
+| Accumulated breaking-change walls | app README v1.10/v1.20/v1.32; fw README v1.10/v1.20 — above the install instructions in both |
+
+**Operator-gated blocker.** GitHub creates `<repo>.wiki.git` only when the first wiki page is saved
+through the web UI — there is no REST endpoint for wiki pages and push-to-create was **tested and
+fails** (`remote: Repository not found`). Until the operator creates one page at
+`https://github.com/henols/firestarter_prom/wiki`, nothing can be pushed to the wiki. Authoring,
+README work, `doc/` triage and the 999.13 configuration are all unblocked and can proceed in parallel.
+
+**Honesty constraint, inherited from 999.12.** Relocation must not upgrade a claim. Every
+`support_status` value — `protocol-not-implemented`, `adapter-required`, `vpp-exceeds-max`, and the
+`PROTOCOL-LEDGER` `UNVERIFIED` buckets — must survive the move rendered as faithfully as it reads
+today. A wiki page implying blanket support for an unverified chip is precisely the false-PASS failure
+mode v1.21 was built to prevent, and hand-maintained pages drift where a generator would not. The
+drift check in feature 2 is the mitigation and is in scope, not optional.
+
+**Known sequencing hazard — accepted, not solved.** Backlog **999.9** (gh#2) renames all three repos
+(`firestarter_prom` → `firestarter`, `firestarter` → `firestarter_fw`). Every wiki link, README pointer
+and issue URL this milestone writes would be invalidated by that rename. The operator was shown this at
+activation and chose to proceed, sweeping references later rather than folding the rename in here or
+sequencing it first.
+
+**Deliberately out of scope.**
+
+- The compatibility matrix, per-family pages, algorithm/command-set pages and task tutorials carried
+  into 999.12 from the retired 999.14 / gh#7 — deferred by decision 4, not dropped.
+- Backlog 999.9, the repo rename — see the sequencing hazard above.
+- Any change to `.planning/` historical records. Citations from `.planning/` into `.planning/` are
+  historical-by-intent and must not be "repaired" by this milestone's link work.
+- Product code. This milestone changes documentation, repository configuration and one sync/check
+  script; it does not touch firmware or host behaviour.
+
+## v1.34 Archive: Pre-Merge Hardware Regression Validation — Closed 2026-08-29 (EARLY / SCOPE-REDUCED)
 
 **Activated:** 2026-08-25 · **Phases continue at 160** (v1.33 ran 154–159; the vacated **150** slot
 and the v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving)
@@ -1787,6 +1869,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-08-30 — **v1.35 (Documentation Consolidation & Wiki Migration) STARTED.** Phases continue at **167** (v1.34 ran 160–166). A documentation milestone, not a product one: no firmware and no host behaviour changes. `firestarter_prom` — which has **no README at all** today — becomes the project front door, and its wiki becomes the single home for all project documentation. Seven operator decisions taken at activation: all three READMEs become simple get-started pages with **prom as the front door** (accepting a thin PyPI listing, since `firestarter_app/README.md` is the `long_description`); sub-repo READMEs carry **only repo-specific information** and link up; **everything leaves `doc/`** — all 13 files, both directories removed, changing the app sdist for the 3 doc files it currently carries; **relocate and correct only**, so the compatibility matrix, family pages and tutorials carried into 999.12 from the retired 999.14/gh#7 stay deferred; wiki pages are **sourced in `firestarter_prom` and synced**, buying version control, review and a mechanical drift check; **Backlog 999.13 in full**, branch protection included, which forces `/gsd-complete-milestone` off its direct `main` push onto a PR flow or a documented admin bypass; and the two sub-repo wikis are **disabled** — done at activation, `has_wiki=false` on both, verified by API. Starting state measured rather than assumed: app README **779 lines**, fw README 151, 13 `doc/` files ≈ 2724 lines, **no wiki repo initialized anywhere**, Issues already off on both sub-repos (23 open on prom), `firestarter`'s `Protect main` ruleset present but **`enforcement: disabled`** and no ruleset at all on the other two, 6 dead issue links, and an app README TOC advertising three sections (`Id`, `Vpe`, `Hw`) that do not exist. **Operator-gated blocker:** GitHub creates `<repo>.wiki.git` only when the first page is saved in the web UI — no REST endpoint exists and push-to-create was tested and fails — so the operator must create one page at `henols/firestarter_prom/wiki` before anything can be pushed there; all other work is unblocked. The 999.12 honesty constraint is in scope and not optional: relocation must not upgrade a `support_status` or a `PROTOCOL-LEDGER` `UNVERIFIED` bucket into implied support, and the drift check is its mitigation. **Known sequencing hazard accepted, not solved:** Backlog 999.9 renames all three repos and would invalidate every link written here; the operator was shown this and chose to proceed and sweep later. Prior footer retained below.*
 
 *Last updated: 2026-08-25 — **v1.34 (Pre-Merge Hardware Regression Validation) STARTED.** Phases continue at **160**. A hardware gate in front of the three open v1.33 PRs (`prom#43` / `fw#56` / `app#54`), all unmerged. v1.33 shipped **−2938 B flash / −13 B RAM** on the premise of byte-level equivalence — heap allocator removed, 64-bit runtime dropped, `jsmntok_t` 8 → 6 B, command-decode table reworked — proven by native tests, golden traces and cold builds, and **run on no Arduino at all**. v1.34 runs it on silicon: **five distinct board×shield cells** (Uno / uno328pb / Leonardo on Rev 2.0; Leonardo on Modified Rev 0 / Rev 2.0 / Rev 2.2, with Leonardo+Rev 2.0 shared between the sweeps), each as an **A/B against the pre-v1.33 merge-base** (fw `8695ee5`, app `6bfa645`) with two chips per pass — W27C512 (DIP28, `0x07`) and W29C020 (DIP32, `0x05`) — for **20 full write→read→verify cycles**; plus a `dev test` sweep of all 11 v1.15 inventory chips on the Leonardo + Rev 2.0 reference rig. The control arm is the deliverable, not a formality: it is the only thing that separates "v1.33 broke this" from "this was always broken here", and v1.31 closed explicitly **without** a control run. Known faults are declared **before** the bench runs — uno328pb cannot finish a program (999.2), W27E512 and W27E040 carry stuck erase bits (D-32), W29C040's boot block is permanently locked, AM27C020 is marginal and cannot arbitrate anything. Only v1.33-**caused** regressions get fixed in-milestone. Second deliverable: the Modified Rev 0 rework trace, blocked on operator photos since v1.7, closing the ten `TBD pending Phase 35` cells in `v1.7-SHIELD-REVS.md` §4/§5. **v1.34 does not merge** — it closes with an evidence table and a recommendation; the merge stays operator-gated, as every outward-facing step has since v1.21, and because a merge to `beta` auto-fires a pre-release cut. Three seeds triggered at activation (voltage calibration, Rev 2.2 3-pin header / 2516 family, per-pin-map jumper table) and all three were **declined** to keep the milestone a regression gate. Prior footer retained below.*
 
