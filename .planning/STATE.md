@@ -2,12 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
+current_phase: 167
 current_phase_name: WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
-status: planned
+status: executing
 stopped_at: Phase 167 planned
-last_updated: "2026-08-30T11:36:39.000Z"
+last_updated: "2026-08-30T11:40:30.637Z"
 last_activity: 2026-08-30
-last_activity_desc: Phase 167 planned — 6 plans in 5 waves; wave 5 is operator-gated on wiki creation
+last_activity_desc: Phase 167 executing — 6 plans in 5 waves; wave 5 (167-06) is operator-gated on wiki creation
 progress:
   total_phases: 7
   completed_phases: 0
@@ -26,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **v1.35 touches no product code at all.** It changes documentation, repository configuration and one sync/check script. The core value is untouched by construction, and the milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Defining requirements
+**Current focus:** Phase 167 — WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +236,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 167 — WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
-Plan: 0 of 6
-Status: Ready to execute
-Last activity: 2026-08-30 — Phase 167 planned (6 plans, 5 waves; plans committed f9797207)
+Phase: 167 (WIKI — Bootstrap, In-Repo Source, Sync & Drift Check) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 167
+Last activity: 2026-08-30 — Phase 167 execution started
 
 ## Roadmap Summary (v1.35)
 
