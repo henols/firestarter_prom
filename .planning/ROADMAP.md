@@ -255,6 +255,30 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   5. Every wiki page is reachable from the Home page or a sidebar, verified by walking the links rather than by inspection — no page is orphaned at publish time.
   6. `has_wiki` is `false` on `henols/firestarter` and `henols/firestarter_app` and `true` on `henols/firestarter_prom`, read back from the API. (Already true as of activation; this criterion is a re-verification, not new work.)
 
+**Plans**: 6 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 167-01-PLAN.md — `tools/wiki/` skeleton: `wiki.py` CLI with the 0/1/2 exit contract and deterministic `sidebar` generation, plus the `selftest.sh` fixture harness proved capable of failing
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 167-02-PLAN.md — `wiki.py links` (orphans via `Home.md` only, link-form allowlist, filename legality) and the `check` aggregator, with the 5 reachability cases red before green
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 167-03-PLAN.md — `wiki.py publish`: mirror-and-relay, commit-only-on-staged-diff, `master` assertion, wipe guard, and the exit-2 wiki-absent contract naming WIKI-01
+- [ ] 167-04-PLAN.md — `wiki/` content tree: hand-authored `Home.md`, the D-12 `How-This-Wiki-Is-Published.md`, the generated committed `_Sidebar.md`, and the D-04 migration provenance table
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 167-05-PLAN.md — `.github/workflows/wiki-check.yml` (offline legs, keyed to `beta`, `contents: read`), the `CLAUDE.md` / `STRUCTURE.md` corrections, and the WIKI-06 API read-back
+
+**Wave 5** *(blocked on Wave 4 — OPERATOR-GATED)*
+
+- [ ] 167-06-PLAN.md — Operator creates the wiki via the web UI, then the live demonstrations of criteria 2/3/4, `wiki-publish.yml` (`contents: write`, keyed to `beta`) and the dispatch-only live comparison job
+
 ### Phase 168: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim
 
 **Goal**: Both `doc/` directories are gone, their content lives on the wiki, and nothing about what Firestarter claims to support changed in the move.

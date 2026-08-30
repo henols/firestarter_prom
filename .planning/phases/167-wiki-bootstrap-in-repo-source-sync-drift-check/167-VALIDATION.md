@@ -1,8 +1,8 @@
 ---
 phase: 167
 slug: wiki-bootstrap-in-repo-source-sync-drift-check
-status: draft
-nyquist_compliant: false
+status: planned
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-08-30
 ---
@@ -37,11 +37,28 @@ created: 2026-08-30
 
 ## Per-Task Verification Map
 
-*Filled by the planner in step 8 — task IDs do not exist yet. Every row must resolve to one of the automated commands in the Requirement Map below, or appear in Manual-Only Verifications with a reason.*
+*Filled by the planner. Every row resolves to an automated command from the Requirement Map below, or appears in Manual-Only Verifications with a reason.*
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 167-NN-NN | NN | N | WIKI-NN | — | — | unit | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-01-01 | 01 | 1 | WIKI-04 | T-167-09 | The test driver's own failure branch is reachable and has been observed | unit | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-01-02 | 01 | 1 | WIKI-04 | T-167-06 | Stale-sidebar and determinism cases exist and are red before the capability | unit | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-01-03 | 01 | 1 | WIKI-04 | T-167-06 | `sidebar --check` returns before any write — a checker cannot repair what it checks | unit | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-02-01 | 02 | 2 | WIKI-05 | T-167-06 | The five reachability/legality cases are red before the walker exists | unit | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-02-02 | 02 | 2 | WIKI-05 | T-167-01, T-167-10, T-167-11 | Names validated before use; fenced code skipped; case-sensitive resolution | unit | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-02-03 | 02 | 2 | WIKI-04 | T-167-06 | Aggregator runs both legs, writes nothing, and the orphan leg is proved load-bearing | unit | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-03-01 | 03 | 3 | WIKI-01, WIKI-02, WIKI-03, WIKI-04 | T-167-12 | The five git cases are red before `publish` exists; fixtures only, no live remote | integration | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-03-02 | 03 | 3 | WIKI-01, WIKI-02, WIKI-03, WIKI-04 | T-167-01, T-167-02, T-167-03, T-167-07, T-167-12 | Offline gate before remote; wipe guard; `master` assertion; no force, no `allow-empty` | integration | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-03-03 | 03 | 3 | WIKI-02, WIKI-04 | T-167-06 | The mirror wipe is load-bearing, proved by a localised copy-over mutation | integration | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-04-01 | 04 | 3 | WIKI-05 | T-167-13, T-167-14, T-167-15 | No credential or planning vocabulary published; future pages named, never linked | unit | `python3 tools/wiki/wiki.py links` | ❌ W0 | ⬜ pending |
+| 167-04-02 | 04 | 3 | WIKI-04, WIKI-05 | T-167-13 | Committed generated sidebar is byte-stable over the real tree and banner-free | unit | `python3 tools/wiki/wiki.py check` | ❌ W0 | ⬜ pending |
+| 167-04-03 | 04 | 3 | WIKI-02 | T-167-16 | The provenance table is not a registry — no tool reads it | unit | `test -f tools/wiki/MIGRATION-TABLE.md && python3 tools/wiki/wiki.py check` | ❌ W0 | ⬜ pending |
+| 167-05-01 | 05 | 4 | WIKI-04, WIKI-05 | T-167-04, T-167-05, T-167-08, T-167-17 | `contents: read`, `pull_request` not `pull_request_target`, offline only, no fail-open | integration | `python3 tools/wiki/wiki.py check && bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
+| 167-05-02 | 05 | 4 | WIKI-04 | — | Documents of record stay true; scoped edits only | smoke | `grep -q 'tools/wiki' CLAUDE.md && grep -q 'wiki-check.yml' .planning/codebase/STRUCTURE.md` | ✓ runs today | ⬜ pending |
+| 167-05-03 | 05 | 4 | WIKI-06 | T-167-18 | Read-back only; no setting-mutating API method permitted | smoke | `test "$(gh api repos/henols/firestarter --jq .has_wiki)" = "false"` (×3 repos) | ✓ runs today | ⬜ pending |
+| 167-06-01 | 06 | 5 | WIKI-01 | T-167-21 | The operator gate is reported, never worked around | **manual, operator-gated** | `git ls-remote https://github.com/henols/firestarter_prom.wiki.git refs/heads/master` | ❌ blocked on operator | ⬜ pending |
+| 167-06-02 | 06 | 5 | WIKI-01, WIKI-02, WIKI-03, WIKI-04 | T-167-03, T-167-12 | Live drift observed red before green; no credential in any capture | **manual + integration** | `python3 tools/wiki/wiki.py publish --require-wiki` | ❌ blocked on operator | ⬜ pending |
+| 167-06-03 | 06 | 5 | WIKI-03, WIKI-04 | T-167-03, T-167-04, T-167-07, T-167-17, T-167-19, T-167-20 | `contents: write` on the publish job only; one token variable; remote never logged; A1 recorded unproven | smoke | `grep -q 'contents: write' .github/workflows/wiki-publish.yml && python3 tools/wiki/wiki.py check` | ❌ blocked on operator | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -121,12 +138,17 @@ The phase's central evidentiary requirement — criteria 2, 4 and 5 each demand 
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] All 11 negative cases carry a captured red run
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies — every one of the 18 tasks carries an `<automated>` command
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references — plan 167-01 creates `selftest.sh` and `wiki.py`; plan 167-04 creates the `wiki/` tree
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s — `selftest.sh` prototype ran in under 2 s
+- [x] All 11 negative cases carry a captured red run — plan 167-01 tasks 2-3 (2 cases), plan 167-02 tasks 1-2 (5 cases), plan 167-03 tasks 1-2 (5 cases, of which `wiki_absent_exit_2` is the 11th); `sidebar_deterministic` is a 12th case carried as a byte-stability assertion
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Additional evidence beyond the 11 cases** — three localised mutation runs, each captured in its
+plan's SUMMARY, proving the assertions are attributable rather than merely reachable:
+plan 167-01 `Harness negative control`; plan 167-02 `Negative control: check_orphans neutered`;
+plan 167-03 `Negative control: mirror wipe replaced by copy-over`.
+
+**Approval:** planned 2026-08-30
