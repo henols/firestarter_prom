@@ -22,3 +22,14 @@ jobs:
 
       - name: Run wiki tooling selftest
         run: bash tools/wiki/selftest.sh
+
+  wiki-drift-live:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assert published wiki matches source
+        run: python3 tools/wiki/wiki.py publish --require-wiki

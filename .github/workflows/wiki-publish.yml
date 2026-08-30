@@ -1,0 +1,30 @@
+name: Wiki publish
+on:
+  push:
+    branches:
+    - beta
+    paths:
+    - 'wiki/**'
+    - 'tools/wiki/**'
+    - '.github/workflows/wiki-publish.yml'
+  workflow_dispatch:
+
+jobs:
+  wiki-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      WIKI_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN || secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish wiki
+        run: |
+          REMOTE="https://x-access-token:${WIKI_TOKEN}@github.com/henols/firestarter_prom.wiki.git"
+          python3 tools/wiki/wiki.py publish --push --require-wiki --wiki-remote "$REMOTE"
+
+      - name: Assert wiki matches source after publish
+        run: |
+          REMOTE="https://x-access-token:${WIKI_TOKEN}@github.com/henols/firestarter_prom.wiki.git"
+          python3 tools/wiki/wiki.py publish --require-wiki --wiki-remote "$REMOTE"
