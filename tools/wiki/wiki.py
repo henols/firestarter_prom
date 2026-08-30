@@ -244,9 +244,34 @@ def cmd_links(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_check(args: argparse.Namespace) -> int:
+    total_legs = 2
+    failed_legs = 0
+
+    sidebar_args = argparse.Namespace(
+        source_dir=args.source_dir, wiki_remote=args.wiki_remote, check=True
+    )
+    if cmd_sidebar(sidebar_args) != 0:
+        failed_legs += 1
+
+    if cmd_links(args) != 0:
+        failed_legs += 1
+
+    if failed_legs:
+        print(
+            f"ERROR: offline legs failed ({failed_legs} of {total_legs}).",
+            file=sys.stderr,
+        )
+        return 1
+
+    print(f"OK: all offline legs passed ({total_legs} legs).")
+    return 0
+
+
 COMMANDS = {
     "sidebar": cmd_sidebar,
     "links": cmd_links,
+    "check": cmd_check,
 }
 
 
@@ -303,6 +328,17 @@ def _build_argparser() -> argparse.ArgumentParser:
         "wrong-case link are each rejected, because GitHub's read path "
         "silently tolerates all of them. Only Home.md links count as "
         "reachability evidence; the generated _Sidebar.md does not.",
+    )
+
+    subparsers.add_parser(
+        "check",
+        parents=[common],
+        help="Run every offline integrity leg (sidebar freshness, then "
+        "links) in one pass.",
+        description="check is the single offline aggregator run by CI and "
+        "by publish before the remote is touched. Both legs always run, "
+        "even if the first fails. It writes nothing under any "
+        "circumstance.",
     )
 
     return parser
