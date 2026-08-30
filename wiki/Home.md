@@ -11,7 +11,6 @@ The following reference pages are being moved onto this wiki from the firmware a
 - PROTOCOLS
 - SHIELD-REVISIONS
 - AT28C04-ADAPTER
-- PY32F071-FIRMWARE-INSTALL
 - beta-testing-install
 - community-validation
 - infoic-field-dictionary

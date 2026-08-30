@@ -36,7 +36,7 @@ reading a file, running a script, or querying the GitHub API — none of it need
 
 ### Migration — emptying `doc/`
 
-- [ ] **MIGRATE-01**: The content of all 13 `doc/` files is reachable on the wiki.
+- [ ] **MIGRATE-01**: The content of all 12 migrating `doc/` files is reachable on the wiki. (`PY32F071-FIRMWARE-INSTALL.md` is deferred, not migrated — operator decision 2026-08-30; see Phase 168 criterion 1.)
 - [ ] **MIGRATE-02**: `firestarter/doc/` and `firestarter_app/doc/` no longer exist in either repository.
 - [ ] **MIGRATE-03**: `firestarter_app` still builds, installs, and passes its test suite after `doc/` removal — three of those files (`package-details.md`, `protocol-flags.md`, `protocol-id.md`) are currently carried in the sdist.
 - [ ] **MIGRATE-04**: No file in either sub-repo links to a `doc/` path that no longer exists.

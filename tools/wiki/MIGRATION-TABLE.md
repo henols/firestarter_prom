@@ -13,7 +13,6 @@ in this repository reads this table to decide what to publish.
 | firestarter | firestarter/doc/PROTOCOLS.md | TBD | TBD | TBD |
 | firestarter | firestarter/doc/SHIELD-REVISIONS.md | TBD | TBD | TBD |
 | firestarter | firestarter/doc/AT28C04-ADAPTER.md | TBD | TBD | TBD |
-| firestarter_app | firestarter_app/doc/PY32F071-FIRMWARE-INSTALL.md | TBD | TBD | TBD |
 | firestarter_app | firestarter_app/doc/beta-testing-install.md | TBD | TBD | TBD |
 | firestarter_app | firestarter_app/doc/community-validation.md | TBD | TBD | TBD |
 | firestarter_app | firestarter_app/doc/infoic-field-dictionary.md | TBD | TBD | TBD |
@@ -26,9 +25,18 @@ in this repository reads this table to decide what to publish.
 
 The two filled rows above are the pages authored directly in this phase, with no prior
 source path — they demonstrate the columns against real data rather than an empty
-template. The thirteen `TBD` rows are the shell for the next migration pass to fill in:
+template. The twelve `TBD` rows are the shell for the next migration pass to fill in:
 their source repository and source path are already recorded, so that pass is auditable
-against this table rather than trusted to remember all thirteen files correctly.
+against this table rather than trusted to remember all twelve files correctly.
+
+## Deferred, not migrating
+
+`firestarter_app/doc/PY32F071-FIRMWARE-INSTALL.md` is **not** part of the migration. The
+PY32F071 work it describes exists only at the planning stage and its code is a
+proof-of-concept, so publishing an install guide for it would promise a capability the
+project cannot currently back. It is deferred to future wiki work alongside FUT-W-01…05
+and is deliberately absent from the table above so no migration pass picks it up by
+accident.
 
 ## The hyphen hazard
 
@@ -39,7 +47,7 @@ character (such as U+2010) into the filename to smuggle a literal hyphen through
 invisible non-ASCII character inside a URL that gets hand-written into other repositories'
 READMEs is a worse defect than a reworded title, and it would not be visible on review.
 
-Two of the thirteen filenames above are the specific cases worth checking deliberately
+Two of the twelve filenames above are the specific cases worth checking deliberately
 when this table is filled in: `AT28C04-ADAPTER.md`, whose natural title is a part number
 that already contains a hyphen, and `sram-nvram-behavior.md`, whose natural title reads
 most naturally with a slash (SRAM/NVRAM) rather than a hyphen. Both need a reworded title
