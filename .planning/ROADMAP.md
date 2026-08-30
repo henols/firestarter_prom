@@ -274,7 +274,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 167-05-PLAN.md — `.github/workflows/wiki-check.yml` (offline legs, keyed to `beta`, `contents: read`), the `CLAUDE.md` / `STRUCTURE.md` corrections, and the WIKI-06 API read-back
+- [x] 167-05-PLAN.md — `.github/workflows/wiki-check.yml` (offline legs, keyed to `beta`, `contents: read`), the `CLAUDE.md` / `STRUCTURE.md` corrections, and the WIKI-06 API read-back
 
 **Wave 5** *(blocked on Wave 4 — OPERATOR-GATED)*
 

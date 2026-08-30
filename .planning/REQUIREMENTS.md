@@ -18,7 +18,7 @@ reading a file, running a script, or querying the GitHub API — none of it need
 - [ ] **WIKI-03**: A maintainer can publish the in-repo wiki source to the GitHub wiki with one command; re-running it with no source change produces no wiki commit.
 - [ ] **WIKI-04**: A drift check reports failure when the published wiki differs from the in-repo source, and is demonstrated failing before it is trusted.
 - [ ] **WIKI-05**: A reader can navigate between wiki pages without going back to the repository — every page is reachable from the Home page or a sidebar.
-- [ ] **WIKI-06**: The two sub-repo wikis are disabled, so `firestarter_prom` is the only wiki that can accumulate content.
+- [x] **WIKI-06**: The two sub-repo wikis are disabled, so `firestarter_prom` is the only wiki that can accumulate content.
 
 ### Front door — `firestarter_prom`
 
@@ -133,7 +133,7 @@ Populated during roadmap creation.
 | WIKI-03 | Phase 167 | Pending |
 | WIKI-04 | Phase 167 | Pending |
 | WIKI-05 | Phase 167 | Pending |
-| WIKI-06 | Phase 167 | Pending |
+| WIKI-06 | Phase 167 | Complete |
 | MIGRATE-01 | Phase 168 | Pending |
 | MIGRATE-02 | Phase 168 | Pending |
 | MIGRATE-03 | Phase 168 | Pending |
@@ -162,6 +162,7 @@ Populated during roadmap creation.
 | POLICY-05 | Phase 173 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 32 total
 - Mapped to phases: 32
 - Unmapped: 0 ✓
