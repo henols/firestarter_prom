@@ -61,7 +61,8 @@ directories empty.
 │   ├── gen-platformio-ini.py         #   emits the gitignored root platformio.ini
 ├── .github/workflows/
 │   ├── catalog-sync-check.yml        # TRACKED — guards cross-sub-repo catalog identity
-│   └── wiki-check.yml                # TRACKED — offline wiki source integrity + selftest
+│   ├── wiki-check.yml                # TRACKED — offline wiki source integrity + selftest
+│   └── wiki-publish.yml              # TRACKED — publishes wiki/ to the GitHub wiki on beta
 ├── .vscode/                          # TRACKED — mostly PlatformIO-generated
 │   ├── c_cpp_properties.json         #   AUTO-GENERATED; /home/henrik/... host paths
 │   ├── launch.json                   #   AUTO-GENERATED; 3 platformio-debug configs (uno)
@@ -123,7 +124,7 @@ under `.planning/v1.7/**` except `*.md` (raw chat dumps and photo binaries stay 
 | Container definition | `.devcontainer/devcontainer.json`, `.devcontainer/Dockerfile` |
 | Provisioning steps | `.devcontainer/post-create.sh` |
 | Root PlatformIO wrapper generator | `.devcontainer/gen-platformio-ini.py` |
-| CI | `.github/workflows/catalog-sync-check.yml`, `.github/workflows/wiki-check.yml` |
+| CI | `.github/workflows/catalog-sync-check.yml`, `.github/workflows/wiki-check.yml`, `.github/workflows/wiki-publish.yml` |
 | Firmware debug launch | `.vscode/launch.json` |
 | Firmware IntelliSense include paths | `.vscode/c_cpp_properties.json` |
 
