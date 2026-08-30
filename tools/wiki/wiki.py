@@ -22,6 +22,8 @@ a fixture before the operator creates the real GitHub wiki.
 
 Subcommands:
   sidebar   generate or check _Sidebar.md from the wiki source tree
+  links     check reachability from Home.md, internal link resolution and
+            page filename legality
 """
 
 from __future__ import annotations
@@ -39,6 +41,15 @@ DEFAULT_SOURCE_DIR = Path(__file__).resolve().parent.parent.parent / "wiki"
 HOME_PAGE = "Home.md"
 SIDEBAR_PAGE = "_Sidebar.md"
 NAV_EXCLUDED_PAGES = ("_Sidebar.md", "_Footer.md")
+ILLEGAL_NAME_CHARS = '\\/:*?"<>|'
+LEGAL_LINK_RE = re.compile(r"\[([^\]]*)\]\(([A-Za-z0-9][A-Za-z0-9-]*)(?:#([A-Za-z0-9_-]*))?\)")
+EXTERNAL_LINK_PREFIXES = ("http://", "https://", "mailto:", "#")
+_LEGAL_TARGET_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]*(?:#[A-Za-z0-9_-]*)?")
+_DOUBLE_BRACKET_RE = re.compile(r"\[\[[^\]]*\]\]")
+_REFERENCE_LINK_RE = re.compile(r"\[[^\]]*\]\[[^\]]*\]")
+_PAREN_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")
+_FENCE_RE = re.compile(r"```.*?```", re.DOTALL)
+_INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 
 
 def render_title(stem: str) -> str:
@@ -47,6 +58,10 @@ def render_title(stem: str) -> str:
 
 def page_files(source_dir: Path) -> list[Path]:
     return sorted(source_dir.glob("*.md"), key=lambda p: p.name)
+
+
+def page_stems(source_dir: Path) -> list[str]:
+    return [p.stem for p in page_files(source_dir)]
 
 
 def generate_sidebar(source_dir: Path) -> str:
@@ -86,8 +101,152 @@ def cmd_sidebar(args: argparse.Namespace) -> int:
     return 0
 
 
+def strip_code_spans(text: str) -> str:
+    def _fence_repl(match: re.Match[str]) -> str:
+        return "\n" * match.group(0).count("\n")
+
+    text = _FENCE_RE.sub(_fence_repl, text)
+    return _INLINE_CODE_RE.sub(lambda match: " " * len(match.group(0)), text)
+
+
+def extract_internal_links(page: Path) -> list[tuple[int, str, str]]:
+    stripped = strip_code_spans(page.read_text(encoding="utf-8"))
+    links: list[tuple[int, str, str]] = []
+    for lineno, line in enumerate(stripped.splitlines(), start=1):
+        remaining = line
+        for match in _DOUBLE_BRACKET_RE.finditer(remaining):
+            links.append((lineno, match.group(0), match.group(0)))
+        remaining = _DOUBLE_BRACKET_RE.sub("", remaining)
+        for match in _REFERENCE_LINK_RE.finditer(remaining):
+            links.append((lineno, match.group(0), match.group(0)))
+        remaining = _REFERENCE_LINK_RE.sub("", remaining)
+        for match in LEGAL_LINK_RE.finditer(remaining):
+            anchor = match.group(3)
+            target = match.group(2) + (f"#{anchor}" if anchor is not None else "")
+            links.append((lineno, match.group(1), target))
+        remaining = LEGAL_LINK_RE.sub("", remaining)
+        for match in _PAREN_LINK_RE.finditer(remaining):
+            link_text, target = match.group(1), match.group(2)
+            if target.startswith(EXTERNAL_LINK_PREFIXES):
+                continue
+            links.append((lineno, link_text, target))
+    return links
+
+
+def check_page_names(source_dir: Path) -> list[str]:
+    failures: list[str] = []
+    for entry in sorted(source_dir.iterdir(), key=lambda p: p.name):
+        name = entry.name
+        if entry.is_dir():
+            failures.append(
+                f"illegal page filename {name!r}: directory found in flat "
+                "wiki/ tree"
+            )
+            continue
+        problems: list[str] = []
+        if entry.suffix != ".md":
+            problems.append(f"suffix {entry.suffix!r} is not .md")
+        illegal_found = sorted(set(name) & set(ILLEGAL_NAME_CHARS))
+        if illegal_found:
+            problems.append(
+                f"contains illegal characters {illegal_found}; rejected set "
+                f"is {sorted(ILLEGAL_NAME_CHARS)}"
+            )
+        if ".." in name:
+            problems.append("contains '..'")
+        if problems:
+            failures.append(
+                f"illegal page filename {name!r}: " + "; ".join(problems)
+            )
+    return failures
+
+
+def check_link_forms(source_dir: Path) -> list[str]:
+    failures: list[str] = []
+    stems = set(page_stems(source_dir))
+    lower_stems = {stem.lower() for stem in stems}
+    for page in page_files(source_dir):
+        if page.name in NAV_EXCLUDED_PAGES:
+            continue
+        for lineno, link_text, target in extract_internal_links(page):
+            if not _LEGAL_TARGET_RE.fullmatch(target):
+                if link_text == target:
+                    failures.append(
+                        f"illegal internal link form in {page.name}:{lineno}: "
+                        f"{target} -- the only legal internal link form is "
+                        "[Text](Page-Name) or [Text](Page-Name#anchor)"
+                    )
+                else:
+                    failures.append(
+                        f"illegal internal link form in {page.name}:{lineno}: "
+                        f"[{link_text}]({target}) -- the only legal internal "
+                        "link form is [Text](Page-Name) or "
+                        "[Text](Page-Name#anchor)"
+                    )
+                continue
+            base = target.split("#", 1)[0]
+            if base in stems:
+                continue
+            if base.lower() in lower_stems:
+                failures.append(
+                    f"unresolved internal link in {page.name}:{lineno}: "
+                    f"{target} does not match any page filename exactly "
+                    "(case-sensitive; GitHub resolves this case-"
+                    "insensitively and will never report the mismatch)"
+                )
+            else:
+                failures.append(
+                    f"unresolved internal link in {page.name}:{lineno}: "
+                    f"{target} has no matching page"
+                )
+    return failures
+
+
+def check_orphans(source_dir: Path) -> list[str]:
+    failures: list[str] = []
+    home = source_dir / HOME_PAGE
+    if not home.is_file():
+        failures.append(f"orphan check requires {HOME_PAGE} to exist")
+        return failures
+    reachable: set[str] = set()
+    for _lineno, _link_text, target in extract_internal_links(home):
+        if _LEGAL_TARGET_RE.fullmatch(target):
+            reachable.add(target.split("#", 1)[0])
+    home_stem = Path(HOME_PAGE).stem
+    for stem in page_stems(source_dir):
+        if stem == home_stem:
+            continue
+        if f"{stem}.md" in NAV_EXCLUDED_PAGES:
+            continue
+        if stem not in reachable:
+            failures.append(f"orphan page not linked from {HOME_PAGE}: {stem}")
+    return failures
+
+
+def cmd_links(args: argparse.Namespace) -> int:
+    source_dir = args.source_dir
+    failures = check_page_names(source_dir)
+    failures += check_link_forms(source_dir)
+    failures += check_orphans(source_dir)
+    if failures:
+        for message in failures:
+            print(f"ERROR: {message}", file=sys.stderr)
+        return 1
+    pages = [
+        stem for stem in page_stems(source_dir) if f"{stem}.md" not in NAV_EXCLUDED_PAGES
+    ]
+    for stem in pages:
+        print(f'{stem} -> "{render_title(stem)}"')
+    print(
+        f"OK: {len(pages)} pages, all reachable from {HOME_PAGE}, all "
+        "internal links resolve, all filenames legal."
+    )
+    return 0
+
+
 COMMANDS = {
     "sidebar": cmd_sidebar,
+    "links": cmd_links,
 }
 
 
@@ -131,6 +290,19 @@ def _build_argparser() -> argparse.ArgumentParser:
         action="store_true",
         help="Validate _Sidebar.md against the generated content and exit "
         "0/1. No files written.",
+    )
+
+    subparsers.add_parser(
+        "links",
+        parents=[common],
+        help="Check reachability from Home.md, resolve internal links and "
+        "validate page filenames.",
+        description="The single legal internal link form is "
+        "[Text](Page-Name) or [Text](Page-Name#anchor). A .md-suffixed "
+        "link, a [[Page]] link, a reference-style [Text][ref] link and a "
+        "wrong-case link are each rejected, because GitHub's read path "
+        "silently tolerates all of them. Only Home.md links count as "
+        "reachability evidence; the generated _Sidebar.md does not.",
     )
 
     return parser
