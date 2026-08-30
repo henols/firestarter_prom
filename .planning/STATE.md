@@ -5,15 +5,15 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 167
 current_phase_name: WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
 status: executing
-stopped_at: Phase 167 executing — plan 167-02 complete (2 of 6)
-last_updated: "2026-08-30T12:02:44.190Z"
+stopped_at: Phase 167 executing — plan 167-03 complete (3 of 6)
+last_updated: "2026-08-30T12:20:05.610Z"
 last_activity: 2026-08-30
-last_activity_desc: Phase 167 executing — plan 167-02 complete (wiki.py links + check subcommands); wave 3 (167-03) next
+last_activity_desc: Phase 167 executing — plan 167-03 complete (wiki.py publish mirror/drift/exit-2 contract); wave 4 (167-04) next
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 6
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -237,9 +237,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 167 (WIKI — Bootstrap, In-Repo Source, Sync & Drift Check) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
-Last activity: 2026-08-30 — Phase 167 executing — plan 167-02 complete (wiki.py links + check subcommands); wave 3 (167-03) next
+Last activity: 2026-08-30 — Phase 167 executing — plan 167-03 complete (wiki.py publish mirror/drift/exit-2 contract); wave 4 (167-04) next
 
 ## Roadmap Summary (v1.35)
 
@@ -2713,6 +2713,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: argparse global flags need a shared parent parser added to both the top-level parser and the sidebar subparser, else flags typed after the subcommand name are rejected
 - [Phase ?]: rc_of in selftest.sh takes an explicit outfile argument so each case's captured output is independently greppable
 - [Phase 167-02]: Link legality classified post-hoc against the extracted target rather than tagged during extraction, so [[Page]] and reference-style links fail the same single check as .md-suffixed targets — One legality gate instead of three, per codegen.py's accumulate-then-report idiom
+- [Phase 167]: 167-03: symbolic-ref --short HEAD fallback added to publish's rev-parse --abbrev-ref HEAD branch check, because the literal command fails on a freshly cloned unborn-branch bare repo (every fixture's first push)
+- [Phase 167]: 167-03: case_hand_edit_overwritten extended with a wiki-only Stray-Page.md so the mirror-wipe's deletion behavior is actually discriminated from a plain copy-over; case_deleted_page_removed's Home.md rewritten alongside the source deletion so cmd_check's unconditional pre-check does not reject the fixture before the mirror-deletion property is exercised
 
 ## Performance Metrics
 
@@ -3079,11 +3081,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 162 P06 | 45m | 4 tasks | 34 files |
 | Phase 167 P01 | 8min | 3 tasks | 2 files |
 | Phase 167 P02 | 12min | 3 tasks | 2 files |
+| Phase 167 P03 | 14min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-30T12:02:44.093Z
-**Stopped at:** Completed 167-01-PLAN.md
+**Last session:** 2026-08-30T12:20:05.518Z
+**Stopped at:** Completed 167-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
