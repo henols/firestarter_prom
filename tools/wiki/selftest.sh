@@ -134,7 +134,147 @@ case_sidebar_deterministic() {
     return "$ok"
 }
 
-CASES=(stale_sidebar_exit_1 sidebar_deterministic)
+case_orphan_exit_1() {
+    local src="$WORK/orphan_exit_1_src"
+    new_source_dir "$src"
+    local ok=0
+
+    local control_rc
+    control_rc=$(rc_of orphan_exit_1_control.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "orphan_exit_1_control" 0 "$control_rc" || ok=1
+
+    printf '%s\n' '# Page Orphan' '' 'Fixture body with no internal links.' > "$src/Page-Orphan.md"
+    python3 "$WIKI_PY" sidebar --source-dir "$src" >/dev/null
+
+    local mutated_rc
+    mutated_rc=$(rc_of orphan_exit_1_mutated.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "orphan_exit_1" 1 "$mutated_rc" || ok=1
+
+    if ! grep -q 'Page-Orphan' "$WORK/orphan_exit_1_mutated.log"; then
+        echo "ERROR: orphan_exit_1: stderr missing Page-Orphan" >&2
+        ok=1
+    fi
+
+    record "orphan_exit_1" 1 "$mutated_rc" "$control_rc" "orphan absent from Home.md"
+
+    return "$ok"
+}
+
+case_sidebar_link_is_not_evidence() {
+    local src="$WORK/sidebar_link_is_not_evidence_src"
+    new_source_dir "$src"
+    local ok=0
+
+    local control_rc
+    control_rc=$(rc_of sidebar_link_is_not_evidence_control.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "sidebar_link_is_not_evidence_control" 0 "$control_rc" || ok=1
+
+    printf '%s\n' '# Page Orphan' '' 'Fixture body with no internal links.' > "$src/Page-Orphan.md"
+    python3 "$WIKI_PY" sidebar --source-dir "$src" >/dev/null
+
+    if ! grep -q 'Page-Orphan' "$src/_Sidebar.md"; then
+        echo "ERROR: sidebar_link_is_not_evidence: regenerated sidebar missing Page-Orphan link" >&2
+        ok=1
+    fi
+
+    local sidebar_check_rc
+    sidebar_check_rc=$(rc_of sidebar_link_is_not_evidence_sidebar_check.log python3 "$WIKI_PY" sidebar --check --source-dir "$src")
+    assert_rc "sidebar_link_is_not_evidence_sidebar_check" 0 "$sidebar_check_rc" || ok=1
+
+    local links_rc
+    links_rc=$(rc_of sidebar_link_is_not_evidence_links.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "sidebar_link_is_not_evidence" 1 "$links_rc" || ok=1
+
+    if ! grep -q 'Page-Orphan' "$WORK/sidebar_link_is_not_evidence_links.log"; then
+        echo "ERROR: sidebar_link_is_not_evidence: stderr missing Page-Orphan" >&2
+        ok=1
+    fi
+
+    record "sidebar_link_is_not_evidence" 1 "$links_rc" "$control_rc" "home-only evidence"
+
+    return "$ok"
+}
+
+case_broken_link_exit_1() {
+    local src="$WORK/broken_link_exit_1_src"
+    new_source_dir "$src"
+    local ok=0
+
+    local control_rc
+    control_rc=$(rc_of broken_link_exit_1_control.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "broken_link_exit_1_control" 0 "$control_rc" || ok=1
+
+    printf '%s\n' '[x](No-Such-Page)' >> "$src/Home.md"
+
+    local mutated_rc
+    mutated_rc=$(rc_of broken_link_exit_1_mutated.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "broken_link_exit_1" 1 "$mutated_rc" || ok=1
+
+    if ! grep -q 'No-Such-Page' "$WORK/broken_link_exit_1_mutated.log"; then
+        echo "ERROR: broken_link_exit_1: stderr missing No-Such-Page" >&2
+        ok=1
+    fi
+
+    record "broken_link_exit_1" 1 "$mutated_rc" "$control_rc" "unresolved internal link target"
+
+    return "$ok"
+}
+
+case_md_suffix_link_exit_1() {
+    local src="$WORK/md_suffix_link_exit_1_src"
+    new_source_dir "$src"
+    local ok=0
+
+    local control_rc
+    control_rc=$(rc_of md_suffix_link_exit_1_control.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "md_suffix_link_exit_1_control" 0 "$control_rc" || ok=1
+
+    printf '%s\n' '[x](Home.md)' >> "$src/Page-One.md"
+
+    local mutated_rc
+    mutated_rc=$(rc_of md_suffix_link_exit_1_mutated.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "md_suffix_link_exit_1" 1 "$mutated_rc" || ok=1
+
+    if ! grep -q 'Home.md' "$WORK/md_suffix_link_exit_1_mutated.log"; then
+        echo "ERROR: md_suffix_link_exit_1: stderr missing Home.md" >&2
+        ok=1
+    fi
+
+    record "md_suffix_link_exit_1" 1 "$mutated_rc" "$control_rc" "md-suffixed internal link rejected"
+
+    return "$ok"
+}
+
+case_illegal_filename_exit_1() {
+    local src="$WORK/illegal_filename_exit_1_src"
+    new_source_dir "$src"
+    local ok=0
+
+    local control_rc
+    control_rc=$(rc_of illegal_filename_exit_1_control.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "illegal_filename_exit_1_control" 0 "$control_rc" || ok=1
+
+    printf '%s\n' '# Page Bad' '' 'Fixture body with no internal links.' > "$src/Page:Bad.md"
+    if ! ls "$src/Page:Bad.md" >/dev/null 2>&1; then
+        echo "ERROR: illegal_filename_exit_1: fixture file Page:Bad.md was not created" >&2
+        ok=1
+    fi
+
+    local mutated_rc
+    mutated_rc=$(rc_of illegal_filename_exit_1_mutated.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "illegal_filename_exit_1" 1 "$mutated_rc" || ok=1
+
+    if ! grep -q 'Page:Bad.md' "$WORK/illegal_filename_exit_1_mutated.log"; then
+        echo "ERROR: illegal_filename_exit_1: stderr missing offending filename" >&2
+        ok=1
+    fi
+
+    record "illegal_filename_exit_1" 1 "$mutated_rc" "$control_rc" "illegal filename character"
+
+    return "$ok"
+}
+
+CASES=(stale_sidebar_exit_1 sidebar_deterministic orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1)
 
 exit_code=0
 fail_count=0
