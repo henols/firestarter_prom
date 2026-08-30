@@ -5,10 +5,10 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim
 status: planning
-stopped_at: v1.35 re-scoped for wiki-only authoring after the operator reversed activation decision 5 mid-discussion; Phase 168 discussion halted before CONTEXT.md and must be re-run
-last_updated: "2026-08-30T20:05:03.367Z"
+stopped_at: Phase 168 context gathered
+last_updated: "2026-08-30T21:42:57.185Z"
 last_activity: 2026-08-30
-last_activity_desc: v1.35 re-scoped — WIKI-03/04 withdrawn, WIKI-02/05 rewritten and reassigned to Phase 168 (now 9 reqs), Phase 168 criteria 4/5 restated and 7/8 added; decision record in notes/v135-wiki-only-reversal.md
+last_activity_desc: Phase 168 context gathered — 168-CONTEXT.md written against the re-scoped criteria (22 decisions, 3 operator-answered); the discuss re-run called for by notes/v135-wiki-only-reversal.md step 3 is complete
 progress:
   total_phases: 7
   completed_phases: 1
@@ -3110,8 +3110,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-30T20:05:03.307Z
-**Stopped at:** Phase 167 complete — all 6 plans executed, WIKI-01..05 demonstrated live, WIKI-06 pre-existing; A1 (CI token) left unproven
+**Last session:** 2026-08-30T21:42:57.096Z
+**Stopped at:** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
@@ -3148,7 +3148,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/168-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
