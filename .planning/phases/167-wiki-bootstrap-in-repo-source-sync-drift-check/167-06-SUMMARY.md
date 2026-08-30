@@ -390,7 +390,7 @@ No result in Steps A–H contradicted the local fixture from plan 167-03. Every 
 - Triggers: `push` to `branches: [beta]` with `paths` of `wiki/**`, `tools/wiki/**`, its own filename; plus `workflow_dispatch`.
 - `permissions: { contents: write }` at job level (mandatory: this repo's `default_workflow_permissions` is `read`).
 - Job-level `env: { WIKI_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN || secrets.GITHUB_TOKEN }} }` — one variable, one fallback expression, shared by both steps via job scope (not step-level, so the `secrets.` expression appears exactly once in the file).
-- `Publish wiki` step: composes `REMOTE="https://x-access-token:${WIKI_TOKEN}@github.com/henols/firestarter_prom.wiki.git"` inside the `run:` block (never echoed, never `set -x`) and calls `python3 tools/wiki/wiki.py publish --push --require-wiki --wiki-remote "$REMOTE"`.
+- `Publish wiki` step: composes the tokenized HTTPS remote (the credential-in-userinfo form GitHub documents for Actions token pushes) inside the `run:` block from `$WIKI_TOKEN` (never echoed, never `set -x`) and calls `python3 tools/wiki/wiki.py publish --push --require-wiki --wiki-remote "$REMOTE"`.
 - `Assert wiki matches source after publish` step: same remote composition, `python3 tools/wiki/wiki.py publish --require-wiki --wiki-remote "$REMOTE"` — no `--push`. This is D-08's post-condition: the same code path that just published re-runs as a dry-run, so a publish that pushed nothing, or pushed the wrong branch, cannot report success.
 - Zero comment lines. Only `uses:` line in the file is `actions/checkout@v4`. No `continue-on-error`, no `|| true`, no force refspec.
 
