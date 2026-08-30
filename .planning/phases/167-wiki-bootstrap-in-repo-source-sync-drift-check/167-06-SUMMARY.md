@@ -483,4 +483,11 @@ None - no external service configuration required. (The classic-PAT fallback sec
 *Phase: 167-wiki-bootstrap-in-repo-source-sync-drift-check*
 *Completed: 2026-08-30*
 
-## Self-Check: PENDING
+## Self-Check: PASSED
+
+- FOUND: `.github/workflows/wiki-publish.yml`
+- FOUND: `.github/workflows/wiki-check.yml`
+- FOUND: `.planning/phases/167-wiki-bootstrap-in-repo-source-sync-drift-check/167-06-SUMMARY.md`
+- FOUND commit `945b765c` (Task 3: wiki-publish.yml + wiki-drift-live job)
+- FOUND commit `c3157ab3` (this SUMMARY)
+- `grep -ciE '(x-access-token|ghp_|github_pat_)'` on this file: `0` (no credential-shaped string present)
