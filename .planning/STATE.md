@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
-current_phase: 167
-current_phase_name: WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
-status: complete
-stopped_at: Phase 167 complete — verification passed (6/6 must-haves); A1 (CI wiki-push token) left unproven by design
+current_phase: 168
+current_phase_name: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim
+status: planning
+stopped_at: v1.35 re-scoped for wiki-only authoring after the operator reversed activation decision 5 mid-discussion; Phase 168 discussion halted before CONTEXT.md and must be re-run
 last_updated: "2026-08-30T20:05:03.367Z"
 last_activity: 2026-08-30
-last_activity_desc: Phase 167 — all 6 plans complete; live wiki publish/drift/idempotence demonstrated (167-06); ready for phase verification
+last_activity_desc: v1.35 re-scoped — WIKI-03/04 withdrawn, WIKI-02/05 rewritten and reassigned to Phase 168 (now 9 reqs), Phase 168 criteria 4/5 restated and 7/8 added; decision record in notes/v135-wiki-only-reversal.md
 progress:
   total_phases: 7
   completed_phases: 1
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 167 (WIKI — Bootstrap, In-Repo Source, Sync & Drift Check) — ALL PLANS COMPLETE
-Plan: 6 of 6
-Status: Phase complete — ready for verification
-Last activity: 2026-08-30 — Phase 167 plan 06 complete: operator-gated wiki created, live criteria 2/3/4 demonstrated on the real wiki, wiki-publish.yml + wiki-drift-live authored; WIKI-01..05 marked complete, A1 (CI token) recorded unproven
+Phase: 168 (MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim) — NOT STARTED; discussion halted mid-session
+Plan: 0 of 0
+Status: Milestone re-scoped for wiki-only authoring; Phase 168 discussion must be re-run before planning
+Last activity: 2026-08-30 — operator reversed the in-repo wiki source model during /gsd-discuss-phase 168; ROADMAP.md + REQUIREMENTS.md re-scoped (WIKI-03/04 withdrawn, WIKI-02/05 rewritten and reassigned to 168, Phase 168 criteria 4/5 restated and 7/8 added); no 168-CONTEXT.md written; four claim-gate decisions preserved in .planning/notes/v135-wiki-only-reversal.md
 
 ## Roadmap Summary (v1.35)
 
@@ -285,10 +285,24 @@ writing twice. Branch protection is applied in 172 and its consequences are disc
 lockstep cut demonstrated working under the new rulesets, and the GSD close procedure updated before the
 next `/gsd-complete-milestone` discovers the change by failing.
 
-**Two checks that must not be conflated.** WIKI-04 compares published wiki against in-repo source — a
-publishing-integrity check. HONEST-02 compares page claims against `chip_database.json` /
-`PROTOCOL-LEDGER.json` — a truth check. A green WIKI-04 says the wiki matches what was written and says
-nothing about whether what was written is true. Neither may be reported as covering the other.
+**Two checks that must not be conflated — and as of 2026-08-30 only one survives.** WIKI-04 compared
+published wiki against in-repo source — a publishing-integrity check. HONEST-02 compares page claims
+against `chip_database.json` / `PROTOCOL-LEDGER.json` — a truth check. A green WIKI-04 said the wiki
+matched what was written and said nothing about whether what was written is true. **WIKI-04 is
+withdrawn with the wiki-only model reversal**, so HONEST-02 now stands alone and must not be described
+as covering publishing integrity — nothing does any more. That gap is an accepted cost of the reversal.
+
+**⚠ MODEL REVERSED 2026-08-30 — the wiki is authored in the wiki, not in the repo.** During
+`/gsd-discuss-phase 168` the operator reversed milestone activation decision 5, after Phase 167 had
+already shipped and verified the in-repo source model. Documentation lives **only in the GitHub wiki**:
+no in-repo `wiki/` tree, no publish command, no source-vs-published drift check. **WIKI-03 and WIKI-04
+are withdrawn; WIKI-02 is rewritten and WIKI-05 reopened, both reassigned to Phase 168** (now 9
+requirements). Retired: `wiki/` (3 pages), `wiki-publish.yml`, and `wiki.py`'s `publish` / `sidebar` /
+`check`. Survives: `tools/wiki/MIGRATION-TABLE.md` (it sits under `tools/`, not `wiki/`) and
+`wiki.py links`, repointable at a wiki clone. **The unlock for HONEST-02:** `firestarter_prom.wiki.git`
+is a real git repository, so the claim check clones it and asserts against published pages — a
+first-party clone, not the external HTTP probe D-11 rejected. Full record:
+`.planning/notes/v135-wiki-only-reversal.md`.
 
 ## Roadmap Summary (v1.34)
 

@@ -3,9 +3,18 @@
 **Defined:** 2026-08-30
 **Milestone value:** One front door, one documentation home, and no page that claims more than the code can back.
 
-**Scope note.** This milestone changes documentation, repository configuration, and one sync/check
-script. It does not touch firmware or host behaviour. Every requirement below is verifiable by
-reading a file, running a script, or querying the GitHub API — none of it needs hardware.
+**Scope note.** This milestone changes documentation, repository configuration, and the claim-check
+tooling that guards the documentation's honesty. It does not touch firmware or host behaviour. Every
+requirement below is verifiable by reading a file, running a script, or querying the GitHub API —
+none of it needs hardware.
+
+**⚠ Model reversed 2026-08-30 — read before planning anything wiki-shaped.** Milestone activation
+decision 5 (*"wiki pages are sourced in `firestarter_prom` and synced"*) was **reversed by the
+operator on 2026-08-30**, during `/gsd-discuss-phase 168` and after Phase 167 had already shipped the
+in-repo model. Documentation now lives **only in the GitHub wiki**: no in-repo `wiki/` source tree, no
+publish command, no source-vs-published drift check. WIKI-02 is rewritten below, WIKI-03 and WIKI-04
+are **withdrawn**, and WIKI-05 is reopened because the generated sidebar that satisfied it is retired.
+Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-only-reversal.md`](notes/v135-wiki-only-reversal.md).
 
 ---
 
@@ -14,10 +23,10 @@ reading a file, running a script, or querying the GitHub API — none of it need
 ### Wiki — the single documentation home
 
 - [x] **WIKI-01**: The `firestarter_prom` wiki exists and is reachable, with a Home page that indexes every documentation page by name.
-- [x] **WIKI-02**: Wiki pages are authored as markdown files inside the `firestarter_prom` repository, and that in-repo copy is the single source of truth — the wiki is a publishing target, never the place edits originate.
-- [x] **WIKI-03**: A maintainer can publish the in-repo wiki source to the GitHub wiki with one command; re-running it with no source change produces no wiki commit.
-- [x] **WIKI-04**: A drift check reports failure when the published wiki differs from the in-repo source, and is demonstrated failing before it is trusted.
-- [x] **WIKI-05**: A reader can navigate between wiki pages without going back to the repository — every page is reachable from the Home page or a sidebar.
+- [ ] **WIKI-02** *(rewritten 2026-08-30 — supersedes the in-repo-source wording)*: The `firestarter_prom` GitHub wiki is the single home for project documentation and the place edits originate. No in-repo mirror of the wiki content exists in any of the three repositories.
+- [ ] ~~**WIKI-03**~~ **WITHDRAWN 2026-08-30**: *"A maintainer can publish the in-repo wiki source to the GitHub wiki with one command; re-running it with no source change produces no wiki commit."* Withdrawn with the model reversal — there is no in-repo source to publish from. Shipped and verified in Phase 167; its implementation is retired, not merely unused.
+- [ ] ~~**WIKI-04**~~ **WITHDRAWN 2026-08-30**: *"A drift check reports failure when the published wiki differs from the in-repo source, and is demonstrated failing before it is trusted."* Withdrawn with the model reversal — with no in-repo copy there is nothing to drift against. **This does not leave the wiki unguarded:** the truth check that matters is HONEST-02, which is unaffected and becomes correspondingly more load-bearing. Shipped and verified in Phase 167; its implementation is retired.
+- [ ] **WIKI-05** *(reopened 2026-08-30)*: A reader can navigate between wiki pages without going back to the repository — every page is reachable from the Home page or a sidebar. Reopened because the generated `_Sidebar.md` that satisfied it is retired with the model reversal, and Phase 168 adds 12 pages at once; the sidebar is now hand-maintained and needs a check that is not a tautology.
 - [x] **WIKI-06**: The two sub-repo wikis are disabled, so `firestarter_prom` is the only wiki that can accumulate content.
 
 ### Front door — `firestarter_prom`
@@ -62,7 +71,7 @@ reading a file, running a script, or querying the GitHub API — none of it need
 ### Honesty — claims survive the move unchanged
 
 - [ ] **HONEST-01**: Every `support_status` value (`protocol-not-implemented`, `adapter-required`, `vpp-exceeds-max`) and every `PROTOCOL-LEDGER` `UNVERIFIED` bucket reads on the wiki exactly as faithfully as it read in the source document — the migration upgrades no claim.
-- [ ] **HONEST-02**: Any wiki page making per-chip or per-protocol claims either carries a check that fails when it disagrees with `chip_database.json` / `PROTOCOL-LEDGER.json`, or carries an explicit "generated from DB vN, verified <date>" stamp.
+- [ ] **HONEST-02**: Any wiki page making per-chip or per-protocol claims either carries a check that fails when it disagrees with `chip_database.json` / `PROTOCOL-LEDGER.json`, or carries an explicit "generated from DB vN, verified <date>" stamp. **Mechanism after the 2026-08-30 model reversal:** `firestarter_prom.wiki.git` is a real git repository, so the check clones it and asserts against the published pages themselves. That is a first-party git clone, not the external HTTP liveness probe rejected in Phase 167's D-11. With WIKI-04 withdrawn this is the *only* automated guard on wiki content, and it must be demonstrated failing before it is trusted.
 
 ---
 
@@ -99,12 +108,12 @@ Deferred by decision, not dropped. Tracked against Backlog **999.12** (gh#5), wh
 
 ## Constraints and Hazards
 
-**Operator-gated blocker — the wiki must be created by hand.** GitHub creates `<repo>.wiki.git` only
-when the first page is saved through the web UI. There is no REST endpoint for wiki pages, and
-push-to-create was tested at activation and fails (`remote: Repository not found`). WIKI-01 cannot be
-satisfied until the operator saves one page at `https://github.com/henols/firestarter_prom/wiki`.
-Every other requirement is unblocked and can proceed in parallel — no phase may be planned whose
-first action is a wiki push.
+**Operator-gated blocker — RESOLVED 2026-08-30.** GitHub creates `<repo>.wiki.git` only when the
+first page is saved through the web UI. There is no REST endpoint for wiki pages, and push-to-create
+was tested at activation and fails (`remote: Repository not found`). The operator saved the first page
+during Phase 167 Plan 06, so `firestarter_prom.wiki.git` now exists and WIKI-01 is satisfied. The
+underlying property still holds and still matters: **a wiki repository cannot be created by any
+automated step**, so this constraint applies again to any future wiki in another repository.
 
 **Branch protection changes the close procedure.** POLICY-03 puts `main` behind enforcing rulesets.
 `/gsd-complete-milestone` pushes `main` directly today. POLICY-05 exists because POLICY-03 would
@@ -116,9 +125,20 @@ convention pushes `beta` — protection that blocks the lockstep cut would be wo
 pointer and issue URL written by this milestone would be invalidated by that rename. The operator was
 shown this before approving scope and chose to proceed, sweeping references afterwards.
 
-**The honesty constraint is load-bearing, not decorative.** Hand-maintained pages drift where a
-generator would not. A wiki page implying blanket support for an unverified chip is precisely the
-false-PASS failure mode v1.21 was built to prevent. HONEST-02 is the mitigation and is in scope.
+**The honesty constraint is load-bearing, not decorative — and after 2026-08-30 it stands alone.**
+Hand-maintained pages drift where a generator would not. A wiki page implying blanket support for an
+unverified chip is precisely the false-PASS failure mode v1.21 was built to prevent. HONEST-02 is the
+mitigation and is in scope. **The reversal to wiki-only authoring raised its stakes:** with WIKI-04
+withdrawn there is no drift check, and pages are now edited directly in a web UI with no pull request,
+no review and no CI gate on the edit itself. HONEST-02's clone-and-check is the only remaining
+automated guard on wiki content, so a green result from it must mean something — it is to be
+demonstrated failing on a deliberately disagreeing page before it is trusted.
+
+**Wiki edits are no longer reviewable, and that is accepted.** Under the reversed model a wiki page
+can be changed by anyone with write access without a pull request, a diff, or a CI run. The operator
+was shown this on 2026-08-30 and chose it for simplicity. It is recorded here as an accepted cost
+rather than an oversight, and it is the reason HONEST-02 must run on a schedule or dispatch against
+the live wiki rather than as a pull-request check.
 
 ---
 
@@ -129,10 +149,10 @@ Populated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | WIKI-01 | Phase 167 | Complete |
-| WIKI-02 | Phase 167 | Complete |
-| WIKI-03 | Phase 167 | Complete |
-| WIKI-04 | Phase 167 | Complete |
-| WIKI-05 | Phase 167 | Complete |
+| WIKI-02 | Phase 168 | Pending — rewritten 2026-08-30 (wiki-only); reassigned from 167 |
+| WIKI-03 | — | Withdrawn 2026-08-30 (model reversal) |
+| WIKI-04 | — | Withdrawn 2026-08-30 (model reversal); superseded in spirit by HONEST-02 |
+| WIKI-05 | Phase 168 | Pending — reopened 2026-08-30; reassigned from 167 |
 | WIKI-06 | Phase 167 | Complete |
 | MIGRATE-01 | Phase 168 | Pending |
 | MIGRATE-02 | Phase 168 | Pending |

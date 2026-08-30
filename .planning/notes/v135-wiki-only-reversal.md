@@ -92,10 +92,24 @@ gates live, not where the pages live:
 
 ## Next steps
 
-1. Hand-edit `.planning/ROADMAP.md` (v1.35 entry + Phase 167/168 criteria) and
-   `.planning/REQUIREMENTS.md` (WIKI-02/03/04 reopened, HONEST-02 mechanism restated).
-   **Hand-edit — do not regenerate.** The v1.35 ROADMAP entry is hand-authored, and the GSD
-   requirements/roadmap verbs reformat the whole file.
-2. Decide the disposition of Phase 167's shipped tooling — retire wholesale, or keep
-   `wiki.py links` repointed at a wiki clone.
-3. Re-run `/gsd-discuss-phase 168` against criteria that match the model.
+1. ~~Hand-edit `ROADMAP.md` and `REQUIREMENTS.md`.~~ **DONE 2026-08-30.** Applied by hand, not
+   regenerated. `REQUIREMENTS.md`: WIKI-02 rewritten for wiki-only, WIKI-03 and WIKI-04
+   **withdrawn** with their original text preserved struck-through, WIKI-05 reopened, HONEST-02
+   given its clone-and-check mechanism, the operator-gated blocker marked resolved, and the
+   traceability table updated (WIKI-02/05 reassigned to Phase 168). `ROADMAP.md`: activation
+   decision 5 struck and re-costed, the milestone headline corrected, the "two distinct checks"
+   paragraph rewritten to say only one survives, the overview table and coverage line updated to
+   **30/30 active**, Phase 167's detail section banner-marked *superseded — do not plan from it*,
+   and Phase 168's criteria 4 and 5 restated with criteria 7 and 8 added for WIKI-02/WIKI-05.
+   `STATE.md`: frontmatter moved to phase 168 / status `planning`, and the conflation paragraph
+   corrected.
+2. ~~Decide the disposition of Phase 167's shipped tooling.~~ **DECIDED 2026-08-30.** Retire
+   `wiki/`, `wiki-publish.yml`, and `wiki.py`'s `publish` / `sidebar` / `check`; keep
+   `MIGRATION-TABLE.md` and `wiki.py links` (repointed at a wiki clone, to serve WIKI-05). The
+   *execution* of that retirement is Phase 168's work — it is Phase 168 criterion 7, which
+   deliberately requires retirement rather than dormancy: a retired-but-present publish path is a
+   loaded gun aimed at the live wiki, since running it would overwrite pages from a stale source.
+3. **Re-run `/gsd-discuss-phase 168`** against the re-scoped criteria. Three of the four original
+   gray areas are still open and unanswered — the claim-diff unit, the two GSD-phase files, and
+   the link-repair blast radius. The fourth (oracle relocation) is decided; carry its four
+   decisions forward from this note rather than re-asking them.
