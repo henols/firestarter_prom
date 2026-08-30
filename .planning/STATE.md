@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 167
 current_phase_name: WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
 status: executing
-stopped_at: Phase 167 executing — plan 167-01 complete (1 of 6)
-last_updated: "2026-08-30T11:51:33.319Z"
+stopped_at: Phase 167 executing — plan 167-02 complete (2 of 6)
+last_updated: "2026-08-30T12:02:44.190Z"
 last_activity: 2026-08-30
-last_activity_desc: Phase 167 executing — plan 167-01 complete (wiki.py skeleton + selftest.sh harness); wave 2 (167-02) next
+last_activity_desc: Phase 167 executing — plan 167-02 complete (wiki.py links + check subcommands); wave 3 (167-03) next
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 6
-  completed_plans: 1
-  percent: 17
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -237,9 +237,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 167 (WIKI — Bootstrap, In-Repo Source, Sync & Drift Check) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
-Last activity: 2026-08-30 — Phase 167 execution started
+Last activity: 2026-08-30 — Phase 167 executing — plan 167-02 complete (wiki.py links + check subcommands); wave 3 (167-03) next
 
 ## Roadmap Summary (v1.35)
 
@@ -2712,6 +2712,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: FM1608's phase-plan-pre-booked diverges verdict (D-03) was overridden live by the operator ruling: dev test ran alone first, returned OK, so the row is same/validated with zero flashes and zero control arbitration -- the second live override of a plan pre-booking in this sweep
 - [Phase ?]: argparse global flags need a shared parent parser added to both the top-level parser and the sidebar subparser, else flags typed after the subcommand name are rejected
 - [Phase ?]: rc_of in selftest.sh takes an explicit outfile argument so each case's captured output is independently greppable
+- [Phase 167-02]: Link legality classified post-hoc against the extracted target rather than tagged during extraction, so [[Page]] and reference-style links fail the same single check as .md-suffixed targets — One legality gate instead of three, per codegen.py's accumulate-then-report idiom
 
 ## Performance Metrics
 
@@ -3077,10 +3078,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 162 P04 | 20min | 3 tasks | 3 files |
 | Phase 162 P06 | 45m | 4 tasks | 34 files |
 | Phase 167 P01 | 8min | 3 tasks | 2 files |
+| Phase 167 P02 | 12min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-30T11:51:33.241Z
+**Last session:** 2026-08-30T12:02:44.093Z
 **Stopped at:** Completed 167-01-PLAN.md
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
@@ -3118,7 +3120,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/167-wiki-bootstrap-in-repo-source-sync-drift-check/167-01-PLAN.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing

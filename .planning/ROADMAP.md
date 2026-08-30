@@ -265,7 +265,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 167-02-PLAN.md — `wiki.py links` (orphans via `Home.md` only, link-form allowlist, filename legality) and the `check` aggregator, with the 5 reachability cases red before green
+- [x] 167-02-PLAN.md — `wiki.py links` (orphans via `Home.md` only, link-form allowlist, filename legality) and the `check` aggregator, with the 5 reachability cases red before green
 
 **Wave 3** *(blocked on Wave 2)*
 
