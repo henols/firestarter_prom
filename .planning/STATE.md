@@ -5,10 +5,10 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 167
 current_phase_name: WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
 status: executing
-stopped_at: Completed 167-05-PLAN.md
+stopped_at: Phase 167 paused at 167-06 Task 1 — operator must create the wiki (WIKI-01)
 last_updated: "2026-08-30T12:38:08.437Z"
 last_activity: 2026-08-30
-last_activity_desc: Phase 167 executing — plan 167-05 complete (wiki-check.yml CI workflow, CLAUDE.md/STRUCTURE.md corrections, WIKI-06 re-verified); wave 6 (167-06, operator-gated) next
+last_activity_desc: Phase 167 — plans 167-01..05 complete and green; 167-06 halted at the operator-gated wiki-creation checkpoint
 progress:
   total_phases: 7
   completed_phases: 0
