@@ -128,12 +128,46 @@ Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| _(pending roadmap)_ | | |
+| WIKI-01 | Phase 167 | Pending |
+| WIKI-02 | Phase 167 | Pending |
+| WIKI-03 | Phase 167 | Pending |
+| WIKI-04 | Phase 167 | Pending |
+| WIKI-05 | Phase 167 | Pending |
+| WIKI-06 | Phase 167 | Pending |
+| MIGRATE-01 | Phase 168 | Pending |
+| MIGRATE-02 | Phase 168 | Pending |
+| MIGRATE-03 | Phase 168 | Pending |
+| MIGRATE-04 | Phase 168 | Pending |
+| HONEST-01 | Phase 168 | Pending |
+| HONEST-02 | Phase 168 | Pending |
+| LEGACY-06 | Phase 168 | Pending |
+| FRONT-01 | Phase 169 | Pending |
+| FRONT-02 | Phase 169 | Pending |
+| FRONT-03 | Phase 169 | Pending |
+| FRONT-04 | Phase 169 | Pending |
+| REPO-01 | Phase 170 | Pending |
+| REPO-02 | Phase 170 | Pending |
+| REPO-03 | Phase 170 | Pending |
+| REPO-04 | Phase 170 | Pending |
+| LEGACY-02 | Phase 170 | Pending |
+| LEGACY-03 | Phase 170 | Pending |
+| LEGACY-04 | Phase 171 | Pending |
+| LEGACY-05 | Phase 171 | Pending |
+| LEGACY-07 | Phase 171 | Pending |
+| POLICY-01 | Phase 172 | Pending |
+| POLICY-02 | Phase 172 | Pending |
+| POLICY-03 | Phase 172 | Pending |
+| LEGACY-01 | Phase 172 | Pending |
+| POLICY-04 | Phase 173 | Pending |
+| POLICY-05 | Phase 173 | Pending |
 
 **Coverage:**
 - v1 requirements: 32 total
-- Mapped to phases: 0
-- Unmapped: 32 ⚠️
+- Mapped to phases: 32
+- Unmapped: 0 ✓
+
+Each requirement maps to exactly one phase. Phase 167 is the pipeline, 168 the
+migration, 169–171 the prose surfaces, 172 the policy, 173 the close.
 
 ---
 *Requirements defined: 2026-08-30*

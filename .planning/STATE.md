@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-08-30T09:38:14.969Z"
 last_activity: 2026-08-30
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -236,6 +236,56 @@ Phase: Not started (defining requirements)
 Plan: —
 Status: Defining requirements
 Last activity: 2026-08-30 — Milestone v1.35 started
+
+## Roadmap Summary (v1.35)
+
+**Created:** 2026-08-30, **hand-authored by the orchestrator — no `gsd-roadmapper` run.** `ROADMAP.md` is
+4,966 lines carrying every prior milestone plus the entire `999.x` backlog, and its §v1.33 section is
+marked never-regenerate; a generator writing that file wholesale is the standing hazard here. The v1.35
+section was drafted separately and spliced. **Verified after splice: 167 insertions, 0 deletions**, two
+pure-addition hunks. `REQUIREMENTS.md` diff confined to `## Traceability`.
+
+**No `research/SUMMARY.md` for this milestone** — project-level research skipped at activation (operator
+decision, 2026-08-30): every scoping decision was settled during questioning, and the remaining unknowns
+(wiki sync mechanics, ruleset configuration that will not block the `beta` cut) are per-phase
+implementation detail that `/gsd-plan-phase` researches better in context.
+
+**Phases:** 7 (**167–173**). Numbering continues from v1.34's 160–166; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving.
+**Coverage:** 32 requirements, all mapped, 0 orphans, 0 duplicates.
+
+| # | Phase | Requirements | Depends on |
+|---|-------|--------------|------------|
+| 167 | WIKI — Bootstrap, In-Repo Source, Sync & Drift Check | WIKI-01…06 (6) | — (WIKI-01 operator-gated) |
+| 168 | MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim | MIGRATE-01…04, HONEST-01, HONEST-02, LEGACY-06 (7) | 167 |
+| 169 | FRONT — `firestarter_prom` Becomes the Front Door | FRONT-01…04 (4) | 168 |
+| 170 | REPO — Sub-Repo READMEs Cut to Repo Scope | REPO-01…04, LEGACY-02, LEGACY-03 (6) | 168, 169 |
+| 171 | STRAY — The Root-Level Documentation Files | LEGACY-04, LEGACY-05, LEGACY-07 (3) | 167 |
+| 172 | POLICY — One Tracker, Protected `main` | POLICY-01…03, LEGACY-01 (4) | 170 |
+| 173 | CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger | POLICY-04, POLICY-05 (2) | 167–172 |
+
+**Three ordering decisions:**
+
+**O-1 — the pipeline is built before any content moves (167 → 168).** Standing up the source tree, the
+sync command and the drift check first means the migration publishes through a path that has already been
+proven, rather than discovering the publishing model while also moving 2,724 lines of content. The v1.34
+rig phase is the precedent: ~20 latent tooling defects surfaced only on first contact with the real thing,
+and every one of them had a passing fixture selftest.
+
+**O-2 — the operator-gated wiki creation does not gate the phase.** Phase 167 builds and tests everything
+against a local fixture; only its publish step waits on the operator's first web-UI page save. No phase is
+planned whose first action is a wiki push, so the blocker delays one step rather than the milestone.
+
+**O-3 — policy lands after the prose (172 after 170), and the close proves it (173).** POLICY-01's
+statements live in READMEs that Phase 170 is still reshaping, so configuring before writing would mean
+writing twice. Branch protection is applied in 172 and its consequences are discharged in 173 — the `beta`
+lockstep cut demonstrated working under the new rulesets, and the GSD close procedure updated before the
+next `/gsd-complete-milestone` discovers the change by failing.
+
+**Two checks that must not be conflated.** WIKI-04 compares published wiki against in-repo source — a
+publishing-integrity check. HONEST-02 compares page claims against `chip_database.json` /
+`PROTOCOL-LEDGER.json` — a truth check. A green WIKI-04 says the wiki matches what was written and says
+nothing about whether what was written is true. Neither may be reported as covering the other.
 
 ## Roadmap Summary (v1.34)
 
