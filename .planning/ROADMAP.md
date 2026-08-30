@@ -278,7 +278,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 — OPERATOR-GATED)*
 
-- [ ] 167-06-PLAN.md — Operator creates the wiki via the web UI, then the live demonstrations of criteria 2/3/4, `wiki-publish.yml` (`contents: write`, keyed to `beta`) and the dispatch-only live comparison job
+- [x] 167-06-PLAN.md — Operator creates the wiki via the web UI, then the live demonstrations of criteria 2/3/4, `wiki-publish.yml` (`contents: write`, keyed to `beta`) and the dispatch-only live comparison job
 
 ### Phase 168: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim
 

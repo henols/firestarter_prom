@@ -13,11 +13,11 @@ reading a file, running a script, or querying the GitHub API — none of it need
 
 ### Wiki — the single documentation home
 
-- [ ] **WIKI-01**: The `firestarter_prom` wiki exists and is reachable, with a Home page that indexes every documentation page by name.
-- [ ] **WIKI-02**: Wiki pages are authored as markdown files inside the `firestarter_prom` repository, and that in-repo copy is the single source of truth — the wiki is a publishing target, never the place edits originate.
-- [ ] **WIKI-03**: A maintainer can publish the in-repo wiki source to the GitHub wiki with one command; re-running it with no source change produces no wiki commit.
-- [ ] **WIKI-04**: A drift check reports failure when the published wiki differs from the in-repo source, and is demonstrated failing before it is trusted.
-- [ ] **WIKI-05**: A reader can navigate between wiki pages without going back to the repository — every page is reachable from the Home page or a sidebar.
+- [x] **WIKI-01**: The `firestarter_prom` wiki exists and is reachable, with a Home page that indexes every documentation page by name.
+- [x] **WIKI-02**: Wiki pages are authored as markdown files inside the `firestarter_prom` repository, and that in-repo copy is the single source of truth — the wiki is a publishing target, never the place edits originate.
+- [x] **WIKI-03**: A maintainer can publish the in-repo wiki source to the GitHub wiki with one command; re-running it with no source change produces no wiki commit.
+- [x] **WIKI-04**: A drift check reports failure when the published wiki differs from the in-repo source, and is demonstrated failing before it is trusted.
+- [x] **WIKI-05**: A reader can navigate between wiki pages without going back to the repository — every page is reachable from the Home page or a sidebar.
 - [x] **WIKI-06**: The two sub-repo wikis are disabled, so `firestarter_prom` is the only wiki that can accumulate content.
 
 ### Front door — `firestarter_prom`
@@ -128,11 +128,11 @@ Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WIKI-01 | Phase 167 | Pending |
-| WIKI-02 | Phase 167 | Pending |
-| WIKI-03 | Phase 167 | Pending |
-| WIKI-04 | Phase 167 | Pending |
-| WIKI-05 | Phase 167 | Pending |
+| WIKI-01 | Phase 167 | Complete |
+| WIKI-02 | Phase 167 | Complete |
+| WIKI-03 | Phase 167 | Complete |
+| WIKI-04 | Phase 167 | Complete |
+| WIKI-05 | Phase 167 | Complete |
 | WIKI-06 | Phase 167 | Complete |
 | MIGRATE-01 | Phase 168 | Pending |
 | MIGRATE-02 | Phase 168 | Pending |

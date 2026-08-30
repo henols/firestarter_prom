@@ -4,16 +4,16 @@ milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 167
 current_phase_name: WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
-status: executing
-stopped_at: Phase 167 paused at 167-06 Task 1 — operator must create the wiki (WIKI-01)
-last_updated: "2026-08-30T12:38:08.437Z"
+status: verifying
+stopped_at: Phase 167 complete — all 6 plans executed, WIKI-01..05 demonstrated live, WIKI-06 pre-existing; A1 (CI token) left unproven
+last_updated: "2026-08-30T20:05:03.367Z"
 last_activity: 2026-08-30
-last_activity_desc: Phase 167 — plans 167-01..05 complete and green; 167-06 halted at the operator-gated wiki-creation checkpoint
+last_activity_desc: Phase 167 — all 6 plans complete; live wiki publish/drift/idempotence demonstrated (167-06); ready for phase verification
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -56,12 +56,11 @@ other two repos have **no ruleset at all**; 6 dead issue links across both READM
 `doc/beta-testing-install.md`; and the app README's table of contents advertises three sections (`Id`,
 `Vpe`, `Hw`) that do not exist in its body.
 
-**⚠ OPERATOR-GATED BLOCKER — the prom wiki must be created by hand.** GitHub creates `<repo>.wiki.git`
-only when the first page is saved through the web UI. There is no REST endpoint for wiki pages, and
-push-to-create was **tested at activation and fails** (`remote: Repository not found`). Until the
-operator saves one page at `https://github.com/henols/firestarter_prom/wiki`, nothing can be pushed to
-the wiki. Everything else — authoring, README work, `doc/` triage, the 999.13 configuration — is
-unblocked and proceeds in parallel. Do not plan a phase whose first action is a wiki push.
+**✓ OPERATOR-GATED BLOCKER RESOLVED (2026-08-30, phase 167 plan 06).** The operator saved the wiki's
+first page through the web UI (`Scratch.md`), which created `firestarter_prom.wiki.git`. It has since
+been published for real: the in-repo `wiki/` source (`Home.md`, `How-This-Wiki-Is-Published.md`,
+`_Sidebar.md`) now mirrors the live wiki exactly, the operator's `Scratch.md` was deleted by the first
+publish, and idempotence and drift-detection were both proven against the live remote (167-06-SUMMARY.md).
 
 **Honesty constraint (binding, inherited from 999.12).** Relocation must not upgrade a claim. Every
 `support_status` value — `protocol-not-implemented`, `adapter-required`, `vpp-exceeds-max` — and every
@@ -236,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 167 (WIKI — Bootstrap, In-Repo Source, Sync & Drift Check) — EXECUTING
+Phase: 167 (WIKI — Bootstrap, In-Repo Source, Sync & Drift Check) — ALL PLANS COMPLETE
 Plan: 6 of 6
-Status: Ready to execute
-Last activity: 2026-08-30 — Phase 167 executing — plan 167-03 complete (wiki.py publish mirror/drift/exit-2 contract); wave 4 (167-04) next
+Status: Phase complete — ready for verification
+Last activity: 2026-08-30 — Phase 167 plan 06 complete: operator-gated wiki created, live criteria 2/3/4 demonstrated on the real wiki, wiki-publish.yml + wiki-drift-live authored; WIKI-01..05 marked complete, A1 (CI token) recorded unproven
 
 ## Roadmap Summary (v1.35)
 
@@ -2720,6 +2719,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 167]: wiki-check.yml keyed to beta not main (D-06), per catalog-sync-check.yml's 5-run failure history
 - [Phase 167]: CLAUDE.md and STRUCTURE.md corrected with scoped edits only, naming wiki/, tools/wiki/ and the second workflow
 - [Phase 167]: WIKI-06 re-verified from live GitHub API (false/false/true); marked Complete
+- [Phase 167]: Operator's Scratch.md and Home.md used as live evidence for criterion 2 (delete + overwrite halves) instead of treating as noise
+- [Phase 167]: WIKI_TOKEN defined once at job level (not step level) so the secrets fallback expression appears exactly once in wiki-publish.yml
 
 ## Performance Metrics
 
@@ -3089,11 +3090,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 167 P03 | 14min | 3 tasks | 2 files |
 | Phase 167 P04 | 8min | 3 tasks | 4 files |
 | Phase 167 P05 | 6min | 3 tasks | 3 files |
+| Phase 167 P06 | 45min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-30T12:38:08.333Z
-**Stopped at:** Completed 167-05-PLAN.md
+**Last session:** 2026-08-30T20:05:03.307Z
+**Stopped at:** Phase 167 complete — all 6 plans executed, WIKI-01..05 demonstrated live, WIKI-06 pre-existing; A1 (CI token) left unproven
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
