@@ -62,7 +62,79 @@ print_evidence_table() {
     done
 }
 
-CASES=()
+case_stale_sidebar_exit_1() {
+    local src="$WORK/stale_sidebar_exit_1_src"
+    new_source_dir "$src"
+    local ok=0
+
+    local control_rc
+    control_rc=$(rc_of stale_sidebar_exit_1_control.log python3 "$WIKI_PY" sidebar --check --source-dir "$src")
+    assert_rc "stale_sidebar_exit_1_control" 0 "$control_rc" || ok=1
+
+    cp "$src/_Sidebar.md" "$WORK/stale_sidebar_exit_1_before.md"
+
+    printf '%s\n' '# Page Two' '' 'Fixture body with no internal links.' > "$src/Page-Two.md"
+
+    local mutated_rc
+    mutated_rc=$(rc_of stale_sidebar_exit_1_mutated.log python3 "$WIKI_PY" sidebar --check --source-dir "$src")
+    assert_rc "stale_sidebar_exit_1" 1 "$mutated_rc" || ok=1
+
+    if ! grep -q 'Page-Two' "$WORK/stale_sidebar_exit_1_mutated.log"; then
+        echo "ERROR: stale_sidebar_exit_1: delta output missing Page-Two" >&2
+        ok=1
+    fi
+
+    if ! cmp -s "$src/_Sidebar.md" "$WORK/stale_sidebar_exit_1_before.md"; then
+        echo "ERROR: stale_sidebar_exit_1: _Sidebar.md was modified by a failing --check" >&2
+        ok=1
+    fi
+
+    record "stale_sidebar_exit_1" 1 "$mutated_rc" "$control_rc" "a failing --check must not rewrite the file it checks"
+
+    return "$ok"
+}
+
+case_sidebar_deterministic() {
+    local src="$WORK/sidebar_deterministic_src"
+    new_source_dir "$src"
+    local ok=0
+
+    local rc1
+    rc1=$(rc_of sidebar_deterministic_run1.log python3 "$WIKI_PY" sidebar --source-dir "$src")
+    assert_rc "sidebar_deterministic_run1" 0 "$rc1" || ok=1
+
+    cp "$src/_Sidebar.md" "$WORK/sidebar_deterministic_run1_copy.md"
+
+    local rc2
+    rc2=$(rc_of sidebar_deterministic_run2.log python3 "$WIKI_PY" sidebar --source-dir "$src")
+    assert_rc "sidebar_deterministic" 0 "$rc2" || ok=1
+
+    if ! cmp -s "$WORK/sidebar_deterministic_run1_copy.md" "$src/_Sidebar.md"; then
+        echo "ERROR: sidebar_deterministic: _Sidebar.md differs between run 1 and run 2" >&2
+        ok=1
+    fi
+
+    local last_byte last_line
+    last_byte=$(tail -c1 "$src/_Sidebar.md")
+    last_line=$(tail -n1 "$src/_Sidebar.md")
+    if [ "$last_byte" != "" ] || [ "$last_line" = "" ]; then
+        echo "ERROR: sidebar_deterministic: _Sidebar.md does not end with a single trailing LF" >&2
+        ok=1
+    fi
+
+    local cr_count
+    cr_count=$(grep -c $'\r' "$src/_Sidebar.md")
+    if [ "$cr_count" != "0" ]; then
+        echo "ERROR: sidebar_deterministic: _Sidebar.md contains CR bytes" >&2
+        ok=1
+    fi
+
+    record "sidebar_deterministic" 0 "$rc2" "$rc1" "two runs over an unchanged source must be byte-identical"
+
+    return "$ok"
+}
+
+CASES=(stale_sidebar_exit_1 sidebar_deterministic)
 
 exit_code=0
 fail_count=0
