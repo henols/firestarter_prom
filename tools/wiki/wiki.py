@@ -40,7 +40,8 @@ LEGAL_LINK_RE = re.compile(r"\[([^\]]*)\]\(([A-Za-z0-9][A-Za-z0-9-]*)(?:#([A-Za-
 EXTERNAL_LINK_PREFIXES = ("http://", "https://", "mailto:", "#")
 _LEGAL_TARGET_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]*(?:#[A-Za-z0-9_-]*)?")
 _DOUBLE_BRACKET_RE = re.compile(r"\[\[[^\]]*\]\]")
-_REFERENCE_LINK_RE = re.compile(r"\[[^\]]*\]\[[^\]]*\]")
+_REFERENCE_LINK_RE = re.compile(r"\[([^\]]*)\]\[([^\]]*)\]")
+_REFERENCE_DEF_RE = re.compile(r"^\[([^\]]+)\]:\s*(\S+)", re.MULTILINE)
 _PAREN_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")
 _FENCE_RE = re.compile(r"```.*?```", re.DOTALL)
 _INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
@@ -66,8 +67,17 @@ def strip_code_spans(text: str) -> str:
     return _INLINE_CODE_RE.sub(lambda match: " " * len(match.group(0)), text)
 
 
+def extract_reference_definitions(text: str) -> dict[str, str]:
+    defs: dict[str, str] = {}
+    for match in _REFERENCE_DEF_RE.finditer(text):
+        defs[match.group(1).strip().lower()] = match.group(2).strip()
+    return defs
+
+
 def extract_internal_links(page: Path) -> list[tuple[int, str, str]]:
-    stripped = strip_code_spans(page.read_text(encoding="utf-8"))
+    raw = page.read_text(encoding="utf-8")
+    ref_defs = extract_reference_definitions(raw)
+    stripped = strip_code_spans(raw)
     links: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(stripped.splitlines(), start=1):
         remaining = line
@@ -75,6 +85,11 @@ def extract_internal_links(page: Path) -> list[tuple[int, str, str]]:
             links.append((lineno, match.group(0), match.group(0)))
         remaining = _DOUBLE_BRACKET_RE.sub("", remaining)
         for match in _REFERENCE_LINK_RE.finditer(remaining):
+            link_text, ref_label = match.group(1), match.group(2)
+            resolved_label = (ref_label or link_text).strip().lower()
+            ref_target = ref_defs.get(resolved_label)
+            if ref_target is not None and ref_target.startswith(EXTERNAL_LINK_PREFIXES):
+                continue
             links.append((lineno, match.group(0), match.group(0)))
         remaining = _REFERENCE_LINK_RE.sub("", remaining)
         for match in LEGAL_LINK_RE.finditer(remaining):
@@ -94,6 +109,8 @@ def check_page_names(source_dir: Path) -> list[str]:
     failures: list[str] = []
     for entry in sorted(source_dir.iterdir(), key=lambda p: p.name):
         name = entry.name
+        if name.startswith("."):
+            continue
         if entry.is_dir():
             failures.append(
                 f"illegal page filename {name!r}: directory found in flat "

@@ -231,7 +231,60 @@ case_wiki05_unreferenced_page_exit_1() {
     return "$ok"
 }
 
-CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1)
+case_reference_style_external_citation_exit_0() {
+    local src="$WORK/reference_style_external_citation_exit_0_src"
+    new_source_dir "$src"
+    local ok=0
+
+    local control_rc
+    control_rc=$(rc_of reference_style_external_citation_exit_0_control.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "reference_style_external_citation_exit_0_control" 0 "$control_rc" || ok=1
+
+    printf '%s\n' '' 'See ([Vendor][1]) for the datasheet.' '' '[1]: https://example.com/datasheet.pdf' >> "$src/Page-One.md"
+
+    local cited_rc
+    cited_rc=$(rc_of reference_style_external_citation_exit_0_cited.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "reference_style_external_citation_exit_0" 0 "$cited_rc" || ok=1
+
+    printf '%s\n' 'See ([Orphan Ref][9]) with no matching definition.' >> "$src/Page-One.md"
+
+    local unresolved_rc
+    unresolved_rc=$(rc_of reference_style_external_citation_exit_0_unresolved.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "reference_style_external_citation_exit_0_unresolved" 1 "$unresolved_rc" || ok=1
+
+    if ! grep -q 'Orphan Ref' "$WORK/reference_style_external_citation_exit_0_unresolved.log"; then
+        echo "ERROR: reference_style_external_citation_exit_0: stderr missing Orphan Ref (unresolved reference-style link still rejected)" >&2
+        ok=1
+    fi
+
+    record "reference_style_external_citation_exit_0" 0 "$cited_rc" "$control_rc" "external [text][ref] resolved by a [ref]: url definition is not flagged; an unresolved [text][ref] is still rejected"
+
+    return "$ok"
+}
+
+case_dotdir_ignored_exit_0() {
+    local src="$WORK/dotdir_ignored_exit_0_src"
+    new_source_dir "$src"
+    local ok=0
+
+    mkdir -p "$src/.git/objects"
+    printf 'ref: refs/heads/master\n' > "$src/.git/HEAD"
+
+    local rc
+    rc=$(rc_of dotdir_ignored_exit_0.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "dotdir_ignored_exit_0" 0 "$rc" || ok=1
+
+    if grep -q '\.git' "$WORK/dotdir_ignored_exit_0.log"; then
+        echo "ERROR: dotdir_ignored_exit_0: stderr mentions .git; a real clone's .git directory must not be treated as an illegal wiki page" >&2
+        ok=1
+    fi
+
+    record "dotdir_ignored_exit_0" 0 "$rc" "0" "a git clone's .git directory is not a wiki page and must not fail filename legality"
+
+    return "$ok"
+}
+
+CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0)
 
 exit_code=0
 fail_count=0
