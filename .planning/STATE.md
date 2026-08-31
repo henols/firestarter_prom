@@ -4,15 +4,15 @@ milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim
-status: planning
-stopped_at: Phase 168 context gathered
-last_updated: "2026-08-30T21:42:57.185Z"
-last_activity: 2026-08-30
-last_activity_desc: Phase 168 context gathered — 168-CONTEXT.md written against the re-scoped criteria (22 decisions, 3 operator-answered); the discuss re-run called for by notes/v135-wiki-only-reversal.md step 3 is complete
+status: ready-to-execute
+stopped_at: Phase 168 planned
+last_updated: "2026-08-31T00:00:00.000Z"
+last_activity: 2026-08-31
+last_activity_desc: Phase 168 planned — 13 plans in 7 waves, checker PASSED. RESEARCH.md (1361 lines, measured) corrected 16 CONTEXT.md figures: only test_dispatch_mirror.py breaks at import (aborts the whole app suite at collection, 0 tests run), MIGRATE-03's sdist premise is false (SOURCES.txt is a stale gitignored artifact; clean build and published b33/b34 carry zero doc entries), D-09's resolve leg is falsified as a free-text scrape (SHIELD-REVISIONS has zero DB chips yet 11 of 20 0xNN tokens resolve by numeric coincidence), and submodules: recursive is the wrong CI answer (gitlinks pin stale SHAs). Three oracle-destroying orderings encoded as wave boundaries. Blocking decision at wave 1: neither sub-repo has a v1.35 branch and beta is 10 fw / 4 app commits behind the measured trees.
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 6
+  total_plans: 19
   completed_plans: 6
   percent: 14
 ---
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **v1.35 touches no product code at all.** It changes documentation, repository configuration and one sync/check script. The core value is untouched by construction, and the milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 167 — WIKI — Bootstrap, In-Repo Source, Sync & Drift Check
+**Current focus:** Phase 168 — MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 168 (MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim) — NOT STARTED; discussion halted mid-session
-Plan: 0 of 0
-Status: Milestone re-scoped for wiki-only authoring; Phase 168 discussion must be re-run before planning
-Last activity: 2026-08-30 — operator reversed the in-repo wiki source model during /gsd-discuss-phase 168; ROADMAP.md + REQUIREMENTS.md re-scoped (WIKI-03/04 withdrawn, WIKI-02/05 rewritten and reassigned to 168, Phase 168 criteria 4/5 restated and 7/8 added); no 168-CONTEXT.md written; four claim-gate decisions preserved in .planning/notes/v135-wiki-only-reversal.md
+Phase: 168 (MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim) — PLANNED; ready to execute
+Plan: 0 of 13
+Status: 13 plans across 7 waves; gsd-plan-checker returned VERIFICATION PASSED. Wave 1 opens with a blocking branch-base decision — neither sub-repo has a v1.35 branch and `beta` is 10 firmware / 4 app commits behind the trees research measured.
+Last activity: 2026-08-31 — /gsd-plan-phase 168 --chain: research, pattern map, validation strategy and 13 plans written and committed; all 9 requirement IDs and all 22 D-NN decisions cited; plan-checker PASSED with one cosmetic warning, fixed in place.
 
 ## Roadmap Summary (v1.35)
 
@@ -260,7 +260,7 @@ v1.24–v1.29 version slots stay unreused so every by-number cross-reference kee
 | # | Phase | Requirements | Depends on |
 |---|-------|--------------|------------|
 | 167 | WIKI — Bootstrap, In-Repo Source, Sync & Drift Check | WIKI-01…06 (6) | — (WIKI-01 operator-gated) |
-| 168 | MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim | MIGRATE-01…04, HONEST-01, HONEST-02, LEGACY-06 (7) | 167 |
+| 168 | MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim | MIGRATE-01…04, HONEST-01, HONEST-02, LEGACY-06, WIKI-02, WIKI-05 (9) | 167 |
 | 169 | FRONT — `firestarter_prom` Becomes the Front Door | FRONT-01…04 (4) | 168 |
 | 170 | REPO — Sub-Repo READMEs Cut to Repo Scope | REPO-01…04, LEGACY-02, LEGACY-03 (6) | 168, 169 |
 | 171 | STRAY — The Root-Level Documentation Files | LEGACY-04, LEGACY-05, LEGACY-07 (3) | 167 |
@@ -3110,8 +3110,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-30T21:42:57.096Z
-**Stopped at:** Phase 168 context gathered
+**Last session:** 2026-08-31T00:00:00.000Z
+**Stopped at:** Phase 168 planned
+**Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
