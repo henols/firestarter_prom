@@ -2,10 +2,10 @@
 
 This table is the auditable record of where every wiki page came from. Documentation now
 lives only in the GitHub wiki (`firestarter_prom.wiki.git`); there is no in-repo source tree
-and no publish subcommand — pages reach the wiki by a cloned-and-pushed commit (D-19). This
-table exists for two consumers: a reviewer checking that a moved file kept its content and
-its claims, and the Backlog 999.9 repository-rename sweep that greps it for a source path
-before renaming anything.
+mirroring it, and pages reach the wiki by cloning the wiki repository, committing the pages,
+and pushing (D-19). This table exists for two consumers: a reviewer checking that a moved
+file kept its content and its claims, and the Backlog 999.9 repository-rename sweep that
+greps it for a source path before renaming anything.
 
 | Source repo | Source path | Wiki page | Rendered title | Pre-deletion SHA | Moved in |
 |---|---|---|---|---|---|
