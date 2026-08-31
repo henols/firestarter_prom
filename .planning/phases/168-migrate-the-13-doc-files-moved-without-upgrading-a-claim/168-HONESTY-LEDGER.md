@@ -5,6 +5,12 @@ not a summary of what shipped — thirteen `168-NN-SUMMARY.md` files already say
 list of things a reader might otherwise *assume* from those summaries, paired against what is
 actually true. Each entry names its own evidence rather than asking to be taken on faith.
 
+**Updated 2026-08-31, after phase close, by `/gsd-verify-work`'s re-verification:** entry 13 below
+was added after the initial verification pass found a genuine LEGACY-06 gap this ledger did not
+disclose. An honesty ledger that omits the one thing that got past the gates is exactly the
+failure mode this milestone exists to prevent, so the omission itself is recorded, not just the
+gap it missed.
+
 ## 1. Claim / non-claim pairs
 
 **1. Relocation is not verification.**
@@ -155,6 +161,48 @@ actually true. Each entry names its own evidence rather than asking to be taken 
   text describes, and that gap is recorded here rather than glossed over.
 - **Evidence:** `168-RESEARCH.md` D-08; `tools/wiki/honest02_truth.py`'s stamp regex.
 
+**13. LEGACY-06 was marked Complete with a body-content gap this ledger did not disclose; it was
+found by verification after phase close and fixed on the live wiki.**
+- **Claim:** LEGACY-06 was marked `[x]` Complete in `REQUIREMENTS.md` after plan 168-05 —
+  `Pinout-Safety-Review.md` and `SRAM-and-NVRAM-Behavior.md` read as reference documentation, with
+  no GSD-phase framing and no unopenable audit-trail pointer.
+- **Non-claim:** That was true of `SRAM-and-NVRAM-Behavior.md` but, until 2026-08-31, not fully
+  true of `Pinout-Safety-Review.md`. Its H1 title suffix and its "Full audit trail:" pointer were
+  correctly removed by 168-05, but its body still carried a `## What Changed in Phase 58` section
+  heading and a comparison table headed `| Category | Before Phase 58 | After Phase 58 |` —
+  unexplained internal jargon no public reader can parse — plus a citation
+  `(BENCH-01 per REQUIREMENTS.md)` pointing at a meta-repo file no public reader can open. Every
+  check written for LEGACY-06 during execution scoped itself to the same two narrow signals: the
+  plan's own acceptance criteria (168-05-PLAN.md: H1 has no phase number; `grep -c 'audit trail'
+  == 0`), the phase's closing gate sweep (`evidence/phase-gates.txt`, "ALSO ASSERTED" section:
+  title + `"full audit trail"` + `"CITED"` only), and 168-05-SUMMARY.md's own D3 coverage entry —
+  none of which ever scanned the page body for a bare "Phase NN" reference or a
+  `REQUIREMENTS.md`/`ROADMAP.md`/`.planning/` pointer, despite the ROADMAP criterion's own text
+  being explicitly broader ("no framing that requires knowing what a GSD phase is"). The one
+  check positioned to catch a body-content problem — Task 3's `checkpoint:human-verify` step 6,
+  whose literal instruction was "confirm nothing on it requires knowing what a GSD phase is" —
+  was never actually performed by a human: 168-05-SUMMARY.md records it as "executed under the
+  phase's stated unattended-execution authorization," i.e. auto-approved rather than looked at.
+  This gap was found by `/gsd-verify-work`'s initial pass over this phase (2026-08-31), reported
+  as a blocker, and fixed the same day on the live wiki: three single-line edits
+  (`firestarter_prom.wiki.git` `master` `aa4a5c7` → `b010660`, commit "fix(168): de-frame
+  Pinout-Safety-Review for public readers"). **Attribution note:** the commit's git author reads
+  `Henrik Olsson` only because that is this repository's configured committer identity — the edit
+  was made by the Claude orchestrator, not by a human, and no human has looked at the rendered
+  result (see entry 3 above). The fix left every table
+  cell byte-identical and moved no claim token — confirmed by an independent `honest01_claims.py`
+  re-run against a fresh clone of `b010660` (still `0 dropped, 0 added, 6 vacuous`) — and a
+  corpus-wide sweep of all 14 pages for the same defect class (bare "Phase NN" headings/table
+  cells, `.planning/`/`REQUIREMENTS.md`/`ROADMAP.md` pointers) confirmed these three lines were
+  the only survivors anywhere in the corpus. One materially weaker residual was judged
+  non-blocking and left as-is: `Pinout-Safety-Review.md`'s `## Deferred: BENCH-01 Real-Hardware
+  Validation` heading still names a bare requirement-ID token, but the heading is self-explanatory
+  in plain English without resolving it, and the unopenable `REQUIREMENTS.md` pointer that
+  actually failed D-11's readability test has been removed.
+- **Evidence:** `168-VERIFICATION.md`'s re-verification section (both the initial finding and the
+  independent re-check of the fix); live wiki commit `b010660`; the corpus-wide sweep run against
+  a fresh clone after the fix.
+
 ## 2. The HONEST-01 live finding — the phase's strongest non-vacuity evidence
 
 On its first real run against the live wiki (`master` `9d7e9bc`), `honest01_claims.py` did not
@@ -169,8 +217,15 @@ is recorded here as a first-class result, not a footnote, because it is direct p
 not vacuous — it found something real, on real published content, before the source side ever
 froze. See entry 2 above for what "frozen" now means going forward.
 
+**A second, later instance of the same pattern is entry 13 above**: a real defect found on the
+live wiki after the fact, fixed with a minimal edit, and re-verified clean — except that instance
+was caught by external verification (`/gsd-verify-work`) rather than by any of this phase's own
+checkers, because none of them was scoped to check for it. Both instances share the same
+response: fix the content, re-verify against the real thing, do not loosen or skip the check.
+
 **Evidence:** `evidence/honest01-weakened-claim-RED.txt`, `evidence/honest01-live-GREEN.txt`,
-`168-11-SUMMARY.md` "The HONEST-01 finding, as a first-class result".
+`168-11-SUMMARY.md` "The HONEST-01 finding, as a first-class result"; entry 13 above for the
+second instance.
 
 ## 3. Human visual verification of the live wiki pages — still outstanding
 
@@ -185,7 +240,16 @@ reader, `Pinout-Safety-Review` and `SRAM-and-NVRAM-Behavior` read without needin
 GSD phase is, and the sidebar appears and lists all 14 pages on every page. **This is not marked
 done. It requires the operator to look.**
 
-**Evidence:** `168-05-SUMMARY.md` "Next Phase Readiness"; `168-08-SUMMARY.md` "Next Phase Readiness".
+**Updated 2026-08-31:** entry 13 above is the concrete reason this item is more than a formality.
+Task 3's own `checkpoint:human-verify` instruction already asked, in these words, for exactly the
+check that would have caught the LEGACY-06 gap ("confirm nothing on it requires knowing what a
+GSD phase is") — and it did not catch it, because it was auto-approved under unattended execution
+rather than performed. The live-content fix commit (`b010660`) has *also* not yet had a human look
+at it, including its restructured table (shorter column headers over an unchanged-width separator
+row) — a rendering question no text diff can answer.
+
+**Evidence:** `168-05-SUMMARY.md` "Next Phase Readiness"; `168-08-SUMMARY.md` "Next Phase Readiness";
+entry 13 above.
 
 ## 4. Final selftest count
 
@@ -200,5 +264,11 @@ plan's case was added. Eleven is the real, observed, final count.)
 ## 5. Every ROADMAP criterion, cross-referenced
 
 See `evidence/phase-gates.txt` for the full command-and-result mapping of all eight Phase 168
-success criteria; this ledger's twelve entries above are the non-claims that sit beside those
-eight passing criteria, not a contradiction of them.
+success criteria as measured at phase close; this ledger's thirteen entries above are the
+non-claims that sit beside those criteria. Twelve of the thirteen are non-claims about scope and
+cost accepted deliberately during execution. **The thirteenth is different in kind**: it is a
+non-claim this ledger did not know to make at phase close, because the gap it describes (criterion
+6 / LEGACY-06's body-content residue) was not found until `/gsd-verify-work`'s independent
+re-verification. It is fixed and re-verified as of live wiki commit `b010660` — see entry 13 and
+`168-VERIFICATION.md`'s re-verification section for the full record, including the process finding
+about why none of this phase's own checks caught it.
