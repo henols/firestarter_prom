@@ -38,10 +38,10 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 
 ### Sub-repo READMEs — repo-scoped only
 
-- [ ] **REPO-01**: `firestarter/README.md` carries only firmware-specific information and links to `firestarter_prom` for everything else.
-- [ ] **REPO-02**: `firestarter_app/README.md` carries only app-specific information and links to `firestarter_prom` for everything else.
-- [ ] **REPO-03**: Each sub-repo README is short enough to read in one sitting — assessed by judgement at review, deliberately not against a line-count ceiling. (They are 151 and 779 lines today, for reference only; the number is not the criterion.)
-- [ ] **REPO-04**: The PyPI listing built from `firestarter_app/README.md` still names the project, gives the install command, links to the documentation, and states the license — the accepted thinning does not become an unusable package page.
+- [x] **REPO-01**: `firestarter/README.md` carries only firmware-specific information and links to `firestarter_prom` for everything else.
+- [x] **REPO-02**: `firestarter_app/README.md` carries only app-specific information and links to `firestarter_prom` for everything else.
+- [x] **REPO-03**: Each sub-repo README is short enough to read in one sitting — assessed by judgement at review, deliberately not against a line-count ceiling. (They are 151 and 779 lines today, for reference only; the number is not the criterion.)
+- [x] **REPO-04**: The PyPI listing built from `firestarter_app/README.md` still names the project, gives the install command, links to the documentation, and states the license — the accepted thinning does not become an unusable package page.
 
 ### Migration — emptying `doc/`
 
@@ -53,8 +53,8 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 ### Legacy — correcting what is already wrong
 
 - [ ] **LEGACY-01**: No documentation page sends a reader to an issue tracker that is disabled — the six links into `henols/firestarter/issues` and `henols/firestarter_app/issues` are gone.
-- [ ] **LEGACY-02**: The app README's table of contents lists exactly the sections the document contains — today it advertises `Id`, `Vpe` and `Hw`, none of which exist, and omits `List`, `Search` and `VCC`, which do.
-- [ ] **LEGACY-03**: No README opens with accumulated breaking-change notices ahead of its install instructions; the v1.10 / v1.20 / v1.32 history is reachable on the wiki instead.
+- [x] **LEGACY-02**: The app README's table of contents lists exactly the sections the document contains — today it advertises `Id`, `Vpe` and `Hw`, none of which exist, and omits `List`, `Search` and `VCC`, which do.
+- [x] **LEGACY-03**: No README opens with accumulated breaking-change notices ahead of its install instructions; the v1.10 / v1.20 / v1.32 history is reachable on the wiki instead.
 - [ ] **LEGACY-04**: `firestarter_app/things.md` — a six-line scratch note about finding avrtools on Windows — is either a real wiki page or deleted.
 - [ ] **LEGACY-05**: `firestarter_app/SECURITY.md` is a genuine security policy or is removed; a GSD Phase 69 audit record no longer occupies the path GitHub reads as the repository's security policy.
 - [x] **LEGACY-06**: No user-facing documentation page is titled or framed as a GSD phase artifact — `pinout-safety-review.md` ("Phase 58") and `sram-nvram-behavior.md` ("Phase 59") read as reference material or do not ship.
@@ -165,12 +165,12 @@ Populated during roadmap creation.
 | FRONT-02 | Phase 169 | **Not met — superseded 2026-08-31** |
 | FRONT-03 | Phase 169 | Complete |
 | FRONT-04 | Phase 169 | Complete |
-| REPO-01 | Phase 170 | Pending |
-| REPO-02 | Phase 170 | Pending |
-| REPO-03 | Phase 170 | Pending |
-| REPO-04 | Phase 170 | Pending |
-| LEGACY-02 | Phase 170 | Pending |
-| LEGACY-03 | Phase 170 | Pending |
+| REPO-01 | Phase 170 | Complete |
+| REPO-02 | Phase 170 | Complete |
+| REPO-03 | Phase 170 | Complete |
+| REPO-04 | Phase 170 | Complete |
+| LEGACY-02 | Phase 170 | Complete |
+| LEGACY-03 | Phase 170 | Complete |
 | LEGACY-04 | Phase 171 | Pending |
 | LEGACY-05 | Phase 171 | Pending |
 | LEGACY-07 | Phase 171 | Pending |
