@@ -5,8 +5,8 @@ milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
 status: executing
-stopped_at: Completed 168-05-PLAN.md
-last_updated: "2026-08-31T09:54:21.750Z"
+stopped_at: Completed 168-08-PLAN.md
+last_updated: "2026-08-31T10:15:17.445Z"
 last_activity: 2026-08-31
 last_activity_desc: "168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured"
 progress:
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — EXECUTING
-Plan: 8 of 13
+Plan: 9 of 13
 Status: Plan 01 complete — both sub-repo v1.35 branches created, MIGRATION-TABLE.md filled with 12 page names/titles/SHAs, HONEST-01 oracle proven readable for all 13 rows. Plan 02 (retire the publish path) not yet started.
 Last activity: 2026-08-31 — 168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured
 
@@ -2753,6 +2753,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 168]: 168-06: MIGRATE-04 spans this plan and 168-07 (firmware-repo repairs still pending) -- NOT marked complete in REQUIREMENTS.md yet, per the known multi-plan-requirement premature-completion trap; leave Pending until 168-07 lands
 - [Phase 168]: D-16 preserved: both firestarter/CLAUDE.md lockstep-maintenance rules repointed to the Shield Revisions wiki page title, wording and section names unchanged
 - [Phase 168]: D-15 applied to test_loop_eprom_v131.cpp: its doc/SHIELD-REVISIONS.md-citing block comment deleted in full; the open contradictory jumper-identity finding preserved in 168-07-SUMMARY.md instead of in source
+- [Phase 168]: Fixed two latent wiki.py links defects while making WIKI-05 reachable: reference-style external citations (Lockable-PROMs) no longer flagged as illegal internal links when resolved by a [ref]: <url> definition, and a real git clone's .git directory is no longer flagged as an illegal page filename
+- [Phase 168]: How-This-Wiki-Is-Published.md renamed to How-To-Edit-This-Wiki.md and rewritten: dropped the five false sections (in-repo-authoritative, edits-overwritten, publishing subcommands, generated-sidebar, branch-tracking), kept the two true ones (page naming, linking rules) verbatim, added claim-stamp/claims-region sentinel documentation
+- [Phase 168]: Home.md rewritten as the real 14-page index grouped by getting-started/hardware/protocols/chip-reference, and _Sidebar.md hand-written to list all 14 pages, closing WIKI-05's reachability and sidebar-containment legs
 
 ## Performance Metrics
 
@@ -3130,11 +3133,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 168 P05 | 22min | 3 tasks | 12 files |
 | Phase 168 P06 | 32min | 3 tasks | 10 files |
 | Phase 168 P07 | 35min | 3 tasks | 7 files |
+| Phase 168 P08 | ~35min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-31T09:53:05.760Z
-**Stopped at:** Completed 168-05-PLAN.md
+**Last session:** 2026-08-31T10:15:17.257Z
+**Stopped at:** Completed 168-08-PLAN.md
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.

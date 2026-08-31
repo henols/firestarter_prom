@@ -23,10 +23,10 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 ### Wiki — the single documentation home
 
 - [x] **WIKI-01**: The `firestarter_prom` wiki exists and is reachable, with a Home page that indexes every documentation page by name.
-- [ ] **WIKI-02** *(rewritten 2026-08-30 — supersedes the in-repo-source wording)*: The `firestarter_prom` GitHub wiki is the single home for project documentation and the place edits originate. No in-repo mirror of the wiki content exists in any of the three repositories.
+- [x] **WIKI-02** *(rewritten 2026-08-30 — supersedes the in-repo-source wording)*: The `firestarter_prom` GitHub wiki is the single home for project documentation and the place edits originate. No in-repo mirror of the wiki content exists in any of the three repositories.
 - [ ] ~~**WIKI-03**~~ **WITHDRAWN 2026-08-30**: *"A maintainer can publish the in-repo wiki source to the GitHub wiki with one command; re-running it with no source change produces no wiki commit."* Withdrawn with the model reversal — there is no in-repo source to publish from. Shipped and verified in Phase 167; its implementation is retired, not merely unused.
 - [ ] ~~**WIKI-04**~~ **WITHDRAWN 2026-08-30**: *"A drift check reports failure when the published wiki differs from the in-repo source, and is demonstrated failing before it is trusted."* Withdrawn with the model reversal — with no in-repo copy there is nothing to drift against. **This does not leave the wiki unguarded:** the truth check that matters is HONEST-02, which is unaffected and becomes correspondingly more load-bearing. Shipped and verified in Phase 167; its implementation is retired.
-- [ ] **WIKI-05** *(reopened 2026-08-30)*: A reader can navigate between wiki pages without going back to the repository — every page is reachable from the Home page or a sidebar. Reopened because the generated `_Sidebar.md` that satisfied it is retired with the model reversal, and Phase 168 adds 12 pages at once; the sidebar is now hand-maintained and needs a check that is not a tautology.
+- [x] **WIKI-05** *(reopened 2026-08-30)*: A reader can navigate between wiki pages without going back to the repository — every page is reachable from the Home page or a sidebar. Reopened because the generated `_Sidebar.md` that satisfied it is retired with the model reversal, and Phase 168 adds 12 pages at once; the sidebar is now hand-maintained and needs a check that is not a tautology.
 - [x] **WIKI-06**: The two sub-repo wikis are disabled, so `firestarter_prom` is the only wiki that can accumulate content.
 
 ### Front door — `firestarter_prom`
@@ -149,10 +149,10 @@ Populated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | WIKI-01 | Phase 167 | Complete |
-| WIKI-02 | Phase 168 | Pending — rewritten 2026-08-30 (wiki-only); reassigned from 167 |
+| WIKI-02 | Phase 168 | Complete — rewritten 2026-08-30 (wiki-only); reassigned from 167 |
 | WIKI-03 | — | Withdrawn 2026-08-30 (model reversal) |
 | WIKI-04 | — | Withdrawn 2026-08-30 (model reversal); superseded in spirit by HONEST-02 |
-| WIKI-05 | Phase 168 | Pending — reopened 2026-08-30; reassigned from 167 |
+| WIKI-05 | Phase 168 | Complete — reopened 2026-08-30; reassigned from 167 |
 | WIKI-06 | Phase 167 | Complete |
 | MIGRATE-01 | Phase 168 | Complete |
 | MIGRATE-02 | Phase 168 | Pending |
