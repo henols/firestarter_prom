@@ -317,7 +317,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2)*
 
 - [x] 168-05-PLAN.md — Migrate the 12 pages to the live wiki by copy-then-edit, stamped and de-framed, then capture the live 12-orphan RED before anything rewrites `Home` *(writes to a public page — not autonomous)*
-- [ ] 168-06-PLAN.md — App reference repairs outside the tests: comments deleted, docstrings repointed, printed strings rewritten, the third lockstep rule preserved, README into the wiki
+- [x] 168-06-PLAN.md — App reference repairs outside the tests: comments deleted, docstrings repointed, printed strings rewritten, the third lockstep rule preserved, README into the wiki
 - [ ] 168-07-PLAN.md — Firmware repo: delete `doc/`, repair 5 `CLAUDE.md` references including both lockstep rules, 3 README links, and delete two source comment blocks
 
 **Wave 4** *(blocked on Wave 3)*

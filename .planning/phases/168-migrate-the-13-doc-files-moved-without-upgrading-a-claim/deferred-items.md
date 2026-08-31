@@ -57,3 +57,22 @@ reference-style external citations to inline `[text](url)` form, or teach
 `extract_internal_links` to recognize a `[N]: <url>` reference-definition block
 and skip reference-style links whose `ref` resolves to one — whichever the
 610-line `wiki.py` checker's owning plan judges cheaper.
+
+## Plan 168-06 — `tools/baseline/chip_database.baseline.json` still carries 9 stale `doc/` references
+
+168-03 fixed the generator (`build_db.py`) and regenerated the live
+`firestarter_app/firestarter/data/chip_database.json`, which now carries 0
+`doc/AT28C04-ADAPTER.md` references. The committed baseline snapshot
+`tools/baseline/chip_database.baseline.json`, used by the diff-against-baseline
+regression gate, was not re-baselined at the same time and still carries the 9
+old `unsupported_reason` strings citing `firestarter/doc/AT28C04-ADAPTER.md`.
+
+This file is not in 168-06's `files_modified` list and its repair (regenerating
+a baseline snapshot) is generator/re-baseline work of the same shape as D-14,
+not a docstring/comment/string repair — out of this plan's bounded edit set.
+Left as-is; not fixed here.
+
+Recommended follow-up: whichever plan re-anchors baselines against the
+168-03-regenerated database should also refresh
+`tools/baseline/chip_database.baseline.json`, repointing the 9
+`unsupported_reason` strings at the wiki page title `AT28C04 Adapter` per D-13.
