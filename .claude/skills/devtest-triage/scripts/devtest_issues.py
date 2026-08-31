@@ -68,7 +68,8 @@ OK = {"OK", "NA", "SKIPPED"}
 # deliberately outside the capture — it is an identity, not a version.
 VERSION_RE = re.compile(r"(\d+)\.(\d+)\.(\d+)(?:[._-]?b(\d+))?", re.IGNORECASE)
 
-# The taxonomy this skill applies. `labels --ensure` creates them idempotently
+# The taxonomy this skill applies, shared with `devtest-rootcause` (which
+# owns the `fix:*` pair). `labels --ensure` creates them idempotently
 # so a fresh clone of the tracker gets the same set. Outcome labels are
 # mechanical and applied by `fold --apply`; `cause:*` encodes a triage
 # judgement no parser can derive, so it is applied by hand after the
@@ -84,6 +85,10 @@ LABELS: list[tuple[str, str, str]] = [
      "A later PASS exists but the software did not move — flaky, not fixed"),
     ("needs:report", "fef2c0",
      "Waiting on a fresh `dev test` run from the reporter"),
+    ("fix:committed", "bfd4f2",
+     "A fix exists in a branch or PR but no released artefact carries it yet"),
+    ("fix:released", "0052cc",
+     "A released firmware or host version carries the fix; re-test to close"),
     ("cause:harness", "d93f0b",
      "Defect in the `dev test` harness itself"),
     ("cause:firmware", "d93f0b",

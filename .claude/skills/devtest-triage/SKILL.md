@@ -198,7 +198,8 @@ After folding, triage the canonical issue only.
 
 `python3 $S/devtest_issues.py labels` creates the taxonomy idempotently — do this once
 per tracker, since a fresh clone has only GitHub's stock labels. `fold --apply` applies
-the mechanical ones itself.
+the mechanical ones itself. The taxonomy is shared with `devtest-rootcause`, which owns
+the `fix:*` pair.
 
 | Label | Meaning | Applied by |
 |---|---|---|
@@ -207,6 +208,8 @@ the mechanical ones itself.
 | `fixed:superseded` | Closed against a qualifying later PASS | `fold --apply` |
 | `intermittent` | A later PASS exists but the software did not move | `fold --apply` |
 | `needs:report` | Waiting on a fresh run from the reporter | you |
+| `fix:committed` | A fix exists in a branch or PR; no release carries it yet | `devtest-rootcause` |
+| `fix:released` | A released version carries the fix; re-test to close | `devtest-rootcause` |
 | `cause:harness` | Defect in the `dev test` harness itself | you, after §5 |
 | `cause:firmware` | Defect in the Arduino firmware | you, after §5 |
 | `cause:database` | Wrong field in the generated chip database | you, after §5 |
