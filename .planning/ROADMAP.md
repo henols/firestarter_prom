@@ -307,7 +307,7 @@ Plans:
 **Wave 1**
 
 - [x] 168-01-PLAN.md — Sub-repo v1.35 branches (base is an operator decision) and `MIGRATION-TABLE.md` filled: 12 page names, rendered titles and the pre-deletion SHAs that are HONEST-01's only oracle
-- [ ] 168-02-PLAN.md — Retire the publish path: delete `wiki/`, `wiki-publish.yml` and `wiki.py`'s `publish`/`sidebar`/`check`; `--source-dir` becomes required; add the hand-maintained-sidebar containment leg
+- [x] 168-02-PLAN.md — Retire the publish path: delete `wiki/`, `wiki-publish.yml` and `wiki.py`'s `publish`/`sidebar`/`check`; `--source-dir` becomes required; add the hand-maintained-sidebar containment leg
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -5013,7 +5013,6 @@ and running, not photographed and reverse-engineered.
 **Honesty ledger.** The connect model is **structural and validated** — derived from code, and it reproduces the observed count exactly (13 predicted, 13 observed on the `--fast` log). Its **per-connect cost in seconds is unmeasured** (the port was busy), so **R4's payoff is absent from every projection above** and should be measured before R4 is scoped. Every *time* rate comes from **one** log on **one** Leonardo (1024 B buffer) against **one** 64 KiB part — an Uno's 512 B buffer will differ, and `erase` is modelled flat because one data point cannot show whether it scales. R3 converts the divergence metric on a passing run from an exact whole-device count into an estimate over a sampled subset; a scattered transport fault (the uno328pb signature, the only class this metric was built for) is caught with high probability precisely because scatter is what makes it detectable, but a fault confined to unsampled bytes would be missed on the first pass.
 
 **Sequencing.** **R2 is separable and worth ~24% on its own** — filed as todo [`2026-08-30-gate-fingerprint-readback-on-step-failure.md`](todos/pending/2026-08-30-gate-fingerprint-readback-on-step-failure.md) so it can land without the rest. R1 and R3 are engine changes with real test surface. R4 is the largest structural change and the only one whose payoff is currently unquantified. **Not for v1.35**, which is documentation-only and touches no product code.
-
 
 ### Phase 999.44: Write-init blank check is whole-device — non-blank UV EPROMs cannot be written at all (BACKLOG — filed 2026-08-30 from `/gsd-explore`, operator bench report)
 

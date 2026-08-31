@@ -5,15 +5,15 @@ milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
 status: executing
-stopped_at: Phase 168 planned
-last_updated: "2026-08-31T07:45:09.564Z"
+stopped_at: Completed 168-02-PLAN.md
+last_updated: "2026-08-31T07:55:32.925Z"
 last_activity: 2026-08-31
-last_activity_desc: Phase 168 execution started
+last_activity_desc: "168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 7
+  completed_plans: 8
   percent: 17
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — EXECUTING
-Plan: 2 of 13
+Plan: 3 of 13
 Status: Plan 01 complete — both sub-repo v1.35 branches created, MIGRATION-TABLE.md filled with 12 page names/titles/SHAs, HONEST-01 oracle proven readable for all 13 rows. Plan 02 (retire the publish path) not yet started.
 Last activity: 2026-08-31 — 168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured
 
@@ -2740,6 +2740,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 168]: 168-01: Branch base = fork-from-current-head (operator-decided); v1.35 branches created in firestarter (a218b4f5) and firestarter_app (d56424e1) without moving chore/strip-provenance-comments
 - [Phase 168]: 168-01: Hyphen hazards resolved by rewording titles (AT28C04-Adapter, SRAM-and-NVRAM-Behavior); How-This-Wiki-Is-Published renamed to How-To-Edit-This-Wiki per D-21
 - [Phase 168]: 168-01: MIGRATE-01 and HONEST-01 are NOT marked complete in REQUIREMENTS.md — this plan only lays the oracle groundwork (branch creation, SHA recording, oracle-read proof); full delivery requires later plans in this 13-plan phase (wiki push at 168-05/168-08 for MIGRATE-01, the multiset claim comparison at 168-11 for HONEST-01)
+- [Phase 168]: wiki.py --source-dir is only on the links subparser (not shared via parents=[] with the top-level parser), since a required argument shared that way breaks the ordering 'links --source-dir X' — argparse tracks required-argument satisfaction per parser instance, not per action; sharing a required flag across a parent and its subparser via parents=[] fails when the flag is supplied after the subcommand token
 
 ## Performance Metrics
 
@@ -3111,11 +3112,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 167 P05 | 6min | 3 tasks | 3 files |
 | Phase 167 P06 | 45min | 2 tasks | 2 files |
 | Phase 168 P01 | 12min | 3 tasks | 2 files |
+| Phase 168 P02 | 25min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-31T07:43:56.214Z
-**Stopped at:** Phase 168 planned
+**Last session:** 2026-08-31T07:55:32.867Z
+**Stopped at:** Completed 168-02-PLAN.md
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
@@ -3153,7 +3155,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/168-CONTEXT.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
