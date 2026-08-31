@@ -209,3 +209,14 @@ None. The push used the already-authenticated local `gh` credential (`henols`, `
 ---
 *Phase: 168-migrate-the-13-doc-files-moved-without-upgrading-a-claim*
 *Completed: 2026-08-31*
+
+## Self-Check: PASSED
+
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/wiki05-live-GREEN.txt
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/168-08-SUMMARY.md
+- FOUND commit: 863b0322 (fix: wiki.py false-positives)
+- FOUND commit: db591526 (test: paired GREEN evidence)
+- FOUND commit: 12554a7a (docs: deferred-item resolved)
+- FOUND commit: 15285545 (docs: plan summary)
+- FOUND commit: 90e371f1 (docs: final plan-completion commit)
+- FOUND: live wiki master @ 9d7e9bc280a5c0ba0854577f2fe5fa3cd2aa21a5 (git ls-remote)
