@@ -90,3 +90,14 @@ Recommended follow-up: whichever plan re-anchors baselines against the
 168-03-regenerated database should also refresh
 `tools/baseline/chip_database.baseline.json`, repointing the 9
 `unsupported_reason` strings at the wiki page title `AT28C04 Adapter` per D-13.
+
+**Decided by plan 168-09.** Explicit named historical exclusion, not fixed.
+The baseline is a pinned Phase-98 snapshot (`362bfa0`, 2026-06-30) consumed
+by six modules; `diff_db.py` is measured indifferent to the literal
+`unsupported_reason` text (RC=0 under a mutated-string control), and no test
+asserts the path itself. Re-anchoring a frozen baseline has previously
+reddened unrelated legs elsewhere in this project. It is the *only* file the
+strict repair-sweep grep (`git grep -lE '(^|[^A-Za-z"])doc/[A-Za-z0-9_.-]+\.md'
+-- .`) still lists across `firestarter_app` after 168-09. See
+168-09-SUMMARY.md's "The `chip_database.baseline.json` Stale-Reference
+Decision" section for the full reasoning.

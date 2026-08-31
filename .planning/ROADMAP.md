@@ -323,7 +323,7 @@ Plans:
 **Wave 4** *(blocked on Wave 3)*
 
 - [x] 168-08-PLAN.md — Rewrite `Home`, replace the false published-model page with an editing guide, hand-write `_Sidebar`, push, and record the paired WIKI-05 green *(writes to a public page — not autonomous)*
-- [ ] 168-09-PLAN.md — Remove the 17 doc test legs from 5 modules, keep the 33 code legs, delete `firestarter_app/doc/`, and name every deleted leg's cost
+- [x] 168-09-PLAN.md — Remove the 17 doc test legs from 5 modules, keep the 33 code legs, delete `firestarter_app/doc/`, and name every deleted leg's cost
 - [ ] 168-10-PLAN.md — `tools/wiki/dispatch_mirror.py`: the three-way gate relocated to read the published page, fail-closed on a reformatted region, with a planted-drift selftest case
 
 **Wave 5** *(blocked on Wave 4)*
