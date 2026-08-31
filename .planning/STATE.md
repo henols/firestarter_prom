@@ -1,41 +1,86 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.34
-milestone_name: — Pre-Merge Hardware Regression Validation
-current_phase: 166
-current_phase_name: CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger — LAST phase of v1.34, milestone CLOSED (scope-reduced)
-status: milestone-complete
-stopped_at: "Milestone v1.34 CLOSED and archived 2026-08-29. CLOSED EARLY / SCOPE-REDUCED by operator direction ('stop testing, close ASAP') on the evidence already banked. Phases 160/161 complete (12 of 12 board positions); 162 PARTIAL at 5 of 11 chips (plans 1-7 of 10, 6 summarised); 163 SHIELD and 164 REV0 NOT RUN; 165/166 discharged on the evidence that exists. Every v1.34 result is Rev 2.0 only. Verdict MERGE WITH CAVEATS — full scope statement, evidence table, merge recommendation and 10-row honesty ledger in .planning/v1.34/CLOSE-RECORD.md. CLOSE-04 DEVIATED by explicit operator instruction: the three v1.33 PRs WERE merged to beta as part of this close (firestarter #56 / 01be7885, firestarter_app #54 / db262331, firestarter_prom #43 / ee562a03; meta PR #44), each firing its own beta pre-release cut. NO sub-repo tag and NO stable release — those stay operator-gated, as does the meta v1.34 tag. Six findings filed as backlog 999.37-999.42. REQUIREMENTS.md removed via git rm — recreate with /gsd-new-milestone."
-last_updated: "2026-08-29T23:30:00.000Z"
-last_activity: 2026-08-29
-last_activity_desc: "Milestone v1.34 (Pre-Merge Hardware Regression Validation) CLOSED and archived 2026-08-29 — 7 phases authored (160-166), 4 complete + 1 partial + 2 not run, 28 plans authored / 24 completed, 19/31 requirements Complete. Zero v1.33-caused regressions in any position actually measured (12 board positions + 6 chip-sweep rows); the one hard failure (W27E040 blank-check 0xA4) proven pre-existing by control re-run AND source comparison, then root-caused and fixed on the v1.33 PR branch (1e8bbae + a218b4f, +18/-1 over 2 files, +16 B flash all three AVR targets, +0 RAM). No electrical claim — program-window VPP/VCC under load stays unmeasured."
+milestone: v1.35
+milestone_name: — Documentation Consolidation & Wiki Migration
+current_phase: 168
+current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
+status: awaiting-uat
+stopped_at: Phase 168 verified — 8/8 criteria, 2 human items outstanding
+last_updated: "2026-08-31T12:13:23.217Z"
+last_activity: 2026-08-31
+last_activity_desc: "168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger -- Phase 168 ready for verification"
 progress:
-  total_phases: 7
-  completed_phases: 4
-  partial_phases: 1
-  not_run_phases: 2
-  total_plans: 28
-  completed_plans: 24
-  percent: 57
-  percent_note: "Phase-weighted and deliberately NOT rounded up to 100 — v1.34 closed scope-reduced, not complete. status milestone-complete is the close discriminator; this figure is the honest coverage number."
+  total_phases: 6
+  completed_phases: 2
+  total_plans: 19
+  completed_plans: 19
+  percent: 33
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-08-25
+**Updated:** 2026-08-30
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-25 — v1.34 started)
+See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
-**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
-authoritative dispatch key end to end. v1.34 does not touch that contract, or any product code, unless
-the bench proves v1.33 broke something. **Prove on silicon that v1.33 changed nothing behavioural, before
-the merge.**
-**Current focus:** Phase 162 — CHIP — 11-Part `dev test` Sweep on the Reference Rig
+**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
+**Current focus:** Phase 168 — MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
 
-**v1.34 Pre-Merge Hardware Regression Validation** — ACTIVATED 2026-08-25. Phases continue at **160**
+**v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
+(v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
+by-number cross-reference keeps resolving).
+
+**`firestarter_prom` becomes the front door.** The central repo has **no README at all** today. It gets
+its first — a short get-started page — and its wiki becomes the single home for all project
+documentation. The two sub-repo READMEs shrink to repo-specific information that links up, and both
+`doc/` directories are emptied and removed. Nothing new is authored: this milestone relocates and
+corrects, it does not write the compatibility matrix, family pages or tutorials that Backlog 999.12
+still carries.
+
+**Seven decisions taken at activation** (operator, 2026-08-30): prom is the front door and all three
+READMEs become simple, accepting a thin PyPI listing because `firestarter_app/README.md` is the
+`long_description`; sub-repo READMEs hold only repo-specific information; **everything leaves `doc/`**
+— all 13 files, both directories removed; **relocate and correct only**; wiki pages are **sourced in
+`firestarter_prom` and synced** so they are versioned, reviewable and drift-checkable; **Backlog 999.13
+in full**, branch protection included; and the two sub-repo wikis are **disabled** — already done,
+`has_wiki=false` on both, verified by API.
+
+**Measured starting state** (2026-08-30, verified not assumed): no `firestarter_prom` README; fw README
+151 lines; app README **779 lines**; 13 `doc/` files ≈ 2724 lines; **no wiki repo initialized anywhere**
+(`firestarter_prom.wiki.git` returns `Repository not found`); Issues already disabled on both sub-repos,
+23 open on prom; `firestarter` carries a `Protect main` ruleset with **`enforcement: disabled`** and the
+other two repos have **no ruleset at all**; 6 dead issue links across both READMEs and
+`doc/beta-testing-install.md`; and the app README's table of contents advertises three sections (`Id`,
+`Vpe`, `Hw`) that do not exist in its body.
+
+**✓ OPERATOR-GATED BLOCKER RESOLVED (2026-08-30, phase 167 plan 06).** The operator saved the wiki's
+first page through the web UI (`Scratch.md`), which created `firestarter_prom.wiki.git`. It has since
+been published for real: the in-repo `wiki/` source (`Home.md`, `How-This-Wiki-Is-Published.md`,
+`_Sidebar.md`) now mirrors the live wiki exactly, the operator's `Scratch.md` was deleted by the first
+publish, and idempotence and drift-detection were both proven against the live remote (167-06-SUMMARY.md).
+
+**Honesty constraint (binding, inherited from 999.12).** Relocation must not upgrade a claim. Every
+`support_status` value — `protocol-not-implemented`, `adapter-required`, `vpp-exceeds-max` — and every
+`PROTOCOL-LEDGER` `UNVERIFIED` bucket must read after the move exactly as faithfully as it reads today.
+A wiki page implying blanket support for an unverified chip is the false-PASS failure mode v1.21 was
+built to prevent, and hand-maintained pages drift where a generator would not. The drift check is the
+mitigation and is **in scope, not optional**.
+
+**⚠ Known sequencing hazard — accepted, not solved.** Backlog **999.9** (gh#2) renames all three repos
+(`firestarter_prom` → `firestarter`, `firestarter` → `firestarter_fw`). Every wiki link, README pointer
+and issue URL this milestone writes would be invalidated by it. The operator was shown this at
+activation and chose to proceed and sweep references later, rather than sequencing 999.9 first or
+folding it in.
+
+**⚠ Branch protection changes the GSD close procedure.** 999.13 in full puts `main` behind rulesets in
+all three repos. `/gsd-complete-milestone` pushes `main` directly today; under PR-only `main` that must
+become a PR flow or a documented admin bypass. Protection must also **not** block the `beta` lockstep
+cut, which is this project's actual milestone convention.
+
+**v1.34 Pre-Merge Hardware Regression Validation** — ✅ **CLOSED 2026-08-29** (EARLY / SCOPE-REDUCED). Activated 2026-08-25. Phases continue at **160**
 (v1.33 ran 154–159; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
 by-number cross-reference keeps resolving).
 
@@ -190,12 +235,74 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 166 (CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger) — MILESTONE CLOSED
-Plan: n/a — v1.34 closed early by operator direction 2026-08-29
-Status: CLOSED (scope-reduced) AND ARCHIVED 2026-08-29. Phases 160/161 complete (12 of 12 board positions); 162 PARTIAL at 5 of 11 chips (plans 1-7 of 10, 6 summarised); 163 SHIELD and 164 REV0 NOT RUN; 165/166 discharged on the evidence that exists. Every v1.34 result is Rev 2.0 only. Full scope statement, evidence table, merge recommendation and 10-row honesty ledger in `.planning/v1.34/CLOSE-RECORD.md`. Verdict: MERGE WITH CAVEATS. Six findings filed as backlog 999.37–999.42. Archived to `.planning/milestones/v1.34-ROADMAP.md` + `v1.34-REQUIREMENTS.md`; live `REQUIREMENTS.md` removed via `git rm` per the v1.32/v1.33 close precedent — recreate with `/gsd-new-milestone`.
-**SAFETY (end of plan 161-05, 2026-08-27): cell A3/B2 CLOSED — ALL TWELVE SWEEP POSITIONS OF PHASE 161 NOW EXIST. The Leonardo (Rev 2.0 shield mounted) is CONNECTED at `/dev/ttyACM0` (`2341:8036`), W27C512 (DIP28) SEATED (the only cell in the phase ending with a chip in), v1.33 arm flashed (fw `5759dc8d`), gitlink clean. Pot NOT adjusted since P-06's ruling — firmware reads 12.3V, a multimeter simultaneously reads 11.44V (in band per eprom.cpp:713/:736, target window 11.4-12.5V). DO NOT "correct" the pot down toward 12.0V against the firmware's own reading — the on-board ADC reads roughly 7.5% HIGH (see HEADLINE below), so a firmware-chasing correction would drive the REAL rail toward ~11.2V and make the rig worse while looking like a fix. If a future session needs a different real rail, set it from a multimeter reading, never from the firmware's own vpp figure.** All four A3/B2 positions (`A3-B2__{control,v133}__{w27c512,w29c020}`) are `validated` — clean SHA-judged matches, including two N=3-stable v1.33 reads (`distinct_read_shas=1` on both) — appended to `EVIDENCE.jsonl`, `run_gates.sh` 12/12 selftests + 5/5 live gates exit 0, `gate_record.py` 0 violations. **HEADLINE FINDING, ESCALATED BEYOND A2: the VPP ADC error is RATIOMETRIC (~+7.5%, range 6.8-8.3%), consistent with (not proven as) a shield-wide gain/divider fault rather than a board-specific EEPROM miscalibration** — three paired firmware-vs-meter readings across two independently-calibrated boards (A2 uno328pb 12.5/11.70; this Leonardo 12.9-13.0/12.00 and 12.3/11.44) all cluster near the same ratio. This REVISES A2's leading low-VPP hypothesis for its four write failures: if the error is shield-wide, A1's firmware 12.0V also meant a real rail near ~11.0-11.2V, and A1 PASSED all four positions there — substantially weakening low-VPP as A2's explanation. Full reasoning in `bench/cells/A3-B2/POT.md`, `CELL.md`, and `161-05-SUMMARY.md`; `161-04-SUMMARY.md` is NOT edited, this is a forward supersession for Phase 165. **The N=3 read-instability question from A2 position 3 (same physical W27C512, same v133 arm, 3 distinct SHAs there, escalation blocked/UNDETERMINED) got a relevant but non-resolving data point here: this cell's same arm/chip pairing read perfectly STABLE on a different board** — points away from the chip, toward the uno328pb or its state; still UNDETERMINED for A2 itself. **`~/.firestarter/config.json` CHANGED again (mtime only, content byte-identical to baseline)** — a THIRD recurrence of the same P-H1 finding (A1, A2, now A3/B2), not fixed here (D-16 boundary, handed to Phase 165). **The shared W27C512's condition caveat (never assessed across eight handlings in A1/A2) is now CLOSED** — operator inspection at handling nine reported "nothing looks of[f]"; this is a visual check, not a measurement, and is NOT retroactive clearance for A2's own `0x303` fault. **Treat every recorded node in this file as a hint, never an identity** — re-derive per task from the descriptor or a `controller:`/signature probe; nodes have shuffled multiple times this phase.
-Last activity: 2026-08-29 — v1.34 closed and archived; the three v1.33 PRs merged to beta by operator direction
-Next: **v1.34 is closed and archived.** The three v1.33 PRs are MERGED to `beta` — firestarter #56 (merge commit `01be7885`), firestarter_app #54 (`db262331`), firestarter_prom #43 (`ee562a03`); meta's beta gitlinks now read fw `a218b4f` / app `cb189a9`, and each merge fires its own beta pre-release cut. The meta branch reached `beta` too, via **PR #44** (merge commit `eb87413e`) — that outstanding item is DISCHARGED. **Still operator-gated and deliberately untaken: the meta `v1.34` tag, any sub-repo tag, and any stable release** (v1.33 was tagged at its close; v1.34 is not, pending operator direction). Any meta commit after `eb87413e` — including the Rev 0 desk work `0e114fb7` — is ahead of `beta` and needs its own PR; never push. The bench rig is left assembled: Leonardo on `/dev/ttyACM0` carrying the **v133 arm** (`5759dc8`, read-back judged), W27C040 seated and blank, pot untouched — note that arm image does NOT contain the blank-check fix. Resuming the unfinished sweep is backlog **999.42**. **Post-close desk work already done against 999.42, do not redo it:** `0e114fb7` corrected the upstream Rev 0 schematic blob from `d2a7f691` (which is `origin/rev2.0`, carrying JP4/JP5/R41 a Rev 0 board never had) to the true `cfe6139f` @ `486f3d1`, and discharged all ten `TBD pending Phase 35` sentinel cells in `v1.7-SHIELD-REVS.md` §4/§5 (bare-sentinel count 10 → 0), each now carrying a column-specific named reason. The board itself is still **never physically inspected** — no photographs exist, so REV0-01/02 stay genuinely unrun.
+Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — READY FOR VERIFICATION
+Plan: 13 of 13
+Status: All 13 plans executed and verified 8/8 criteria / 9/9 requirements. Verification returned human_needed — two items in 168-UAT.md require a person: visual inspection of the 14 rendered wiki pages, and a real workflow_dispatch run of wiki-check.yml (branch never pushed to origin). Phase NOT marked complete.
+Last activity: 2026-08-31 — 168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger
+
+## Roadmap Summary (v1.35)
+
+**Created:** 2026-08-30, **hand-authored by the orchestrator — no `gsd-roadmapper` run.** `ROADMAP.md` is
+4,966 lines carrying every prior milestone plus the entire `999.x` backlog, and its §v1.33 section is
+marked never-regenerate; a generator writing that file wholesale is the standing hazard here. The v1.35
+section was drafted separately and spliced. **Verified after splice: 167 insertions, 0 deletions**, two
+pure-addition hunks. `REQUIREMENTS.md` diff confined to `## Traceability`.
+
+**No `research/SUMMARY.md` for this milestone** — project-level research skipped at activation (operator
+decision, 2026-08-30): every scoping decision was settled during questioning, and the remaining unknowns
+(wiki sync mechanics, ruleset configuration that will not block the `beta` cut) are per-phase
+implementation detail that `/gsd-plan-phase` researches better in context.
+
+**Phases:** 7 (**167–173**). Numbering continues from v1.34's 160–166; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving.
+**Coverage:** 32 requirements, all mapped, 0 orphans, 0 duplicates.
+
+| # | Phase | Requirements | Depends on |
+|---|-------|--------------|------------|
+| 167 | WIKI — Bootstrap, In-Repo Source, Sync & Drift Check | WIKI-01…06 (6) | — (WIKI-01 operator-gated) |
+| 168 | MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim | MIGRATE-01…04, HONEST-01, HONEST-02, LEGACY-06, WIKI-02, WIKI-05 (9) | 167 |
+| 169 | FRONT — `firestarter_prom` Becomes the Front Door | FRONT-01…04 (4) | 168 |
+| 170 | REPO — Sub-Repo READMEs Cut to Repo Scope | REPO-01…04, LEGACY-02, LEGACY-03 (6) | 168, 169 |
+| 171 | STRAY — The Root-Level Documentation Files | LEGACY-04, LEGACY-05, LEGACY-07 (3) | 167 |
+| 172 | POLICY — One Tracker, Protected `main` | POLICY-01…03, LEGACY-01 (4) | 170 |
+| 173 | CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger | POLICY-04, POLICY-05 (2) | 167–172 |
+
+**Three ordering decisions:**
+
+**O-1 — the pipeline is built before any content moves (167 → 168).** Standing up the source tree, the
+sync command and the drift check first means the migration publishes through a path that has already been
+proven, rather than discovering the publishing model while also moving 2,724 lines of content. The v1.34
+rig phase is the precedent: ~20 latent tooling defects surfaced only on first contact with the real thing,
+and every one of them had a passing fixture selftest.
+
+**O-2 — the operator-gated wiki creation does not gate the phase.** Phase 167 builds and tests everything
+against a local fixture; only its publish step waits on the operator's first web-UI page save. No phase is
+planned whose first action is a wiki push, so the blocker delays one step rather than the milestone.
+
+**O-3 — policy lands after the prose (172 after 170), and the close proves it (173).** POLICY-01's
+statements live in READMEs that Phase 170 is still reshaping, so configuring before writing would mean
+writing twice. Branch protection is applied in 172 and its consequences are discharged in 173 — the `beta`
+lockstep cut demonstrated working under the new rulesets, and the GSD close procedure updated before the
+next `/gsd-complete-milestone` discovers the change by failing.
+
+**Two checks that must not be conflated — and as of 2026-08-30 only one survives.** WIKI-04 compared
+published wiki against in-repo source — a publishing-integrity check. HONEST-02 compares page claims
+against `chip_database.json` / `PROTOCOL-LEDGER.json` — a truth check. A green WIKI-04 said the wiki
+matched what was written and said nothing about whether what was written is true. **WIKI-04 is
+withdrawn with the wiki-only model reversal**, so HONEST-02 now stands alone and must not be described
+as covering publishing integrity — nothing does any more. That gap is an accepted cost of the reversal.
+
+**⚠ MODEL REVERSED 2026-08-30 — the wiki is authored in the wiki, not in the repo.** During
+`/gsd-discuss-phase 168` the operator reversed milestone activation decision 5, after Phase 167 had
+already shipped and verified the in-repo source model. Documentation lives **only in the GitHub wiki**:
+no in-repo `wiki/` tree, no publish command, no source-vs-published drift check. **WIKI-03 and WIKI-04
+are withdrawn; WIKI-02 is rewritten and WIKI-05 reopened, both reassigned to Phase 168** (now 9
+requirements). Retired: `wiki/` (3 pages), `wiki-publish.yml`, and `wiki.py`'s `publish` / `sidebar` /
+`check`. Survives: `tools/wiki/MIGRATION-TABLE.md` (it sits under `tools/`, not `wiki/`) and
+`wiki.py links`, repointable at a wiki clone. **The unlock for HONEST-02:** `firestarter_prom.wiki.git`
+is a real git repository, so the claim check clones it and asserts against published pages — a
+first-party clone, not the external HTTP probe D-11 rejected. Full record:
+`.planning/notes/v135-wiki-only-reversal.md`.
 
 ## Roadmap Summary (v1.34)
 
@@ -1715,11 +1822,15 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - `2026-08-05-dev-test-issue-triage-diagnosis-skill.md` (tooling) — skill to triage community `dev test` issues: analyse the report, diagnose against the datasheet/DB/ledger, comment, close passes into a tested-good IC list. Captured during v1.30; needs discuss-phase (datasheet corpus is 3 PDFs; outward-facing comment/close needs a structural gate).
 - `2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md` (general) — strip ~646 GSD provenance comments across 167 files in both sub-repos, condensing the load-bearing ones (notably `database.py`'s Phase 121/153 REVERSAL RECORD). Captured during v1.32; **filed as Backlog 999.34, ⭐ promote first into the next milestone**; needs discuss-phase — ~20 host gates scan firmware source and fail open, and 6,939 `.planning/` `file:LINE` citations shift. **Operator decided 2026-08-22: repair the citations, archives included — scripted remap committed atomically with the source edit, verified by a before/after round-trip on the cited text.**
 - `2026-08-27-safe-state-outputs-on-powerup-and-fault.md` (firmware) — operator requirement captured during the v1.34 bench campaign: outputs/pins must be driven to a safe state ASAP on power-up and on ANY fault, not only via the 1 s `TIMEOUT_MS` poll in `loop()`. Three concrete gaps found at fw `5759dc8`: Leonardo's `rurp_board_setup()` omits the `chip_disable`/`chip_input`/register-zero that the Uno path does; `setup()` runs config load + hw-revision detect BEFORE safing the pins; and the dirty-path teardown is reachable only between commands. Needs discuss-phase.
+- `2026-08-30-remove-cmd-verify-from-firmware-compare-in-app.md` (both) — retire the `CMD_VERIFY` (6) **command surface** from the firmware and verify by `CMD_READ` + in-Python compare instead, reusing `chip_test.py`'s `classify_fingerprint`/`_diff_offsets` rather than growing a third comparison. Buys AVR flash and turns a first-bad-byte abort into a full diff. **Scope trap:** `memory_verify_execute` must SURVIVE — `eprom.cpp:471` calls it for the `VERIFY_PER_PULSE_PLUS_FINAL` arm, and the per-pulse, 28C page-readback and flash-util verifies are all load-bearing algorithm steps. `MSG_ERR_VERIFY` (0xAF) stays. Open question: whether dropping an opcode is a clean break or needs a reserved/rejected deprecation window. Needs discuss-phase.
+- `2026-08-30-dev-test-flag-to-auto-file-issue.md` (host app) — operator ask: a flag on `dev test` that files the GitHub issue automatically when the run finishes. There is no path there today — `dev test` takes only `--fast` (the v1.21 `--submit` flag was removed and now errors as unknown), and `submit_report` either asks with `default=False` on a TTY or, off a TTY, prints the prefilled URL and files nothing (v1.21 SUB-01's ban on silent off-TTY submission, which survived precisely because no flag was left to carry the consent). The flag IS that consent, and it unblocks unattended sweeps (Backlog 999.42). **Outward-facing** — it creates public issues in `henols/firestarter_prom` with no human in the loop. Open decisions: flag spelling (re-animate `--submit` vs `--auto-submit`/`-y`, and fix the contradicting removal note at `cli_handlers.py:2292`), refuse-gate and dedup behaviour when the duplicate check could not run, `gh`-only tier (the browser tier files nothing unattended), and whether `--fast` may be auto-filed at all. Needs discuss-phase.
+- `2026-08-31-dev-test-chip-name-must-match-database.md` (host app) — operator requirement: a `dev test` report must name the chip by its **exact database name**, in the filed issue and in the app tests. Today the raw CLI token flows end to end while `get_eprom_config` lower-cases, alias-matches and paren-normalizes the lookup (`database.py:446-485`), so `at28c256` files an issue titled with a string absent from `chip_database.json`, and `dedup_fingerprint` hashes that token (`diagnostic_report.py:211`) — splitting the N>=2 agreement groups the promotion ladder counts. Canonical name is already on the record at `database.py:382`. Two decisions first: which alias of a comma-joined `part_number` is *the* name, and whether the paren mode annotation may be stripped (it may not blindly — DALLAS `DS1245AB(RW)` and `DS1245AB(TEST)` are distinct rows). Re-keying the fingerprint is a one-time break to report identity. Needs discuss-phase.
 
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
+| 260831-t7k | `devtest-triage` closes a failure a later PASS supersedes (three legs: later by report stamp, software moved forward, failing step back to `OK` not `NA`); 11-label shared taxonomy with `cause:*` naming who owns each fix; `devtest-rootcause` must report the artefact versions carrying a fix and label `fix:committed`/`fix:released`; both skills swept of stale narrative and of `/workspaces` hardcoding. Open `dev test` issues 15 -> 6. **Deviation: pushed to `main` outside the ship flow — see SUMMARY for the beta->main merge guard.** | 2026-08-31 | `05686b65`, `f35cf6a7`, `40f295e1`, `81d1adf5` (meta; no sub-repo commits, no gitlink bumped) | [260831-t7k-devtest-skills-supersede-and-labels](./quick/260831-t7k-devtest-skills-supersede-and-labels/) |
 | 260825-cmt | Strip narrative comments from shipped source and from the maintenance tooling (`platformio.ini`, `build_db.py`) -- keep only what explains something complicated or non-obvious usage; 2,475 comment lines removed, firmware 45%->35%, app 44%->40%, code byte-for-byte unchanged and AVR builds byte-identical | 2026-08-25 | `ebaf7d2..5759dc8` (firestarter) + `73c6394..8e8f355` (firestarter_app), gitlinks re-pinned | [260825-cmt-strip-narrative-comments](./quick/260825-cmt-strip-narrative-comments/) |
 | 260728-ahy | Fix `dev test --submit`: drop the nonexistent `gsd-inbox` label from the `gh` create argv, retarget `SUBMIT_REPO` → `henols/firestarter_prom`, and stop both tiers reporting phantom success | 2026-07-28 | `688bf10..36a9bb5` (firestarter_app submodule; gitlink NOT bumped) | [260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis](./quick/260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis/) |
 | 260729-iyx | Install Bun in devcontainer to enable the Claude Code Discord channel plugin (DM-only) | 2026-07-29 | `c5385a7` | [260729-iyx-install-bun-in-devcontainer-to-enable-di](./quick/260729-iyx-install-bun-in-devcontainer-to-enable-di/) |
@@ -2616,6 +2727,49 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 162]: PROCEDURE.md Amendment 4: two cell shapes named explicitly (WRV vs chip-sweep), five P steps shared by reference, six named not-applicable, and the stale ~/.firestarter mtime baseline re-pinned inside P-11 (fourth recurrence) so no chip-sweep position books a false P-H1 halt.
 - [Phase ?]: append_chip_evidence.py's vpp_firmware_mv derivation was silently reading not-measured on every real chip-sweep position (console-log scrape never matches dev test's own output); fixed to read report.voltage.vpp_before_mv directly, and positions 1-2's already-committed rows were re-derived through the same fix after an initial wrong scope call was reversed
 - [Phase ?]: FM1608's phase-plan-pre-booked diverges verdict (D-03) was overridden live by the operator ruling: dev test ran alone first, returned OK, so the row is same/validated with zero flashes and zero control arbitration -- the second live override of a plan pre-booking in this sweep
+- [Phase ?]: argparse global flags need a shared parent parser added to both the top-level parser and the sidebar subparser, else flags typed after the subcommand name are rejected
+- [Phase ?]: rc_of in selftest.sh takes an explicit outfile argument so each case's captured output is independently greppable
+- [Phase 167-02]: Link legality classified post-hoc against the extracted target rather than tagged during extraction, so [[Page]] and reference-style links fail the same single check as .md-suffixed targets — One legality gate instead of three, per codegen.py's accumulate-then-report idiom
+- [Phase 167]: 167-03: symbolic-ref --short HEAD fallback added to publish's rev-parse --abbrev-ref HEAD branch check, because the literal command fails on a freshly cloned unborn-branch bare repo (every fixture's first push)
+- [Phase 167]: 167-03: case_hand_edit_overwritten extended with a wiki-only Stray-Page.md so the mirror-wipe's deletion behavior is actually discriminated from a plain copy-over; case_deleted_page_removed's Home.md rewritten alongside the source deletion so cmd_check's unconditional pre-check does not reject the fixture before the mirror-deletion property is exercised
+- [Phase ?]: Home.md names Phase 168 pages by source filename, not invented wiki page names — actual naming is Phase 168's decision
+- [Phase ?]: Illegal link-form examples in How-This-Wiki-Is-Published.md are escaped in code spans so the page's own prose doesn't fail wiki.py's link-form check
+- [Phase 167]: wiki-check.yml keyed to beta not main (D-06), per catalog-sync-check.yml's 5-run failure history
+- [Phase 167]: CLAUDE.md and STRUCTURE.md corrected with scoped edits only, naming wiki/, tools/wiki/ and the second workflow
+- [Phase 167]: WIKI-06 re-verified from live GitHub API (false/false/true); marked Complete
+- [Phase 167]: Operator's Scratch.md and Home.md used as live evidence for criterion 2 (delete + overwrite halves) instead of treating as noise
+- [Phase 167]: WIKI_TOKEN defined once at job level (not step level) so the secrets fallback expression appears exactly once in wiki-publish.yml
+- [Phase 168]: 168-01: Branch base = fork-from-current-head (operator-decided); v1.35 branches created in firestarter (a218b4f5) and firestarter_app (d56424e1) without moving chore/strip-provenance-comments
+- [Phase 168]: 168-01: Hyphen hazards resolved by rewording titles (AT28C04-Adapter, SRAM-and-NVRAM-Behavior); How-This-Wiki-Is-Published renamed to How-To-Edit-This-Wiki per D-21
+- [Phase 168]: 168-01: MIGRATE-01 and HONEST-01 are NOT marked complete in REQUIREMENTS.md — this plan only lays the oracle groundwork (branch creation, SHA recording, oracle-read proof); full delivery requires later plans in this 13-plan phase (wiki push at 168-05/168-08 for MIGRATE-01, the multiset claim comparison at 168-11 for HONEST-01)
+- [Phase 168]: wiki.py --source-dir is only on the links subparser (not shared via parents=[] with the top-level parser), since a required argument shared that way breaks the ordering 'links --source-dir X' — argparse tracks required-argument satisfaction per parser instance, not per action; sharing a required flag across a parent and its subparser via parents=[] fails when the flag is supplied after the subcommand token
+- [Phase 168]: AT28C DIP24 adapter reason repointed at wiki page 'AT28C04 Adapter' instead of the retired firestarter/doc/ path; chip_database.json regenerated (9 rows changed); baseline deliberately left untouched (diff_db.py RC=0, measured no-op)
+- [Phase 168]: 168-04: severed the H-1 module-scope fw_path collection hazard by deleting test_dispatch_mirror.py; kept the surviving scan-path entry with an updated consumer note
+- [Phase 168]: 168-04: proved H-1 severance via an isolated scratch git clone (real commit removing doc/), not an in-place rename -- in-place mutation of the tracked firmware repo spuriously fails unrelated git-porcelain-cleanliness controls in 5 other modules
+- [Phase 168]: 168-04: the plan's predicted 17 doc-caused failures belong to firestarter_app/doc/ removal (plan 168-09's scope), not firestarter/doc/ removal (this plan's scope) -- confirmed against ROADMAP.md and recorded as a finding
+- [Phase ?]: 168-05: claim-stamp hash computed fresh (ccbc8d2c4866a5af) against 168-03's regenerated chip_database.json, not reused from the discussion-time value
+- [Phase ?]: 168-05: pushed the 12 migrated pages to firestarter_prom.wiki.git master (0155a85 -> f6131e7) and captured the live 12-orphan WIKI-05 RED before Home.md was touched
+- [Phase 168]: 168-06: extended single-line comment deletions to the full citing clause when a literal single-line cut left broken grammar (ic_layout.py, diagnostic_report.py); net comment count is negative, zero new comments created
+- [Phase 168]: 168-06: firmware.py:629's doc reference is a private-method docstring, not printed output as characterized -- followed the plan's stated action anyway, reusing py32_dfu.py's bootloader-entry wording for consistency
+- [Phase 168]: 168-06: tools/baseline/chip_database.baseline.json's 9 stale doc/AT28C04-ADAPTER.md references are out of this plan's files_modified scope (generator/re-baseline work, D-14 shape) -- logged to deferred-items.md, not hand-edited
+- [Phase 168]: 168-06: MIGRATE-04 spans this plan and 168-07 (firmware-repo repairs still pending) -- NOT marked complete in REQUIREMENTS.md yet, per the known multi-plan-requirement premature-completion trap; leave Pending until 168-07 lands
+- [Phase 168]: D-16 preserved: both firestarter/CLAUDE.md lockstep-maintenance rules repointed to the Shield Revisions wiki page title, wording and section names unchanged
+- [Phase 168]: D-15 applied to test_loop_eprom_v131.cpp: its doc/SHIELD-REVISIONS.md-citing block comment deleted in full; the open contradictory jumper-identity finding preserved in 168-07-SUMMARY.md instead of in source
+- [Phase 168]: Fixed two latent wiki.py links defects while making WIKI-05 reachable: reference-style external citations (Lockable-PROMs) no longer flagged as illegal internal links when resolved by a [ref]: <url> definition, and a real git clone's .git directory is no longer flagged as an illegal page filename
+- [Phase 168]: How-This-Wiki-Is-Published.md renamed to How-To-Edit-This-Wiki.md and rewritten: dropped the five false sections (in-repo-authoritative, edits-overwritten, publishing subcommands, generated-sidebar, branch-tracking), kept the two true ones (page naming, linking rules) verbatim, added claim-stamp/claims-region sentinel documentation
+- [Phase 168]: Home.md rewritten as the real 14-page index grouped by getting-started/hardware/protocols/chip-reference, and _Sidebar.md hand-written to list all 14 pages, closing WIKI-05's reachability and sidebar-containment legs
+- [Phase 168]: 168-09: chip_database.baseline.json's 9 stale doc/ references are an explicit named historical exclusion (pinned Phase-98 snapshot), not fixed -- the only file the repair-sweep grep still lists
+- [Phase 168]: 168-09: kept test_py32_packaging.py's _INSTALL_DOC/_read_install_doc/_assert_doc_states_app_region_end (plan said delete) because a surviving fail-closed leg monkeypatches _INSTALL_DOC and pytest's raising=True default would break it if the attribute did not already exist
+- [Phase 168]: 168-10: MIN_BUCKET_ROWS set to 6 (half the production 12-row table), not a literal 12 -- a literal-12 floor would make the plan's own single-row-deletion exit-1 criterion unreachable by construction
+- [Phase 168]: 168-10: added a reverse completeness check against the tool's KNOWN_PROTOCOLS set, catching a doc row silently going missing -- the deleted app-side module never had this and would have produced zero failures for that case
+- [Phase 168]: HONEST-01's checker caught a real dropped claim token on its first live run (Shield-Revisions does-not->do-not, a 168-05 side effect); the wiki was corrected (9d7e9bc->aa4a5c7), not the checker or vocabulary
+- [Phase 168]: expected_zero tokens not covered by a family (UNVERIFIED, PROTOCOL-LEDGER) are still actively counted via a direct literal scan, never assumed absent
+- [Phase ?]: HONEST-02 leg 1's claim signature requires database resolution, not mere alphanumeric shape -- excludes navigation pages (Home/_Sidebar/How-To-Edit) and requires resolving tokens
+- [Phase ?]: HONEST-02's part-token extraction excludes voltage/capacity/pin-count shapes; the resulting 21-entry claim-allowlist.json is bounded to the three delimited regions and each entry cites a self-documented reason
+- [Phase ?]: HONEST-02's first live run against the real wiki (master aa4a5c7) came back clean, exit 0, on the first attempt -- no correction needed before phase close
+- [Phase 168]: wiki-check.yml's no-recursive-submodule rationale comment written to avoid the plural literal token its own automated verify forbids
+- [Phase 168]: A live GitHub Actions workflow_dispatch run was not attempted -- the branch has never been pushed to origin; all three checker steps were exercised locally instead
+- [Phase 168]: STATE.md's false v1.35-touches-no-product-code claim retracted and replaced with the enumerated bounded set of product-source edits Phase 168 actually made
 
 ## Performance Metrics
 
@@ -2980,11 +3134,31 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 162 P03 | 45min | 2 tasks | 3 files |
 | Phase 162 P04 | 20min | 3 tasks | 3 files |
 | Phase 162 P06 | 45m | 4 tasks | 34 files |
+| Phase 167 P01 | 8min | 3 tasks | 2 files |
+| Phase 167 P02 | 12min | 3 tasks | 2 files |
+| Phase 167 P03 | 14min | 3 tasks | 2 files |
+| Phase 167 P04 | 8min | 3 tasks | 4 files |
+| Phase 167 P05 | 6min | 3 tasks | 3 files |
+| Phase 167 P06 | 45min | 2 tasks | 2 files |
+| Phase 168 P01 | 12min | 3 tasks | 2 files |
+| Phase 168 P02 | 25min | 3 tasks | 6 files |
+| Phase 168 P03 | 20min | 2 tasks | 4 files |
+| Phase 168 P04 | 55min | 3 tasks | 8 files |
+| Phase 168 P05 | 22min | 3 tasks | 12 files |
+| Phase 168 P06 | 32min | 3 tasks | 10 files |
+| Phase 168 P07 | 35min | 3 tasks | 7 files |
+| Phase 168 P08 | ~35min | 3 tasks | 6 files |
+| Phase 168 P09 | 50min | 3 tasks | 16 files |
+| Phase 168 P10 | 50min | 2 tasks | 3 files |
+| Phase 168 P11 | 25min | 3 tasks | 5 files |
+| Phase 168 P12 | 35min | 3 tasks | 8 files |
+| Phase 168 P13 | 45min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-29T23:30:00.000Z
-**Stopped at:** Milestone v1.34 CLOSED and archived 2026-08-29 — scope-reduced by operator direction; verdict MERGE WITH CAVEATS; three v1.33 PRs merged to beta; meta reached beta via PR #44 (`eb87413e`). No tag, no stable release — operator-gated.
+**Last session:** 2026-08-31T12:13:23.145Z
+**Stopped at:** Completed 168-13-PLAN.md — Phase 168 CLOSED
+**Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
