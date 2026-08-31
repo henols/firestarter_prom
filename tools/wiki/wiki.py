@@ -176,16 +176,39 @@ def check_link_forms(source_dir: Path) -> list[str]:
     return failures
 
 
+def pages_linked_from(source_dir: Path, stem: str) -> set[str]:
+    page = source_dir / f"{stem}.md"
+    if not page.is_file():
+        return set()
+    targets: set[str] = set()
+    for _lineno, _link_text, target in extract_internal_links(page):
+        if _LEGAL_TARGET_RE.fullmatch(target):
+            targets.add(target.split("#", 1)[0])
+    return targets
+
+
+def pages_reachable_from_home(source_dir: Path) -> set[str]:
+    home_stem = Path(HOME_PAGE).stem
+    reachable: set[str] = set()
+    frontier = [home_stem]
+    while frontier:
+        for target_stem in pages_linked_from(source_dir, frontier.pop()):
+            if target_stem in reachable or target_stem == home_stem:
+                continue
+            if f"{target_stem}.md" in NAV_EXCLUDED_PAGES:
+                continue
+            reachable.add(target_stem)
+            frontier.append(target_stem)
+    return reachable
+
+
 def check_orphans(source_dir: Path) -> list[str]:
     failures: list[str] = []
     home = source_dir / HOME_PAGE
     if not home.is_file():
         failures.append(f"orphan check requires {HOME_PAGE} to exist")
         return failures
-    reachable: set[str] = set()
-    for _lineno, _link_text, target in extract_internal_links(home):
-        if _LEGAL_TARGET_RE.fullmatch(target):
-            reachable.add(target.split("#", 1)[0])
+    reachable = pages_reachable_from_home(source_dir)
     home_stem = Path(HOME_PAGE).stem
     for stem in page_stems(source_dir):
         if stem == home_stem:
@@ -193,7 +216,9 @@ def check_orphans(source_dir: Path) -> list[str]:
         if f"{stem}.md" in NAV_EXCLUDED_PAGES:
             continue
         if stem not in reachable:
-            failures.append(f"orphan page not linked from {HOME_PAGE}: {stem}")
+            failures.append(
+                f"orphan page not reachable from {HOME_PAGE} by any link path: {stem}"
+            )
     return failures
 
 
@@ -233,7 +258,8 @@ def cmd_links(args: argparse.Namespace) -> int:
     for stem in pages:
         print(f'{stem} -> "{render_title(stem)}"')
     print(
-        f"OK: {len(pages)} pages, all reachable from {HOME_PAGE}, all "
+        f"OK: {len(pages)} pages, all reachable from {HOME_PAGE} by some link "
+        f"path, all "
         f"internal links resolve, all filenames legal, and all listed in "
         f"{SIDEBAR_PAGE}."
     )

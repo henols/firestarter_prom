@@ -10,12 +10,11 @@ greps it for a source path before renaming anything.
 | Source repo | Source path | Wiki page | Rendered title | Pre-deletion SHA | Moved in |
 |---|---|---|---|---|---|
 | firestarter_prom | — | Home | Home | — | 167 |
-| firestarter_prom | — | How-To-Edit-This-Wiki | How To Edit This Wiki | — | 167 (renamed 168) |
 | firestarter | firestarter/doc/PROTOCOLS.md | Programming-Protocols | Programming Protocols | a218b4f5273d14f0abd796b21ac104792de01603 | 168 |
 | firestarter | firestarter/doc/SHIELD-REVISIONS.md | Shield-Revisions | Shield Revisions | a218b4f5273d14f0abd796b21ac104792de01603 | 168 |
 | firestarter | firestarter/doc/AT28C04-ADAPTER.md | AT28C04-Adapter | AT28C04 Adapter | a218b4f5273d14f0abd796b21ac104792de01603 | 168 |
-| firestarter_app | firestarter_app/doc/beta-testing-install.md | Beta-Testing-Install | Beta Testing Install | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/community-validation.md | Community-Validation | Community Validation | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
+| firestarter_app | firestarter_app/doc/beta-testing-install.md | Install-Beta | Install Beta | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
+| firestarter_app | firestarter_app/doc/community-validation.md | Testing-Chips | Testing Chips | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/infoic-field-dictionary.md | Infoic-Field-Dictionary | Infoic Field Dictionary | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/lockable-proms.md | Lockable-PROMs | Lockable PROMs | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/package-details.md | Package-Details | Package Details | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
@@ -32,11 +31,54 @@ is deleted (D-02): the checker reads the source side with
 `git -C <subrepo> show <sha>:doc/<file>`. Task 3 of this plan proves all 13 rows resolve to
 non-empty content before this plan is allowed to close.
 
-The `How-To-Edit-This-Wiki` rename (from `How-This-Wiki-Is-Published`, per D-21) has no
-source SHA because it is wiki-authored prose, not a migrated `doc/` file. The old title
-asserted a publishing model that stopped existing at the reversal; keeping it would ship a
-false title on a public page for the sake of a URL with exactly one known inbound link
-(`Home.md:5`), which this phase rewrites in the same wiki commit that renames the page.
+`How-To-Edit-This-Wiki` (originally `How-This-Wiki-Is-Published`, renamed per D-21) was
+**deleted from the wiki on 2026-08-31 at the operator's direction**, after the migration
+closed. It was wiki-authored prose rather than a migrated `doc/` file, so it never had a
+source SHA and its removal costs no migrated content. Phase 167's D-12 justification for
+authoring it — pipeline scaffolding, not product documentation — is also the reason it could
+go: with the publish pipeline retired there is no pipeline left to document, and the editing
+conventions it carried are enforced by the checkers rather than by prose.
+
+**Two pages were renamed on 2026-08-31, after the migration closed**, again at the operator's
+direction: `Beta-Testing-Install` → `Install-Beta`, and `Community-Validation` → `Testing-Chips`
+(the latter also absorbed the "help test a chip" section from the former). The `Wiki page`
+column above records the *current* page name, which is what the Backlog 999.9 rename sweep
+needs; the `Source path` column still records where the content came from. Both pages were
+substantially rewritten for a community audience in the same change — see the honesty note
+below.
+
+## Honesty note: HONEST-01 no longer applies to two pages
+
+HONEST-01 compared the claim-token multiset of each page against its frozen pre-deletion
+source, and it passed clean for all 12 migrated pages at wiki commit `aa4a5c7` — the migration
+itself upgraded no claim. That result stands as a fact about the migration.
+
+It is **no longer a live property of `Install-Beta` and `Testing-Chips`.** On 2026-08-31, after
+the migration closed, the operator directed a substantial rewrite of both for a community
+audience: `Testing-Chips` absorbed the "help test a chip" section from `Install-Beta` and dropped
+the ladder internals, the code references, and the summary table; `Install-Beta` lost its board
+`.hex`/avrdude asset columns, its port-numbering note, and most of its flashing detail. Running
+HONEST-01 against them now reports dropped tokens, and that is correct rather than a defect —
+the pages deliberately no longer say what the 2026-08-30 source documents said.
+
+Each dropped token was reviewed against the frozen source before the rewrite was published:
+
+- `Testing-Chips` `never` 16 -> 1: thirteen were implementation detail that left with the code
+  references (`never in chip_database.json`, `never a second hand-maintained field list`,
+  `never a string build_db_diff can produce`). The three user-facing claims were kept in force
+  with different wording — a report never changes what the project claims to support, a single
+  report can never promote a chip, and promotion is a maintainer decision rather than a function
+  of report volume. One claim was found genuinely missing during this review and restored before
+  publication: that `--fast` reports are excluded from the two-report agreement count.
+- `Install-Beta` `will not` 2 -> 0, `never` 2 -> 0, `does not` 3 -> 1: the safety-bearing ones
+  survive as rewordings — the signature check still stops a mismatched flash, the smoke test
+  still states it touches no chip in the socket, and the UV 256-byte slot limit moved intact to
+  `Testing-Chips` as "only ever writes a small 256-byte slot".
+
+**Do not re-baseline these rows to make the checker green.** The source SHAs are the frozen
+oracle for what the documents said on 2026-08-30 and are still the right answer to that question.
+HONEST-01 is a retired one-shot (D-03), not a standing gate; the standing guard on wiki content
+is HONEST-02, which covers both pages and is green.
 
 ## Deferred, not migrating
 

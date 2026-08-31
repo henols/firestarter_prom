@@ -115,6 +115,41 @@ case_orphan_exit_1() {
     return "$ok"
 }
 
+case_transitive_reachability_exit_0() {
+    local src="$WORK/transitive_reachability_src"
+    new_source_dir "$src"
+    local ok=0
+
+    printf '%s\n' '# Page Deep' '' 'Fixture body with no internal links.' > "$src/Page-Deep.md"
+    printf '%s\n' '# Home' '' '[Page One](Page-One)' '[Page Deep](Page-Deep)' > "$src/Home.md"
+    printf '%s\n' '- [Home](Home)' '- [Page One](Page-One)' '- [Page Deep](Page-Deep)' > "$src/_Sidebar.md"
+
+    local control_rc
+    control_rc=$(rc_of transitive_reachability_control.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "transitive_reachability_control" 0 "$control_rc" || ok=1
+
+    printf '%s\n' '# Home' '' '[Page One](Page-One)' > "$src/Home.md"
+    printf '%s\n' '# Page One' '' 'Reached from Home; links onward to [Page Deep](Page-Deep).' > "$src/Page-One.md"
+
+    local hop_rc
+    hop_rc=$(rc_of transitive_reachability_hop.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "transitive_reachability_exit_0" 0 "$hop_rc" || ok=1
+
+    printf '%s\n' '# Page One' '' 'Fixture body with no internal links.' > "$src/Page-One.md"
+
+    local severed_rc
+    severed_rc=$(rc_of transitive_reachability_severed.log python3 "$WIKI_PY" links --source-dir "$src")
+    assert_rc "transitive_reachability_severed" 1 "$severed_rc" || ok=1
+
+    if ! grep -q 'Page-Deep' "$WORK/transitive_reachability_severed.log"; then
+        echo "ERROR: transitive_reachability_severed: stderr missing Page-Deep" >&2
+        ok=1
+    fi
+
+    record "transitive_reachability_exit_0" 0 "$hop_rc" "$control_rc" "Page-Deep reached only via Home->Page-One passes; severing that one hop names Page-Deep and exits 1"
+    return $ok
+}
+
 case_sidebar_link_is_not_evidence() {
     local src="$WORK/sidebar_link_is_not_evidence_src"
     new_source_dir "$src"
@@ -594,7 +629,7 @@ case_honest02_absent_part_number_exit_1() {
     return "$ok"
 }
 
-CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0 dispatch_mirror_planted_drift_exit_1 honest01_weakened_claim_exit_1 honest02_absent_part_number_exit_1)
+CASES=(orphan_exit_1 transitive_reachability_exit_0 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0 dispatch_mirror_planted_drift_exit_1 honest01_weakened_claim_exit_1 honest02_absent_part_number_exit_1)
 
 exit_code=0
 fail_count=0
