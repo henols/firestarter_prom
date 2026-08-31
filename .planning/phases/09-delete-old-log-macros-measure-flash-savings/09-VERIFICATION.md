@@ -4,6 +4,31 @@ verified: 2026-05-19T00:00:00Z
 status: human_needed
 score: 5/5 success criteria verified (autonomous side); 2 hardware-pending UAT items awaiting operator-on-bench
 overrides_applied: 0
+carry_over_assessment:
+  assessed: 2026-08-09
+  by: v1.31 pre-close carry-over sweep
+  status_unchanged: human_needed
+  reason_still_open: "Both items are bench-hardware runs. NOT rubber-stamped."
+  autonomous_side: COMPLETE (5/5 success criteria, unchanged)
+  item_1_chipless_matrix:
+    note: |
+      The `OK: FW: 3.0.0-dev:<board>` strings this item expects are from the May-2026
+      dev-version scheme. The firmware has since shipped b8..b13; a re-run today would
+      assert a different version string than the one written here. The item needs
+      restating before it can be run, not just running.
+  item_2_phase08_carryover:
+    status: SCOPE REDUCED — same reduction as Phase 08
+    note: |
+      This is explicitly the Phase 08 SC#2/SC#3 carry-over. Its blocker (0xA4
+      MSG_ERR_EMPTY_INPUT) is RESOLVED — host fix `ack_data=False` on INIT/END at
+      firestarter_app/firestarter/eprom_operations.py:488, guarded by
+      tests/test_eprom_operations.py:135. The Leonardo leg is superseded by Phase 91's
+      W27C512 PASS (chip-ID 0xDA08, erase SHA e16b2a5b). Residual = the Uno leg plus an
+      explicit byte-identity diff. See 08-VERIFICATION.md carry_over_assessment.
+  recommended_disposition: |
+    Resolve jointly with Phase 08 — they are the same underlying bench task. Item 1
+    additionally needs its expected version string updated before it is runnable.
+    OPERATOR DECISION — not taken here.
 re_verification:
   previous_status: none
   previous_score: n/a

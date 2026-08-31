@@ -13,3 +13,44 @@ platformio.ini
 # Python bytecode (codegen tools etc.)
 __pycache__/
 *.py[cod]
+
+# v1.7 milestone substrate — gitignore everything under .planning/v1.7/ except .md files
+# (raw chat dumps, upstream clone, photo binaries stay local; distilled .md commits)
+.planning/v1.7/**
+!.planning/v1.7/**/
+!.planning/v1.7/**/*.md
+# Local working clone of the upstream RURP repo. BOTH forms are required: the
+# trailing-slash pattern matches the directory, the bare path matches the
+# GITLINK git records for a nested repo -- and it was the missing bare form
+# that let this path get committed as an orphaned submodule in c502fc39.
+.planning/v1.7/upstream-rurp/
+.planning/v1.7/upstream-rurp
+
+# firestarter dev-diagnostic run output (write-cycle / consistency-check).
+# New runs land under firestarter-runs/; the bare-prefixed patterns cover
+# folders left over from before they were grouped under a parent dir.
+firestarter-runs/
+consistency-check-*/
+write-cycle-*/
+
+# Knowledge-graph output (graphify / gsd-graphify). Regenerable from the tree,
+# and the payloads are large: graph.json is ~23 MB in each location plus ~24 MB
+# of graphify-out/cache/. Only the distilled .planning/graphs/GRAPH_REPORT.md is
+# tracked; graphify-out/ at the repo root is scratch output that duplicates it.
+.planning/graphs/graph.json
+.planning/graphs/.last-build-snapshot.json
+graphify-out/
+
+# Researcher fetch cache (web/Context7 responses). Regenerable, and not evidence.
+.planning/research/.cache/
+
+# Extra git worktrees of the two sub-repos, checked out alongside the tracked
+# gitlinks for parallel branch work. Temporary by nature — never gitlinked.
+firestarter_app_py32/
+firestarter_py32_ci/
+chip-test/
+
+# Bench artifacts that land at the repo root instead of under a run directory:
+# raw chip dumps (chip-test/ above holds `dev test` reports plus the v1.21
+# Phase 115 fresh-machine onboarding transcripts).
+/*.bin
