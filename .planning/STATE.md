@@ -5,15 +5,15 @@ milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
 status: executing
-stopped_at: Completed 168-11-PLAN.md
-last_updated: "2026-08-31T11:26:43.347Z"
+stopped_at: Completed 168-12-PLAN.md
+last_updated: "2026-08-31T11:43:44.721Z"
 last_activity: 2026-08-31
 last_activity_desc: "168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 17
+  completed_plans: 18
   percent: 17
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — EXECUTING
-Plan: 12 of 13
+Plan: 13 of 13
 Status: Plan 01 complete — both sub-repo v1.35 branches created, MIGRATION-TABLE.md filled with 12 page names/titles/SHAs, HONEST-01 oracle proven readable for all 13 rows. Plan 02 (retire the publish path) not yet started.
 Last activity: 2026-08-31 — 168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured
 
@@ -2763,6 +2763,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 168]: 168-10: added a reverse completeness check against the tool's KNOWN_PROTOCOLS set, catching a doc row silently going missing -- the deleted app-side module never had this and would have produced zero failures for that case
 - [Phase 168]: HONEST-01's checker caught a real dropped claim token on its first live run (Shield-Revisions does-not->do-not, a 168-05 side effect); the wiki was corrected (9d7e9bc->aa4a5c7), not the checker or vocabulary
 - [Phase 168]: expected_zero tokens not covered by a family (UNVERIFIED, PROTOCOL-LEDGER) are still actively counted via a direct literal scan, never assumed absent
+- [Phase ?]: HONEST-02 leg 1's claim signature requires database resolution, not mere alphanumeric shape -- excludes navigation pages (Home/_Sidebar/How-To-Edit) and requires resolving tokens
+- [Phase ?]: HONEST-02's part-token extraction excludes voltage/capacity/pin-count shapes; the resulting 21-entry claim-allowlist.json is bounded to the three delimited regions and each entry cites a self-documented reason
+- [Phase ?]: HONEST-02's first live run against the real wiki (master aa4a5c7) came back clean, exit 0, on the first attempt -- no correction needed before phase close
 
 ## Performance Metrics
 
@@ -3144,11 +3147,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 168 P09 | 50min | 3 tasks | 16 files |
 | Phase 168 P10 | 50min | 2 tasks | 3 files |
 | Phase 168 P11 | 25min | 3 tasks | 5 files |
+| Phase 168 P12 | 35min | 3 tasks | 8 files |
 
 ## Session
 
-**Last session:** 2026-08-31T11:26:43.225Z
-**Stopped at:** Completed 168-11-PLAN.md
+**Last session:** 2026-08-31T11:43:44.645Z
+**Stopped at:** Completed 168-12-PLAN.md
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.

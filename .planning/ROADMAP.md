@@ -332,7 +332,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 168-12-PLAN.md — HONEST-02: the standing three-leg truth gate, the reasoned allowlist, three distinguishable outcomes, a fixture RED and a live run
+- [x] 168-12-PLAN.md — HONEST-02: the standing three-leg truth gate, the reasoned allowlist, three distinguishable outcomes, a fixture RED and a live run
 
 **Wave 7** *(blocked on Wave 6)*
 

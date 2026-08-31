@@ -152,7 +152,7 @@ None.
 
 ## Next Phase Readiness
 
-- HONEST-02 is satisfied. Per D-07/D-10, it is a **standing** gate (unlike HONEST-01's one-shot proof) — 168-13 wires it into `wiki-check.yml` on a schedule, alongside `wiki.py links` and `dispatch_mirror.py`.
+- HONEST-02's checker, allowlist and demonstrated failures are all done. `REQUIREMENTS.md`'s HONEST-02 row is deliberately left `Pending`, not flipped to `Complete`, by this plan: ROADMAP criterion 5 requires the check to "run on a schedule or dispatch," and per D-07/D-10 HONEST-02 is a **standing** gate (unlike HONEST-01's one-shot proof) that is not yet wired into any CI workflow — that wiring is explicitly 168-13's task ("Rewrite `wiki-check.yml` as a scheduled clone-driven job"). Marking the requirement complete here, before the schedule exists, would repeat the premature-multi-plan-completion mistake this project's own history has already been burned by. 168-13 should flip it once the schedule lands.
 - `tools/wiki/selftest.sh` is at 11 cases, all green.
 - The live-wiki state HONEST-02 asserts as of this plan: `master` `aa4a5c7`, database hash `ccbc8d2c4866a5af`, 11/11 stamped, 3/3 regions clean, 0/0 stale. Nothing on the live wiki needs correction before 168-13 runs.
 - No blockers identified for 168-13.
