@@ -31,10 +31,10 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 
 ### Front door — `firestarter_prom`
 
-- [ ] **FRONT-01**: `firestarter_prom` has a README that says what Firestarter is, and for whom, within the first screenful.
-- [ ] **FRONT-02**: A newcomer can go from that README to a first successful chip read — obtain the RURP shield, install the CLI, flash the firmware, read a chip — without opening any other document.
-- [ ] **FRONT-03**: The README links into the wiki for everything past getting started, and does not restate content the wiki owns.
-- [ ] **FRONT-04**: All three GitHub repository descriptions are set and distinguish the three repos from one another (all three are empty today).
+- [x] **FRONT-01**: `firestarter_prom` has a README that says what Firestarter is, and for whom, within the first screenful.
+- [ ] ~~**FRONT-02**~~ **NOT MET — superseded 2026-08-31 by operator decision**: the README points to the wiki for getting started rather than carrying the path itself, because FRONT-02 and FRONT-03 cannot both hold and the operator chose the wiki Home page as the owner of getting started. A newcomer therefore *does* open one other document. Original text: A newcomer can go from that README to a first successful chip read — obtain the RURP shield, install the CLI, flash the firmware, read a chip — without opening any other document.
+- [x] **FRONT-03**: The README links into the wiki for everything past getting started, and does not restate content the wiki owns.
+- [x] **FRONT-04**: All three GitHub repository descriptions are set and distinguish the three repos from one another (all three are empty today).
 
 ### Sub-repo READMEs — repo-scoped only
 
@@ -161,10 +161,10 @@ Populated during roadmap creation.
 | HONEST-01 | Phase 168 | Complete |
 | HONEST-02 | Phase 168 | Complete |
 | LEGACY-06 | Phase 168 | Complete |
-| FRONT-01 | Phase 169 | Pending |
-| FRONT-02 | Phase 169 | Pending |
-| FRONT-03 | Phase 169 | Pending |
-| FRONT-04 | Phase 169 | Pending |
+| FRONT-01 | Phase 169 | Complete |
+| FRONT-02 | Phase 169 | **Not met — superseded 2026-08-31** |
+| FRONT-03 | Phase 169 | Complete |
+| FRONT-04 | Phase 169 | Complete |
 | REPO-01 | Phase 170 | Pending |
 | REPO-02 | Phase 170 | Pending |
 | REPO-03 | Phase 170 | Pending |
