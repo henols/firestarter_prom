@@ -301,6 +301,43 @@ Plans:
   7. **(WIKI-02)** No in-repo mirror of wiki content exists in any of the three repositories. Phase 167's `wiki/` tree and its publish tooling are retired, not left dormant — a retired-but-present publish path is a loaded gun aimed at the live wiki, since running it would overwrite pages from a stale source.
   8. **(WIKI-05)** Every page on the wiki is reachable from `Home` or the sidebar, checked against a clone of the live wiki rather than against a generated file. The generated `_Sidebar.md` is retired with the model reversal, so the sidebar is hand-maintained and the check has real work to do — it is demonstrated catching an unreferenced page before it is trusted.
 
+**Plans**: 13 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 168-01-PLAN.md — Sub-repo v1.35 branches (base is an operator decision) and `MIGRATION-TABLE.md` filled: 12 page names, rendered titles and the pre-deletion SHAs that are HONEST-01's only oracle
+- [ ] 168-02-PLAN.md — Retire the publish path: delete `wiki/`, `wiki-publish.yml` and `wiki.py`'s `publish`/`sidebar`/`check`; `--source-dir` becomes required; add the hand-maintained-sidebar containment leg
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 168-03-PLAN.md — D-14: fix the database generator's emitted reason string, regenerate `chip_database.json`, leave the pinned baseline alone with the exclusion measured and stated
+- [ ] 168-04-PLAN.md — Sever the H-1 collection hazard: retire the app-side dispatch-mirror module, drop its scan-path entry, rekey the fake-firmware fixture, and prove the firmware `doc/` delete no longer aborts collection
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 168-05-PLAN.md — Migrate the 12 pages to the live wiki by copy-then-edit, stamped and de-framed, then capture the live 12-orphan RED before anything rewrites `Home` *(writes to a public page — not autonomous)*
+- [ ] 168-06-PLAN.md — App reference repairs outside the tests: comments deleted, docstrings repointed, printed strings rewritten, the third lockstep rule preserved, README into the wiki
+- [ ] 168-07-PLAN.md — Firmware repo: delete `doc/`, repair 5 `CLAUDE.md` references including both lockstep rules, 3 README links, and delete two source comment blocks
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 168-08-PLAN.md — Rewrite `Home`, replace the false published-model page with an editing guide, hand-write `_Sidebar`, push, and record the paired WIKI-05 green *(writes to a public page — not autonomous)*
+- [ ] 168-09-PLAN.md — Remove the 17 doc test legs from 5 modules, keep the 33 code legs, delete `firestarter_app/doc/`, and name every deleted leg's cost
+- [ ] 168-10-PLAN.md — `tools/wiki/dispatch_mirror.py`: the three-way gate relocated to read the published page, fail-closed on a reformatted region, with a planted-drift selftest case
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 168-11-PLAN.md — HONEST-01: `claim-vocabulary.json`, the one-shot multiset comparison, the `new_source_repo` fixture helper, the weakened-claim RED and the committed live GREEN
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 168-12-PLAN.md — HONEST-02: the standing three-leg truth gate, the reasoned allowlist, three distinguishable outcomes, a fixture RED and a live run
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 168-13-PLAN.md — Rewrite `wiki-check.yml` as a scheduled clone-driven job with three separate checker steps; verify the app on the CI Python floor; run the four criterion gates; correct `STATE.md`; write the honesty ledger
+
 ### Phase 169: FRONT — `firestarter_prom` Becomes the Front Door
 
 **Goal**: Someone who has never heard of Firestarter can land on `firestarter_prom`, understand what it is, and reach a first successful chip read.
@@ -4977,6 +5014,24 @@ and running, not photographed and reverse-engineered.
 
 **Sequencing.** **R2 is separable and worth ~24% on its own** — filed as todo [`2026-08-30-gate-fingerprint-readback-on-step-failure.md`](todos/pending/2026-08-30-gate-fingerprint-readback-on-step-failure.md) so it can land without the rest. R1 and R3 are engine changes with real test surface. R4 is the largest structural change and the only one whose payoff is currently unquantified. **Not for v1.35**, which is documentation-only and touches no product code.
 
+
+### Phase 999.44: Write-init blank check is whole-device — non-blank UV EPROMs cannot be written at all (BACKLOG — filed 2026-08-30 from `/gsd-explore`, operator bench report)
+
+**Goal:** Make a partial write's pre-flight blank check apply to **the region being written**, not the whole device, and let a masked monotone-clearing write opt out of it entirely. Today a single non-`0xFF` byte anywhere on a non-erasable part makes the **entire part unwritable**, including into a provably blank slot 262 KB away.
+
+**Root cause, two lines in two files.** [`mem_util_blank_check`](../firestarter/src/proms/memory.cpp#L450-L459) saves the caller's cursor, **hard-resets `handle->address` to 0**, and scans to `handle->mem_size` — it has no region concept at all. [`eprom_internal_write_init_body`](../firestarter/src/proms/eprom.cpp#L144-L146) calls that same function as the write pre-flight. So **a 256-byte slot write is gated on the whole 256 KiB device being blank.** The host never narrows it either: the `memory-size` narrowing at [`eprom_operations.py:485`](../firestarter_app/firestarter/eprom_operations.py#L485) is guarded by `cmd == COMMAND_READ`.
+
+**Why it was invisible until now.** Non-UV parts carry `FLAG_CAN_ERASE`, so `eprom_internal_erase` runs immediately above the check and leaves the device blank — the check then passes trivially, on every EEPROM/flash part ever swept. **UV parts have `can_erase == false`**, nothing erases, and the check refuses. The defect has therefore been latent behind the erase step for its entire life and is exposed only by the UV slot path.
+
+**Bench evidence** (operator, 2026-08-30, `dev test AM27C020`, Leonardo, fw `3.0.0b22`, host `3.0.0b33`): blank-check BAD `Not blank, at 0x000000, v: 0x02` → write-partial BAD `Programmer error during init: Not blank, at 0x000000, v: 0x02` → verify BAD `0xfe != 0xff at 0x03ff00`. **The verify error is the proof the target slot was blank:** actual `0xFF` at `0x03FF00`, the slot start. Write target was `slot 0x3FF00 (256 bytes), 510 bits cleared this cycle; 1024 of 1024 slots left`. The write was refused on account of a byte at `0x000000`.
+
+**Blast radius — three consequences, none confined to `dev test`.** **(1) It is a product bug.** `firestarter write foo.bin -a 0x3FF00` on the same part hits the identical firmware init; any partial write to a non-erasable part holding data is refused today. **(2) It defeats the UV slot design.** The slot mechanism exists so one part yields ~1024 runs (`_resolve_write_target`'s `slots_remaining` accounting), but run 1 leaves the part non-blank, so run 2 is refused even though it targets a different, blank slot — **a UV part is testable at most once, and only if it arrives blank.** (3) **The report misattributes the failure to the chip:** one tool defect produces three BAD steps, and the submit prompt offers to file `[dev test] AM27C020 — FAIL` against the chip in `firestarter_prom`. For a community-facing validation tool that is the worst of the three.
+
+**Chosen fix — BOTH halves (operator decision 2026-08-30, taken against a firmware-only and a host-only alternative).** **(a) Firmware:** scope the write-init blank check to `[address, address + data_size)` rather than `[0, mem_size)`. `mem_util_blank_check`'s whole-device behaviour is **correct** for its other two callers — the standalone `CMD_BLANK_CHECK` command and the erase-end check — so this needs a region-scoped variant or a start/end parameter, not an edit in place; note the multi-call chunking already threads state through `blank_check_saved_address` and `BLANK_CHECK_CHUNK_SIZE`, and a region-scoped form must keep that resumption contract. **(b) Host:** pass `FLAG_SKIP_BLANK_CHECK` on `uv-slot` writes in `chip_test.py`. Safe and semantically right: `_resolve_write_target` has already probe-read the slot and computed `mask_write_pattern(current, desired)`, which is **monotone — it only ever clears 1→0 and never asks for a 0→1 transition** — so it cannot corrupt, and the verify step immediately behind it validates. The two flags are decoupled (`-b` no longer implies skip-erase, see `build_arg_flags`' docstring) and `FLAG_CAN_ERASE` is false on UV parts regardless, so no erase is skipped by this.
+
+**Why (a) alone was rejected:** slot acceptance is on the `cleared`/`retained` floors, **not** on blankness, so a masked write into a partially-programmed slot would still be refused — a narrower version of the same bug. **Why (b) alone was rejected:** it leaves the product-level `firestarter write -a` bug untouched.
+
+**Test surface.** Firmware-touching → dual-repo lockstep, golden register traces and the size baseline all in play. The native trace stubs record no time and miss register-write elision, so a trace diff cannot carry this alone. **The regression test that matters is the one that did not exist:** a UV part with data outside the target slot must accept a slot write. Nothing in the suite covers a non-blank non-erasable part, which is exactly why this shipped.
 
 ---
 
