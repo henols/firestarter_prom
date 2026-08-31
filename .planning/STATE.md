@@ -4,8 +4,8 @@ milestone: v1.35
 milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
-status: executing
-stopped_at: Completed 168-13-PLAN.md — Phase 168 CLOSED
+status: awaiting-uat
+stopped_at: Phase 168 verified — 8/8 criteria, 2 human items outstanding
 last_updated: "2026-08-31T12:13:23.217Z"
 last_activity: 2026-08-31
 last_activity_desc: "168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger -- Phase 168 ready for verification"
@@ -237,7 +237,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — READY FOR VERIFICATION
 Plan: 13 of 13
-Status: All 13 plans complete. wiki-check.yml rewritten as a scheduled clone-driven job, firestarter_app verified on Python 3.11 (1955 passed), the sdist packaging delta measured as a genuine 0-and-0 no-op, all four closing gates and all eight ROADMAP criteria recorded with command and result, STATE.md's false "no product code" claim retracted, and 168-HONESTY-LEDGER.md written. Outstanding, not done: human visual verification of the live wiki rendering, and an actual GitHub Actions workflow_dispatch run (this branch has never been pushed to origin).
+Status: All 13 plans executed and verified 8/8 criteria / 9/9 requirements. Verification returned human_needed — two items in 168-UAT.md require a person: visual inspection of the 14 rendered wiki pages, and a real workflow_dispatch run of wiki-check.yml (branch never pushed to origin). Phase NOT marked complete.
 Last activity: 2026-08-31 — 168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger
 
 ## Roadmap Summary (v1.35)
