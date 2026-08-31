@@ -306,7 +306,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 168-01-PLAN.md — Sub-repo v1.35 branches (base is an operator decision) and `MIGRATION-TABLE.md` filled: 12 page names, rendered titles and the pre-deletion SHAs that are HONEST-01's only oracle
+- [x] 168-01-PLAN.md — Sub-repo v1.35 branches (base is an operator decision) and `MIGRATION-TABLE.md` filled: 12 page names, rendered titles and the pre-deletion SHAs that are HONEST-01's only oracle
 - [ ] 168-02-PLAN.md — Retire the publish path: delete `wiki/`, `wiki-publish.yml` and `wiki.py`'s `publish`/`sidebar`/`check`; `--source-dir` becomes required; add the hand-maintained-sidebar containment leg
 
 **Wave 2** *(blocked on Wave 1)*

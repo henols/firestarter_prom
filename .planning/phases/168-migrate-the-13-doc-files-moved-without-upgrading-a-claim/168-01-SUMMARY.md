@@ -125,3 +125,12 @@ None - no external service configuration required. No push to any remote was mad
 ---
 *Phase: 168-migrate-the-13-doc-files-moved-without-upgrading-a-claim*
 *Completed: 2026-08-31*
+
+## Self-Check: PASSED
+
+- FOUND: tools/wiki/MIGRATION-TABLE.md
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/oracle-readable.txt
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/168-01-SUMMARY.md
+- FOUND commit: d10bd4b7
+- FOUND commit: 1595d81b
+- FOUND commit: 80d27fb7

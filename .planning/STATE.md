@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.35
-milestone_name: Documentation Consolidation & Wiki Migration
+milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 168
-current_phase_name: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim
-status: ready-to-execute
+current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
+status: executing
 stopped_at: Phase 168 planned
-last_updated: "2026-08-31T00:00:00.000Z"
+last_updated: "2026-08-31T07:45:09.564Z"
 last_activity: 2026-08-31
-last_activity_desc: Phase 168 planned — 13 plans in 7 waves, checker PASSED. RESEARCH.md (1361 lines, measured) corrected 16 CONTEXT.md figures: only test_dispatch_mirror.py breaks at import (aborts the whole app suite at collection, 0 tests run), MIGRATE-03's sdist premise is false (SOURCES.txt is a stale gitignored artifact; clean build and published b33/b34 carry zero doc entries), D-09's resolve leg is falsified as a free-text scrape (SHIELD-REVISIONS has zero DB chips yet 11 of 20 0xNN tokens resolve by numeric coincidence), and submodules: recursive is the wrong CI answer (gitlinks pin stale SHAs). Three oracle-destroying orderings encoded as wave boundaries. Blocking decision at wave 1: neither sub-repo has a v1.35 branch and beta is 10 fw / 4 app commits behind the measured trees.
+last_activity_desc: Phase 168 execution started
 progress:
-  total_phases: 7
+  total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 6
-  percent: 14
+  completed_plans: 7
+  percent: 17
 ---
 
 # Project State
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **v1.35 touches no product code at all.** It changes documentation, repository configuration and one sync/check script. The core value is untouched by construction, and the milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 168 — MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim
+**Current focus:** Phase 168 — MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 168 (MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim) — PLANNED; ready to execute
-Plan: 0 of 13
-Status: 13 plans across 7 waves; gsd-plan-checker returned VERIFICATION PASSED. Wave 1 opens with a blocking branch-base decision — neither sub-repo has a v1.35 branch and `beta` is 10 firmware / 4 app commits behind the trees research measured.
-Last activity: 2026-08-31 — /gsd-plan-phase 168 --chain: research, pattern map, validation strategy and 13 plans written and committed; all 9 requirement IDs and all 22 D-NN decisions cited; plan-checker PASSED with one cosmetic warning, fixed in place.
+Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — EXECUTING
+Plan: 2 of 13
+Status: Plan 01 complete — both sub-repo v1.35 branches created, MIGRATION-TABLE.md filled with 12 page names/titles/SHAs, HONEST-01 oracle proven readable for all 13 rows. Plan 02 (retire the publish path) not yet started.
+Last activity: 2026-08-31 — 168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured
 
 ## Roadmap Summary (v1.35)
 
@@ -2737,6 +2737,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 167]: WIKI-06 re-verified from live GitHub API (false/false/true); marked Complete
 - [Phase 167]: Operator's Scratch.md and Home.md used as live evidence for criterion 2 (delete + overwrite halves) instead of treating as noise
 - [Phase 167]: WIKI_TOKEN defined once at job level (not step level) so the secrets fallback expression appears exactly once in wiki-publish.yml
+- [Phase 168]: 168-01: Branch base = fork-from-current-head (operator-decided); v1.35 branches created in firestarter (a218b4f5) and firestarter_app (d56424e1) without moving chore/strip-provenance-comments
+- [Phase 168]: 168-01: Hyphen hazards resolved by rewording titles (AT28C04-Adapter, SRAM-and-NVRAM-Behavior); How-This-Wiki-Is-Published renamed to How-To-Edit-This-Wiki per D-21
+- [Phase 168]: 168-01: MIGRATE-01 and HONEST-01 are NOT marked complete in REQUIREMENTS.md — this plan only lays the oracle groundwork (branch creation, SHA recording, oracle-read proof); full delivery requires later plans in this 13-plan phase (wiki push at 168-05/168-08 for MIGRATE-01, the multiset claim comparison at 168-11 for HONEST-01)
 
 ## Performance Metrics
 
@@ -3107,10 +3110,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 167 P04 | 8min | 3 tasks | 4 files |
 | Phase 167 P05 | 6min | 3 tasks | 3 files |
 | Phase 167 P06 | 45min | 2 tasks | 2 files |
+| Phase 168 P01 | 12min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-31T00:00:00.000Z
+**Last session:** 2026-08-31T07:43:56.214Z
 **Stopped at:** Phase 168 planned
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
