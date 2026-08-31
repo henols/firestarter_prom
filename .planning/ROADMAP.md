@@ -328,7 +328,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 168-11-PLAN.md — HONEST-01: `claim-vocabulary.json`, the one-shot multiset comparison, the `new_source_repo` fixture helper, the weakened-claim RED and the committed live GREEN
+- [x] 168-11-PLAN.md — HONEST-01: `claim-vocabulary.json`, the one-shot multiset comparison, the `new_source_repo` fixture helper, the weakened-claim RED and the committed live GREEN
 
 **Wave 6** *(blocked on Wave 5)*
 

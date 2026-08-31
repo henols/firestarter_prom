@@ -70,7 +70,7 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 
 ### Honesty — claims survive the move unchanged
 
-- [ ] **HONEST-01**: Every `support_status` value (`protocol-not-implemented`, `adapter-required`, `vpp-exceeds-max`) and every `PROTOCOL-LEDGER` `UNVERIFIED` bucket reads on the wiki exactly as faithfully as it read in the source document — the migration upgrades no claim.
+- [x] **HONEST-01**: Every `support_status` value (`protocol-not-implemented`, `adapter-required`, `vpp-exceeds-max`) and every `PROTOCOL-LEDGER` `UNVERIFIED` bucket reads on the wiki exactly as faithfully as it read in the source document — the migration upgrades no claim.
 - [ ] **HONEST-02**: Any wiki page making per-chip or per-protocol claims either carries a check that fails when it disagrees with `chip_database.json` / `PROTOCOL-LEDGER.json`, or carries an explicit "generated from DB vN, verified <date>" stamp. **Mechanism after the 2026-08-30 model reversal:** `firestarter_prom.wiki.git` is a real git repository, so the check clones it and asserts against the published pages themselves. That is a first-party git clone, not the external HTTP liveness probe rejected in Phase 167's D-11. With WIKI-04 withdrawn this is the *only* automated guard on wiki content, and it must be demonstrated failing before it is trusted.
 
 ---
@@ -158,7 +158,7 @@ Populated during roadmap creation.
 | MIGRATE-02 | Phase 168 | Pending |
 | MIGRATE-03 | Phase 168 | Pending |
 | MIGRATE-04 | Phase 168 | Pending |
-| HONEST-01 | Phase 168 | Pending |
+| HONEST-01 | Phase 168 | Complete |
 | HONEST-02 | Phase 168 | Pending |
 | LEGACY-06 | Phase 168 | Complete |
 | FRONT-01 | Phase 169 | Pending |
