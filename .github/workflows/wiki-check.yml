@@ -1,35 +1,108 @@
 name: Wiki check
 on:
-  pull_request:
-    branches:
-    - beta
-    paths:
-    - 'wiki/**'
-    - 'tools/wiki/**'
-    - '.github/workflows/wiki-check.yml'
+  schedule:
+    - cron: '17 6 * * 1'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  wiki-check:
+  wiki-truth:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
-      - uses: actions/checkout@v4
+      # This job's canonical content lives in a THIRD repository entirely --
+      # the live GitHub wiki -- which a recursive-fetch checkout cannot reach
+      # regardless: the wiki has no `.gitmodules` entry, it is a detached
+      # repository the checkout action's `repository:` input cannot address.
+      # A real, per-repository checkout is unavoidable here already, and
+      # three further measured reasons rule out layering a recursive-fetch
+      # submodule checkout for firestarter/firestarter_app on top of that:
+      #
+      # 1. Both sub-repos ARE registered gitlinks in this meta repository,
+      #    but a gitlink is a pinned commit, not a branch tip. Meta's
+      #    gitlinks currently point at a v1.33-era firmware commit and a
+      #    stale host-app commit, both predating this phase's own work --
+      #    a recursive-fetch checkout would assert every leg below against
+      #    those stale trees and could report green while the real branch
+      #    tips are broken.
+      # 2. The registered configuration uses SSH remote URLs, which the
+      #    checkout action would have to rewrite via `insteadOf` just to
+      #    authenticate over HTTPS on a hosted runner -- one more failure
+      #    surface bought for zero benefit over an explicit checkout below.
+      # 3. This repository has already been bitten by exactly this pattern
+      #    and wrote the record: catalog-sync-check.yml's own rationale
+      #    comment describes an accidentally committed gitlink with no
+      #    `.gitmodules` entry that killed that checkout with "no url found
+      #    for submodule path" before any assertion ever ran. The fix there
+      #    -- and here -- is the same: name each repository explicitly
+      #    below, at a ref this job resolves itself, and never lean on the
+      #    automatic recursive-fetch mechanism at all.
+      #
+      # A scheduled run has no pull-request context: `github.head_ref` is
+      # empty and `github.ref_name` is this workflow's own default branch,
+      # so the resolver step below lands both sub-repos on their
+      # integration branch (`beta`) whenever this fires on its own schedule
+      # rather than a manual dispatch of a feature branch. That is the
+      # correct standing behaviour for a scheduled truth gate -- it checks
+      # the released state, not a branch in flight -- but the resolver
+      # step's own inline comment was written for a pull-request head/base
+      # choice, which would read as misleading here if left unstated.
+      - name: Check out meta repository
+        uses: actions/checkout@v4
+        with:
+          path: meta
 
-      - name: Assert wiki source integrity
-        run: python3 tools/wiki/wiki.py check
+      - name: Resolve sub-repo ref (same branch name, else beta)
+        id: subref
+        run: |
+          CAND="${{ github.head_ref || github.ref_name }}"
+          echo "meta ref under test: $CAND"
+          for repo in firestarter firestarter_app; do
+            if git ls-remote --exit-code --heads \
+                 "https://github.com/henols/$repo.git" "$CAND" >/dev/null 2>&1; then
+              RESOLVED="$CAND"
+            else
+              RESOLVED="beta"
+            fi
+            echo "${repo}_ref=$RESOLVED" >> "$GITHUB_OUTPUT"
+            echo "$repo -> $RESOLVED"
+          done
 
-      - name: Run wiki tooling selftest
-        run: bash tools/wiki/selftest.sh
+      - name: Check out firestarter (firmware sub-repo)
+        uses: actions/checkout@v4
+        with:
+          repository: henols/firestarter
+          path: firestarter
+          ref: ${{ steps.subref.outputs.firestarter_ref }}
 
-  wiki-drift-live:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
+      - name: Check out firestarter_app (host sub-repo)
+        uses: actions/checkout@v4
+        with:
+          repository: henols/firestarter_app
+          path: firestarter_app
+          ref: ${{ steps.subref.outputs.firestarter_app_ref }}
 
-      - name: Assert published wiki matches source
-        run: python3 tools/wiki/wiki.py publish --require-wiki
+      - name: Clone the live wiki
+        run: git clone --depth 1 https://github.com/henols/firestarter_prom.wiki.git wiki-clone
+
+      - name: WIKI-05 reachability check
+        run: |
+          python3 meta/tools/wiki/wiki.py links --source-dir wiki-clone
+          echo "OK: every wiki page is reachable from Home.md and listed in _Sidebar.md"
+
+      - name: HONEST-02 truth check
+        run: |
+          python3 meta/tools/wiki/honest02_truth.py \
+            --wiki-dir wiki-clone \
+            --db firestarter_app/firestarter/data/chip_database.json \
+            --allowlist meta/tools/wiki/claim-allowlist.json
+          echo "OK: every stamped claims region still resolves against the current chip database"
+
+      - name: Dispatch-mirror check
+        run: |
+          python3 meta/tools/wiki/dispatch_mirror.py \
+            --wiki-dir wiki-clone \
+            --app-dir firestarter_app \
+            --fw-dir firestarter
+          echo "OK: the wiki's dispatch table still mirrors the host tool and the firmware test"
