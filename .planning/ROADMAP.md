@@ -336,7 +336,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6)*
 
-- [ ] 168-13-PLAN.md — Rewrite `wiki-check.yml` as a scheduled clone-driven job with three separate checker steps; verify the app on the CI Python floor; run the four criterion gates; correct `STATE.md`; write the honesty ledger
+- [x] 168-13-PLAN.md — Rewrite `wiki-check.yml` as a scheduled clone-driven job with three separate checker steps; verify the app on the CI Python floor; run the four criterion gates; correct `STATE.md`; write the honesty ledger
 
 ### Phase 169: FRONT — `firestarter_prom` Becomes the Front Door
 

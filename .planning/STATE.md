@@ -5,16 +5,16 @@ milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
 status: executing
-stopped_at: Completed 168-12-PLAN.md
-last_updated: "2026-08-31T11:43:44.721Z"
+stopped_at: Completed 168-13-PLAN.md — Phase 168 CLOSED
+last_updated: "2026-08-31T12:13:23.217Z"
 last_activity: 2026-08-31
-last_activity_desc: "168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured"
+last_activity_desc: "168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger -- Phase 168 ready for verification"
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 19
-  completed_plans: 18
-  percent: 17
+  completed_plans: 19
+  percent: 33
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — EXECUTING
+Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — READY FOR VERIFICATION
 Plan: 13 of 13
-Status: Plan 01 complete — both sub-repo v1.35 branches created, MIGRATION-TABLE.md filled with 12 page names/titles/SHAs, HONEST-01 oracle proven readable for all 13 rows. Plan 02 (retire the publish path) not yet started.
-Last activity: 2026-08-31 — 168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured
+Status: All 13 plans complete. wiki-check.yml rewritten as a scheduled clone-driven job, firestarter_app verified on Python 3.11 (1955 passed), the sdist packaging delta measured as a genuine 0-and-0 no-op, all four closing gates and all eight ROADMAP criteria recorded with command and result, STATE.md's false "no product code" claim retracted, and 168-HONESTY-LEDGER.md written. Outstanding, not done: human visual verification of the live wiki rendering, and an actual GitHub Actions workflow_dispatch run (this branch has never been pushed to origin).
+Last activity: 2026-08-31 — 168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger
 
 ## Roadmap Summary (v1.35)
 
@@ -2766,6 +2766,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: HONEST-02 leg 1's claim signature requires database resolution, not mere alphanumeric shape -- excludes navigation pages (Home/_Sidebar/How-To-Edit) and requires resolving tokens
 - [Phase ?]: HONEST-02's part-token extraction excludes voltage/capacity/pin-count shapes; the resulting 21-entry claim-allowlist.json is bounded to the three delimited regions and each entry cites a self-documented reason
 - [Phase ?]: HONEST-02's first live run against the real wiki (master aa4a5c7) came back clean, exit 0, on the first attempt -- no correction needed before phase close
+- [Phase 168]: wiki-check.yml's no-recursive-submodule rationale comment written to avoid the plural literal token its own automated verify forbids
+- [Phase 168]: A live GitHub Actions workflow_dispatch run was not attempted -- the branch has never been pushed to origin; all three checker steps were exercised locally instead
+- [Phase 168]: STATE.md's false v1.35-touches-no-product-code claim retracted and replaced with the enumerated bounded set of product-source edits Phase 168 actually made
 
 ## Performance Metrics
 
@@ -3148,11 +3151,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 168 P10 | 50min | 2 tasks | 3 files |
 | Phase 168 P11 | 25min | 3 tasks | 5 files |
 | Phase 168 P12 | 35min | 3 tasks | 8 files |
+| Phase 168 P13 | 45min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-31T11:43:44.645Z
-**Stopped at:** Completed 168-12-PLAN.md
+**Last session:** 2026-08-31T12:13:23.145Z
+**Stopped at:** Completed 168-13-PLAN.md — Phase 168 CLOSED
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.

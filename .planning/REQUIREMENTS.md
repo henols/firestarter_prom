@@ -46,9 +46,9 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 ### Migration — emptying `doc/`
 
 - [x] **MIGRATE-01**: The content of all 12 migrating `doc/` files is reachable on the wiki. (`PY32F071-FIRMWARE-INSTALL.md` is deferred, not migrated — operator decision 2026-08-30; see Phase 168 criterion 1.)
-- [ ] **MIGRATE-02**: `firestarter/doc/` and `firestarter_app/doc/` no longer exist in either repository.
-- [ ] **MIGRATE-03**: `firestarter_app` still builds, installs, and passes its test suite after `doc/` removal — three of those files (`package-details.md`, `protocol-flags.md`, `protocol-id.md`) are currently carried in the sdist.
-- [ ] **MIGRATE-04**: No file in either sub-repo links to a `doc/` path that no longer exists.
+- [x] **MIGRATE-02**: `firestarter/doc/` and `firestarter_app/doc/` no longer exist in either repository.
+- [x] **MIGRATE-03**: `firestarter_app` still builds, installs, and passes its test suite after `doc/` removal — three of those files (`package-details.md`, `protocol-flags.md`, `protocol-id.md`) are currently carried in the sdist.
+- [x] **MIGRATE-04**: No file in either sub-repo links to a `doc/` path that no longer exists.
 
 ### Legacy — correcting what is already wrong
 
@@ -71,7 +71,7 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 ### Honesty — claims survive the move unchanged
 
 - [x] **HONEST-01**: Every `support_status` value (`protocol-not-implemented`, `adapter-required`, `vpp-exceeds-max`) and every `PROTOCOL-LEDGER` `UNVERIFIED` bucket reads on the wiki exactly as faithfully as it read in the source document — the migration upgrades no claim.
-- [ ] **HONEST-02**: Any wiki page making per-chip or per-protocol claims either carries a check that fails when it disagrees with `chip_database.json` / `PROTOCOL-LEDGER.json`, or carries an explicit "generated from DB vN, verified <date>" stamp. **Mechanism after the 2026-08-30 model reversal:** `firestarter_prom.wiki.git` is a real git repository, so the check clones it and asserts against the published pages themselves. That is a first-party git clone, not the external HTTP liveness probe rejected in Phase 167's D-11. With WIKI-04 withdrawn this is the *only* automated guard on wiki content, and it must be demonstrated failing before it is trusted.
+- [x] **HONEST-02**: Any wiki page making per-chip or per-protocol claims either carries a check that fails when it disagrees with `chip_database.json` / `PROTOCOL-LEDGER.json`, or carries an explicit "generated from DB vN, verified <date>" stamp. **Mechanism after the 2026-08-30 model reversal:** `firestarter_prom.wiki.git` is a real git repository, so the check clones it and asserts against the published pages themselves. That is a first-party git clone, not the external HTTP liveness probe rejected in Phase 167's D-11. With WIKI-04 withdrawn this is the *only* automated guard on wiki content, and it must be demonstrated failing before it is trusted.
 
 ---
 
@@ -155,11 +155,11 @@ Populated during roadmap creation.
 | WIKI-05 | Phase 168 | Complete — reopened 2026-08-30; reassigned from 167 |
 | WIKI-06 | Phase 167 | Complete |
 | MIGRATE-01 | Phase 168 | Complete |
-| MIGRATE-02 | Phase 168 | Pending |
-| MIGRATE-03 | Phase 168 | Pending |
-| MIGRATE-04 | Phase 168 | Pending |
+| MIGRATE-02 | Phase 168 | Complete |
+| MIGRATE-03 | Phase 168 | Complete |
+| MIGRATE-04 | Phase 168 | Complete |
 | HONEST-01 | Phase 168 | Complete |
-| HONEST-02 | Phase 168 | Pending |
+| HONEST-02 | Phase 168 | Complete |
 | LEGACY-06 | Phase 168 | Complete |
 | FRONT-01 | Phase 169 | Pending |
 | FRONT-02 | Phase 169 | Pending |
