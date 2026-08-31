@@ -19,9 +19,13 @@ the thing being fixed — exactly like `pytest` or `pio run`. A skill must not
 reimplement or shadow them; regenerating the database means running the real generator.
 
 ```bash
-APP=/workspaces/firestarter_app
-FW=/workspaces/firestarter
-S=/workspaces/.claude/skills/devtest-rootcause/scripts
+# ROOT works from anywhere in the checkout, including inside either submodule.
+ROOT=$(git rev-parse --show-superproject-working-tree 2>/dev/null)
+ROOT=${ROOT:-$(git rev-parse --show-toplevel)}
+
+APP=$ROOT/firestarter_app
+FW=$ROOT/firestarter
+S=$ROOT/.claude/skills/devtest-rootcause/scripts
 
 python3 $S/infoic_lookup.py AT28C256        # what upstream actually says about the chip
 python3 $S/infoic_lookup.py --check         # our tables still agree with build_db.py?
@@ -173,7 +177,7 @@ python3 $S/seed_debug_session.py 21 --slug at28c256-sdp-write
 ```
 
 ```
-[gsd] Session: /workspaces/.planning/debug/at28c256-sdp-write.md
+[gsd] Session: <root>/.planning/debug/at28c256-sdp-write.md
 [gsd] Status: investigating
 [gsd] Carried over 6 eliminated hypotheses from triage
 ```
@@ -372,7 +376,8 @@ gh issue edit 45 --repo henols/firestarter_prom \
   --remove-label fix:committed --add-label fix:released
 ```
 
-Both labels come from the shared taxonomy; `python3 /workspaces/.claude/skills/devtest-triage/scripts/devtest_issues.py labels`
+Both labels come from the shared taxonomy;
+`python3 $ROOT/.claude/skills/devtest-triage/scripts/devtest_issues.py labels`
 creates it if the tracker does not have it yet.
 
 Leave the issue **open** either way. A fix you have proven in CI is still unproven on

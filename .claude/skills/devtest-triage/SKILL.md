@@ -20,9 +20,13 @@ working if that repo moves, is renamed, or is not checked out. External tools it
 use: `gh`, `curl`, `pdftotext`. Do not replace it with a call into `firestarter_app/tools/`.
 
 ```bash
-LEDGER=/workspaces/.planning/VALIDATED-EPROMS.md
-APP=/workspaces/firestarter_app        # only for `firestarter info` + datasheet cache
-S=/workspaces/.claude/skills/devtest-triage/scripts
+# ROOT works from anywhere in the checkout, including inside either submodule.
+ROOT=$(git rev-parse --show-superproject-working-tree 2>/dev/null)
+ROOT=${ROOT:-$(git rev-parse --show-toplevel)}
+
+LEDGER=$ROOT/.planning/VALIDATED-EPROMS.md
+APP=$ROOT/firestarter_app              # only for `firestarter info` + datasheet cache
+S=$ROOT/.claude/skills/devtest-triage/scripts
 
 python3 $S/devtest_issues.py list       # every open [dev test] issue + verdict
 python3 $S/devtest_issues.py show 21    # parse one issue and route it
@@ -241,7 +245,7 @@ reference is noise to the only person reading the comment. The `chip:validated` 
 already says the chip was logged.
 
 Then append one row to the ledger, creating it with this header if absent. The ledger
-lives at `/workspaces/.planning/VALIDATED-EPROMS.md` when `.planning/` exists; on a
+lives at `$ROOT/.planning/VALIDATED-EPROMS.md` when `.planning/` exists; on a
 clone without GSD it goes to `VALIDATED-EPROMS.md` at the repo root — the ledger is
 this skill's own artifact and has no GSD dependency beyond that directory choice.
 
@@ -419,7 +423,7 @@ payoff of doing the datasheet work carefully here.
 |---|---|
 | `pdftoppm is not installed` from the Read tool | `sudo apt-get install -y poppler-utils` |
 | Downloaded "PDF" is 4 KB of HTML | Aggregator interstitial. `file` it, delete, fetch from the manufacturer |
-| `firestarter: command not found` | `cd /workspaces/firestarter_app && pip install -e .` |
+| `firestarter: command not found` | `cd $APP && pip install -e .` |
 | `firestarter info <chip>` says unknown | Lookup is alias-aware over comma-split `part_number`; try `firestarter search <partial>` |
 | `show` says NOT a parseable dev test issue | Needs **both** the `[dev test]` title marker and a fenced JSON block with `schema_version`. In `--body-file` mode, pass `--title` too |
 | `gh: not found` | Install the GitHub CLI. It is the only external binary `list`/`show` need |

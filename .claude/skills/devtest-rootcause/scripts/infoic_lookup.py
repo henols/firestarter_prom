@@ -27,7 +27,19 @@ import sys
 import urllib.request
 import xml.etree.ElementTree as ET
 
-DEFAULT_APP = os.environ.get("FIRESTARTER_APP", "/workspaces/firestarter_app")
+def _repo_root() -> str:
+    """Locate the checkout from this file: <root>/.claude/skills/<s>/scripts/.
+
+    Falls back to the current directory when the skill is installed outside a
+    checkout, where an explicit flag or env override is the only sane source.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    root = os.path.normpath(os.path.join(here, *[os.pardir] * 4))
+    return root if os.path.isdir(os.path.join(root, "firestarter_app")) else os.getcwd()
+
+
+DEFAULT_APP = os.environ.get(
+    "FIRESTARTER_APP", os.path.join(_repo_root(), "firestarter_app"))
 
 # ---------------------------------------------------------------------------
 # Owned decode tables. Transcribed from minipro's own constants; `--check`

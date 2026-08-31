@@ -82,6 +82,17 @@ State plainly what remains unverified rather than implying a fix is confirmed.
 """
 
 
+def _repo_root() -> str:
+    """Locate the checkout from this file: <root>/.claude/skills/<s>/scripts/.
+
+    Falls back to the current directory when the skill is installed outside a
+    checkout, where an explicit flag or env override is the only sane source.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    root = os.path.normpath(os.path.join(here, *[os.pardir] * 4))
+    return root if os.path.isdir(os.path.join(root, "firestarter_app")) else os.getcwd()
+
+
 def detect_gsd(root: str) -> tuple[bool, str]:
     """(gsd_debugger_available, directory for the record).
 
@@ -172,8 +183,9 @@ def main() -> int:
     ap.add_argument("number", nargs="?", type=int, help="issue number")
     ap.add_argument("--repo", default=REPO)
     ap.add_argument("--slug")
-    ap.add_argument("--root", default="/workspaces",
-                    help="repo root holding .planning (default /workspaces)")
+    ap.add_argument("--root", default=_repo_root(),
+                    help="repo root holding .planning (default: the checkout "
+                         "this skill lives in)")
     ap.add_argument("--title", help="offline mode: issue title")
     ap.add_argument("--body-file", help="offline mode: issue body")
     ap.add_argument("--comment-file", help="offline mode: triage comment")

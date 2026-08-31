@@ -29,9 +29,21 @@ import subprocess
 import sys
 
 REPO = "henols/firestarter_prom"
+def _repo_root() -> str:
+    """Locate the checkout from this file: <root>/.claude/skills/<s>/scripts/.
+
+    Falls back to the current directory when the skill is installed outside a
+    checkout, where an explicit flag or env override is the only sane source.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    root = os.path.normpath(os.path.join(here, *[os.pardir] * 4))
+    return root if os.path.isdir(os.path.join(root, "firestarter_app")) else os.getcwd()
+
+
 DEFAULT_DB = os.environ.get(
     "FIRESTARTER_DB",
-    "/workspaces/firestarter_app/firestarter/data/chip_database.json",
+    os.path.join(_repo_root(), "firestarter_app", "firestarter", "data",
+                 "chip_database.json"),
 )
 
 # Cap before parsing — a hostile body must not be able to exhaust memory.
