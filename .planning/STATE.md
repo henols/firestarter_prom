@@ -6,14 +6,14 @@ current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
 status: executing
 stopped_at: Completed 168-05-PLAN.md
-last_updated: "2026-08-31T09:44:26.712Z"
+last_updated: "2026-08-31T09:54:21.750Z"
 last_activity: 2026-08-31
 last_activity_desc: "168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 12
+  completed_plans: 13
   percent: 17
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — EXECUTING
-Plan: 7 of 13
+Plan: 8 of 13
 Status: Plan 01 complete — both sub-repo v1.35 branches created, MIGRATION-TABLE.md filled with 12 page names/titles/SHAs, HONEST-01 oracle proven readable for all 13 rows. Plan 02 (retire the publish path) not yet started.
 Last activity: 2026-08-31 — 168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured
 
@@ -2751,6 +2751,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 168]: 168-06: firmware.py:629's doc reference is a private-method docstring, not printed output as characterized -- followed the plan's stated action anyway, reusing py32_dfu.py's bootloader-entry wording for consistency
 - [Phase 168]: 168-06: tools/baseline/chip_database.baseline.json's 9 stale doc/AT28C04-ADAPTER.md references are out of this plan's files_modified scope (generator/re-baseline work, D-14 shape) -- logged to deferred-items.md, not hand-edited
 - [Phase 168]: 168-06: MIGRATE-04 spans this plan and 168-07 (firmware-repo repairs still pending) -- NOT marked complete in REQUIREMENTS.md yet, per the known multi-plan-requirement premature-completion trap; leave Pending until 168-07 lands
+- [Phase 168]: D-16 preserved: both firestarter/CLAUDE.md lockstep-maintenance rules repointed to the Shield Revisions wiki page title, wording and section names unchanged
+- [Phase 168]: D-15 applied to test_loop_eprom_v131.cpp: its doc/SHIELD-REVISIONS.md-citing block comment deleted in full; the open contradictory jumper-identity finding preserved in 168-07-SUMMARY.md instead of in source
 
 ## Performance Metrics
 
@@ -3127,10 +3129,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 168 P04 | 55min | 3 tasks | 8 files |
 | Phase 168 P05 | 22min | 3 tasks | 12 files |
 | Phase 168 P06 | 32min | 3 tasks | 10 files |
+| Phase 168 P07 | 35min | 3 tasks | 7 files |
 
 ## Session
 
-**Last session:** 2026-08-31T09:42:45.988Z
+**Last session:** 2026-08-31T09:53:05.760Z
 **Stopped at:** Completed 168-05-PLAN.md
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
