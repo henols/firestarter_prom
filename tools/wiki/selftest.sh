@@ -348,7 +348,7 @@ case_dotdir_ignored_exit_0() {
 
 new_dispatch_mirror_fixture() {
     local dir="$1"
-    mkdir -p "$dir/wiki" "$dir/app/tools" "$dir/fw/test/native/avr/test_dispatch"
+    mkdir -p "$dir/app/tools" "$dir/fw/test/native/avr/test_dispatch"
 
     printf '%s\n' \
         '# Programming Protocols' \
@@ -378,7 +378,7 @@ new_dispatch_mirror_fixture() {
         '| sram | `configure_sram()` | `sram.cpp` | 0xB1-0xB5 |' \
         '| not-implemented | `configure_not_implemented()` | `not_implemented.cpp` | 0xC1-0xC3 |' \
         '<!-- firestarter-claims-end -->' \
-        > "$dir/wiki/Programming-Protocols.md"
+        > "$dir/fw/PROTOCOLS.md"
 
     printf '%s\n' \
         'KNOWN_PROTOCOLS = {0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5}' \
@@ -413,7 +413,7 @@ case_dispatch_mirror_planted_drift_exit_1() {
     local ok=0
 
     local control_rc
-    control_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_control.log python3 "$DISPATCH_MIRROR_PY" --wiki-dir "$base/wiki" --app-dir "$base/app" --fw-dir "$base/fw")
+    control_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_control.log python3 "$DISPATCH_MIRROR_PY" --app-dir "$base/app" --fw-dir "$base/fw")
     assert_rc "dispatch_mirror_planted_drift_exit_1_control" 0 "$control_rc" || ok=1
 
     local control_count
@@ -421,10 +421,10 @@ case_dispatch_mirror_planted_drift_exit_1() {
 
     local missing_row="$WORK/dispatch_mirror_planted_drift_exit_1_missing_row"
     cp -r "$base" "$missing_row"
-    sed -i '/^| 0xA5 /d' "$missing_row/wiki/Programming-Protocols.md"
+    sed -i '/^| 0xA5 /d' "$missing_row/fw/PROTOCOLS.md"
 
     local mutated_rc
-    mutated_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_mutated.log python3 "$DISPATCH_MIRROR_PY" --wiki-dir "$missing_row/wiki" --app-dir "$missing_row/app" --fw-dir "$missing_row/fw")
+    mutated_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_mutated.log python3 "$DISPATCH_MIRROR_PY" --app-dir "$missing_row/app" --fw-dir "$missing_row/fw")
     assert_rc "dispatch_mirror_planted_drift_exit_1" 1 "$mutated_rc" || ok=1
 
     if ! grep -q '0xA5' "$WORK/dispatch_mirror_planted_drift_exit_1_mutated.log"; then
@@ -434,7 +434,7 @@ case_dispatch_mirror_planted_drift_exit_1() {
 
     local evidence_file="$REPO_ROOT/.planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/dispatch-mirror-planted-RED.txt"
     {
-        echo "command: python3 tools/wiki/dispatch_mirror.py --wiki-dir <fixture>/wiki --app-dir <fixture>/app --fw-dir <fixture>/fw"
+        echo "command: python3 tools/wiki/dispatch_mirror.py --app-dir <fixture>/app --fw-dir <fixture>/fw"
         echo "mutation: deleted the 0xA5 bucket row from the claims region while the host dispatch stub and firmware stub both retain 0xA5"
         echo "exit status: $mutated_rc"
         echo "--- captured output ---"
@@ -449,7 +449,7 @@ case_dispatch_mirror_planted_drift_exit_1() {
     printf '%s\n' '// handled via legacy path 0xB5' >> "$comment_only/fw/test/native/avr/test_dispatch/test_configure_memory.cpp"
 
     local comment_only_rc
-    comment_only_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_comment_only.log python3 "$DISPATCH_MIRROR_PY" --wiki-dir "$comment_only/wiki" --app-dir "$comment_only/app" --fw-dir "$comment_only/fw")
+    comment_only_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_comment_only.log python3 "$DISPATCH_MIRROR_PY" --app-dir "$comment_only/app" --fw-dir "$comment_only/fw")
     assert_rc "dispatch_mirror_planted_drift_exit_1_comment_only" 0 "$comment_only_rc" || ok=1
 
     local comment_only_count

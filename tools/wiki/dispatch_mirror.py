@@ -11,7 +11,7 @@ Exit-code contract:
   2 = a precondition was not met (source directory missing, or missing
       on the command line at all)
 
-The claims region on the published Programming-Protocols page is the doc
+The claims region in the firmware repository's PROTOCOLS.md is the doc
 leg's only input. A region that is absent, or that parses to a bucket-row
 count below MIN_BUCKET_ROWS, is treated as a reformatted table rather than
 a real change in firmware behaviour -- and returns 2, never 0. MIN_BUCKET_ROWS
@@ -28,7 +28,7 @@ import re
 import sys
 from pathlib import Path
 
-PROTOCOLS_PAGE = "Programming-Protocols.md"
+PROTOCOLS_DOC = "PROTOCOLS.md"
 CLAIMS_BEGIN = "<!-- firestarter-claims-begin -->"
 CLAIMS_END = "<!-- firestarter-claims-end -->"
 FW_DISPATCH_TEST_REL = Path("test/native/avr/test_dispatch/test_configure_memory.cpp")
@@ -154,7 +154,6 @@ def _build_argparser() -> argparse.ArgumentParser:
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--wiki-dir", type=Path, required=True, default=None)
     parser.add_argument("--app-dir", type=Path, required=True, default=None)
     parser.add_argument("--fw-dir", type=Path, required=True, default=None)
     return parser
@@ -174,8 +173,8 @@ def _load_dispatch_module(app_dir: Path):
 def main() -> int:
     args = _build_argparser().parse_args()
 
-    if not args.wiki_dir.is_dir():
-        print(f"ERROR: --wiki-dir not found: {args.wiki_dir}", file=sys.stderr)
+    if not args.fw_dir.is_dir():
+        print(f"ERROR: --fw-dir not found: {args.fw_dir}", file=sys.stderr)
         return 2
     if not args.app_dir.is_dir():
         print(f"ERROR: --app-dir not found: {args.app_dir}", file=sys.stderr)
@@ -184,16 +183,16 @@ def main() -> int:
         print(f"ERROR: --fw-dir not found: {args.fw_dir}", file=sys.stderr)
         return 2
 
-    page = args.wiki_dir / PROTOCOLS_PAGE
+    page = args.fw_dir / PROTOCOLS_DOC
     if not page.is_file():
-        print(f"ERROR: {PROTOCOLS_PAGE} not found under {args.wiki_dir}", file=sys.stderr)
+        print(f"ERROR: {PROTOCOLS_DOC} not found under {args.fw_dir}", file=sys.stderr)
         return 2
 
     region = parse_claims_region(page.read_text(encoding="utf-8"))
     if region is None:
         print(
             f"ERROR: claims region ({CLAIMS_BEGIN} / {CLAIMS_END}) not found "
-            f"in {PROTOCOLS_PAGE}",
+            f"in {PROTOCOLS_DOC}",
             file=sys.stderr,
         )
         return 2
@@ -248,7 +247,7 @@ def main() -> int:
             print(f"ERROR: {message}", file=sys.stderr)
         return 1
 
-    print(f"OK: {len(doc_table)} protocols compared across wiki, host tool and firmware.")
+    print(f"OK: {len(doc_table)} protocols compared across firmware doc, host tool and firmware.")
     return 0
 
 
