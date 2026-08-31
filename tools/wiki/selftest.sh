@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WIKI_PY="$SCRIPT_DIR/wiki.py"
+DISPATCH_MIRROR_PY="$SCRIPT_DIR/dispatch_mirror.py"
 REPO_ROOT="$SCRIPT_DIR/../.."
 
 WORK="$(mktemp -d)"
@@ -284,7 +285,125 @@ case_dotdir_ignored_exit_0() {
     return "$ok"
 }
 
-CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0)
+new_dispatch_mirror_fixture() {
+    local dir="$1"
+    mkdir -p "$dir/wiki" "$dir/app/tools" "$dir/fw/test/native/avr/test_dispatch"
+
+    printf '%s\n' \
+        '# Programming Protocols' \
+        '' \
+        'Fixture protocol page for dispatch_mirror.py selftest coverage.' \
+        '' \
+        '<!-- firestarter-claims-begin -->' \
+        '| hex | note | slug | token | name | handler-family | phantom? |' \
+        '|-----|------|------|-------|------|-----------------|----------|' \
+        '| 0xA1 | 1 | s | t | n | eprom | no |' \
+        '| 0xA2 | 1 | s | t | n | eprom | no |' \
+        '| 0xA3 | 1 | s | t | n | eprom | no |' \
+        '| 0xA4 | 1 | s | t | n | eprom | no |' \
+        '| 0xA5 | 1 | s | t | n | eprom | no |' \
+        '| 0xB1 | 1 | s | t | n | sram | no |' \
+        '| 0xB2 | 1 | s | t | n | sram | no |' \
+        '| 0xB3 | 1 | s | t | n | sram | no |' \
+        '| 0xB4 | 1 | s | t | n | sram | no |' \
+        '| 0xB5 | 1 | s | t | n | sram | no |' \
+        '| 0xC1 | 1 | s | t | n | not-implemented | no |' \
+        '| 0xC2 | 1 | s | t | n | not-implemented | no |' \
+        '| 0xC3 | 1 | s | t | n | not-implemented | no |' \
+        '' \
+        '| Handler-family | function | File | Protocols |' \
+        '|-----------------|----------|------|-----------|' \
+        '| eprom | `configure_eprom()` | `eprom.cpp` | 0xA1-0xA5 |' \
+        '| sram | `configure_sram()` | `sram.cpp` | 0xB1-0xB5 |' \
+        '| not-implemented | `configure_not_implemented()` | `not_implemented.cpp` | 0xC1-0xC3 |' \
+        '<!-- firestarter-claims-end -->' \
+        > "$dir/wiki/Programming-Protocols.md"
+
+    printf '%s\n' \
+        'KNOWN_PROTOCOLS = {0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5}' \
+        '_ALGO_MEM_TYPE = {}' \
+        '' \
+        '' \
+        'def dispatch(protocol, mem_type):' \
+        '    if protocol in (0xA1, 0xA2, 0xA3, 0xA4, 0xA5):' \
+        '        return "configure_eprom"' \
+        '    if protocol in (0xB1, 0xB2, 0xB3, 0xB4, 0xB5):' \
+        '        return "configure_sram"' \
+        '    return "not_implemented"' \
+        > "$dir/app/tools/check_dispatch.py"
+
+    printf '%s\n' \
+        'void test_protocol_0xA1(void) { make_handle(0xA1, 0, CMD_READ); }' \
+        'void test_protocol_0xA2(void) { make_handle(0xA2, 0, CMD_READ); }' \
+        'void test_protocol_0xA3(void) { make_handle(0xA3, 0, CMD_READ); }' \
+        'void test_protocol_0xA4(void) { make_handle(0xA4, 0, CMD_READ); }' \
+        'void test_protocol_0xA5(void) { make_handle(0xA5, 0, CMD_READ); }' \
+        'void test_protocol_0xB1(void) { make_handle(0xB1, 0, CMD_READ); }' \
+        'void test_protocol_0xB2(void) { make_handle(0xB2, 0, CMD_READ); }' \
+        'void test_protocol_0xB3(void) { make_handle(0xB3, 0, CMD_READ); }' \
+        'void test_protocol_0xB4(void) { make_handle(0xB4, 0, CMD_READ); }' \
+        'void test_protocol_0xB5(void) { make_handle(0xB5, 0, CMD_READ); }' \
+        > "$dir/fw/test/native/avr/test_dispatch/test_configure_memory.cpp"
+}
+
+case_dispatch_mirror_planted_drift_exit_1() {
+    local base="$WORK/dispatch_mirror_planted_drift_exit_1_base"
+    new_dispatch_mirror_fixture "$base"
+    local ok=0
+
+    local control_rc
+    control_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_control.log python3 "$DISPATCH_MIRROR_PY" --wiki-dir "$base/wiki" --app-dir "$base/app" --fw-dir "$base/fw")
+    assert_rc "dispatch_mirror_planted_drift_exit_1_control" 0 "$control_rc" || ok=1
+
+    local control_count
+    control_count=$(grep -oE '^OK: [0-9]+' "$WORK/dispatch_mirror_planted_drift_exit_1_control.log" | grep -oE '[0-9]+')
+
+    local missing_row="$WORK/dispatch_mirror_planted_drift_exit_1_missing_row"
+    cp -r "$base" "$missing_row"
+    sed -i '/^| 0xA5 /d' "$missing_row/wiki/Programming-Protocols.md"
+
+    local mutated_rc
+    mutated_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_mutated.log python3 "$DISPATCH_MIRROR_PY" --wiki-dir "$missing_row/wiki" --app-dir "$missing_row/app" --fw-dir "$missing_row/fw")
+    assert_rc "dispatch_mirror_planted_drift_exit_1" 1 "$mutated_rc" || ok=1
+
+    if ! grep -q '0xA5' "$WORK/dispatch_mirror_planted_drift_exit_1_mutated.log"; then
+        echo "ERROR: dispatch_mirror_planted_drift_exit_1: stderr missing 0xA5" >&2
+        ok=1
+    fi
+
+    local evidence_file="$REPO_ROOT/.planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/dispatch-mirror-planted-RED.txt"
+    {
+        echo "command: python3 tools/wiki/dispatch_mirror.py --wiki-dir <fixture>/wiki --app-dir <fixture>/app --fw-dir <fixture>/fw"
+        echo "mutation: deleted the 0xA5 bucket row from the claims region while the host dispatch stub and firmware stub both retain 0xA5"
+        echo "exit status: $mutated_rc"
+        echo "--- captured output ---"
+        cat "$WORK/dispatch_mirror_planted_drift_exit_1_mutated.log"
+    } > "$evidence_file"
+
+    record "dispatch_mirror_planted_drift_exit_1" 1 "$mutated_rc" "$control_rc" "planted missing bucket row (0xA5) detected by name"
+
+    local comment_only="$WORK/dispatch_mirror_planted_drift_exit_1_comment_only"
+    cp -r "$base" "$comment_only"
+    sed -i 's/0xB5/0xFF/g' "$comment_only/fw/test/native/avr/test_dispatch/test_configure_memory.cpp"
+    printf '%s\n' '// handled via legacy path 0xB5' >> "$comment_only/fw/test/native/avr/test_dispatch/test_configure_memory.cpp"
+
+    local comment_only_rc
+    comment_only_rc=$(rc_of dispatch_mirror_planted_drift_exit_1_comment_only.log python3 "$DISPATCH_MIRROR_PY" --wiki-dir "$comment_only/wiki" --app-dir "$comment_only/app" --fw-dir "$comment_only/fw")
+    assert_rc "dispatch_mirror_planted_drift_exit_1_comment_only" 0 "$comment_only_rc" || ok=1
+
+    local comment_only_count
+    comment_only_count=$(grep -oE '^OK: [0-9]+' "$WORK/dispatch_mirror_planted_drift_exit_1_comment_only.log" | grep -oE '[0-9]+')
+    if [ "$comment_only_count" != "$control_count" ]; then
+        echo "ERROR: dispatch_mirror_planted_drift_exit_1_comment_only: compared-protocol count changed ($control_count -> $comment_only_count); a commented-out firmware entry must not move the count" >&2
+        ok=1
+    fi
+
+    record "dispatch_mirror_planted_drift_exit_1_comment_only" 0 "$comment_only_rc" "$control_rc" "commented-out firmware entry (0xB5) is not counted as a dispatch entry; count unchanged at $comment_only_count"
+
+    return "$ok"
+}
+
+CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0 dispatch_mirror_planted_drift_exit_1)
 
 exit_code=0
 fail_count=0
