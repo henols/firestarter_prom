@@ -12,16 +12,11 @@ greps it for a source path before renaming anything.
 | firestarter_prom | — | Home | Home | — | 167 |
 | firestarter | firestarter/doc/PROTOCOLS.md | Programming-Protocols | Programming Protocols | a218b4f5273d14f0abd796b21ac104792de01603 | 168 |
 | firestarter | firestarter/doc/SHIELD-REVISIONS.md | Shield-Revisions | Shield Revisions | a218b4f5273d14f0abd796b21ac104792de01603 | 168 |
-| firestarter | firestarter/doc/AT28C04-ADAPTER.md | AT28C04-Adapter | AT28C04 Adapter | a218b4f5273d14f0abd796b21ac104792de01603 | 168 |
 | firestarter_app | firestarter_app/doc/beta-testing-install.md | Install-Beta | Install Beta | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/community-validation.md | Testing-Chips | Testing Chips | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/infoic-field-dictionary.md | Infoic-Field-Dictionary | Infoic Field Dictionary | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/lockable-proms.md | Lockable-PROMs | Lockable PROMs | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/package-details.md | Package-Details | Package Details | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/pinout-safety-review.md | Pinout-Safety-Review | Pinout Safety Review | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/protocol-flags.md | Protocol-Flags | Protocol Flags | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/protocol-id.md | Protocol-ID | Protocol ID | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/sram-nvram-behavior.md | SRAM-and-NVRAM-Behavior | SRAM and NVRAM Behavior | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 
 The Pre-deletion SHA is the sub-repo commit that created the
 `gsd/v1.35-documentation-consolidation-wiki-migration` branch (Task 1 of Plan 168-01) —
@@ -47,7 +42,29 @@ needs; the `Source path` column still records where the content came from. Both 
 substantially rewritten for a community audience in the same change — see the honesty note
 below.
 
-## Honesty note: HONEST-01 no longer applies to two pages
+## Retired from the wiki after the migration closed
+
+These pages were migrated in Phase 168 and then removed on 2026-08-31 at the operator's
+direction. Their `doc/` sources are still recoverable at the recorded SHAs — the content is
+not lost, it is simply no longer published. Recorded here rather than deleted from the table,
+because "what happened to this document" is the question this table exists to answer.
+
+| Source path | Was published as | What happened |
+|---|---|---|
+| `firestarter/doc/AT28C04-ADAPTER.md` | `AT28C04-Adapter` | Removed; the adapter pin map and its reroute now live on `Pin-Maps`. Operator noted it may be picked up again later. |
+| `firestarter_app/doc/pinout-safety-review.md` | `Pinout-Safety-Review` | Superseded by `Pin-Maps`, which is dedicated to pin maps rather than to a review. The 5 V-only guarantee it carried is restated there. |
+| `firestarter_app/doc/infoic-field-dictionary.md` | `Infoic-Field-Dictionary` | Superseded by `Chip-Database-Fields`, which describes the Firestarter chip database directly instead of the upstream format it was derived from. Not a migration of the old text — the new page was written from the live database. |
+| `firestarter_app/doc/package-details.md` | `Package-Details` | Removed. Its `flags` tables duplicated `Protocol-Flags`; its own half documented the DIP filter, which is machinery for excluding non-DIP parts on a programmer that only supports DIP. Nothing was worth relocating. |
+| `firestarter_app/doc/sram-nvram-behavior.md` | `SRAM-and-NVRAM-Behavior` | Removed. |
+
+`How-To-Edit-This-Wiki` was also removed — see the note above.
+
+**MIGRATE-01's "all 12 files reachable on the wiki" was true at Phase 168's close** (wiki
+commit `aa4a5c7`) and was verified there. It is deliberately no longer true: five of those
+twelve are no longer published. That is an editorial decision taken after the phase closed,
+not a regression in the migration, and the recorded SHAs mean any of them can be brought back.
+
+## Honesty note: HONEST-01 no longer applies to the surviving rewritten pages
 
 HONEST-01 compared the claim-token multiset of each page against its frozen pre-deletion
 source, and it passed clean for all 12 migrated pages at wiki commit `aa4a5c7` — the migration
@@ -74,6 +91,13 @@ Each dropped token was reviewed against the frozen source before the rewrite was
   survive as rewordings — the signature check still stops a mismatched flash, the smoke test
   still states it touches no chip in the socket, and the UV 256-byte slot limit moved intact to
   `Testing-Chips` as "only ever writes a small 256-byte slot".
+
+**A second editorial pass on 2026-08-31** trimmed `Shield-Revisions`, `Protocol-ID`,
+`Protocol-Flags` and `Lockable-PROMs` for a user audience — dropping git provenance, the
+silkscreen alias table, the ADC band table, the `IC2_ALG`/handler columns, the unconfirmed
+bit-3/6/7 guesses, and the build-database explanations. Those pages will now also report
+dropped tokens against their frozen sources, for the same reason and with the same standing:
+deliberate, reviewed, and not a migration defect.
 
 **Do not re-baseline these rows to make the checker green.** The source SHAs are the frozen
 oracle for what the documents said on 2026-08-30 and are still the right answer to that question.
