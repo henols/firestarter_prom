@@ -6,6 +6,8 @@ WIKI_PY="$SCRIPT_DIR/wiki.py"
 DISPATCH_MIRROR_PY="$SCRIPT_DIR/dispatch_mirror.py"
 HONEST01_PY="$SCRIPT_DIR/honest01_claims.py"
 CLAIM_VOCAB="$SCRIPT_DIR/claim-vocabulary.json"
+HONEST02_PY="$SCRIPT_DIR/honest02_truth.py"
+CLAIM_ALLOWLIST="$SCRIPT_DIR/claim-allowlist.json"
 REPO_ROOT="$SCRIPT_DIR/../.."
 
 WORK="$(mktemp -d)"
@@ -487,7 +489,112 @@ case_honest01_weakened_claim_exit_1() {
     return "$ok"
 }
 
-CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0 dispatch_mirror_planted_drift_exit_1 honest01_weakened_claim_exit_1)
+case_honest02_absent_part_number_exit_1() {
+    local base="$WORK/honest02_absent_part_number_exit_1_base"
+    new_source_dir "$base"
+    local ok=0
+
+    local db="$WORK/honest02_absent_part_number_exit_1_db.json"
+    printf '%s\n' \
+        '{' \
+        '  "FixtureVendor": [' \
+        '    {"part_number": "FIXPART01,FIXPART01A", "programming": {"algorithm": 5}},' \
+        '    {"part_number": "FIXPART02", "programming": {"algorithm": 6}}' \
+        '  ]' \
+        '}' \
+        > "$db"
+    local db_hash
+    db_hash=$(sha256sum "$db" | cut -c1-16)
+
+    printf '%s\n' \
+        '# Fixture Chip Page' \
+        '' \
+        'Fixture page for HONEST-02 selftest coverage.' \
+        '' \
+        "<!-- firestarter-claim-stamp: db-sha256-16=$db_hash verified=2026-08-31 -->" \
+        '' \
+        '<!-- firestarter-claims-begin -->' \
+        '| part | algorithm |' \
+        '|------|-----------|' \
+        '| FIXPART01 | 0x05 |' \
+        '<!-- firestarter-claims-end -->' \
+        > "$base/Fixture-Chip-Page.md"
+
+    local control_rc
+    control_rc=$(rc_of honest02_absent_part_number_exit_1_control.log python3 "$HONEST02_PY" --wiki-dir "$base" --db "$db" --allowlist "$CLAIM_ALLOWLIST")
+    assert_rc "honest02_absent_part_number_exit_1_control" 0 "$control_rc" || ok=1
+
+    local absent_dir="$WORK/honest02_absent_part_number_exit_1_absent_part"
+    cp -r "$base" "$absent_dir"
+    sed -i 's/FIXPART01/GHOSTPART01/' "$absent_dir/Fixture-Chip-Page.md"
+
+    local absent_rc
+    absent_rc=$(rc_of honest02_absent_part_number_exit_1_absent_part.log python3 "$HONEST02_PY" --wiki-dir "$absent_dir" --db "$db" --allowlist "$CLAIM_ALLOWLIST")
+    assert_rc "honest02_absent_part_number_exit_1" 1 "$absent_rc" || ok=1
+
+    if ! grep -q 'GHOSTPART01' "$WORK/honest02_absent_part_number_exit_1_absent_part.log"; then
+        echo "ERROR: honest02_absent_part_number_exit_1: stderr missing GHOSTPART01" >&2
+        ok=1
+    fi
+    if ! grep -q 'UNRESOLVED' "$WORK/honest02_absent_part_number_exit_1_absent_part.log"; then
+        echo "ERROR: honest02_absent_part_number_exit_1: stderr missing UNRESOLVED" >&2
+        ok=1
+    fi
+
+    local evidence_file="$REPO_ROOT/.planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/honest02-fixture-RED.txt"
+    {
+        echo "command: python3 tools/wiki/honest02_truth.py --wiki-dir <fixture>/wiki --db <fixture-db.json> --allowlist tools/wiki/claim-allowlist.json"
+        echo "mutation: renamed the claims-region part token FIXPART01 to GHOSTPART01, absent from the fixture database"
+        echo "control: exit 0 (both FIXPART01 and 0x05 resolve in the fixture database)"
+        echo "exit status: $absent_rc"
+        echo "--- captured output ---"
+        cat "$WORK/honest02_absent_part_number_exit_1_absent_part.log"
+    } > "$evidence_file"
+
+    record "honest02_absent_part_number_exit_1" 1 "$absent_rc" "$control_rc" "region token GHOSTPART01 absent from the fixture database; UNRESOLVED names the token and the page"
+
+    local missing_stamp_dir="$WORK/honest02_absent_part_number_exit_1_missing_stamp"
+    cp -r "$base" "$missing_stamp_dir"
+    sed -i '/firestarter-claim-stamp/d' "$missing_stamp_dir/Fixture-Chip-Page.md"
+
+    local missing_stamp_rc
+    missing_stamp_rc=$(rc_of honest02_absent_part_number_exit_1_missing_stamp.log python3 "$HONEST02_PY" --wiki-dir "$missing_stamp_dir" --db "$db" --allowlist "$CLAIM_ALLOWLIST")
+    assert_rc "honest02_absent_part_number_exit_1_missing_stamp" 1 "$missing_stamp_rc" || ok=1
+
+    if ! grep -q 'MISSING STAMP' "$WORK/honest02_absent_part_number_exit_1_missing_stamp.log"; then
+        echo "ERROR: honest02_absent_part_number_exit_1_missing_stamp: stderr missing MISSING STAMP" >&2
+        ok=1
+    fi
+    if ! grep -q 'Fixture-Chip-Page' "$WORK/honest02_absent_part_number_exit_1_missing_stamp.log"; then
+        echo "ERROR: honest02_absent_part_number_exit_1_missing_stamp: stderr missing Fixture-Chip-Page" >&2
+        ok=1
+    fi
+
+    record "honest02_absent_part_number_exit_1_missing_stamp" 1 "$missing_stamp_rc" "$control_rc" "stamp removed from a page that still matches the claim signature; MISSING STAMP names the page"
+
+    local stale_dir="$WORK/honest02_absent_part_number_exit_1_stale_stamp"
+    cp -r "$base" "$stale_dir"
+    sed -i "s/db-sha256-16=$db_hash/db-sha256-16=deadbeefdeadbeef/" "$stale_dir/Fixture-Chip-Page.md"
+
+    local stale_rc
+    stale_rc=$(rc_of honest02_absent_part_number_exit_1_stale_stamp.log python3 "$HONEST02_PY" --wiki-dir "$stale_dir" --db "$db" --allowlist "$CLAIM_ALLOWLIST")
+    assert_rc "honest02_absent_part_number_exit_1_stale_stamp" 1 "$stale_rc" || ok=1
+
+    if ! grep -q 'STALE STAMP' "$WORK/honest02_absent_part_number_exit_1_stale_stamp.log"; then
+        echo "ERROR: honest02_absent_part_number_exit_1_stale_stamp: stderr missing STALE STAMP" >&2
+        ok=1
+    fi
+    if grep -q 'UNRESOLVED' "$WORK/honest02_absent_part_number_exit_1_stale_stamp.log"; then
+        echo "ERROR: honest02_absent_part_number_exit_1_stale_stamp: stale-stamp run unexpectedly also reported UNRESOLVED -- the two outcomes must stay textually distinct" >&2
+        ok=1
+    fi
+
+    record "honest02_absent_part_number_exit_1_stale_stamp" 1 "$stale_rc" "$control_rc" "stamp hash altered to a value the current fixture database does not match; STALE STAMP is textually distinct from UNRESOLVED and MISSING STAMP"
+
+    return "$ok"
+}
+
+CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0 dispatch_mirror_planted_drift_exit_1 honest01_weakened_claim_exit_1 honest02_absent_part_number_exit_1)
 
 exit_code=0
 fail_count=0

@@ -1,5 +1,5 @@
 command: python3 tools/wiki/honest01_claims.py --table <fixture-table> --wiki-dir <fixture-wiki> --vocab tools/wiki/claim-vocabulary.json --repo-root <fixture-repo-root>
-mutation: softened one of two adapter-required occurrences on the wiki-side Fixture-Page.md to 'may need an adapter'; the git-committed source fixture (sha 48a7804d5c2d1241a10dac098dd64df6507a52cf) still carries both occurrences
+mutation: softened one of two adapter-required occurrences on the wiki-side Fixture-Page.md to 'may need an adapter'; the git-committed source fixture (sha d11d3c1441384bfb9928bc477bdbf3bb842156f0) still carries both occurrences
 control: exit 0 (both sides start at 2 occurrences of adapter-required)
 result: exit 1
 --- captured output ---
