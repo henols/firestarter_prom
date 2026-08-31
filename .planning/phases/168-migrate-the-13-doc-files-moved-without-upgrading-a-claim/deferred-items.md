@@ -58,6 +58,20 @@ reference-style external citations to inline `[text](url)` form, or teach
 and skip reference-style links whose `ref` resolves to one — whichever the
 610-line `wiki.py` checker's owning plan judges cheaper.
 
+**Resolved by plan 168-08.** `extract_internal_links` now resolves a
+`[text][ref]` pair against a `[ref]: <url>` reference-definition block found
+anywhere in the same page and skips it when the resolved target is external
+(`http://`, `https://`, `mailto:`); a reference-style link whose `ref` does not
+resolve, or resolves to a non-external target, is still flagged. `wiki.py links`
+against the live clone (master @ 9d7e9bc) reports zero errors on
+`Lockable-PROMs.md`. Two new selftest cases
+(`reference_style_external_citation_exit_0`, `dotdir_ignored_exit_0`) cover the
+fix and a second, previously-unnoticed defect discovered in the same pass: a
+real git clone's `.git` directory was unconditionally flagged as an "illegal
+page filename" by `check_page_names`, which would have made `wiki.py links`
+unable to exit 0 against any live clone at all. `check_page_names` now skips
+dot-prefixed entries.
+
 ## Plan 168-06 — `tools/baseline/chip_database.baseline.json` still carries 9 stale `doc/` references
 
 168-03 fixed the generator (`build_db.py`) and regenerated the live
