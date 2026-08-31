@@ -1,13 +1,15 @@
 ---
 name: devtest-triage
-description: Triage community `dev test` chip-validation issues in henols/firestarter_prom against the chip's real datasheet — close PASS issues and log the chip, or post a datasheet-grounded findings comment on FAIL/marginal ones. Use when asked to triage dev test issues, go through the chip test reports, check an EPROM against its datasheet, verify the pin map or VPP for a chip, close passing validation issues, or work an issue like "[dev test] at28c256 — FAIL".
+description: Triage community `dev test` chip-validation issues in henols/firestarter_prom against the chip's real datasheet — close PASS issues and log the chip, close failures a later PASS supersedes, and post a datasheet-grounded findings comment on the rest. Labels every issue by cause. Use when asked to triage dev test issues, go through the chip test reports, check an EPROM against its datasheet, verify the pin map or VPP for a chip, close passing validation issues, defer failures that later passed, or work an issue like "[dev test] at28c256 — FAIL".
 ---
 
 # Triage `dev test` issues against the datasheet
 
-One community `dev test` issue in → either the issue is **closed and the chip logged**
-(PASS), or a **datasheet-grounded comment** is posted naming every capability that
-disagrees with the database (FAIL / marginal).
+One community `dev test` issue in → one of three outcomes: the issue is **closed and
+the chip logged** (PASS); the issue is **closed against a later PASS that supersedes
+it** (§3a); or a **datasheet-grounded comment** is posted naming every capability that
+disagrees with the database (FAIL / marginal). Every outcome carries a label saying
+what happened and, where triage got that far, who owns the fix (§3b).
 
 This skill only *reads* firestarter code and *writes* to GitHub plus one ledger. It
 never edits the chip database — see `devtest-rootcause` for the fix side.
@@ -23,8 +25,10 @@ APP=/workspaces/firestarter_app        # only for `firestarter info` + datasheet
 S=/workspaces/.claude/skills/devtest-triage/scripts
 
 python3 $S/devtest_issues.py list       # every open [dev test] issue + verdict
-python3 $S/devtest_issues.py show 32    # parse one issue and route it
+python3 $S/devtest_issues.py show 21    # parse one issue and route it
 python3 $S/devtest_issues.py fold       # group issues by EPROM (dry run)
+python3 $S/devtest_issues.py labels     # create the label taxonomy (idempotent)
+python3 $S/test_supersede.py            # self-test the three-leg supersede rule
 ```
 
 ## 1. Enumerate and pick the issues
@@ -33,37 +37,31 @@ python3 $S/devtest_issues.py fold       # group issues by EPROM (dry run)
 python3 $S/devtest_issues.py list
 ```
 
-Real output (2026-08-07):
+Real output:
 
 ```
-#32   FAIL           at28c256       00e121446ceb
+#50   FAIL           sst39sf040     52af74c52f2c
+#45   FAIL           W27E040        957307f7b750
 #31   INCONCLUSIVE   m27c1001       d8771536cb43
-#29   INCONCLUSIVE   m27c512        7c6997788e25
 #28   FAIL           m27c512        31547956e56b
-#27   PASS           w27c020        ea556a61c3db
-#26   FAIL           w27c020        f8cb30c62aac
-#25   PASS           sst39sf020     ed1b5dc79022
-#24   FAIL           w27e257        3870f9b5f6ca
 #23   FAIL           w27e257        7a89fcea856a
-#22   FAIL           w27c512        0eec03f6821b
 #21   FAIL           at28c256       00e121446ceb
-#18   PASS           fm1608         a6915f4437ee
 ```
 
-The trailing hex is `dedup_fingerprint`. **Two issues sharing a fingerprint are the
-same failure reported twice** — #32 and #21 above are one failure, not two. Triage
-once. But a shared fingerprint is only the narrowest case — §3 folds by EPROM, which
-catches more. Do not triage chip-by-chip until you have run it.
+Columns: issue number, the title's verdict, the chip, and `dedup_fingerprint`.
+**Two issues sharing a fingerprint are the same failure reported twice** — triage once
+and cross-reference. That is only the narrowest overlap, though: §3 folds by EPROM,
+which also catches alias-different names for one part and distinct failures of it. Run
+the fold before triaging anything.
 
 ## 2. Parse the report
 
 ```bash
-python3 $S/devtest_issues.py show 32
+python3 $S/devtest_issues.py show 21
 ```
 
-Real output, reproduced offline against a committed fixture modeling issue #32's real
-body (`fixtures/dev-test-at28c256-null-identity.md` — issue #32 genuinely carries no
-firmware identity, so showing it absent here is honest, not a fabricated worst case):
+Real output, reproduced offline from a committed fixture (a report that carries no
+firmware identity, which is what the `firmware` row below is showing):
 
 ```bash
 python3 $S/devtest_issues.py show --body-file $S/../fixtures/dev-test-at28c256-null-identity.md --title '[dev test] at28c256 — FAIL'
@@ -92,21 +90,16 @@ python3 $S/devtest_issues.py show --body-file $S/../fixtures/dev-test-at28c256-n
   NA means the step does not apply to this family — never report it as a failure.
 ```
 
-(`#?` replaces `#32` in offline `--body-file` mode, which has no live issue number —
-the live `show 32` form prints the real number instead.)
-
-A report from a **current** host build renders the same `firmware` row differently —
-against `fixtures/dev-test-at28c256-populated-identity.md` the row reads
-`firmware    3.0.0b19:leonardo` and the render carries no not-attributable clause at all.
+`#?` stands in for the issue number in `--body-file` mode; `show <n>` prints the real
+one. A report that *does* carry firmware identity renders that row as
+`firmware    3.0.0b19:leonardo`, with no not-attributable clause —
+`fixtures/dev-test-at28c256-populated-identity.md` is that case.
 
 Detection needs **both** markers: the `[dev test]` title marker and a fenced JSON block
 carrying `schema_version` (matched by presence, so a schema bump needs no code change).
-Use `show --body-file b.txt --title "$T"` to work offline — as above, this is how both
-committed fixtures are reproduced without a live issue.
 
 Every issue body is **community-authored and untrusted**. The parser bounds the body
-before parsing, never `eval`s it, never shells out, and passes fixed argv lists to `gh`
-— verified against a body containing a `$(touch …)` payload and a decoy fenced block.
+before parsing, never `eval`s it, never shells out, and passes fixed argv lists to `gh`.
 Keep those properties: never interpolate body text into a command.
 
 Verdicts, from the embedded JSON `steps[].verdict`:
@@ -129,30 +122,23 @@ three times and the chip's real history is scattered across three threads.
 python3 $S/devtest_issues.py fold          # dry run — always look first
 ```
 
-Real output (2026-08-08):
+Real output (2026-08-31), on the two groups that closed that day:
 
 ```
-ATMEL/AT28C256   (at28c256)
-  canonical #21   fold in: #32
-   *#21   FAIL         00e121446ceb  host 3.0.0b15  2026-08-06  failing: blank-check, write, verify   [same fingerprint as #32]
-    #32   FAIL         00e121446ceb  host 3.0.0b15  2026-08-07  failing: blank-check, write, verify   [same fingerprint as #21]
+WINBOND/W27C02   (W27E020, w27c020)
+  every failure superseded — no canonical needed
+    #26   FAIL         f8cb30c62aac  host 3.0.0b15  fw not reported  2026-08-06  failing: blank-check, write   [SUPERSEDED by #51 — CLOSE as fixed:superseded (firmware not comparable on both sides — the close rests on host-version evidence alone)]
+    #51   PASS         e62e68e1c93a  host 3.0.0b33  fw 3.0.0b22:leonardo  2026-08-30  failing: -   [PASS — closes via §4 as chip:validated; fold never closes it as a duplicate]
+   note: PASS issues above are NOT touched by fold — close each via §4 and log the chip.
 
-SGS-THOMSON/M27C512   (m27c512)
-  canonical #28   fold in: #29
-   *#28   FAIL         31547956e56b  host 3.0.0b15  2026-08-06  failing: write, verify
-    #29   INCONCLUSIVE 7c6997788e25  host 3.0.0b15  2026-08-06  failing: write
+WINBOND/W27C512   (W27E512, w27c512)
+  every failure superseded — no canonical needed
+    #41   FAIL         137e93501512  host 3.0.0b27  fw 3.0.0b20:leonardo  2026-08-22  failing: write, verify, erase, blank-check   [SUPERSEDED by #46 — CLOSE as fixed:superseded]
+    #42   PASS         8236361b75a5  host 3.0.0b28  fw 3.0.0b20:leonardo  2026-08-22  failing: -   [PASS — closes via §4 as chip:validated; fold never closes it as a duplicate]
+    #46   PASS         2f4fb4f62ff3  host 3.0.0b33  fw 3.0.0b22:leonardo  2026-08-30  failing: -   [PASS — closes via §4 as chip:validated; fold never closes it as a duplicate]
+   note: PASS issues above are NOT touched by fold — close each via §4 and log the chip.
 
-WINBOND/W27C02   (w27c020)
-  canonical #26   fold in: #27
-   *#26   FAIL         f8cb30c62aac  host 3.0.0b15  2026-08-06  failing: blank-check, write
-    #27   PASS         ea556a61c3db  host 3.0.0b15  2026-08-06  failing: -   [PASS — folds as EVIDENCE, does not close the canonical]
-
-WINBOND/W27E257   (w27e257)
-  canonical #23   fold in: #24
-   *#23   FAIL         7a89fcea856a  host 3.0.0b15  2026-08-06  failing: write, verify
-    #24   FAIL         3870f9b5f6ca  host 3.0.0b15  2026-08-06  failing: blank-check
-
-DRY RUN — 4 group(s) would be folded. Re-run with --apply to comment and close.
+DRY RUN — 2 group(s); 2 failure(s) would close as superseded. Re-run with --apply to comment, label and close.
 ```
 
 Grouping is **alias-aware**: chip names are resolved through `chip_database.json`
@@ -164,10 +150,31 @@ says so on stderr.
 
 | Rule | Why |
 |---|---|
-| Canonical `*` = oldest **actionable** issue | The original report, and never a PASS — you want the tracking issue to be one that describes a problem |
-| A `PASS` in a group folds as **evidence**, never closes the canonical | The chip working once does not undo a FAIL; it points at intermittency or a since-fixed path — which is itself a finding |
-| A group that is **all PASS** is not folded at all | Each closes normally via §4 and the chip gets logged; folding would bury a clean result |
-| Different fingerprints still fold | #23 and #24 are distinct failures of one EPROM. They belong in one thread, and the consolidated table keeps both |
+| A failure a later PASS **supersedes** is CLOSED, referencing that PASS | The defect is gone. Keeping it open buries live work under noise. See §3a for the three tests that must all hold |
+| A PASS that does NOT supersede is **evidence only** | The chip working once on the same build does not undo a FAIL — that is intermittency, which is its own finding. Label `intermittent`, leave open |
+| `fold` never closes a PASS issue | A PASS closes via §4 as `chip:validated` and gets logged. Folding it in as a duplicate would bury a clean result |
+| Canonical `*` = oldest **actionable** issue that is not superseded | The original live report, and never a PASS — the tracking issue should describe a problem that still exists |
+| A group that is **all PASS** is not folded at all | Each closes normally via §4 and the chip gets logged |
+| Different fingerprints still fold | Two distinct failures of one EPROM belong in one thread; the consolidated table keeps both reports intact |
+
+### 3a. When does a later PASS supersede a failure?
+
+**All three tests must hold.** Any one failing leaves the issue OPEN — a close is
+outward-facing and must never rest on a guess. `supersedes()` in
+`scripts/devtest_issues.py` implements exactly this and names the leg that blocked.
+
+| # | Test | Why it is not optional |
+|---|---|---|
+| 1 | The PASS is later **by the report's own `generated` stamp** | Not by issue number or creation date — an old run can be filed late |
+| 2 | The software **moved forward**: PASS host ≥ FAIL host, PASS firmware ≥ FAIL firmware, and at least one strictly greater | A later PASS on the **same** build is flaky, not fixed; on an **older** build it is evidence the failure is version-independent. Both are worse findings than a fix, and both must stay open |
+| 3 | Every failing step comes back **`OK`** | **`NA` does not count.** `NA` means the step stopped running, not that it started passing — #48 legitimately reports `blank-check NA`. Closing a `blank-check BAD` against a later `blank-check NA` hides a live defect behind a green title |
+
+When firmware identity is absent on either side (an old report, per §2's
+not-attributable rule), test 2 falls back to host-version evidence alone and the close
+comment says so. That is a caveat, not a silent assumption.
+
+Run `python3 $S/test_supersede.py` after touching that function — it pins the two real
+closes and all four traps above.
 
 Show the dry run to the operator before applying — closing issues is outward-facing
 and not yours to decide unilaterally. Then:
@@ -176,24 +183,59 @@ and not yours to decide unilaterally. Then:
 python3 $S/devtest_issues.py fold --apply
 ```
 
-That posts a consolidated table of every report onto the canonical issue and closes
-each other issue with a comment pointing at it. Nothing is lost: every fingerprint,
-host version, report date and failing-step list survives in that table.
+That closes each superseded failure with a comment naming the PASS that answered it
+and the three tests it met, labels it `fixed:superseded`, then posts a consolidated
+table of the remaining live reports onto the canonical and folds the rest in. Nothing
+is lost: every fingerprint, host version, firmware, report date and failing-step list
+survives in that table.
 
 Use `--canonical <n>` to override the choice when a later issue is plainly the better
 tracking thread.
 
 After folding, triage the canonical issue only.
 
+### 3b. Labels
+
+`python3 $S/devtest_issues.py labels` creates the taxonomy idempotently — do this once
+per tracker, since a fresh clone has only GitHub's stock labels. `fold --apply` applies
+the mechanical ones itself.
+
+| Label | Meaning | Applied by |
+|---|---|---|
+| `dev-test` | A community `dev test` report | `fold --apply`, and by hand on any issue you triage |
+| `chip:validated` | Every applicable step passed; chip is in the ledger | you, at §4 |
+| `fixed:superseded` | Closed against a qualifying later PASS | `fold --apply` |
+| `intermittent` | A later PASS exists but the software did not move | `fold --apply` |
+| `needs:report` | Waiting on a fresh run from the reporter | you |
+| `cause:harness` | Defect in the `dev test` harness itself | you, after §5 |
+| `cause:firmware` | Defect in the Arduino firmware | you, after §5 |
+| `cause:database` | Wrong field in the generated chip database | you, after §5 |
+| `cause:rig` | Operator wiring, socket or voltage — not a software defect | you, after §5 |
+
+The `cause:*` label is the single most useful thing triage produces for the backlog: it
+says **who owns the fix** before anyone opens the thread. It encodes a judgement no
+parser can derive, so it is never applied mechanically — only after §5's datasheet work
+or a root-cause. More than one may apply; apply every one you can defend.
+
+A PASS issue gets `dev-test` + `chip:validated` and nothing more. Do **not** label by
+chip name — the database has 746 rows, and the chip is already in the title.
+
 ## 4. PASS → close the issue and log the chip
 
 Only when **every** step is `OK`/`NA`/`SKIPPED`.
 
 ```bash
-cd $APP && firestarter info w27c020 | head -12     # capture protocol + pinout for the row
-gh issue close 27 --repo henols/firestarter_prom \
-  --comment "Validated: all applicable steps OK. Logged in .planning/VALIDATED-EPROMS.md."
+cd $APP && firestarter info w27e020 | head -12     # capture protocol + pinout for the row
+gh issue close 51 --repo henols/firestarter_prom \
+  --comment "Validated: all applicable steps OK/NA on host 3.0.0b33, firmware 3.0.0b22. Thanks for running the sweep."
+gh issue edit 51 --repo henols/firestarter_prom --add-label dev-test,chip:validated
 ```
+
+**Say what was validated, not where you wrote it down.** The close comment names the
+chip's host and firmware and stops there. Do not cite `.planning/VALIDATED-EPROMS.md`
+or any other repo path — the ledger lives in a repo the reporter does not have, so the
+reference is noise to the only person reading the comment. The `chip:validated` label
+already says the chip was logged.
 
 Then append one row to the ledger, creating it with this header if absent. The ledger
 lives at `/workspaces/.planning/VALIDATED-EPROMS.md` when `.planning/` exists; on a
@@ -208,7 +250,7 @@ closed issue. Appended by the `devtest-triage` skill.
 
 | Chip | Protocol | Pinout | Size | Host | Firmware | Issue | Closed |
 |------|----------|--------|------|------|----------|-------|--------|
-| w27c020 | 0x08 | DIP32_27C020 | 0x40000 | 3.0.0b15 | 3.0.0b15 | #27 | 2026-08-07 |
+| w27e020 | 0x08 | DIP32_27C020 | 0x40000 | 3.0.0b33 | 3.0.0b22 | #51 | 2026-08-31 |
 ```
 
 Take `Host` from the report's `auto_capture.host_version` and the protocol/pinout from
@@ -222,7 +264,9 @@ chip already has a row, add the new issue number to it rather than duplicating.
 Datasheets are cached, tracked, and flat-named by part number in `$APP/datasheets/`:
 
 ```bash
-ls $APP/datasheets/          # AT28C256.pdf  SST39SF0x0A.pdf  W27C020.pdf
+ls $APP/datasheets/
+# AT28C256.pdf  M27C1001.pdf  M27C512.pdf  SST39SF0x0A.pdf
+# W27C020.pdf   W27C512.pdf   W27E257.pdf
 ```
 
 Reuse the cached copy when present. Otherwise fetch from the **manufacturer** (avoid
@@ -285,7 +329,7 @@ Write the body to a file and pass `--body-file`; never interpolate report text i
 the command line.
 
 ```bash
-gh issue comment 32 --repo henols/firestarter_prom --body-file /tmp/comment.md
+gh issue comment 21 --repo henols/firestarter_prom --body-file /tmp/comment.md
 ```
 
 Template:
@@ -303,9 +347,9 @@ Failing steps: blank-check BAD, write BAD, verify BAD
 | Erase | electrically erasable; page write auto-erases | `yes` | MATCH |
 | Algorithm | page write, DQ7 polling, SDP | `0x0D` (5V parallel, SDP + DQ7 poll) | MATCH |
 | Page size | 64-byte page (§1) | `infoic_page_size_raw: 64` | MATCH |
-| Write protect | software data protection | `protect_off_before`/`protect_on_after: true` | represented |
-| VCC | 5V ±10% | `4V` | LOW vs the datasheet minimum of 4.5V |
-| VPP | none; single 5V supply | `12V` | benign — protocol `0x0D` never routes VPP |
+| Write protect | software data protection | `protect_off_before`/`protect_on_after: true` | MATCH — represented |
+| VCC | 5V ±10% (4.5–5.5V) | `vcc_mv: 5000` | MATCH |
+| VPP | none; single 5V supply | `12V` | MATCH in effect — protocol `0x0D` never routes VPP |
 
 **Not a pin-map fault, and not a missing-SDP-config fault.** The wiring is right and
 the database already asks for SDP disable-before / enable-after, so the failure is in
@@ -316,11 +360,25 @@ Most likely cause: <the one you actually believe, and why>.
 Unchecked: <anything the datasheet did not let you confirm>.
 ```
 
-Lead with the checks that **matched** as well as the ones that did not — ruling the
-pin map out is the single most useful thing this analysis produces. Do not close a
-FAIL issue; only PASS issues get closed.
+An all-MATCH table like that one is a real result, not a wasted pass: it says the data
+describing the part is correct and moves the fault into execution. A row that does
+*not* match names the field and both values, e.g. from W27E257 (#23):
 
-## Worked example — issue #32, at28c256
+```markdown
+| VPP (program) | 12V program; 14V is the ERASE voltage only | `vpp_mv: 13500` | MISMATCH — neither the program nor the erase voltage |
+```
+
+Lead with the checks that **matched** as well as the ones that did not — ruling the
+pin map out is the single most useful thing this analysis produces. Then apply the
+`cause:*` label your analysis earned (§3b).
+
+**Do not close a FAIL issue on the strength of your own analysis.** Naming the cause is
+not fixing it. A failure closes on exactly two grounds: a later PASS that passes all
+three tests in §3a, or a fold into another live issue. Everything else stays open —
+including a failure you have root-caused completely, which stays open until a build
+carrying the fix is re-tested.
+
+## Worked example — issue #21, at28c256
 
 `firestarter info at28c256` prints pin 1 `A14`, 2 `A12`, 3 `A7` … 14 `GND`, 28 `VCC`,
 27 `R/W(WE)`, 26 `A13` … 15 `D3`. The datasheet's §2.4 28-lead PDIP view is identical
@@ -335,13 +393,16 @@ Cross-link it, and hand it to `devtest-rootcause` as a host/firmware question, n
 database one.
 
 That is the model: compare all pins, then keep going and rule out each remaining field
-by its real value. Read the field, do not assume it — the draft of this very example
-guessed `page_size = 0` and "write protect not represented", and both were wrong.
+by its real value. **Read the field, do not assume it** — a plausible guess about
+`page_size` or whether write protection is represented is wrong often enough to invert
+the conclusion.
 
 ## Handing off
 
 Comments left here are the input to `devtest-rootcause`, which investigates the code and
-runs the fix through a GSD debug session. Say plainly which issues you commented on.
+runs the fix through a GSD debug session. Say plainly which issues you commented on,
+and which `cause:*` label you put on each — that label is the handoff, because it says
+which repo the fix lives in before anyone opens the thread.
 
 Write the cross-check table in the template's exact shape — `devtest-rootcause`'s
 `seed_debug_session.py` reads it back and carries every **MATCH** row into the debug
@@ -360,6 +421,9 @@ payoff of doing the datasheet work carefully here.
 | `show` says NOT a parseable dev test issue | Needs **both** the `[dev test]` title marker and a fenced JSON block with `schema_version`. In `--body-file` mode, pass `--title` too |
 | `gh: not found` | Install the GitHub CLI. It is the only external binary `list`/`show` need |
 | Two issues for one chip, only one triaged | Run `fold` FIRST (§3). Triage per-EPROM, not per-issue |
+| `gh: 'label' ... not found` when applying a label | The taxonomy is not created yet — `python3 $S/devtest_issues.py labels` |
+| `fold` will not close a failure you think is fixed | Read the bracketed reason on its row: one of §3a's three legs blocked. A same-build PASS or an `NA` step is deliberately not grounds to close |
+| A closed `fixed:superseded` issue turns out to be live again | Reopen and label `intermittent`. The three legs prove the failure did not reproduce, not that the defect is impossible |
 | `fold` says "grouping by chip NAME only" | `chip_database.json` not found — pass `--db` or set `FIRESTARTER_DB`; alias-different names will not group until then |
 | `gh` cannot comment | Token needs `repo` scope; `gh auth status` |
 | Two issues, same `dedup_fingerprint` | Same failure. Comment once, cross-reference from the other |
