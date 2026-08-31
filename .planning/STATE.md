@@ -5,15 +5,15 @@ milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
 status: executing
-stopped_at: Completed 168-09-PLAN.md
-last_updated: "2026-08-31T10:41:56.046Z"
+stopped_at: Completed 168-10-PLAN.md
+last_updated: "2026-08-31T10:58:33.218Z"
 last_activity: 2026-08-31
 last_activity_desc: "168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 15
+  completed_plans: 16
   percent: 17
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — EXECUTING
-Plan: 10 of 13
+Plan: 11 of 13
 Status: Plan 01 complete — both sub-repo v1.35 branches created, MIGRATION-TABLE.md filled with 12 page names/titles/SHAs, HONEST-01 oracle proven readable for all 13 rows. Plan 02 (retire the publish path) not yet started.
 Last activity: 2026-08-31 — 168-01-PLAN.md executed: sub-repo branches (fork-from-current-head, operator decision), MIGRATION-TABLE.md filled, oracle-readable.txt evidence captured
 
@@ -2759,6 +2759,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 168]: Home.md rewritten as the real 14-page index grouped by getting-started/hardware/protocols/chip-reference, and _Sidebar.md hand-written to list all 14 pages, closing WIKI-05's reachability and sidebar-containment legs
 - [Phase 168]: 168-09: chip_database.baseline.json's 9 stale doc/ references are an explicit named historical exclusion (pinned Phase-98 snapshot), not fixed -- the only file the repair-sweep grep still lists
 - [Phase 168]: 168-09: kept test_py32_packaging.py's _INSTALL_DOC/_read_install_doc/_assert_doc_states_app_region_end (plan said delete) because a surviving fail-closed leg monkeypatches _INSTALL_DOC and pytest's raising=True default would break it if the attribute did not already exist
+- [Phase 168]: 168-10: MIN_BUCKET_ROWS set to 6 (half the production 12-row table), not a literal 12 -- a literal-12 floor would make the plan's own single-row-deletion exit-1 criterion unreachable by construction
+- [Phase 168]: 168-10: added a reverse completeness check against the tool's KNOWN_PROTOCOLS set, catching a doc row silently going missing -- the deleted app-side module never had this and would have produced zero failures for that case
 
 ## Performance Metrics
 
@@ -3138,11 +3140,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 168 P07 | 35min | 3 tasks | 7 files |
 | Phase 168 P08 | ~35min | 3 tasks | 6 files |
 | Phase 168 P09 | 50min | 3 tasks | 16 files |
+| Phase 168 P10 | 50min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-31T10:41:46.751Z
-**Stopped at:** Completed 168-09-PLAN.md
+**Last session:** 2026-08-31T10:58:26.577Z
+**Stopped at:** Completed 168-10-PLAN.md
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
