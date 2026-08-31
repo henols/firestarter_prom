@@ -1,52 +1,29 @@
 # Development container
 
-A VS Code dev container that builds both halves of Firestarter and can talk to a
-board over USB without any host setup.
+Everything needed to build the firmware, run the CLI and talk to a board over
+USB, without installing anything on your own machine.
 
-Open the repository in VS Code and choose **Reopen in Container**.
+Open the repository in VS Code and choose **Reopen in Container**. First build
+takes a few minutes; after that it starts in seconds.
 
-## What you get
+## Working on the CLI
 
-Python 3.12 on Debian, with:
-
-- **PlatformIO** for building and flashing the AVR firmware
-- The `firestarter` CLI installed in editable mode from `firestarter_app/`, so
-  the command reflects your working tree immediately
-- `avrdude` and the AVR toolchain
-- GitHub CLI, Node 22, `uv`
-
-The `vscode` user is added to the `dialout` group and `/dev` is bind-mounted
-with `--privileged`, so a board on `/dev/ttyACM*` or `/dev/ttyUSB*` is reachable
-from inside the container.
-
-## What happens on first start
-
-`post-create.sh` runs once:
-
-1. Generates `/workspaces/platformio.ini` from the firmware submodule's own
-   `platformio.ini`, adding a `[platformio]` section that redirects every path
-   into `firestarter/`. This is what lets the PlatformIO IDE extension find the
-   project from the repository root rather than only from inside the submodule.
-2. Installs the CLI with `pip install -e firestarter_app`.
-3. Fetches the PlatformIO package dependencies for the firmware.
-
-Re-run step 1 by hand after changing the firmware's `platformio.ini`:
+The `firestarter` command is already installed and points at `firestarter_app/`
+in your working tree, so edits take effect immediately — no reinstall.
 
 ```bash
-python3 .devcontainer/gen-platformio-ini.py
+firestarter --help
+firestarter search 27C256
 ```
 
-## Persistent volumes
+Run its tests:
 
-PlatformIO's package cache, the pip cache and `~/.config` are named volumes, so
-a rebuild does not re-download the toolchain.
+```bash
+cd firestarter_app && python -m pytest tests -o addopts="" -q
+```
 
-## Python version
-
-The container runs **Python 3.12**. The host application's CI runs on **3.11**,
-and the difference has masked real CI breakage before — a change can pass here
-and fail on the floor. Before trusting a green test run for anything that
-matters, repeat it on 3.11:
+**Before trusting a green run, repeat it on Python 3.11.** The container runs
+3.12, CI runs 3.11, and that difference has hidden real breakage before:
 
 ```bash
 uv venv --python 3.11 /tmp/py311
@@ -54,13 +31,40 @@ uv venv --python 3.11 /tmp/py311
 /tmp/py311/bin/python -m pytest firestarter_app/tests -o addopts="" -q
 ```
 
-`-o addopts=""` is needed because the project sets `addopts = -ra -q`; passing
-`-q` again suppresses the pass/fail count line.
+## Working on the firmware
 
-## Submodules
+```bash
+cd firestarter
+pio run -e uno              # build
+pio test -e native          # unit tests
+pio run -t upload -e uno    # flash a connected board
+pio run -t monitor -e uno   # serial monitor, 250000 baud
+```
 
-`firestarter/` and `firestarter_app/` are submodules. If either is empty:
+Swap `uno` for `leonardo` or `uno328pb` for the other boards.
+
+## Talking to a board
+
+Plug it in over USB and it appears as `/dev/ttyACM*` or `/dev/ttyUSB*` inside
+the container — no extra setup.
+
+```bash
+firestarter hw              # which shield revision answered
+firestarter fw              # which firmware is on the board
+```
+
+## If something is missing
+
+**The `firestarter/` or `firestarter_app/` folder is empty** — the submodules
+did not check out:
 
 ```bash
 git submodule update --init --recursive
+```
+
+**PlatformIO cannot find the project** — regenerate the wrapper it reads, which
+is needed after the firmware's own `platformio.ini` changes:
+
+```bash
+python3 .devcontainer/gen-platformio-ini.py
 ```
