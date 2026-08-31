@@ -175,8 +175,7 @@ Useful as a map of what is regenerable and must never be committed:
 - Bench/diagnostic output: `firestarter-runs/`, `consistency-check-*/`, `write-cycle-*/`,
   `chip-test/`, root-level `/*.bin`
 - Extra submodule worktrees: `firestarter_app_py32/`, `firestarter_py32_ci/`
-- `node_modules`, `skills-lock.json`, root `package*.json` (an untracked root
-  `package.json` currently pins `@mastra/mcp-docs-server`)
+- `node_modules`, `skills-lock.json`, root `/package.json` + `/package-lock.json`
 - `.planning/v1.7/**` except directories and `.md` files; `.planning/v1.7/upstream-rurp`
   is ignored in **both** the bare and trailing-slash forms (the bare form is what prevents
   it being recorded as an orphan gitlink)
