@@ -4,6 +4,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WIKI_PY="$SCRIPT_DIR/wiki.py"
 DISPATCH_MIRROR_PY="$SCRIPT_DIR/dispatch_mirror.py"
+HONEST01_PY="$SCRIPT_DIR/honest01_claims.py"
+CLAIM_VOCAB="$SCRIPT_DIR/claim-vocabulary.json"
 REPO_ROOT="$SCRIPT_DIR/../.."
 
 WORK="$(mktemp -d)"
@@ -25,6 +27,28 @@ new_source_dir() {
 
 new_bare_wiki() {
     git init --bare --initial-branch=master -q "$1"
+}
+
+new_source_repo() {
+    local dir="$1"
+    mkdir -p "$dir/doc"
+    git init -q "$dir"
+    printf '%s\n' \
+        '# Fixture Source Document' \
+        '' \
+        'support_status: adapter-required' \
+        '' \
+        'This chip is adapter-required for programming; the adapter-required note repeats' \
+        'here for a second occurrence.' \
+        > "$dir/doc/FIXTURE.md"
+    (
+        cd "$dir"
+        git add doc/FIXTURE.md
+        GIT_AUTHOR_NAME="gsd-selftest" GIT_AUTHOR_EMAIL="gsd-selftest@example.invalid" \
+        GIT_COMMITTER_NAME="gsd-selftest" GIT_COMMITTER_EMAIL="gsd-selftest@example.invalid" \
+        git commit -q -m "fixture source document"
+        git rev-parse HEAD
+    )
 }
 
 rc_of() {
@@ -403,7 +427,67 @@ case_dispatch_mirror_planted_drift_exit_1() {
     return "$ok"
 }
 
-CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0 dispatch_mirror_planted_drift_exit_1)
+case_honest01_weakened_claim_exit_1() {
+    local repo_root="$WORK/honest01_weakened_claim_exit_1_repo_root"
+    local src_repo="$repo_root/fixture-source"
+    mkdir -p "$repo_root"
+    local sha
+    sha=$(new_source_repo "$src_repo")
+    local ok=0
+
+    local wiki_dir="$WORK/honest01_weakened_claim_exit_1_wiki"
+    mkdir -p "$wiki_dir"
+    printf '%s\n' \
+        '# Fixture Page' \
+        '' \
+        'support_status: adapter-required' \
+        '' \
+        'This chip is adapter-required for programming; the adapter-required note repeats' \
+        'here for a second occurrence.' \
+        > "$wiki_dir/Fixture-Page.md"
+
+    local table="$WORK/honest01_weakened_claim_exit_1_table.md"
+    printf '%s\n' \
+        '| Source repo | Source path | Wiki page | Rendered title | Pre-deletion SHA | Moved in |' \
+        '|---|---|---|---|---|---|' \
+        "| fixture-source | fixture-source/doc/FIXTURE.md | Fixture-Page | Fixture Page | $sha | test |" \
+        > "$table"
+
+    local control_rc
+    control_rc=$(rc_of honest01_weakened_claim_exit_1_control.log python3 "$HONEST01_PY" --table "$table" --wiki-dir "$wiki_dir" --vocab "$CLAIM_VOCAB" --repo-root "$repo_root")
+    assert_rc "honest01_weakened_claim_exit_1_control" 0 "$control_rc" || ok=1
+
+    sed -i 's/This chip is adapter-required for programming/This chip may need an adapter for programming/' "$wiki_dir/Fixture-Page.md"
+
+    local mutated_rc
+    mutated_rc=$(rc_of honest01_weakened_claim_exit_1_mutated.log python3 "$HONEST01_PY" --table "$table" --wiki-dir "$wiki_dir" --vocab "$CLAIM_VOCAB" --repo-root "$repo_root")
+    assert_rc "honest01_weakened_claim_exit_1" 1 "$mutated_rc" || ok=1
+
+    if ! grep -q 'adapter-required' "$WORK/honest01_weakened_claim_exit_1_mutated.log"; then
+        echo "ERROR: honest01_weakened_claim_exit_1: stderr missing adapter-required" >&2
+        ok=1
+    fi
+    if ! grep -q 'Fixture-Page' "$WORK/honest01_weakened_claim_exit_1_mutated.log"; then
+        echo "ERROR: honest01_weakened_claim_exit_1: stderr missing Fixture-Page" >&2
+        ok=1
+    fi
+
+    local evidence_file="$REPO_ROOT/.planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/honest01-weakened-claim-RED.txt"
+    {
+        echo "command: python3 tools/wiki/honest01_claims.py --table <fixture-table> --wiki-dir <fixture-wiki> --vocab tools/wiki/claim-vocabulary.json --repo-root <fixture-repo-root>"
+        echo "mutation: softened one of two adapter-required occurrences on the wiki-side Fixture-Page.md to 'may need an adapter'; the git-committed source fixture (sha $sha) still carries both occurrences"
+        echo "control: exit 0 (both sides start at 2 occurrences of adapter-required)"
+        echo "result: exit 1"
+        echo "--- captured output ---"
+        cat "$WORK/honest01_weakened_claim_exit_1_mutated.log"
+    } > "$evidence_file"
+
+    record "honest01_weakened_claim_exit_1" 1 "$mutated_rc" "$control_rc" "softened adapter-required (2->1) on the wiki side, source side unchanged; DROPPED bucket names the token and Fixture-Page"
+
+    return "$ok"
+}
+
+CASES=(orphan_exit_1 sidebar_link_is_not_evidence broken_link_exit_1 md_suffix_link_exit_1 illegal_filename_exit_1 wiki05_unreferenced_page_exit_1 reference_style_external_citation_exit_0 dotdir_ignored_exit_0 dispatch_mirror_planted_drift_exit_1 honest01_weakened_claim_exit_1)
 
 exit_code=0
 fail_count=0
