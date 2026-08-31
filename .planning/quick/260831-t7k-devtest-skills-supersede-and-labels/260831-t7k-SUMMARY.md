@@ -100,6 +100,18 @@ between `origin/main` and this branch**, and this branch carries them into `beta
 the v1.35 merge. So the merge is a no-op for those paths *provided the two stay in
 step*.
 
+**This milestone forbids what was done.** Found after the fact, 2026-08-31: v1.35's own
+**Phase 172 (POLICY — One Tracker, Protected `main`)** success criterion 4 requires
+`main` in all three repositories to sit behind a ruleset with `enforcement: active`
+"requiring a pull request and **forbidding direct push**, force-push and deletion". The
+push succeeded only because that protection does not exist yet — read back from the API
+the same day: `firestarter_prom` **no rulesets**, `firestarter_app` **no rulesets**, and
+`firestarter` carrying exactly the trap SC4 names, a ruleset called `Protect main` whose
+enforcement is `disabled`. So this was not merely outside GSD's ship flow; it is the
+specific practice the milestone in flight exists to make impossible, and once Phase 172
+lands the same push would be rejected. Treat it as a one-off to be reconciled, never as
+precedent.
+
 **Guard for whoever merges `beta → main`:** before merging, confirm the eight files
 under `.claude/skills/devtest-triage/` and `.claude/skills/devtest-rootcause/` hash
 equal on both sides. If they do not, `beta` wins — it is downstream of the milestone
