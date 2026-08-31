@@ -312,7 +312,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1)*
 
 - [x] 168-03-PLAN.md — D-14: fix the database generator's emitted reason string, regenerate `chip_database.json`, leave the pinned baseline alone with the exclusion measured and stated
-- [ ] 168-04-PLAN.md — Sever the H-1 collection hazard: retire the app-side dispatch-mirror module, drop its scan-path entry, rekey the fake-firmware fixture, and prove the firmware `doc/` delete no longer aborts collection
+- [x] 168-04-PLAN.md — Sever the H-1 collection hazard: retire the app-side dispatch-mirror module, drop its scan-path entry, rekey the fake-firmware fixture, and prove the firmware `doc/` delete no longer aborts collection
 
 **Wave 3** *(blocked on Wave 2)*
 

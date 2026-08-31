@@ -199,3 +199,14 @@ None. All verification ran against the existing `.venv/ci-replica` Python 3.11 v
 ---
 *Phase: 168-migrate-the-13-doc-files-moved-without-upgrading-a-claim*
 *Completed: 2026-08-31*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/tests/scan_paths.py
+- FOUND: firestarter_app/tests/test_fw_presence.py
+- FOUND: test_dispatch_mirror.py correctly absent
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/h1-severance-proof.txt
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/168-04-SUMMARY.md
+- FOUND commit: 39ea3e8 (firestarter_app)
+- FOUND commit: 6fba178 (firestarter_app)
+- FOUND commit: 63756e24 (meta)
