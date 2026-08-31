@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "families": {
+    "support_status": {
+      "match": "literal",
+      "case_sensitive": true,
+      "tokens": ["adapter-required", "protocol-not-implemented", "vpp-exceeds-max"]
+    },
+    "negative_capability": {
+      "match": "literal",
+      "case_sensitive": false,
+      "tokens": [
+        "cannot",
+        "do not",
+        "never",
+        "unsupported",
+        "not implemented",
+        "does not",
+        "warning",
+        "no VPP",
+        "must not",
+        "will not",
+        "requires an adapter",
+        "unverified",
+        "at your own risk"
+      ]
+    },
+    "voltage_ceiling": {
+      "match": "regex",
+      "case_sensitive": false,
+      "tokens": [
+        "(max(imum)?|ceiling|exceeds?|up to|no more than|limited to)[^.]{0,40}[0-9]+(\\.[0-9]+)?\\s?V"
+      ]
+    }
+  },
+  "expected_zero": [
+    "vpp-exceeds-max",
+    "requires an adapter",
+    "unverified",
+    "at your own risk",
+    "UNVERIFIED",
+    "PROTOCOL-LEDGER"
+  ]
+}
