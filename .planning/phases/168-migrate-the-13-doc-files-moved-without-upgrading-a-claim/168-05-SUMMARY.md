@@ -198,3 +198,13 @@ None. The push used the already-authenticated local `gh` credential (`henols`, `
 ---
 *Phase: 168-migrate-the-13-doc-files-moved-without-upgrading-a-claim*
 *Completed: 2026-08-31*
+
+## Self-Check: PASSED
+
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/wiki05-live-orphan-RED.txt
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/168-05-SUMMARY.md
+- FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/deferred-items.md
+- FOUND commit: bbbbadd4
+- FOUND commit: b01e4edc
+- FOUND commit: 14e00adf
+- FOUND: live wiki master @ f6131e7bada724d4b54a1733c4be5923a501f529 (git ls-remote)

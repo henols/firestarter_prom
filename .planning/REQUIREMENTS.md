@@ -45,7 +45,7 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 
 ### Migration — emptying `doc/`
 
-- [ ] **MIGRATE-01**: The content of all 12 migrating `doc/` files is reachable on the wiki. (`PY32F071-FIRMWARE-INSTALL.md` is deferred, not migrated — operator decision 2026-08-30; see Phase 168 criterion 1.)
+- [x] **MIGRATE-01**: The content of all 12 migrating `doc/` files is reachable on the wiki. (`PY32F071-FIRMWARE-INSTALL.md` is deferred, not migrated — operator decision 2026-08-30; see Phase 168 criterion 1.)
 - [ ] **MIGRATE-02**: `firestarter/doc/` and `firestarter_app/doc/` no longer exist in either repository.
 - [ ] **MIGRATE-03**: `firestarter_app` still builds, installs, and passes its test suite after `doc/` removal — three of those files (`package-details.md`, `protocol-flags.md`, `protocol-id.md`) are currently carried in the sdist.
 - [ ] **MIGRATE-04**: No file in either sub-repo links to a `doc/` path that no longer exists.
@@ -57,7 +57,7 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 - [ ] **LEGACY-03**: No README opens with accumulated breaking-change notices ahead of its install instructions; the v1.10 / v1.20 / v1.32 history is reachable on the wiki instead.
 - [ ] **LEGACY-04**: `firestarter_app/things.md` — a six-line scratch note about finding avrtools on Windows — is either a real wiki page or deleted.
 - [ ] **LEGACY-05**: `firestarter_app/SECURITY.md` is a genuine security policy or is removed; a GSD Phase 69 audit record no longer occupies the path GitHub reads as the repository's security policy.
-- [ ] **LEGACY-06**: No user-facing documentation page is titled or framed as a GSD phase artifact — `pinout-safety-review.md` ("Phase 58") and `sram-nvram-behavior.md` ("Phase 59") read as reference material or do not ship.
+- [x] **LEGACY-06**: No user-facing documentation page is titled or framed as a GSD phase artifact — `pinout-safety-review.md` ("Phase 58") and `sram-nvram-behavior.md` ("Phase 59") read as reference material or do not ship.
 - [ ] **LEGACY-07**: `firestarter_app/autocomplete.md` is folded into the app README or the wiki rather than sitting loose at the repository root.
 
 ### Policy — Backlog 999.13 in full
@@ -154,13 +154,13 @@ Populated during roadmap creation.
 | WIKI-04 | — | Withdrawn 2026-08-30 (model reversal); superseded in spirit by HONEST-02 |
 | WIKI-05 | Phase 168 | Pending — reopened 2026-08-30; reassigned from 167 |
 | WIKI-06 | Phase 167 | Complete |
-| MIGRATE-01 | Phase 168 | Pending |
+| MIGRATE-01 | Phase 168 | Complete |
 | MIGRATE-02 | Phase 168 | Pending |
 | MIGRATE-03 | Phase 168 | Pending |
 | MIGRATE-04 | Phase 168 | Pending |
 | HONEST-01 | Phase 168 | Pending |
 | HONEST-02 | Phase 168 | Pending |
-| LEGACY-06 | Phase 168 | Pending |
+| LEGACY-06 | Phase 168 | Complete |
 | FRONT-01 | Phase 169 | Pending |
 | FRONT-02 | Phase 169 | Pending |
 | FRONT-03 | Phase 169 | Pending |
