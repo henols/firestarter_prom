@@ -392,7 +392,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 171-03-PLAN.md — Record all three dispositions in `tools/wiki/MIGRATION-TABLE.md`: the `Shell-Completion` main-table row and a new 3-column removed-never-published section, without breaking `honest01`'s parse
+- [x] 171-03-PLAN.md — Record all three dispositions in `tools/wiki/MIGRATION-TABLE.md`: the `Shell-Completion` main-table row and a new 3-column removed-never-published section, without breaking `honest01`'s parse
 
 **Wave 4** *(blocked on Wave 3)*
 

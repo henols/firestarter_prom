@@ -5,10 +5,10 @@ milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 171
 current_phase_name: STRAY — The Root-Level Documentation Files
 status: executing
-stopped_at: Phase 171 Plan 02 complete — things.md/SECURITY.md/autocomplete.md deleted from firestarter_app root, recoverability/sweep/packaging/py3.11 evidence recorded
-last_updated: "2026-09-01T09:45:00.000Z"
+stopped_at: Phase 171 Plan 03 complete — Shell-Completion main-table row and the new "Removed without ever being published" section (things.md, SECURITY.md) recorded in tools/wiki/MIGRATION-TABLE.md; honest01 parse (V-16) and the out-of-scope ledger evidence recorded
+last_updated: "2026-09-01T10:11:21.000Z"
 last_activity: 2026-09-01
-last_activity_desc: "Phase 171 (STRAY) EXECUTING: plan 171-02 complete — three root-level stray files deleted in one commit (c1416a6), recoverable at d56424e, no smuggled security policy, clean-tree sdist parity, py3.11 suite 1955 passed; 171-03 (MIGRATION-TABLE rows) next"
+last_activity_desc: "Phase 171 (STRAY) EXECUTING: plan 171-03 complete — MIGRATION-TABLE.md gets the Shell-Completion main-table row (commit 6e87db0b) plus a new 3-column removed-never-published section for things.md/SECURITY.md, each with a git-show recovery command; parse_migration_table confirmed to return exactly 8 clean rows (V-16, commit 24c3297a); eight-item out-of-scope ledger recorded; LEGACY-04/05/07 still open pending 171-04's gitlink re-pin; 171-04 (gitlink re-pin + closing validation sweep) next"
 progress:
   total_phases: 7
   completed_phases: 4
