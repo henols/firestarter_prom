@@ -5,15 +5,15 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 172
 current_phase_name: POLICY — One Tracker, Protected `main`
 status: executing
-stopped_at: Completed 172-04-PLAN.md
-last_updated: "2026-09-01T18:57:40.161Z"
+stopped_at: Completed 172-06-PLAN.md
+last_updated: "2026-09-01T21:44:54.339Z"
 last_activity: 2026-09-01
 last_activity_desc: Phase 172 execution started
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 32
-  completed_plans: 27
+  completed_plans: 29
   percent: 43
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 172 (POLICY — One Tracker, Protected `main`) — EXECUTING
-Plan: 6 of 9
+Plan: 7 of 9
 Status: Ready to execute
 Last activity: 2026-09-01 — Completed 172-05-PLAN.md (prom canary ruleset live; D-09 revised to DeployKey bypass after Integration was rejected by the API)
 
@@ -2776,6 +2776,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 172]: Package-legitimacy gate for check-jsonschema resolved as option B (declined install); shipped issue-form validation is a zero-install structural check, weaker than schema validation, recorded plainly in evidence/172-02-package-legitimacy.txt.
 - [Phase 172]: Reworded LEGACY-01 step's OK line to avoid self-matching its own scanned source file — RESEARCH.md Pattern 3's literal wording spelled out both disabled tracker paths in the success message, which self-matched when the workflow file was checked out into the meta directory the leg scans
 - [Phase 172]: Reworded prom's repository-table tracker cell to remove an unlabelled fourth restatement of POLICY-01's tracker fact, keeping 'stated once' true by construction
+- [Phase 172]: D-10 REVERSED at the Task 1 checkpoint:decision gate: amended henols/firestarter's ruleset 4998759 in place (PUT) instead of deleting and recreating it, after measurement showed it already matched the prom canary on every field except enforcement. Its id and 2025-04-22 creation date are preserved. — Deleting and recreating would have destroyed 4998759's identity permanently for zero functional gain, since the incumbent was already equal to the canary apart from enforcement; D-10's own rationale (shedding a dead DeployKey bypass) was voided by D-09's mid-phase revision making DeployKey canonical.
 
 ## Performance Metrics
 
@@ -3168,11 +3169,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 172 P02 | 15 min | 3 tasks | 6 files |
 | Phase 172 P03 | 40min | 2 tasks | 5 files |
 | Phase 172 P04 | 15min | 3 tasks | 7 files |
+| Phase 172 P06 | 62min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-09-01T20:13:00Z
-**Stopped at:** Completed 172-05-PLAN.md
+**Last session:** 2026-09-01T21:44:35.573Z
+**Stopped at:** Completed 172-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 172-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
 **Was (superseded, retained for continuity):** Phase 171 context gathered
