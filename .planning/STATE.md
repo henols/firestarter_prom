@@ -4,11 +4,11 @@ milestone: v1.35
 milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 171
 current_phase_name: STRAY — The Root-Level Documentation Files
-status: ready_to_plan
-stopped_at: Phase 171 context gathered
-last_updated: "2026-09-01T07:20:04.211Z"
+status: executing
+stopped_at: Phase 171 planned
+last_updated: "2026-09-01T08:17:22.000Z"
 last_activity: 2026-09-01
-last_activity_desc: "Phase 171 (STRAY) context captured: six decisions locked — delete SECURITY.md with no replacement, delete things.md, move autocomplete.md to a Shell-Completion wiki page, record all three in MIGRATION-TABLE.md"
+last_activity_desc: "Phase 171 (STRAY) PLANNED: 4 plans in 4 sequential waves; research overturned seven CONTEXT.md claims (no CI covers this phase; the working-tree sdist oracle is a false positive); the public-wiki push is gated as a human-action checkpoint"
 progress:
   total_phases: 7
   completed_phases: 4
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 171 (STRAY — The Root-Level Documentation Files) — NOT STARTED, no plans
-Plan: 0 of 0
-Status: Phase 168 COMPLETE — 13 plans executed, verification passed 8/8 criteria / 9/9 requirements, both human items discharged (operator passed the rendered-wiki inspection 2026-09-01; the workflow_dispatch item was withdrawn the same day). Phases 169 (FRONT) and 170 (REPO) are ALSO complete but were executed ad hoc on 2026-08-31 as direct commits — no plans, summaries, verification pass or phase directories; their criteria were re-checked against the live artifacts at this close and their ROADMAP boxes ticked, with FRONT-02 recorded as not met by operator decision. Evidence: notes/v135-phases-169-170-executed-ad-hoc.md. Remaining: 171 (STRAY, LEGACY-04/05/07), 172 (POLICY), 173 (close).
-Last activity: 2026-09-01 — Phase 168 UAT closed by operator; phases 169/170 reconciled against the ROADMAP
+Phase: 171 (STRAY — The Root-Level Documentation Files) — PLANNED, 4 plans in 4 waves
+Plan: 0 of 4
+Status: Ready to execute — Phase 171 planned (171-01 wiki page + nav, 171-02 the three deletions, 171-03 MIGRATION-TABLE rows, 171-04 gitlink re-pin + closing sweep); plan-checker PASSED, 19/19 validation rows claimed, 6/6 decisions and 3/3 requirements covered; the push to the public wiki is a human-action gate that --chain cannot auto-approve. Prior: Phase 168 COMPLETE — 13 plans executed, verification passed 8/8 criteria / 9/9 requirements, both human items discharged (operator passed the rendered-wiki inspection 2026-09-01; the workflow_dispatch item was withdrawn the same day). Phases 169 (FRONT) and 170 (REPO) are ALSO complete but were executed ad hoc on 2026-08-31 as direct commits — no plans, summaries, verification pass or phase directories; their criteria were re-checked against the live artifacts at this close and their ROADMAP boxes ticked, with FRONT-02 recorded as not met by operator decision. Evidence: notes/v135-phases-169-170-executed-ad-hoc.md. Remaining: 171 (STRAY, LEGACY-04/05/07), 172 (POLICY), 173 (close).
+Last activity: 2026-09-01 — Phase 171 planned: research + pattern map + 4 plans, all gates green
 
 ## Roadmap Summary (v1.35)
 
