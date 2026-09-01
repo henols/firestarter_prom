@@ -1,0 +1,53 @@
+D-09 premise disposition — SETTLED NEGATIVE, discovered during canary creation (not via the
+planned throwaway-repo probe)
+
+Date: 2026-09-01
+
+What was attempted:
+  gh api --method POST /repos/henols/firestarter_prom/rulesets \
+    --input .planning/phases/172-policy-one-tracker-protected-main/evidence/172-05-ruleset-body.json
+
+Body's bypass_actors: exactly one entry, {"actor_id": 15368, "actor_type": "Integration",
+"bypass_mode": "always"} — re-resolved this session via `gh api /apps/github-actions --jq
+'{id,slug}'` -> {"id":15368,"slug":"github-actions"}.
+
+Result: HTTP 422, request rejected. No ruleset was created (confirmed:
+`gh api /repos/henols/firestarter_prom/rulesets --jq length` returns 0 both before and after).
+
+  {"message":"Validation Failed","errors":["Actor GitHub Actions integration must be part of the
+  ruleset source or owner organization"],"documentation_url":"https://docs.github.com/rest/repos/rules#create-a-repository-ruleset","status":"422"}
+
+Root cause, confirmed via API:
+  gh api /users/henols --jq '{login,type}' -> {"login":"henols","type":"User"}
+  gh api /repos/henols/firestarter_prom --jq '{owner: .owner.login, owner_type: .owner.type}'
+    -> {"owner":"henols","owner_type":"User"}
+
+henols/firestarter_prom, henols/firestarter and henols/firestarter_app are ALL owned by the same
+personal (User) account, not an organization. GitHub's ruleset validation requires an `Integration`
+bypass actor to be "part of the ruleset source or owner organization" — a personal account has no
+"owner organization", and the built-in GitHub Actions app is evidently not considered "part of the
+ruleset source" for this purpose on a personal repository. The request is rejected at creation
+time, before any question of whether a stored bypass would actually cover a GITHUB_TOKEN-authenticated
+push ever arises.
+
+This is a stronger and more decisive result than the planned throwaway-repo probe (Task 2, option A)
+would have produced: that probe was designed to test whether an established Integration bypass
+covers the default GITHUB_TOKEN at push time. This finding shows the bypass actor cannot be
+established AT ALL on a personal-account-owned repository, for any of the three repos this phase
+or plan 172-06 touches — the throwaway-repo probe is now moot, its question already answered by
+the API's own validation error on the real target.
+
+Consequence for this plan's canonical body:
+  evidence/172-05-ruleset-body.json, as committed, is NOT viable for any of the three repositories
+  targeted by this phase (prom, firestarter, firestarter_app) — all three are owned by the same
+  personal account `henols`. D-09's chosen bypass actor design (Integration:15368:always, and only
+  that) cannot be created as specified. This blocks Task 1's canary step and, transitively, plan
+  172-06's three-repo rollout, which reads the identical body.
+
+No ruleset was created on any of the three repositories as a result of this attempt. No irreversible
+action was taken. Ruleset 4998759 on henols/firestarter is untouched and still live (captured
+separately at evidence/172-05-ruleset-4998759-pre-delete.json before this attempt).
+
+Disposition: escalated to the operator as a Rule 4 architectural blocker via a blocking-human
+checkpoint, per the destructive_action_boundary's prohibition on inventing an alternate bypass-actor
+configuration without explicit approval. See the checkpoint return for the options considered.
