@@ -379,6 +379,25 @@ Plans:
   2. `firestarter_app/SECURITY.md` is a genuine security policy stating how to report a vulnerability, or it is removed. A GSD Phase 69 audit record dated 2026-06-15 no longer occupies the path GitHub surfaces as the repository's security policy — which today silently misrepresents an internal audit artifact as a disclosure policy.
   3. `firestarter_app/autocomplete.md` is folded into the app README or published as a wiki page, and nothing links to the old root path.
 
+**Plans**: 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 171-01-PLAN.md — Publish `autocomplete.md` as the wiki page `Shell-Completion` with the three shape corrections, plus the `_Sidebar.md` and `Home.md` entries a new page owes, in one push *(writes to a public wiki — not autonomous; the push is a `human-action` gate)*
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 171-02-PLAN.md — Delete `things.md`, `SECURITY.md` and `autocomplete.md` in one path-scoped commit, gated on the page being live; prove recoverability at `d56424e`, the empty link sweep, the clean-tree sdist identity and the py3.11 suite
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 171-03-PLAN.md — Record all three dispositions in `tools/wiki/MIGRATION-TABLE.md`: the `Shell-Completion` main-table row and a new 3-column removed-never-published section, without breaking `honest01`'s parse
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 171-04-PLAN.md — Re-pin both submodule gitlinks (which also carries Phase 170's un-pinned commits) and run the closing validation sweep, since no CI covers any part of this phase
+
 ### Phase 172: POLICY — One Tracker, Protected `main`
 
 **Goal**: The repository policy is stated where contributors will read it, and the configuration enforces what the documentation claims.
