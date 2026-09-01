@@ -1,0 +1,66 @@
+name: Bug report
+description: Something in the CLI or the firmware behaves incorrectly
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: input
+    id: app-version
+    attributes:
+      label: firestarter version
+      description: Output of `firestarter --version`
+      placeholder: 3.0.0b22
+    validations:
+      required: true
+  - type: input
+    id: fw-version
+    attributes:
+      label: Firmware version
+      description: Output of `firestarter fw`, or the value in `include/version.h`
+      placeholder: 3.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: board
+    attributes:
+      label: Board
+      options:
+        - uno
+        - uno328pb
+        - leonardo
+        - not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: shield
+    attributes:
+      label: RURP shield revision
+      description: Output of `firestarter hw`. Pick "not sure" if the reported revision does not match your board.
+      options:
+        - Rev 2.2
+        - Rev 2.0
+        - Rev 1.0
+        - Rev 0
+        - not sure
+    validations:
+      required: true
+  - type: input
+    id: chip
+    attributes:
+      label: Chip part number and manufacturer
+      description: Needed for hardware-specific issues
+      placeholder: AT28C256, Atmel
+    validations:
+      required: false
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Command output
+      render: text
+    validations:
+      required: false

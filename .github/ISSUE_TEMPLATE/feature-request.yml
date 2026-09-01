@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest something Firestarter should do that it does not do today
+title: "[Feature Request] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like Firestarter to do?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part
+      options:
+        - CLI
+        - firmware
+        - chip database
+        - documentation
+        - not sure
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you have tried or considered
+    validations:
+      required: false
