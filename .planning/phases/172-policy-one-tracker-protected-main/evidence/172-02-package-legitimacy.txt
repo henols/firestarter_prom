@@ -39,3 +39,4 @@ or an illegal nested key, which the vendor.github-issue-forms / vendor.github-is
 SchemaStore schemas (additionalProperties: false) would have caught. A malformed form
 therefore fails at GitHub render time rather than here. This is a recorded, accepted
 reduction in guarantee, not a claim of equivalent coverage.
+validator: structural fallback (top-level key set and body type enum only)
