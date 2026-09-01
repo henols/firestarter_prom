@@ -96,6 +96,14 @@ jobs:
       - name: Clone the live wiki
         run: git clone --depth 1 https://github.com/henols/firestarter_prom.wiki.git wiki-clone
 
+      - name: LEGACY-01 dead tracker link check
+        run: |
+          if grep -rInE 'henols/firestarter(_app)?/issues' meta firestarter firestarter_app wiki-clone --exclude-dir=.git --exclude-dir=.planning; then
+            echo "FAIL: a page links to an issue tracker that is disabled"
+            exit 1
+          fi
+          echo "OK: no page links to a disabled issue tracker"
+
       - name: WIKI-05 reachability check
         run: |
           python3 meta/tools/wiki/wiki.py links --source-dir wiki-clone

@@ -1,0 +1,18 @@
+== 1 green as the trees stand
+OK: no page links to henols/firestarter/issues or henols/firestarter_app/issues
+rc=0
+== 2 red on a planted firmware tracker link
+wiki-clone/Home.md:57:x https://github.com/henols/firestarter/issues
+FAIL: a page links to an issue tracker that is disabled
+rc=1
+== 3 red on a planted host tracker link
+wiki-clone/Home.md:57:x https://github.com/henols/firestarter_app/issues
+FAIL: a page links to an issue tracker that is disabled
+rc=1
+== 4 green again after removal
+OK: no page links to henols/firestarter/issues or henols/firestarter_app/issues
+rc=0
+== 5 reach control, matches inside .planning
+43
+== 6 scratch clone clean
+0
