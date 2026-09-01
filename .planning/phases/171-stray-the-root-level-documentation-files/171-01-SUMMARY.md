@@ -142,3 +142,12 @@ None - no external service configuration required. (The wiki push itself require
 ---
 *Phase: 171-stray-the-root-level-documentation-files*
 *Completed: 2026-09-01*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/171-stray-the-root-level-documentation-files/evidence/171-01-wiki-links-prepush.txt`
+- FOUND: `.planning/phases/171-stray-the-root-level-documentation-files/evidence/171-01-wiki-links-postpush-freshclone.txt`
+- FOUND: commit `e39bed0f`
+- FOUND: commit `8580c37d`
+- FOUND: commit `a5b7ec81`
+- FOUND: commit `88ace7f8`
