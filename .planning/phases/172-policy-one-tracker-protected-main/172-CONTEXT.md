@@ -61,8 +61,8 @@ pull requests into the three `main` branches.
   Under `.github/` rather than the repository root, keeping the roots as clear as Phase 171 left
   them.
 
-- **D-03: all three README tracker sections trim to a single link; the firmware README's four
-  "Include:" bullets move into the bug-report issue template.** Today the tracker fact is stated
+- **D-03: all three README tracker sections trim to a single link, and the firmware README's four report-content bullets move into the bug-report issue template.**
+  The four are the ones under its `Include:` heading. Today the tracker fact is stated
   three times in three different framings, which is the thing POLICY-01 says not to do. The
   firmware bullets (firmware version, board, chip part number, steps to reproduce) are genuinely
   useful and genuinely repo-scoped — they are not deleted, they move to where a filer sees them
@@ -82,15 +82,15 @@ pull requests into the three `main` branches.
 
 ### Issue templates, and not breaking `dev test --submit`
 
-- **D-05: YAML issue forms for bug report and feature request; a Markdown template for
-  `dev test`.** Forms give required fields and dropdowns (board: `uno` / `uno328pb` / `leonardo`;
+- **D-05: YAML issue forms for bug report and feature request; a Markdown template for `dev test`.**
+  Forms give required fields and dropdowns (board: `uno` / `uno328pb` / `leonardo`;
   shield revision; firmware and app versions) so a report cannot be filed without the information
   that currently has to be chased — prom carries a `needs:report` label and issue **#21** is a
   `dev test` report wearing it, so the cost is real and recurring. The `dev test` one stays Markdown
   because its job is to hand over a command, not to collect fields.
 
-- **D-06: the `dev test` template routes to the CLI, and must NOT use the `[dev test]` title
-  marker.** `devtest-triage` keys on the `[dev test]` title marker **plus** a fenced-JSON
+- **D-06: the `dev test` template routes to the CLI, and must NOT use the `[dev test]` title marker.**
+  `devtest-triage` keys on the `[dev test]` title marker **plus** a fenced-JSON
   `schema_version` block that only `firestarter dev test <chip> --submit` produces. A hand-written
   report carrying the marker but no parseable JSON would be picked up by triage and then found
   unparseable — worse than not being picked up. The template therefore tells the reader to run the
@@ -107,8 +107,8 @@ pull requests into the three `main` branches.
   enabled is also the only option that needs no product-code change, which the milestone scope note
   forbids here.
 
-- **D-08: the `.github/` files reach `main` by pull request, in all three repositories, after the
-  rulesets are active.** GitHub reads issue templates and community-health files from the **default
+- **D-08: the `.github/` files reach `main` by pull request, in all three repositories, after the rulesets are active.**
+  GitHub reads issue templates and community-health files from the **default
   branch only**, and `main` is **733 commits behind `beta`** in prom, **531** in `firestarter` and
   **781** in `firestarter_app`. Files landing only on `gsd/v1.35-…` would not be offered on the New
   Issue page within this milestone, possibly not for a long time. Three small PRs — each carrying
@@ -139,8 +139,8 @@ pull requests into the three `main` branches.
   claiming protection it does not provide, which is the exact false-claim shape this milestone's
   honesty constraint exists to catch).
 
-- **D-10: `firestarter`'s existing ruleset `4998759` is DELETED, and all three rulesets are created
-  fresh from one identical body.** Three rulesets born from one call, with nothing inherited and no
+- **D-10: `firestarter`'s existing ruleset `4998759` is DELETED, and all three rulesets are created fresh from one identical body.**
+  Three rulesets born from one call, with nothing inherited and no
   dead `DeployKey` bypass to reconcile. (That bypass grants nothing today: all three repos have
   **zero** deploy keys, measured.) Verification is a three-way API read-back that must be identical
   apart from `id`, `node_id`, timestamps and `_links` — which is the check the roadmap warns a mere
@@ -153,8 +153,8 @@ pull requests into the three `main` branches.
   `pull_request(required_approving_review_count: 0)`, `bypass_actors: [{actor_id: null,
   actor_type: "DeployKey", bypass_mode: "always"}]`, `enforcement: "disabled"`.
 
-- **D-11: POLICY-03's four clauses only — PR required, no direct push, no force-push, no
-  deletion.** gh#6 additionally asks for required status checks "where checks exist" and resolved
+- **D-11: POLICY-03's four clauses only — PR required, no direct push, no force-push, no deletion.**
+  gh#6 additionally asks for required status checks "where checks exist" and resolved
   review conversations "where applicable"; **neither goes in**, and both are recorded as knowingly
   not implemented so Phase 173's honesty ledger can state them as non-claims rather than have them
   read as quietly delivered. Status checks in particular are a trap: pinning a check name that
@@ -169,8 +169,8 @@ pull requests into the three `main` branches.
 
 ### LEGACY-01
 
-- **D-13: LEGACY-01 gets a mechanical guard — a grep leg in
-  `.github/workflows/wiki-check.yml`.** That job already checks out `meta`, `firestarter` and
+- **D-13: LEGACY-01 gets a mechanical guard — a grep leg in `.github/workflows/wiki-check.yml`.**
+  That job already checks out `meta`, `firestarter` and
   `firestarter_app` **and** clones the live wiki, so every surface LEGACY-01 covers is on disk in
   one place; one leg covers all of them with no new tooling. It is also the only option that covers
   the wiki, where pages are now edited with no pull request, no review and no CI gate on the edit.
@@ -178,8 +178,8 @@ pull requests into the three `main` branches.
   clone and nothing else, leaving the three READMEs unguarded); recording the measurement with no
   guard (nothing would stop the six links returning).
 
-- **D-14: the prom pull request carries `wiki-check.yml` as well, and the new leg is demonstrated
-  failing before it goes in.** The workflow is **not registered with Actions** — it is absent from
+- **D-14: the prom pull request carries `wiki-check.yml` as well, and the new leg is demonstrated failing before it goes in.**
+  The workflow is **not registered with Actions** — it is absent from
   prom's default branch, so `catalog-sync-check.yml` is the only registered workflow and the leg
   would otherwise be inert. Carrying it in the same PR makes the guard live from merge. Before it
   goes in: plant a `henols/firestarter/issues` link, watch the leg go RED, remove it, watch it go

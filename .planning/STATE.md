@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
-current_phase: 171
-current_phase_name: STRAY — The Root-Level Documentation Files
-status: completed
-stopped_at: Phase 172 context gathered
-last_updated: "2026-09-01T12:39:04.177Z"
+current_phase: 172
+current_phase_name: POLICY — One Tracker, Protected `main`
+status: executing
+stopped_at: Phase 172 planned — 9 plans, checker passed
+last_updated: "2026-09-01T15:52:48.023Z"
 last_activity: 2026-09-01
 last_activity_desc: "Phase 171 (STRAY) COMPLETE: plan 171-04 re-pinned both meta gitlinks in one commit (9bb32934) that also legitimately sweeps up Phase 170's two un-pinned README commits, named explicitly in the commit message; V-19 equality asserted for both submodules (evidence/171-04-gitlink-equality.txt); closing sweep re-ran V-01..V-16 and V-19 fresh against final state and cited V-17/V-18 to plan 171-02's evidence rather than re-running them (evidence/171-04-validation-sweep.txt); one documented Rule-1 deviation — the literal V-14 link-sweep over-counts against tools/wiki/MIGRATION-TABLE.md's own D-06-mandated provenance rows, excluded alongside the pre-existing RED-BASELINE.md:637 historical hit; LEGACY-04, LEGACY-05, LEGACY-07 marked complete in REQUIREMENTS.md; ROADMAP phase 171 and all 4 wave checkboxes ticked; Phase 172 (POLICY) is next and unplanned"
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 23
+  total_plans: 32
   completed_plans: 23
   percent: 71
 ---
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 171 (STRAY — The Root-Level Documentation Files) — COMPLETE, verification passed
-Plan: 4 of 4
-Status: Phase 171 COMPLETE 2026-09-01 — all 4 plans executed, gsd-verifier passed 12/12 must-haves, V-01..V-19 discharged (V-17/V-18 cited to 171-02's evidence). Shell-Completion is live on the wiki (bf787fb, operator-approved push; the render check was waived by the operator in favour of the mechanical evidence, not performed). The three stray files are deleted (firestarter_app c1416a6) and recoverable at d56424e; MIGRATION-TABLE.md records all three; both gitlinks re-pinned (9bb32934), which also carries Phase 170's two un-pinned README commits — Phase 171 changed no firmware. Criterion 2's empty-Security-tab property is observable only after the milestone merges to main: SECURITY.md never reached main, so this phase PREVENTED a latent misrepresentation rather than remediating a live one. No CI covers any part of this phase. Next: Phase 172 (POLICY), unplanned. Prior: Phase 168 COMPLETE — 13 plans executed, verification passed 8/8 criteria / 9/9 requirements, both human items discharged (operator passed the rendered-wiki inspection 2026-09-01; the workflow_dispatch item was withdrawn the same day). Phases 169 (FRONT) and 170 (REPO) are ALSO complete but were executed ad hoc on 2026-08-31 as direct commits — no plans, summaries, verification pass or phase directories; their criteria were re-checked against the live artifacts at this close and their ROADMAP boxes ticked, with FRONT-02 recorded as not met by operator decision. Evidence: notes/v135-phases-169-170-executed-ad-hoc.md. Remaining: 171 (STRAY, LEGACY-04/05/07), 172 (POLICY), 173 (close). **171-01 COMPLETE 2026-09-01:** `Shell-Completion` published as the wiki's tenth page (commit `bf787fb156bb12c9c71ee7837720e7bc378a2fb4`), both nav edits made, `wiki.py links` green pre-push and post-push against independent clones (evidence committed `e39bed0f`, `8580c37d`). Operator approved the push (Task 2) and explicitly waived the Task 3 visual github.com inspection, accepting the mechanical fresh-clone evidence in its place — nothing rendered has actually been eyeballed, which is an accepted operator risk, not a closed gap. LEGACY-07 is NOT complete — it spans 171-01..171-04 and its checkbox flips only at 171-04. **171-02 COMPLETE 2026-09-01:** re-confirmed `Shell-Completion.md` live from a fresh independent clone, then deleted `things.md`, `SECURITY.md` and `autocomplete.md` from `firestarter_app` in one path-scoped commit (`c1416a6`, milestone branch), leaving the pre-existing unrelated `tools/build_db.py` modification untouched. Proved: all three recoverable at `d56424e` with matching sha256-16 fingerprints; the canonical Phase 69 audit record survives in meta; zero disclosure-policy phrases anywhere in the app repo (D-02 guard); the three-repo link sweep returns only the one permitted historical `RED-BASELINE.md:637` hit; a clean-tree (`git archive`) sdist build is byte-identical before/after at 173 entries a side (the working-tree route gives a false-positive 220); the app's test suite passes on CPython 3.11.16 — 1955 passed, 0 failed. `SECURITY.md` never reached `origin/main`, so this plan prevented a latent misrepresentation from going live at merge rather than remediating a live one. Evidence committed `b72816ea`, `0a3cfba1`, `45469386`, summary `8c512496`. LEGACY-04/05/07 are still NOT complete — provenance rows land in 171-03, gitlink re-pin in 171-04. Next: 171-03 (MIGRATION-TABLE.md rows for all three files).
-Last activity: 2026-09-01 — Phase 171 complete and verified; Phase 172 (POLICY) next
+Phase: 172 (POLICY — One Tracker, Protected `main`) — READY TO EXECUTE
+Plan: 0 of 9
+Status: Ready to execute
+Last activity: 2026-09-01 — Phase 172 planned: 9 plans across 7 waves, plan-checker passed after one blocker fixed
 
 ## Roadmap Summary (v1.35)
 

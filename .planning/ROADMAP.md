@@ -416,6 +416,39 @@ Plans:
   3. `firestarter_prom` offers issue templates covering at least a bug report, a feature request, and a `dev test` chip-validation report — the last because that is a real, structured, recurring submission this project already parses.
   4. `main` in all three repositories is behind a ruleset with **`enforcement: active`** requiring a pull request and forbidding direct push, force-push and deletion. Read back from the API, not from the settings page. Note the trap: `henols/firestarter` already has a ruleset named `Protect main` whose enforcement is `disabled` — its existence is not compliance, and a check that only asserts a ruleset exists would pass today against a repo with no protection at all.
 
+**Plans**: 9 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 172-01-PLAN.md — Publish the canonical `Contributing` page as the eleventh wiki page, with the `_Sidebar.md` and `Home.md` entries a new page owes in the same push, and its authored-page row in `MIGRATION-TABLE.md` *(writes to a public wiki — not autonomous)*
+- [ ] 172-02-PLAN.md — Author the three issue templates and `config.yml` in `firestarter_prom`: two YAML issue forms, a Markdown `dev test` template that routes to the CLI under a non-`[dev test]` marker, and `blank_issues_enabled: true` *(not autonomous)*
+- [ ] 172-03-PLAN.md — Fix the two reproduced `wiki-check.yml` defects (`--wiki-dir` passed to a parser that rejects it; the resolver landing scheduled runs on `main`), then add the LEGACY-01 grep leg and demonstrate it RED before trusting it
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 172-04-PLAN.md — Add `.github/CONTRIBUTING.md` to all three repositories as pointers, and trim the three README tracker sections to a single link each
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 172-05-PLAN.md — Capture ruleset `4998759` into evidence before anything can destroy it, write the one canonical body, and create prom's ruleset first as a canary *(nothing irreversible happens here — not autonomous)*
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 172-06-PLAN.md — Delete the incumbent `4998759` and create the other two from the same body, behind a blocking `checkpoint:decision` — the phase's only one-way door *(not autonomous)*
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 172-07-PLAN.md — Open three `.github`-only pull requests, each branched from its own repository's `main` so none drags the 733/531/781-commit milestone history behind it *(not autonomous)*
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 172-08-PLAN.md — Merge the three pull requests and prove from the API that the surfaces they carry are live on each default branch *(not autonomous)*
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 172-09-PLAN.md — Closing sweep: the three checkers green against fresh clones with the eleventh page, the three-way ruleset equality, both gitlinks re-pinned, and the four requirement marks paired with their evidence
+
 ### Phase 173 (close): CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 
 **Goal**: The protection this milestone added does not break the way this project actually ships, and the milestone closes with its non-claims stated as plainly as its claims.
