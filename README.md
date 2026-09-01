@@ -32,6 +32,4 @@ firmware for you.
 
 ## Reporting a problem
 
-**[Open an issue here](https://github.com/henols/firestarter_prom/issues)**,
-whichever part it concerns. The firmware and CLI repositories do not have their
-own trackers.
+See the [Contributing](https://github.com/henols/firestarter_prom/wiki/Contributing) wiki page for where to report a problem and where to open a pull request.
