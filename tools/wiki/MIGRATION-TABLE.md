@@ -18,6 +18,7 @@ greps it for a source path before renaming anything.
 | firestarter_app | firestarter_app/doc/protocol-flags.md | Protocol-Flags | Protocol Flags | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/protocol-id.md | Protocol-ID | Protocol ID | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/autocomplete.md | Shell-Completion | Shell Completion | d56424e1979edf7245cffb9ec3111c0469f5b23f | 171 |
+| firestarter_prom | — | Contributing | Contributing | — | 172 |
 
 The Pre-deletion SHA is the sub-repo commit that created the
 `gsd/v1.35-documentation-consolidation-wiki-migration` branch (Task 1 of Plan 168-01) —
@@ -42,6 +43,11 @@ column above records the *current* page name, which is what the Backlog 999.9 re
 needs; the `Source path` column still records where the content came from. Both pages were
 substantially rewritten for a community audience in the same change — see the honesty note
 below.
+
+`Contributing` was **authored from gh#9, not migrated**. It has no `doc/` source and
+therefore no pre-deletion SHA: its text is the operator's own words from issue 9,
+relocated to a wiki page rather than pulled from a deleted file. It was added in
+Phase 172 under POLICY-01.
 
 ## Retired from the wiki after the migration closed
 
