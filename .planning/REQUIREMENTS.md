@@ -55,10 +55,10 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 - [ ] **LEGACY-01**: No documentation page sends a reader to an issue tracker that is disabled — the six links into `henols/firestarter/issues` and `henols/firestarter_app/issues` are gone.
 - [x] **LEGACY-02**: The app README's table of contents lists exactly the sections the document contains — today it advertises `Id`, `Vpe` and `Hw`, none of which exist, and omits `List`, `Search` and `VCC`, which do.
 - [x] **LEGACY-03**: No README opens with accumulated breaking-change notices ahead of its install instructions; the v1.10 / v1.20 / v1.32 history is reachable on the wiki instead.
-- [ ] **LEGACY-04**: `firestarter_app/things.md` — a six-line scratch note about finding avrtools on Windows — is either a real wiki page or deleted.
-- [ ] **LEGACY-05**: `firestarter_app/SECURITY.md` is a genuine security policy or is removed; a GSD Phase 69 audit record no longer occupies the path GitHub reads as the repository's security policy.
+- [x] **LEGACY-04**: `firestarter_app/things.md` — a six-line scratch note about finding avrtools on Windows — is either a real wiki page or deleted.
+- [x] **LEGACY-05**: `firestarter_app/SECURITY.md` is a genuine security policy or is removed; a GSD Phase 69 audit record no longer occupies the path GitHub reads as the repository's security policy.
 - [x] **LEGACY-06**: No user-facing documentation page is titled or framed as a GSD phase artifact — `pinout-safety-review.md` ("Phase 58") and `sram-nvram-behavior.md` ("Phase 59") read as reference material or do not ship.
-- [ ] **LEGACY-07**: `firestarter_app/autocomplete.md` is folded into the app README or the wiki rather than sitting loose at the repository root.
+- [x] **LEGACY-07**: `firestarter_app/autocomplete.md` is folded into the app README or the wiki rather than sitting loose at the repository root.
 
 ### Policy — Backlog 999.13 in full
 
@@ -171,9 +171,9 @@ Populated during roadmap creation.
 | REPO-04 | Phase 170 | Complete |
 | LEGACY-02 | Phase 170 | Complete |
 | LEGACY-03 | Phase 170 | Complete |
-| LEGACY-04 | Phase 171 | Pending |
-| LEGACY-05 | Phase 171 | Pending |
-| LEGACY-07 | Phase 171 | Pending |
+| LEGACY-04 | Phase 171 | Complete |
+| LEGACY-05 | Phase 171 | Complete |
+| LEGACY-07 | Phase 171 | Complete |
 | POLICY-01 | Phase 172 | Pending |
 | POLICY-02 | Phase 172 | Pending |
 | POLICY-03 | Phase 172 | Pending |
