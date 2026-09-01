@@ -152,3 +152,7 @@ None - no external service configuration required.
 ---
 *Phase: 172-policy-one-tracker-protected-main*
 *Completed: 2026-09-01*
+
+## Self-Check: PASSED
+
+All 7 created files verified present on disk (`.github/ISSUE_TEMPLATE/*.yml`, `*.md`, both evidence files, this SUMMARY). All 4 task/plan commits (`09449fe6`, `7d797ab6`, `1fffc3d5`, `4ebc5e58`) verified present in `git log`.
