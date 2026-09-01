@@ -4,17 +4,17 @@ milestone: v1.35
 milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 168
 current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
-status: awaiting-uat
-stopped_at: Phase 168 verified — 8/8 criteria, 2 human items outstanding
-last_updated: "2026-08-31T12:13:23.217Z"
-last_activity: 2026-08-31
-last_activity_desc: "168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger -- Phase 168 ready for verification"
+status: completed
+stopped_at: Phase 168 COMPLETE — verification passed 8/8, UAT passed by operator 2026-09-01
+last_updated: "2026-09-01T06:28:57Z"
+last_activity: 2026-09-01
+last_activity_desc: "Phase 168 UAT closed: operator visually inspected the live wiki and passed the sole human item; verification status human_needed -> passed; phase complete"
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 19
   completed_plans: 19
-  percent: 33
+  percent: 50
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — READY FOR VERIFICATION
+Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — COMPLETE
 Plan: 13 of 13
-Status: All 13 plans executed and verified 8/8 criteria / 9/9 requirements. Verification returned human_needed — two items in 168-UAT.md require a person: visual inspection of the 14 rendered wiki pages, and a real workflow_dispatch run of wiki-check.yml (branch never pushed to origin). Phase NOT marked complete.
-Last activity: 2026-08-31 — 168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger
+Status: All 13 plans executed; verification passed 8/8 criteria / 9/9 requirements. Both human items are now discharged — the workflow_dispatch run of wiki-check.yml was withdrawn 2026-09-01 by operator decision (the workflow relies on its weekly schedule trigger), and the operator visually inspected the 14 rendered wiki pages on 2026-09-01 and passed it. 168-UAT.md is complete (1/1 pass); 168-VERIFICATION.md status is passed. Next phase: 169 (FRONT).
+Last activity: 2026-09-01 — Phase 168 UAT closed by operator; verification status moved human_needed -> passed
 
 ## Roadmap Summary (v1.35)
 
@@ -3156,8 +3156,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-31T12:13:23.145Z
-**Stopped at:** Completed 168-13-PLAN.md — Phase 168 CLOSED
+**Last session:** 2026-09-01T06:28:57Z
+**Stopped at:** Phase 168 UAT passed by the operator — verification passed 8/8, phase COMPLETE
+**Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.

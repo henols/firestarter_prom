@@ -1,7 +1,7 @@
 ---
 phase: 168-migrate-the-13-doc-files-moved-without-upgrading-a-claim
 verified: 2026-08-31T13:45:00Z
-status: human_needed
+status: passed
 score: 8/8 roadmap success criteria verified (9/9 requirement IDs satisfied)
 overrides_applied: 0
 re_verification:
@@ -15,13 +15,14 @@ human_verification:
   - test: "Visually inspect the live rendered wiki at https://github.com/henols/firestarter_prom/wiki: confirm Programming-Protocols' tables render as tables (not raw pipes), AT28C04-Adapter and SRAM-and-NVRAM-Behavior's hyphen-hazard titles display correctly, no firestarter-claim-stamp/sentinel HTML comment is visible to a reader, the sidebar lists all 14 pages on every page, and Pinout-Safety-Review's corrected 'What Changed in This Review' section renders as an ordinary table with no visible framing defect."
     expected: "All render correctly; no visible stamp comments; sidebar present and complete on every page; Pinout-Safety-Review's table renders cleanly despite its now-shorter column-header dash runs in the separator row."
     why_human: "168-HONESTY-LEDGER.md §3 records this as explicitly outstanding: every automated proxy available (curl status, wiki.py links, byte diffs) was captured, but nothing in this phase's tooling actually renders GitHub-flavored Markdown the way a browser does. Neither the original push (168-05, 168-08) nor the LEGACY-06 fix commit (b010660) has had a human look at the rendered result."
+    result: "PASS -- operator visually inspected the live wiki 2026-09-01 and confirmed all five checks; recorded in 168-UAT.md."
 ---
 
 # Phase 168: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim — Verification Report
 
 **Phase Goal:** Both `doc/` directories are gone, their content lives on the wiki, and nothing about what Firestarter claims to support changed in the move.
 **Verified:** 2026-08-31 (initial pass), re-verified 2026-08-31 (same day, after a live-wiki fix)
-**Status:** human_needed
+**Status:** passed (human verification completed 2026-09-01)
 **Re-verification:** Yes — after the coordinator fixed the one gap this verification found
 
 ## Re-verification Note
@@ -119,12 +120,13 @@ framing that requires knowing what a GSD phase is, and carry no unopenable-plann
 
 **Updated score: 8/8 roadmap success criteria verified; 9/9 requirement IDs satisfied.**
 
-Overall status moves from `gaps_found` to **`human_needed`**: with the sole gap closed, the two
-items already flagged as genuinely outstanding by the phase itself — a real GitHub Actions
-human visual verification of the live rendered wiki — is the only
-remaining open items, and they require a human, not another automated pass. Per the verification
-process's own decision tree, `human_needed` takes priority over `passed` whenever the human
-verification list is non-empty, which it is here.
+Overall status moved from `gaps_found` to `human_needed` when the sole gap was closed: the one
+item still flagged as genuinely outstanding by the phase itself — a human visual verification of
+the live rendered wiki — required a human, not another automated pass. (A second item, a real
+`workflow_dispatch` run of `wiki-check.yml`, was withdrawn on 2026-09-01 by operator decision; the
+workflow relies on its weekly `schedule` trigger.) The operator performed that visual inspection
+on 2026-09-01 and confirmed all five checks, so the human verification list is now discharged and
+status is **`passed`**.
 
 ## Process Finding — recorded regardless of the outcome above
 
@@ -299,11 +301,12 @@ was a `checkpoint:human-verify` step that was auto-approved under unattended exe
 actually performed. This is recorded above under "Process Finding" for the milestone's own record,
 independent of the fact that the specific instance it allowed through is now closed.
 
-Two items remain correctly flagged as outstanding, unchanged by the fix: a real GitHub Actions
-human visual verification of the live wiki. Status is `human_needed`,
-not `passed`, until those are done.
+The one item that remained outstanding after the fix — a human visual verification of the live
+rendered wiki — was performed by the operator on 2026-09-01 and passed; the second, a real
+`workflow_dispatch` run of `wiki-check.yml`, was withdrawn the same day by operator decision.
+Status is **`passed`**.
 
 ---
 
-_Verified: 2026-08-31 (initial), 2026-08-31 (re-verification after live fix)_
+_Verified: 2026-08-31 (initial), 2026-08-31 (re-verification after live fix), 2026-09-01 (human verification passed)_
 _Verifier: Claude (gsd-verifier)_
