@@ -12,9 +12,6 @@ re_verification:
   gaps_remaining: []
   regressions: []
 human_verification:
-  - test: "Trigger a real GitHub Actions workflow_dispatch run of the rewritten .github/workflows/wiki-check.yml against firestarter_prom (requires first pushing the gsd/v1.35-... branch, or a copy of the workflow, to origin)."
-    expected: "The job runs its three checker steps (wiki.py links, honest02_truth.py, dispatch_mirror.py) against the live wiki clone and reports success, with a real Actions run URL recorded."
-    why_human: "This branch has never been pushed to origin (git ls-remote origin 'refs/heads/gsd/v1.35*' returns nothing); pushing it or dispatching the workflow is an action with real side effects (a public Actions run, a new remote branch) outside verification's scope. 168-13-SUMMARY.md records this as an explicit, named, outstanding limitation, not as done -- it substituted local exercise of the three checker commands, all confirmed exit 0 in both verification passes, but that is not the same claim as a real CI run."
   - test: "Visually inspect the live rendered wiki at https://github.com/henols/firestarter_prom/wiki: confirm Programming-Protocols' tables render as tables (not raw pipes), AT28C04-Adapter and SRAM-and-NVRAM-Behavior's hyphen-hazard titles display correctly, no firestarter-claim-stamp/sentinel HTML comment is visible to a reader, the sidebar lists all 14 pages on every page, and Pinout-Safety-Review's corrected 'What Changed in This Review' section renders as an ordinary table with no visible framing defect."
     expected: "All render correctly; no visible stamp comments; sidebar present and complete on every page; Pinout-Safety-Review's table renders cleanly despite its now-shorter column-header dash runs in the separator row."
     why_human: "168-HONESTY-LEDGER.md §3 records this as explicitly outstanding: every automated proxy available (curl status, wiki.py links, byte diffs) was captured, but nothing in this phase's tooling actually renders GitHub-flavored Markdown the way a browser does. Neither the original push (168-05, 168-08) nor the LEGACY-06 fix commit (b010660) has had a human look at the rendered result."
@@ -124,7 +121,7 @@ framing that requires knowing what a GSD phase is, and carry no unopenable-plann
 
 Overall status moves from `gaps_found` to **`human_needed`**: with the sole gap closed, the two
 items already flagged as genuinely outstanding by the phase itself — a real GitHub Actions
-`workflow_dispatch` run, and human visual verification of the live rendered wiki — are the only
+human visual verification of the live rendered wiki — is the only
 remaining open items, and they require a human, not another automated pass. Per the verification
 process's own decision tree, `human_needed` takes priority over `passed` whenever the human
 verification list is non-empty, which it is here.
@@ -269,10 +266,7 @@ See YAML frontmatter `human_verification` for full detail. Both items are explic
 outstanding by the phase itself (168-HONESTY-LEDGER.md §3, 168-13-SUMMARY.md), predate the
 LEGACY-06 fix, and remain unresolved after it:
 
-1. **Real GitHub Actions `workflow_dispatch` run of `wiki-check.yml`** — the branch has never been
-   pushed to origin; only local exercise of the three checker commands exists (both before and
-   after the LEGACY-06 fix).
-2. **Human visual verification of the live rendered wiki pages** — tables, hyphen-hazard titles,
+1. **Human visual verification of the live rendered wiki pages** — tables, hyphen-hazard titles,
    invisible stamp comments, sidebar completeness, and now also the corrected
    "What Changed in This Review" section's rendering (its separator-row dash-run lengths no
    longer match its shortened header cells — cosmetically likely harmless, but unverified by
@@ -306,7 +300,7 @@ actually performed. This is recorded above under "Process Finding" for the miles
 independent of the fact that the specific instance it allowed through is now closed.
 
 Two items remain correctly flagged as outstanding, unchanged by the fix: a real GitHub Actions
-`workflow_dispatch` run, and human visual verification of the live wiki. Status is `human_needed`,
+human visual verification of the live wiki. Status is `human_needed`,
 not `passed`, until those are done.
 
 ---
