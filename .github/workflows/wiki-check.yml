@@ -55,15 +55,25 @@ jobs:
 
       - name: Resolve sub-repo ref (same branch name, else beta)
         id: subref
+        env:
+          META_REF: ${{ github.head_ref || github.ref_name }}
+          META_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          CAND="${{ github.head_ref || github.ref_name }}"
-          echo "meta ref under test: $CAND"
+          DEF="${META_DEFAULT_BRANCH:-main}"
+          CAND="$META_REF"
+          if [ "$CAND" = "$DEF" ]; then
+            CAND=""
+          fi
+          if [ -n "$CAND" ]; then
+            echo "meta ref under test: $CAND"
+          else
+            echo "meta ref under test: none (meta default branch, falling through to beta)"
+          fi
           for repo in firestarter firestarter_app; do
-            if git ls-remote --exit-code --heads \
+            RESOLVED="beta"
+            if [ -n "$CAND" ] && git ls-remote --exit-code --heads \
                  "https://github.com/henols/$repo.git" "$CAND" >/dev/null 2>&1; then
               RESOLVED="$CAND"
-            else
-              RESOLVED="beta"
             fi
             echo "${repo}_ref=$RESOLVED" >> "$GITHUB_OUTPUT"
             echo "$repo -> $RESOLVED"
@@ -102,7 +112,6 @@ jobs:
       - name: Dispatch-mirror check
         run: |
           python3 meta/tools/wiki/dispatch_mirror.py \
-            --wiki-dir wiki-clone \
             --app-dir firestarter_app \
             --fw-dir firestarter
           echo "OK: the wiki's dispatch table still mirrors the host tool and the firmware test"
