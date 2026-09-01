@@ -5,10 +5,10 @@ milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 171
 current_phase_name: STRAY — The Root-Level Documentation Files
 status: ready_to_plan
-stopped_at: Phases 168, 169 and 170 all complete — 171 (STRAY) is next and unplanned
-last_updated: "2026-09-01T06:28:57Z"
+stopped_at: Phase 171 context gathered
+last_updated: "2026-09-01T07:20:04.211Z"
 last_activity: 2026-09-01
-last_activity_desc: "Phase 168 UAT closed and phases 169/170 reconciled: both were executed ad hoc on 2026-08-31, criteria re-checked against live artifacts, ROADMAP checkboxes ticked"
+last_activity_desc: "Phase 171 (STRAY) context captured: six decisions locked — delete SECURITY.md with no replacement, delete things.md, move autocomplete.md to a Shell-Completion wiki page, record all three in MIGRATION-TABLE.md"
 progress:
   total_phases: 7
   completed_phases: 4
@@ -3156,8 +3156,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-01T06:28:57Z
-**Stopped at:** Phase 168 UAT passed and phases 169/170 reconciled — 168, 169, 170 all complete; 171 is next
+**Last session:** 2026-09-01T07:20:04.135Z
+**Stopped at:** Phase 171 context gathered
 **Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
@@ -3196,7 +3196,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/171-stray-the-root-level-documentation-files/171-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
