@@ -122,5 +122,13 @@ that owns them — and `main`'s copy must not be preserved by conflict resolutio
 - `fold --apply` was never run; the two supersede closes were made by hand after the
   dry run was shown. The code path was exercised offline against the real issue bodies
   and reproduced both closes exactly, with one gh call and no writes.
-- No `dev test` re-run on hardware. #45 and #50 stay open until a firmware release
-  carries `1e8bbae`; the latest firmware tag is still `3.0.0b22`.
+- No `dev test` re-run on hardware. #45 and #50 stay open until a reporter re-runs.
+
+## Follow-up, 2026-09-01 — `fix:committed` → `fix:released`
+
+Firmware **`3.0.0b23`** (2026-08-29) is the earliest release carrying both `1e8bbae` and
+`a218b4f`; `3.0.0b24` is current. Both were confirmed ancestors of that tag rather than
+assumed. #45 and #50 moved to `fix:released` with a comment naming the version, which is
+the transition `devtest-rootcause` §5 requires and warns not to leave stale. They stay
+**open** — a release is still not a validation, and neither part has been re-run on the
+reporter's rig.
