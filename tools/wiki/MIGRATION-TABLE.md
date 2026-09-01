@@ -17,6 +17,7 @@ greps it for a source path before renaming anything.
 | firestarter_app | firestarter_app/doc/lockable-proms.md | Lockable-PROMs | Lockable PROMs | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/protocol-flags.md | Protocol-Flags | Protocol Flags | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
 | firestarter_app | firestarter_app/doc/protocol-id.md | Protocol-ID | Protocol ID | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
+| firestarter_app | firestarter_app/autocomplete.md | Shell-Completion | Shell Completion | d56424e1979edf7245cffb9ec3111c0469f5b23f | 171 |
 
 The Pre-deletion SHA is the sub-repo commit that created the
 `gsd/v1.35-documentation-consolidation-wiki-migration` branch (Task 1 of Plan 168-01) —
@@ -63,6 +64,19 @@ because "what happened to this document" is the question this table exists to an
 commit `aa4a5c7`) and was verified there. It is deliberately no longer true: five of those
 twelve are no longer published. That is an editorial decision taken after the phase closed,
 not a regression in the migration, and the recorded SHAs mean any of them can be brought back.
+
+## Removed without ever being published
+
+These two files sat at the `firestarter_app` repository root and were never wiki pages at all —
+they predate the migration and were never published anywhere on it. They were removed outright in
+Phase 171 under LEGACY-04 and LEGACY-05. Their content is still recoverable at the recorded commit,
+so nothing is lost; they are recorded here rather than dropped, because "what happened to this
+document" is the question this table exists to answer.
+
+| Source path | What it was | What happened |
+|---|---|---|
+| `firestarter_app/things.md` | A seven-line note holding the logo block, one sentence about finding avrtools on Windows, and one external link. | Deleted outright in Phase 171 under LEGACY-04 (D-05); its single fact is already answered on the wiki `Home` page, which gives the `apt` and `brew` lines and adds that avrdude also ships inside the Arduino IDE and PlatformIO. Recoverable at `git -C firestarter_app show d56424e1979edf7245cffb9ec3111c0469f5b23f:things.md`. |
+| `firestarter_app/SECURITY.md` | The GSD Phase 69 security-audit record dated 2026-06-15, opening `# SECURITY.md`, `## Phase Security Audit` and `**Phase:** 69 — cli-command-surface-robustness-audit`, sitting at the path GitHub surfaces under a repository's Security tab. | Deleted outright in Phase 171 under LEGACY-05 (D-01) with no replacement; the same audit already has a canonical home in the meta repo at `.planning/milestones/v1.12-phases/69-cli-command-surface-robustness-audit/69-SECURITY.md`, from which it differs only in framing. Recoverable at `git -C firestarter_app show d56424e1979edf7245cffb9ec3111c0469f5b23f:SECURITY.md`. |
 
 ## Honesty note: HONEST-01 no longer applies to the surviving rewritten pages
 
