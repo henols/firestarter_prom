@@ -5,15 +5,15 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 172
 current_phase_name: POLICY — One Tracker, Protected `main`
 status: executing
-stopped_at: Completed 172-02-PLAN.md
-last_updated: "2026-09-01T18:28:34.973Z"
+stopped_at: Completed 172-03-PLAN.md
+last_updated: "2026-09-01T18:40:03.988Z"
 last_activity: 2026-09-01
 last_activity_desc: Phase 172 execution started
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 32
-  completed_plans: 25
+  completed_plans: 26
   percent: 43
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 172 (POLICY — One Tracker, Protected `main`) — EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 Last activity: 2026-09-01 — Phase 172 execution started
 
@@ -2774,6 +2774,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 171 Plan 01]: Operator waived Task 3's rendered on-github.com visual inspection ("approved -- skip the look"), accepting the mechanical fresh-clone evidence (V-10..V-13, `wiki.py links` rc=0) in its place. Recorded as a deliberate waiver, not a performed visual check -- `wiki.py links` parses markdown and never renders anything, so nothing that actually ran in this plan proves the logo image, code fences or rendered title look correct on github.com. That residual risk is operator-accepted, not closed.
 - [Phase 172]: Contributing.md's em-dash provenance row copied character-for-character from the existing Home row, not typed, to avoid a look-alike character silently miscounting in honest01_claims
 - [Phase 172]: Package-legitimacy gate for check-jsonschema resolved as option B (declined install); shipped issue-form validation is a zero-install structural check, weaker than schema validation, recorded plainly in evidence/172-02-package-legitimacy.txt.
+- [Phase 172]: Reworded LEGACY-01 step's OK line to avoid self-matching its own scanned source file — RESEARCH.md Pattern 3's literal wording spelled out both disabled tracker paths in the success message, which self-matched when the workflow file was checked out into the meta directory the leg scans
 
 ## Performance Metrics
 
@@ -3164,11 +3165,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 |------|----------|-------|-------|
 | Phase 172 P01 | 3min | 3 tasks | 6 files |
 | Phase 172 P02 | 15 min | 3 tasks | 6 files |
+| Phase 172 P03 | 40min | 2 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-09-01T18:28:34.195Z
-**Stopped at:** Completed 172-02-PLAN.md
+**Last session:** 2026-09-01T18:39:55.944Z
+**Stopped at:** Completed 172-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
 **Was (superseded, retained for continuity):** Phase 171 context gathered
 **Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
