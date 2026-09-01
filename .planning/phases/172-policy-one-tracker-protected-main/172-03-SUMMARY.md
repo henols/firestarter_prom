@@ -161,3 +161,7 @@ None - no external service configuration required.
 ---
 *Phase: 172-policy-one-tracker-protected-main*
 *Completed: 2026-09-01*
+
+## Self-Check: PASSED
+
+All created/modified artifacts verified present on disk (`.github/workflows/wiki-check.yml`, three evidence files, this SUMMARY.md). All four task/metadata commits (`093c99c3`, `bd188bac`, `38ad8835`, `5d2a3e67`) verified present in `git log`. Both `<automated>` verify blocks for Task 1 and both for Task 2 re-run and confirmed passing (with the one documented plan-verify-script scoping exception recorded under Deviations item 2).
