@@ -1,12 +1,12 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.35
-milestone_name: — Documentation Consolidation & Wiki Migration
+milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 171
 current_phase_name: STRAY — The Root-Level Documentation Files
 status: completed
-stopped_at: Phase 171 COMPLETE — both submodule gitlinks re-pinned (V-19 equality green), closing validation sweep discharged V-01..V-19 (V-17/V-18 cited to 171-02's evidence, not re-run), LEGACY-04/05/07 marked complete
-last_updated: "2026-09-01T12:00:00.000Z"
+stopped_at: Phase 172 context gathered
+last_updated: "2026-09-01T12:39:04.177Z"
 last_activity: 2026-09-01
 last_activity_desc: "Phase 171 (STRAY) COMPLETE: plan 171-04 re-pinned both meta gitlinks in one commit (9bb32934) that also legitimately sweeps up Phase 170's two un-pinned README commits, named explicitly in the commit message; V-19 equality asserted for both submodules (evidence/171-04-gitlink-equality.txt); closing sweep re-ran V-01..V-16 and V-19 fresh against final state and cited V-17/V-18 to plan 171-02's evidence rather than re-running them (evidence/171-04-validation-sweep.txt); one documented Rule-1 deviation — the literal V-14 link-sweep over-counts against tools/wiki/MIGRATION-TABLE.md's own D-06-mandated provenance rows, excluded alongside the pre-existing RED-BASELINE.md:637 historical hit; LEGACY-04, LEGACY-05, LEGACY-07 marked complete in REQUIREMENTS.md; ROADMAP phase 171 and all 4 wave checkboxes ticked; Phase 172 (POLICY) is next and unplanned"
 progress:
@@ -3159,8 +3159,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-01T12:00:00.000Z
-**Stopped at:** Completed 171-04-PLAN.md — Phase 171 (STRAY) CLOSED: both gitlinks re-pinned, closing sweep V-01..V-19 discharged, LEGACY-04/05/07 complete
+**Last session:** 2026-09-01T12:39:03.153Z
+**Stopped at:** Phase 172 context gathered
 **Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
 **Was (superseded, retained for continuity):** Phase 171 context gathered
 **Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
@@ -3201,7 +3201,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/171-stray-the-root-level-documentation-files/171-CONTEXT.md
+**Resume file:** .planning/phases/172-policy-one-tracker-protected-main/172-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
