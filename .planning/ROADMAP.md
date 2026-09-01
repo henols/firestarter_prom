@@ -384,7 +384,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 171-01-PLAN.md — Publish `autocomplete.md` as the wiki page `Shell-Completion` with the three shape corrections, plus the `_Sidebar.md` and `Home.md` entries a new page owes, in one push *(writes to a public wiki — not autonomous; the push is a `human-action` gate)*
+- [x] 171-01-PLAN.md — Publish `autocomplete.md` as the wiki page `Shell-Completion` with the three shape corrections, plus the `_Sidebar.md` and `Home.md` entries a new page owes, in one push *(writes to a public wiki — not autonomous; the push is a `human-action` gate)*
 
 **Wave 2** *(blocked on Wave 1)*
 

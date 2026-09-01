@@ -5,10 +5,10 @@ milestone_name: — Documentation Consolidation & Wiki Migration
 current_phase: 171
 current_phase_name: STRAY — The Root-Level Documentation Files
 status: executing
-stopped_at: Phase 171 planned
-last_updated: "2026-09-01T08:17:22.000Z"
+stopped_at: Phase 171 Plan 01 complete — Shell-Completion published to the live wiki, operator waived Task 3 visual check
+last_updated: "2026-09-01T09:30:00.000Z"
 last_activity: 2026-09-01
-last_activity_desc: "Phase 171 (STRAY) PLANNED: 4 plans in 4 sequential waves; research overturned seven CONTEXT.md claims (no CI covers this phase; the working-tree sdist oracle is a false positive); the public-wiki push is gated as a human-action checkpoint"
+last_activity_desc: "Phase 171 (STRAY) EXECUTING: plan 171-01 complete — Shell-Completion wiki page + nav published (bf787fb), operator approved push and waived the Task 3 visual inspection; 171-02 (the three deletions) next"
 progress:
   total_phases: 7
   completed_phases: 4
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 168 — MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
+**Current focus:** Phase 171 — STRAY — The Root-Level Documentation Files
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 171 (STRAY — The Root-Level Documentation Files) — PLANNED, 4 plans in 4 waves
-Plan: 0 of 4
-Status: Ready to execute — Phase 171 planned (171-01 wiki page + nav, 171-02 the three deletions, 171-03 MIGRATION-TABLE rows, 171-04 gitlink re-pin + closing sweep); plan-checker PASSED, 19/19 validation rows claimed, 6/6 decisions and 3/3 requirements covered; the push to the public wiki is a human-action gate that --chain cannot auto-approve. Prior: Phase 168 COMPLETE — 13 plans executed, verification passed 8/8 criteria / 9/9 requirements, both human items discharged (operator passed the rendered-wiki inspection 2026-09-01; the workflow_dispatch item was withdrawn the same day). Phases 169 (FRONT) and 170 (REPO) are ALSO complete but were executed ad hoc on 2026-08-31 as direct commits — no plans, summaries, verification pass or phase directories; their criteria were re-checked against the live artifacts at this close and their ROADMAP boxes ticked, with FRONT-02 recorded as not met by operator decision. Evidence: notes/v135-phases-169-170-executed-ad-hoc.md. Remaining: 171 (STRAY, LEGACY-04/05/07), 172 (POLICY), 173 (close).
-Last activity: 2026-09-01 — Phase 171 planned: research + pattern map + 4 plans, all gates green
+Phase: 171 (STRAY — The Root-Level Documentation Files) — EXECUTING
+Plan: 2 of 4
+Status: Executing Phase 171 — 4 plans in 4 sequential waves (171-01 wiki page + nav behind a human-action push gate, 171-02 the three deletions, 171-03 MIGRATION-TABLE rows, 171-04 gitlink re-pin + closing sweep). Prior: Phase 168 COMPLETE — 13 plans executed, verification passed 8/8 criteria / 9/9 requirements, both human items discharged (operator passed the rendered-wiki inspection 2026-09-01; the workflow_dispatch item was withdrawn the same day). Phases 169 (FRONT) and 170 (REPO) are ALSO complete but were executed ad hoc on 2026-08-31 as direct commits — no plans, summaries, verification pass or phase directories; their criteria were re-checked against the live artifacts at this close and their ROADMAP boxes ticked, with FRONT-02 recorded as not met by operator decision. Evidence: notes/v135-phases-169-170-executed-ad-hoc.md. Remaining: 171 (STRAY, LEGACY-04/05/07), 172 (POLICY), 173 (close). **171-01 COMPLETE 2026-09-01:** `Shell-Completion` published as the wiki's tenth page (commit `bf787fb156bb12c9c71ee7837720e7bc378a2fb4`), both nav edits made, `wiki.py links` green pre-push and post-push against independent clones (evidence committed `e39bed0f`, `8580c37d`). Operator approved the push (Task 2) and explicitly waived the Task 3 visual github.com inspection, accepting the mechanical fresh-clone evidence in its place — nothing rendered has actually been eyeballed, which is an accepted operator risk, not a closed gap. LEGACY-07 is NOT complete — it spans 171-01..171-04 and its checkbox flips only at 171-04. Next: 171-02 (delete `things.md`/`SECURITY.md`/`autocomplete.md`, gated on this plan's page being live).
+Last activity: 2026-09-01 — Phase 171 Plan 01 complete (Shell-Completion wiki publish); Plan 02 next
 
 ## Roadmap Summary (v1.35)
 
@@ -2770,6 +2770,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 168]: wiki-check.yml's no-recursive-submodule rationale comment written to avoid the plural literal token its own automated verify forbids
 - [Phase 168]: A live GitHub Actions workflow_dispatch run was not attempted -- the branch has never been pushed to origin; all three checker steps were exercised locally instead
 - [Phase 168]: STATE.md's false v1.35-touches-no-product-code claim retracted and replaced with the enumerated bounded set of product-source edits Phase 168 actually made
+- [Phase 171 Plan 01]: Operator approved the live wiki push (Task 2, "push approved") after reviewing the pre-flight `wiki.py links` evidence, the three-file commit stat and both navigation hunks; pushed as `7ec9988..bf787fb master -> master` on `firestarter_prom.wiki.git`
+- [Phase 171 Plan 01]: Operator waived Task 3's rendered on-github.com visual inspection ("approved -- skip the look"), accepting the mechanical fresh-clone evidence (V-10..V-13, `wiki.py links` rc=0) in its place. Recorded as a deliberate waiver, not a performed visual check -- `wiki.py links` parses markdown and never renders anything, so nothing that actually ran in this plan proves the logo image, code fences or rendered title look correct on github.com. That residual risk is operator-accepted, not closed.
 
 ## Performance Metrics
 
@@ -3153,11 +3155,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 168 P11 | 25min | 3 tasks | 5 files |
 | Phase 168 P12 | 35min | 3 tasks | 8 files |
 | Phase 168 P13 | 45min | 3 tasks | 6 files |
+| Phase 171 P01 | 55min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-09-01T07:20:04.135Z
-**Stopped at:** Phase 171 context gathered
+**Last session:** 2026-09-01T09:30:00.000Z
+**Stopped at:** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
+**Was (superseded, retained for continuity):** Phase 171 context gathered
 **Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
