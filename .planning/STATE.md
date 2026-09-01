@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 172 (POLICY — One Tracker, Protected `main`) — EXECUTING
-Plan: 5 of 9
+Plan: 6 of 9
 Status: Ready to execute
-Last activity: 2026-09-01 — Phase 172 execution started
+Last activity: 2026-09-01 — Completed 172-05-PLAN.md (prom canary ruleset live; D-09 revised to DeployKey bypass after Integration was rejected by the API)
 
 ## Roadmap Summary (v1.35)
 
@@ -3171,8 +3171,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-01T18:57:39.291Z
-**Stopped at:** Completed 172-04-PLAN.md
+**Last session:** 2026-09-01T20:13:00Z
+**Stopped at:** Completed 172-05-PLAN.md
+**Was (superseded, retained for continuity):** Completed 172-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
 **Was (superseded, retained for continuity):** Phase 171 context gathered
 **Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
