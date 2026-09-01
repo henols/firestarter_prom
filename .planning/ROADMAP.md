@@ -388,7 +388,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 171-02-PLAN.md — Delete `things.md`, `SECURITY.md` and `autocomplete.md` in one path-scoped commit, gated on the page being live; prove recoverability at `d56424e`, the empty link sweep, the clean-tree sdist identity and the py3.11 suite
+- [x] 171-02-PLAN.md — Delete `things.md`, `SECURITY.md` and `autocomplete.md` in one path-scoped commit, gated on the page being live; prove recoverability at `d56424e`, the empty link sweep, the clean-tree sdist identity and the py3.11 suite
 
 **Wave 3** *(blocked on Wave 2)*
 
