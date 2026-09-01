@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 172
 current_phase_name: POLICY — One Tracker, Protected `main`
 status: executing
-stopped_at: Phase 172 planned — 9 plans, checker passed
-last_updated: "2026-09-01T15:52:48.023Z"
+stopped_at: Completed 172-01-PLAN.md
+last_updated: "2026-09-01T18:16:28.856Z"
 last_activity: 2026-09-01
-last_activity_desc: "Phase 171 (STRAY) COMPLETE: plan 171-04 re-pinned both meta gitlinks in one commit (9bb32934) that also legitimately sweeps up Phase 170's two un-pinned README commits, named explicitly in the commit message; V-19 equality asserted for both submodules (evidence/171-04-gitlink-equality.txt); closing sweep re-ran V-01..V-16 and V-19 fresh against final state and cited V-17/V-18 to plan 171-02's evidence rather than re-running them (evidence/171-04-validation-sweep.txt); one documented Rule-1 deviation — the literal V-14 link-sweep over-counts against tools/wiki/MIGRATION-TABLE.md's own D-06-mandated provenance rows, excluded alongside the pre-existing RED-BASELINE.md:637 historical hit; LEGACY-04, LEGACY-05, LEGACY-07 marked complete in REQUIREMENTS.md; ROADMAP phase 171 and all 4 wave checkboxes ticked; Phase 172 (POLICY) is next and unplanned"
+last_activity_desc: Phase 172 execution started
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 3
   total_plans: 32
-  completed_plans: 23
-  percent: 71
+  completed_plans: 24
+  percent: 43
 ---
 
 # Project State
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 171 — STRAY — The Root-Level Documentation Files
+**Current focus:** Phase 172 — POLICY — One Tracker, Protected `main`
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 172 (POLICY — One Tracker, Protected `main`) — READY TO EXECUTE
-Plan: 0 of 9
+Phase: 172 (POLICY — One Tracker, Protected `main`) — EXECUTING
+Plan: 2 of 9
 Status: Ready to execute
-Last activity: 2026-09-01 — Phase 172 planned: 9 plans across 7 waves, plan-checker passed after one blocker fixed
+Last activity: 2026-09-01 — Phase 172 execution started
 
 ## Roadmap Summary (v1.35)
 
@@ -2772,6 +2772,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 168]: STATE.md's false v1.35-touches-no-product-code claim retracted and replaced with the enumerated bounded set of product-source edits Phase 168 actually made
 - [Phase 171 Plan 01]: Operator approved the live wiki push (Task 2, "push approved") after reviewing the pre-flight `wiki.py links` evidence, the three-file commit stat and both navigation hunks; pushed as `7ec9988..bf787fb master -> master` on `firestarter_prom.wiki.git`
 - [Phase 171 Plan 01]: Operator waived Task 3's rendered on-github.com visual inspection ("approved -- skip the look"), accepting the mechanical fresh-clone evidence (V-10..V-13, `wiki.py links` rc=0) in its place. Recorded as a deliberate waiver, not a performed visual check -- `wiki.py links` parses markdown and never renders anything, so nothing that actually ran in this plan proves the logo image, code fences or rendered title look correct on github.com. That residual risk is operator-accepted, not closed.
+- [Phase 172]: Contributing.md's em-dash provenance row copied character-for-character from the existing Home row, not typed, to avoid a look-alike character silently miscounting in honest01_claims
 
 ## Performance Metrics
 
@@ -3156,11 +3157,16 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 168 P12 | 35min | 3 tasks | 8 files |
 | Phase 168 P13 | 45min | 3 tasks | 6 files |
 | Phase 171 P01 | 55min | 3 tasks | 2 files |
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 172 P01 | 3min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-09-01T12:39:03.153Z
-**Stopped at:** Phase 172 context gathered
+**Last session:** 2026-09-01T18:16:21.021Z
+**Stopped at:** Completed 172-01-PLAN.md
 **Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
 **Was (superseded, retained for continuity):** Phase 171 context gathered
 **Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
@@ -3201,7 +3207,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/172-policy-one-tracker-protected-main/172-CONTEXT.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
