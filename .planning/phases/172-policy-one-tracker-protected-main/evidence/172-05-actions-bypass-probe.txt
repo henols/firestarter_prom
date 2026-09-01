@@ -51,3 +51,61 @@ separately at evidence/172-05-ruleset-4998759-pre-delete.json before this attemp
 Disposition: escalated to the operator as a Rule 4 architectural blocker via a blocking-human
 checkpoint, per the destructive_action_boundary's prohibition on inventing an alternate bypass-actor
 configuration without explicit approval. See the checkpoint return for the options considered.
+
+---
+
+D-09 REVISION — operator decision, 2026-09-01
+
+Operator resolution: revise D-09's bypass actor from Integration:15368:always to
+{"actor_id": null, "actor_type": "DeployKey", "bypass_mode": "always"}. Rationale supplied by the
+operator and independently verifiable: the incumbent ruleset 4998759 captured into
+evidence/172-05-ruleset-4998759-pre-delete.json already carries exactly this DeployKey bypass
+entry on henols/firestarter — the same personal account that rejected the Integration actor —
+which proves DeployKey is an actor type GitHub accepts here, where Integration is not.
+
+Zero-deploy-key measurement, reproduced this session:
+  gh api repos/henols/firestarter_prom/keys --jq length -> 0
+  gh api repos/henols/firestarter/keys --jq length       -> 0
+  gh api repos/henols/firestarter_app/keys --jq length   -> 0
+
+All three repositories have zero deploy keys registered right now. The DeployKey bypass therefore
+grants nothing to anybody today — no person and no bot can use it to bypass the ruleset, because
+there is no deploy key for GitHub to match against. This makes POLICY-03's "no direct push" claim
+literally true of every person AND every bot at the moment the rulesets go live, which is a
+stronger honesty position than the original Actions-bypass design would have given even had it
+validated.
+
+D-09's premise about CI was correct, and the breakage this bypass revision causes is real and must
+not be softened. Both sub-repositories auto-commit a version bump back onto `main` from CI using
+the default GITHUB_TOKEN, and a DeployKey bypass does not cover a GITHUB_TOKEN-authenticated push
+(git-auto-commit-action authenticates as github-actions[bot] via the installation token, not a
+deploy key):
+
+  - firestarter_app/.github/workflows/release.yml — `on: push: branches: [main]`, runs
+    stefanzweifel/git-auto-commit-action@v5 with its GITHUB_TOKEN override commented out.
+  - firestarter/.github/workflows/build.yml — `on: push: branches: ['**', '!beta']` (fires on
+    `main`), runs stefanzweifel/git-auto-commit-action@v5 gated
+    `if: github.event_name == 'push' && github.ref == 'refs/heads/main'`, below the file's
+    "PUBLISH BOUNDARY" comment; the softprops/action-gh-release publish step that follows depends
+    on that push succeeding.
+
+Both of these steps will be rejected by the ruleset once it is active on their respective
+repositories (firestarter and firestarter_app, in plan 172-06). This is a known, operator-accepted
+consequence, not a defect discovered later — it is recorded here plainly as breakage, not as
+something the bypass "preserves" or "handles". The next stable release in both sub-repositories
+will fail at the version-bump step, and in firestarter the release-publish step that depends on it
+will not run either, until the release workflows are reworked (out of this milestone's scope per
+the scope note: product/workflow changes found necessary are filed, not fixed here).
+
+Null-actor caveat, recorded as a named residual: `actor_id: null` on a DeployKey bypass means ANY
+deploy key on the repository, present or future, not a specific key. The bypass is inert today
+only because all three repos measure zero deploy keys. Adding a deploy key to any of the three
+repositories in the future would silently confer bypass on whatever process holds that key, with
+no further ruleset change required. This is not hidden by the null actor_id — it is the documented
+behavior of a DeployKey bypass_actors entry with no actor_id — but it must be tracked as a residual
+risk against future deploy-key additions.
+
+Disposition: RESOLVED by operator decision. The canonical body is revised
+(evidence/172-05-ruleset-body.json, commit 9502252e) and the prom canary is created from it. The
+release-workflow breakage in firestarter and firestarter_app is carried forward as a named finding
+for Phase 173's honesty ledger and for backlog filing, not left as unstated prose.
