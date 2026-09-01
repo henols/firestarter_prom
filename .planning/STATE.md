@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.35
 milestone_name: — Documentation Consolidation & Wiki Migration
-current_phase: 168
-current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
-status: completed
-stopped_at: Phase 168 COMPLETE — verification passed 8/8, UAT passed by operator 2026-09-01
+current_phase: 171
+current_phase_name: STRAY — The Root-Level Documentation Files
+status: ready_to_plan
+stopped_at: Phases 168, 169 and 170 all complete — 171 (STRAY) is next and unplanned
 last_updated: "2026-09-01T06:28:57Z"
 last_activity: 2026-09-01
-last_activity_desc: "Phase 168 UAT closed: operator visually inspected the live wiki and passed the sole human item; verification status human_needed -> passed; phase complete"
+last_activity_desc: "Phase 168 UAT closed and phases 169/170 reconciled: both were executed ad hoc on 2026-08-31, criteria re-checked against live artifacts, ROADMAP checkboxes ticked"
 progress:
-  total_phases: 6
-  completed_phases: 3
+  total_phases: 7
+  completed_phases: 4
   total_plans: 19
   completed_plans: 19
-  percent: 50
+  percent: 57
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — COMPLETE
-Plan: 13 of 13
-Status: All 13 plans executed; verification passed 8/8 criteria / 9/9 requirements. Both human items are now discharged — the workflow_dispatch run of wiki-check.yml was withdrawn 2026-09-01 by operator decision (the workflow relies on its weekly schedule trigger), and the operator visually inspected the 14 rendered wiki pages on 2026-09-01 and passed it. 168-UAT.md is complete (1/1 pass); 168-VERIFICATION.md status is passed. Next phase: 169 (FRONT).
-Last activity: 2026-09-01 — Phase 168 UAT closed by operator; verification status moved human_needed -> passed
+Phase: 171 (STRAY — The Root-Level Documentation Files) — NOT STARTED, no plans
+Plan: 0 of 0
+Status: Phase 168 COMPLETE — 13 plans executed, verification passed 8/8 criteria / 9/9 requirements, both human items discharged (operator passed the rendered-wiki inspection 2026-09-01; the workflow_dispatch item was withdrawn the same day). Phases 169 (FRONT) and 170 (REPO) are ALSO complete but were executed ad hoc on 2026-08-31 as direct commits — no plans, summaries, verification pass or phase directories; their criteria were re-checked against the live artifacts at this close and their ROADMAP boxes ticked, with FRONT-02 recorded as not met by operator decision. Evidence: notes/v135-phases-169-170-executed-ad-hoc.md. Remaining: 171 (STRAY, LEGACY-04/05/07), 172 (POLICY), 173 (close).
+Last activity: 2026-09-01 — Phase 168 UAT closed by operator; phases 169/170 reconciled against the ROADMAP
 
 ## Roadmap Summary (v1.35)
 
@@ -3157,7 +3157,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-01T06:28:57Z
-**Stopped at:** Phase 168 UAT passed by the operator — verification passed 8/8, phase COMPLETE
+**Stopped at:** Phase 168 UAT passed and phases 169/170 reconciled — 168, 169, 170 all complete; 171 is next
 **Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)

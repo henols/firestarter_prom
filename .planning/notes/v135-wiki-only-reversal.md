@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-30
 **Raised during:** `/gsd-discuss-phase 168` (session halted before `168-CONTEXT.md` was written)
-**Status:** Decided by operator; ROADMAP.md and REQUIREMENTS.md repair NOT yet applied
+**Status:** Decided by operator; ROADMAP.md and REQUIREMENTS.md repair APPLIED (WIKI-03/04 withdrawn, WIKI-02 rewritten and WIKI-05 reopened, both reassigned to Phase 168, which closed 2026-09-01)
 
 ## The decision
 
