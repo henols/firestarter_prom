@@ -259,3 +259,48 @@ over identical paths: **0** matches under the PATH `grep`, **38** under GNU grep
 target list this recipe produces is captured separately, by the orchestrator, in
 `evidence/173-08-rename-sweep-targets.txt` (this plan's Task 3), not authored as prose in this
 document.
+
+---
+
+## 8. Addendum — the wiki checkers were retired the day this record was written (2026-09-02)
+
+This section is appended after the close, and it contradicts parts of §5 above. Both are left
+standing: the ledger records what was true when each line was written, and correcting a claim by
+deleting the sentence that made it would be the opposite of what this document is for.
+
+**What changed.** The operator reviewed `.github/workflows/wiki-check.yml` immediately after the
+close and judged it disproportionate. It and every checker under `tools/wiki/` are deleted.
+`tools/wiki/MIGRATION-TABLE.md` survives — it is the migration's audit record and what the
+Backlog 999.9 rename sweep greps, not machinery.
+
+**The measurements that decided it**, taken 2026-09-02:
+
+| | |
+|---|---|
+| Checker machinery | 2,558 lines (`selftest.sh` alone 653) |
+| Wiki guarded | 12 pages, 28 commits, first 2026-08-30, one human author |
+| Times `Wiki check` had run | **zero** |
+| HONEST-02 leg 2 claim coverage | **1 page of 12** (`Programming-Protocols`); 5 stamp-only; 6 neither |
+| `honest01_claims.py` | 308 lines, **invoked by nothing** |
+| `dispatch_mirror.py` | never read the wiki at all, despite the leg's success message saying it did |
+
+**Rows this supersedes.**
+
+- **L14** claimed the provenance-footer checker was "guarded by a check that works, not yet by a
+  check seen working in CI." It is now guarded by no check at all. The checker is deleted; the
+  six footers remain published on the wiki and remain correct, but nothing verifies them.
+- **L21** described `prom#55` as carrying two of six missing files onto `main`. That pull request
+  is **closed unmerged** — there is no longer a workflow for it to serve.
+- **Backlog 999.48**, filed hours earlier in this same phase to make the workflow runnable on
+  `main`, is **withdrawn** — the workflow it was filed against no longer exists.
+
+**The non-claim this creates, stated as plainly as the claims it replaces.** There is now **no
+automated guard on wiki content of any kind**. HONEST-02 survives on the stamp half of its own
+disjunction, but that stamp is an HTML comment — legible to a machine that no longer runs, and to
+no reader. The only reader-facing honesty signal left on the wiki is the six visible provenance
+footers, each ending "not re-verified against the code." A wiki page that drifts from
+`chip_database.json` from this date forward will be caught by a person noticing, or not at all.
+
+**This is a deliberate trade, not an oversight**: the guarded surface is 12 pages edited by one
+person, and the machinery cost more to carry than the drift it could catch. It is recorded here
+so that a later reader does not find §5's rows and believe a guard is still standing.
