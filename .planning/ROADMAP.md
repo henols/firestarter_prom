@@ -237,7 +237,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - [x] **Phase 169: FRONT — `firestarter_prom` Becomes the Front Door** — Write the central repo's first README: what Firestarter is in the first screenful, and a path from nothing to a first successful chip read without opening another document. Set all three GitHub repository descriptions, which are empty today. (FRONT-01, FRONT-02, FRONT-03, FRONT-04) — **COMPLETE 2026-08-31, executed ad hoc.** Done as direct commits (`3d381098`, `3cb8a617`) rather than through the phase machinery: no plans, no summaries, no `gsd-verifier` pass, and no `phases/169-*/` directory exists or will. `README.md` is 37 lines; all three GitHub repository descriptions are set and distinct. **FRONT-02 is NOT met, by operator decision on 2026-08-31** — it cannot both carry the getting-started path and not duplicate the wiki (FRONT-03), and the operator chose the wiki `Home` page. Criteria re-checked against the live artifacts at Phase 168 close; see [`notes/v135-phases-169-170-executed-ad-hoc.md`](notes/v135-phases-169-170-executed-ad-hoc.md).
 - [x] **Phase 170: REPO — Sub-Repo READMEs Cut to Repo Scope** — Cut both sub-repo READMEs to what is specific to their own repository, linking up for the rest, and fix the two defects they carry: a table of contents that advertises three sections that do not exist, and breaking-change walls standing above the install instructions. Bound the PyPI thinning that decision 1 accepted. (REPO-01, REPO-02, REPO-03, REPO-04, LEGACY-02, LEGACY-03) — **COMPLETE 2026-08-31, executed ad hoc.** Done as direct commits in the sub-repos (`firestarter_app` `767079a`, `firestarter` `c26562a`) rather than through the phase machinery: no plans, no summaries, no `gsd-verifier` pass, and no `phases/170-*/` directory exists or will. App README 779 → 118 lines, firmware README 151 → 91. LEGACY-02 verified mechanically (9 TOC entries, 0 unresolved anchors, 0 headings missing); LEGACY-03 verified on both READMEs with the version history reachable on the wiki's Breaking-Changes page; REPO-04 verified against a locally built sdist's `PKG-INFO`. See [`notes/v135-phases-169-170-executed-ad-hoc.md`](notes/v135-phases-169-170-executed-ad-hoc.md).
 - [x] **Phase 171: STRAY — The Root-Level Documentation Files** — Three files sitting loose at the app repo root: a six-line scratch note about finding avrtools on Windows, an autocompletion guide, and a `SECURITY.md` that is a GSD Phase 69 audit record occupying the path GitHub reads as the repository's security policy. Each becomes a real wiki page, a real policy, or nothing. (LEGACY-04, LEGACY-05, LEGACY-07) — **COMPLETE 2026-09-01.** All 4 plans executed through the phase machinery; closing sweep discharged V-01…V-19 (V-17/V-18 cited to plan 171-02's evidence, not re-run); both submodule gitlinks re-pinned, equality-asserted (V-19). Criterion 2's GitHub-surface property (empty Security tab) is observable only after the milestone merges to `main` — `SECURITY.md` never reached `main`, so this phase prevented a latent misrepresentation rather than remediating a live one.
-- [ ] **Phase 172: POLICY — One Tracker, Protected `main`** — State the repository policy in the documentation and make the configuration match it: one issue tracker, issue templates that cover what people actually file, enforcing rulesets on all three `main` branches, and no surviving link to a disabled tracker. (POLICY-01, POLICY-02, POLICY-03, LEGACY-01)
+- [x] **Phase 172: POLICY — One Tracker, Protected `main`** — State the repository policy in the documentation and make the configuration match it: one issue tracker, issue templates that cover what people actually file, enforcing rulesets on all three `main` branches, and no surviving link to a disabled tracker. (POLICY-01, POLICY-02, POLICY-03, LEGACY-01)
 - [ ] **Phase 173 (close): CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger** — Demonstrate that the `beta` lockstep cut still works under the new rulesets rather than assuming it, update the GSD close procedure for PR-only `main`, and close with an honesty ledger pairing each claim with its non-claim — chiefly that relocation is not verification, and that the deferred wiki content is deferred, not delivered. (POLICY-04, POLICY-05)
 
 ## Phase Details
@@ -5142,6 +5142,55 @@ and running, not photographed and reverse-engineered.
 **Chosen fix, two parts.** **(a)** Settle the rename — revert to the underscore unless someone claims the edit, and either way make the two docstrings agree with the source. **(b)** **De-pin the citation rather than re-pin it.** It has now gone stale twice for the same reason (a comment sweep shifting lines in a file nothing cross-checks), so replacing `594` with `545` only resets the clock. Cite the symbol and its enclosing function — "a local inside `main()`'s manufacturer loop" — which survives any line shift, or add the file to whatever citation-drift oracle exists.
 
 **Test surface.** Host-only, no firmware. `tests/test_numeric_schema_source_scan.py` must stay green — including its non-vacuity leg `test_scan_helper_detects_planted_forbidden_tokens`, which proves `_find_forbidden_tokens` can still report a violation. A docstring-only change to that file should move no assertion; if it does, the change was not docstring-only. Note that a regenerated `chip_database.json` is **not** expected from either half: the rename is name-only and cannot change emitted values, and that should be proven by a `sha256` comparison of the generator's output before and after rather than asserted.
+
+---
+
+### Phase 999.46: The v1.35 `Protect main` rulesets block the stable-release version bump in both sub-repositories (BACKLOG — filed 2026-09-02 during v1.35 Phase 173, product and workflow code out of scope)
+
+**Goal:** Rework both sub-repositories' stable-release workflows so the version-bump step no longer targets a branch its own `Protect main` ruleset rejects.
+
+**Filed, not fixed, on purpose.** v1.35 is documentation and repository configuration only. `REQUIREMENTS.md`'s scope note says any product-code change found necessary in this milestone is **filed rather than fixed**, and the milestone's own scope note binds both release workflows by name even though they are the files this finding is about — neither `firestarter_app/.github/workflows/release.yml` nor `firestarter/.github/workflows/build.yml` is edited by this filing.
+
+**The measured mechanism.** Phase 172 put `main` in all three repositories behind an **active** ruleset whose only bypass actor is `DeployKey:null:always`. A `DeployKey` bypass does not cover a `GITHUB_TOKEN`-authenticated push — `stefanzweifel/git-auto-commit-action` authenticates as `github-actions[bot]` through the installation token, not a deploy key. Both sub-repositories push a version-bump commit back onto `main` from CI on the stable-release path, re-verified against the live workflow files this session:
+
+- [`firestarter_app/.github/workflows/release.yml:2-5`](../firestarter_app/.github/workflows/release.yml#L2-L5) — `on: push: branches: [main]`.
+- [`firestarter_app/.github/workflows/release.yml:32-35`](../firestarter_app/.github/workflows/release.yml#L32-L35) — the `Commit updated version` step, `stefanzweifel/git-auto-commit-action@v5`, with its `GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}` override **commented out**.
+- [`firestarter_app/.github/workflows/release.yml:37-43`](../firestarter_app/.github/workflows/release.yml#L37-L43) — the `Release` step immediately after, which **does** pass `PERSONAL_ACCESS_TOKEN`; creating a release is not a branch push, so this step would work if the job ever reached it.
+- [`firestarter/.github/workflows/build.yml:34`](../firestarter/.github/workflows/build.yml#L34) — `branches: ['**', '!beta']`, which fires on `main`.
+- [`firestarter/.github/workflows/build.yml:182-183`](../firestarter/.github/workflows/build.yml#L182-L183) — the same auto-commit action, gated `if: github.event_name == 'push' && github.ref == 'refs/heads/main'`, below the file's own `PUBLISH BOUNDARY` comment.
+- [`firestarter/.github/workflows/build.yml:199-200`](../firestarter/.github/workflows/build.yml#L199-L200) — the `softprops/action-gh-release` publish step, gated on the same condition and depending on that push having succeeded.
+
+**Consequence:** the next stable release in *both* repositories fails at the version-bump step, and in `firestarter` the release-publish step that follows does not run either — it never reaches the gate.
+
+**Chosen fix.** Move the version bump off `main` — either by bumping on `beta`, or by a tag-triggered release that pushes nothing back. This is the todo's option 2. It is the recommended remedy because it removes the conflict rather than carving an exception through it: no ruleset amendment, no new bypass actor, no widened token scope.
+
+**Rejected candidates, with the reasons they are not recommended:**
+
+- **Re-enable the commented-out `PERSONAL_ACCESS_TOKEN` override.** The smallest change, but it does not clearly work either: all three rulesets read `current_user_can_bypass: never`, so a PAT pushing as the account owner (`henols`) is subject to the same `pull_request` rule as anyone else — the token identity does not exempt the push from the ruleset.
+- **Register a deploy key and have CI push with it.** The existing `DeployKey:null:always` bypass actor would cover it, but this leans on a residual this milestone has already recorded as a non-claim rather than a mechanism to build on: `actor_id: null` means *any* deploy key, present or future, silently receives the same bypass with no further ruleset change. All three repositories measure zero deploy keys today, which is the only reason the bypass grants nothing to anyone right now; registering one to fix this finding would spend that inert state on a release-path workaround rather than leaving it inert.
+
+**Test surface.** What would have to be proven: a stable release reaching both channels (GitHub release, PyPI for the app) end to end with no push to `main` occurring anywhere in the workflow, and the rulesets left unamended — no new bypass actor, no widened token, no exception carved through `current_user_can_bypass: never`.
+
+---
+
+### Phase 999.47: `firestarter_prom`'s default branch was already red on `Catalog sync check` before Phase 172's merges (BACKLOG — filed 2026-09-02 during v1.35 Phase 173, catalog content out of scope)
+
+**Goal:** Get `firestarter_prom`'s `Catalog sync check` workflow passing on `main` again.
+
+**Filed, not fixed, on purpose — it predates this milestone's merges and is carried, not caused.** `main` was already failing this check before v1.35 Phase 172 landed its three pull requests, and the check runs over catalog content that sits outside this milestone's documentation-and-configuration scope. `REQUIREMENTS.md`'s scope note files rather than fixes; this finding is the same shape.
+
+**The measured evidence.** The failing `Catalog sync check` run sits on `ad08a06`, the first parent of `firestarter_prom`'s merge commit for pull request #34, dated 2026-08-31 — before any of Phase 172's three merges. Recorded at the time in `evidence/172-08-post-merge-surfaces.txt` so no reader misattributes it to this milestone's own changes. Re-confirmed live during this phase's own research session:
+
+```
+gh run list --repo henols/firestarter_prom
+→ completed / failure / Catalog sync check / main / push / 33447867312 / 2026-08-31T22:47:56Z
+```
+
+Run id `33447867312`, workflow name `Catalog sync check`, conclusion `failure`, event `push`, branch `main`, created `2026-08-31T22:47:56Z`. Re-confirmed 2026-09-02, still failing, no intervening green run.
+
+**Chosen fix.** Investigate `Catalog sync check`'s failure cause on `main` directly — most likely a drift between whatever catalog source it validates and the checked-in artifact it compares against — and land a fix as its own scoped change, independent of this milestone.
+
+**Test surface.** What would have to be proven: `gh run list --repo henols/firestarter_prom --workflow 'Catalog sync check'` shows the most recent run on `main` as `completed / success`, and the fix does not touch any file this milestone's own scope note reserves (documentation, `.planning/`, or the wiki-related tooling under `tools/wiki/`).
 
 ---
 
