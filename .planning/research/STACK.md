@@ -1,647 +1,496 @@
-# Stack Research — v1.30 SDP Surface Retirement & Behavioral Lock Proof
+# Stack Research — v1.36 `dev test` Fidelity
 
-**Domain:** Mature host-only Python CLI (`firestarter_app`), single-repo change
-**Researched:** 2026-08-03
-**Confidence:** HIGH on everything measured on this tree (the mypy mechanism, the 69-error count and its distribution, every file:line claim, the channel-gating mechanism). MEDIUM on the two external version facts (mypy's minimum-target policy history, Python EOL dates) — both cross-checked against a live source *and* reproduced locally.
-**Tree measured:** `firestarter_app` @ `16a313a` (branch `beta`), `firestarter` @ `0933bd7`, meta @ `d1b9ce9e`.
-
----
-
-## Headline
-
-**Zero new dependencies. Zero new frameworks. Zero version bumps.** Every one of the six scope
-items is served by tooling already pinned in `pyproject.toml` and by harnesses already committed
-in `tests/`. The only *stack-shaped* decision this milestone owes is a **one-line semantic
-correction to `[tool.mypy] python_version`** plus a **rewrite of `count_mypy_errors()`'s
-result-interpretation**, and the only *version* decision is whether the project keeps claiming
-Python 3.9 support it can no longer type-check.
-
-The one thing that is genuinely different from what the planning record says: **the design note
-and PROJECT.md conflate two distinct failures of the mypy gate**, and they occur in *different
-environments*. Both are real; neither is what the other describes. §1 separates them.
+**Domain:** Host-only Python CLI change (`firestarter_app`) — conditional test-harness operations, a
+versioned JSON diagnostic-report schema bump (1.7 → 1.8) under a hash-continuity gate, and a structural
+test over a derived plan object
+**Researched:** 2026-09-02
+**Confidence:** **HIGH** on everything measured on this tree (every count, timing, hash and plan-shape
+figure below was produced by running the code at HEAD, transcribed verbatim). **HIGH** on the package
+version facts (queried directly from the PyPI JSON registry API, the canonical publisher of that
+metadata — see *Sources* for why this is not a Context7 lookup). **MEDIUM** on the syrupy 6.0.0
+breaking-change list (single vendor source, GitHub releases page).
+**Tree measured:** `firestarter_app` @ `0a93999` (branch `gsd/v1.35-documentation-consolidation-wiki-migration`),
+`firestarter/__version__ = 3.0.0b33`, `SCHEMA_VERSION = "1.7"`.
+**Measurement environment:** `firestarter_app/.venv/ci-replica/` (CPython 3.11.x, the CI-parity venv) —
+*not* the devcontainer's default 3.12, which masks app CI.
 
 ---
 
-## 1. The mypy gate — mechanism, measured, and the fix
+## Bottom line up front
 
-### 1a. What is actually pinned, and what the project actually supports
+**Recommendation: add exactly one thing, and it is a version bound, not a library.**
 
-| Fact | Value | Where | Status |
-|------|-------|-------|--------|
-| mypy pin | `mypy>=2.1.0` | `pyproject.toml` `[project.optional-dependencies] test` | **Original pin**, added `7acdcf3` "build(37-02)" on 2026-05-27 (Phase 37 / v1.8). Never raised, never lowered. |
-| mypy resolved, CI | **2.3.0** (latest; changelog top section is 2.3) | fresh `pip install -e .[test]` | verified in a purpose-built venv |
-| mypy resolved, devcontainer | **two of them on `PATH`** — `/home/vscode/.local/bin/mypy` = **2.3.0**, `/usr/local/py-utils/bin/mypy` = **2.1.0** | `which -a mypy` | verified |
-| declared target | `python_version = "3.9"` | `pyproject.toml` `[tool.mypy]` | **dead config — has never once taken effect** |
-| `requires-python` | `>=3.9` | `pyproject.toml` `[project]` | verified; classifiers list 3.9–3.12 |
-| CI interpreter | **3.11** (both jobs) | `.github/workflows/ci.yml` `Set up Python 3.11` | verified — **not 3.12**; the "under Python 3.12" framing in PROJECT.md is a devcontainer fact, not a CI fact |
-| devcontainer interpreter | 3.12.13 | `python3 -V` | verified |
-| watermark | `35` | `pyproject.toml:` comment `# mypy_error_watermark = 35   # Updated Phase 71-07 …` | verified |
-| ruff | `ruff>=0.15.14`, `target-version = "py39"` | `pyproject.toml` `[tool.ruff]` | verified; local ruff is 0.16.0 |
-
-### 1b. (a) Why `python_version = "3.9"` is rejected — answered
-
-**It is a mypy minimum-supported-*target* policy, not a stub conflict and not a distinct
-minimum-runtime policy.** Reproduced verbatim on this tree:
-
-```
-$ mypy firestarter/ tests/
-pyproject.toml: [mypy]: python_version: Python 3.9 is not supported (must be 3.10 or higher)
-```
-
-- **mypy 2.0** removed it: *"Mypy no longer supports type checking code with `--python-version 3.9`.
-  Use `--python-version 3.10` or newer."* **mypy 1.20** was the last feature release that supported
-  3.9 as a target, and separately dropped *running* under 3.9. (Live `python/mypy` `CHANGELOG.md`,
-  cross-checked against the reproduced message.)
-- The project's floor has been `>=2.1.0` since the pin was first written, so **the 3.9 target has
-  never been honoured in this repo's history.** The watermark of 35 was set (Phase 71-07) against a
-  checker that was already ignoring the declared target.
-
-**The pyproject comment is wrong in a load-bearing way.** It reads:
-
-> `python_version = "3.9"          # Must be in config file — mypy 2.1.0 rejects --python-version 3.9 via CLI flag`
-
-Half true. Measured on mypy 2.3.0:
-
-| Form | Behaviour | Exit |
-|------|-----------|------|
-| `--python-version 3.9` on the CLI | `mypy: error: argument --python-version: Python 3.9 is not supported (must be 3.10 or higher)` — argparse usage error, run never starts | **2** |
-| `python_version = "3.9"` in the config file | **non-fatal note**, run proceeds, value **silently discarded** | 0/1/2 by content |
-
-So moving the value into the config file did not make it work — it converted a loud refusal into a
-silent no-op. **That is the deeper fail-open here** and it is not mentioned anywhere in the planning
-record: *the project believes it type-checks against its py3.9 floor and does not, in CI either.*
-
-**What mypy uses instead** (measured, not inferred): it clamps to its **minimum supported target,
-3.10** — *not* to the running interpreter. Proved by branch-reachability probe: under the rejected
-`3.9` config, `if sys.version_info >= (3, 10):` is analysed while `>= (3, 11)` and `>= (3, 12)` are
-not, byte-identical to an explicit `python_version = 3.10`; with **no** config at all mypy uses the
-interpreter (3.12) and the same probe reveals 3.12. This matters because the clamped-to-3.10 target
-is what makes the numpy stub explode (§1c).
-
-### 1c. The numpy stub conflict — what it actually is, and where it is
-
-**Chain (traced, every hop verified):** `import pytest` (any of the 120 test/source files) →
-`pytest` ships `py.typed` → `_pytest/python_api.py:21` `from numpy import ndarray` (under
-`TYPE_CHECKING`, for `approx`) → numpy ships `py.typed` → `numpy/__init__.pyi:737`
-`type _Falsy = L[False, 0] | bool_[L[False]]` — a **PEP 695 `type` statement**, which mypy only
-accepts at target ≥ 3.12. At the clamped 3.10 target it is a **`[syntax]` error, which is
-blocking**:
-
-```
-/usr/local/lib/python3.12/site-packages/numpy/__init__.pyi:737: error: Type statement is only supported in Python 3.12 and greater  [syntax]
-Found 1 error in 1 file (errors prevented further checking)
-EXIT=2
-```
-
-- **numpy present:** 2.5.1, at `/usr/local/lib/python3.12/site-packages` — a **devcontainer**
-  artifact. Nothing in `firestarter_app` references numpy (`grep -rn numpy` over `*.py`/`*.toml`/
-  `*.cfg`: **zero hits outside site-packages**).
-- **Is it still present?** Yes, locally. **No, in CI.** A fresh `pip install -e .[test]` resolves
-  pyserial · requests · tqdm · click · rich · packaging · pytest · syrupy · ruff · mypy ·
-  pytest-cov · types-pyserial and pulls **no numpy** (verified by building exactly that venv:
-  `import numpy` → `ModuleNotFoundError`).
-- It is **not** fixable by a `follow_imports = "skip"` override on `numpy.*` — tried; the stub is
-  still *parsed*, so the syntax error fires before any follow-imports policy applies.
-
-### 1d. The two distinct failures — separate them before scoping
-
-| | Devcontainer (py3.12, numpy installed) | CI (`ubuntu-latest`, py3.11, no numpy) |
+| Question asked | Verdict | One-line reason |
 |---|---|---|
-| mypy behaviour | blocking stub syntax error, **run truncated after 1 file** | full run, **120 source files checked** |
-| mypy exit | **2** | **1** |
-| mypy summary line | `Found 1 error in 1 file (errors prevented further checking)` | `Found 69 errors in 17 files (checked 120 source files)` |
-| gate's regex `Found (\d+) errors?` | **matches → returns 1** | matches → returns 69 |
-| gate verdict | `1 <= 35` → prints `INFO: … below watermark` → **exit 0, GREEN** | `69 > 35` → **exit 1, RED** |
+| (a) Property/structural testing over `derive_plan` | **ADD NOTHING** | The input domain is finite and *tiny*: 677 distinct part numbers × 3 write scopes = 2,031 plans, which collapse to **9** distinct `(scope, op-sequence, is_uv)` classes. An exhaustive sweep of the entire domain costs **4.22 s** against a suite that already runs **737 s**. There is nothing for a generative tester to discover. |
+| (b) Versioned JSON schema evolution / frozen-fixture parsing | **ADD NOTHING** | The consumer (`tools/parse_devtest_issue.py`) already matches `schema_version` **by presence, not by value** (`tests/test_parse_devtest_issue.py:151`), and two frozen schema-1.1/1.2 bodies already prove it. A JSON Schema validator would be a *third* declaration of a shape that `to_dict()` and the fixtures already pin twice. |
+| (c) Stable content-addressed hashing across schema changes | **ADD NOTHING** — but the milestone has **two proven re-key hazards it has not accounted for** | `dedup_fingerprint()` never reads `to_dict()`. It hashes a hand-picked `"|"`-joined field list, so it is immune to schema evolution *by construction* — no canonicalizer (RFC 8785 / `jcs`) has anything to do. The danger is elsewhere and is **measured below**: two named v1.36 deliverables each change the fingerprint today. |
+| **The one real stack change** | **ADD `syrupy>=5.0,<7`** (or `<6`) | `syrupy` is pinned unbounded at `>=5.0`; the CI replica holds **5.5.3**, but PyPI now serves **6.0.0** (2026-08-22), whose headline breaking change is that **stdlib dataclasses are serialized natively by the Amber serializer**. `Plan`, `Step`, `Fingerprint` and the report classes are all `@dataclass`. A fresh CI run today already resolves 6.0.0. |
 
-**Verified against the real CI run.** `gh run view 30708836339` (Host CI, `workflow_dispatch`,
-2026-08-01): every step before it green, `X mypy type check (watermark gate)` — *"Process completed
-with exit code 1"* — `pytest` and the entry-point smoke test **never ran**. The RED is exactly and
-only this gate. It is also *quiet*: `ci.yml`'s `push` trigger is `branches: [main]` only, so pushes
-to `beta` fire `beta-release.yml` and never `ci.yml`. The gate is red on PRs and manual dispatch and
-invisible otherwise.
-
-### 1e. The real bug in `tools/check_mypy_watermark.py` — one line
-
-The module's docstring and comments *claim* fail-closed ("a broken type checker must fail the gate,
-never be mistaken for a clean tree", exit 2 documented). The `sys.exit(2)` arm is real. **It is
-simply unreachable on the failure that actually happens**, because the regex is consulted *before*
-`result.returncode`:
-
-```python
-    output = result.stdout + result.stderr
-    m = re.search(r"Found (\d+) errors?", output)
-    if m:
-        return int(m.group(1))          # <-- returncode never examined
-    if result.returncode == 0 or "Success: no issues found" in output:
-        return 0
-    ...sys.exit(2)
-```
-
-mypy emits `Found N errors …` on the truncated path too. So a run that checked **1 of 120 files**
-and exited **2** is indistinguishable from a clean-ish tree. The gate cannot tell *"3 errors in a
-complete run"* from *"3 errors and then mypy stopped"*.
-
-Two secondary defects in the same function:
-
-- **`["mypy", …]` — a bare `PATH` lookup.** In this devcontainer that is ambiguous: `mypy` resolves
-  to 2.3.0 but `/usr/local/py-utils/bin/mypy` (2.1.0) is also on `PATH`. A `PATH` reorder silently
-  changes the checker *version*, hence the error population, hence the watermark's meaning. In CI it
-  happens to be unambiguous — which is exactly why the defect survived.
-- **A `FileNotFoundError` if mypy is absent** propagates as a traceback (non-zero, so fail-closed by
-  accident, with a useless message).
-
-### 1f. (c) The fix shape — recommended, with the tradeoff named
-
-**Recommendation: three changes, all inside two files, no new dependency.**
-
-**FIX-1 — `python_version = "3.10"` in `[tool.mypy]`, and say why in the comment.**
-
-*Why this shape and not the others:*
-
-| Option | Verdict |
-|--------|---------|
-| **`python_version = "3.10"`** ✅ | **Zero behaviour change** — 3.10 is *already* what mypy has been using (measured, §1b). The error count before and after is identical, so it cannot mask or manufacture a single error. It replaces a silent lie with the honest truth and removes the note from every CI log. |
-| `--python-version 3.10` on the CLI | Works, but splits the target across two files and reintroduces exactly the confusion the current comment records. Config is the right home. |
-| Drop the 3.9 target *by dropping 3.9 support* (`requires-python = ">=3.10"`, drop the 3.9 classifier) | **Defensible and arguably overdue** — Python 3.9 reached EOL **2025-10-31**, nine months ago. But it is a **published-metadata breaking change** for a package on PyPI, orthogonal to this milestone's six items, and it needs an operator decision, not an implementer's. **Recommend: keep `>=3.9` in v1.30, flag it as its own backlog item.** |
-| Keep 3.9 and pin `mypy>=1.20,<2` | ❌ Reverses 9 months of tool currency, forfeits mypy 2.x's `--local-partial-types`/`--strict-bytes` defaults, and buys a target for an EOL interpreter. |
-
-**⚠ The honest cost of FIX-1, which must be recorded:** after it, **nothing type-checks against the
-py3.9 floor the package still advertises.** The mitigation already exists and should be named
-explicitly rather than assumed: **`[tool.ruff] target-version = "py39"`** (verified) carries the
-py39 *syntax/idiom* floor — pyupgrade (`UP`) will not rewrite past py39, and py3.10-only syntax is
-a ruff error. What ruff cannot catch is a py3.10+ **stdlib API** used on a 3.9 interpreter. That
-residual gap is real, is not new (it has existed since 2026-05-27), and its correct closure is
-either a py3.9 CI matrix leg or dropping 3.9 — **not** something the mypy config can do any more.
-**⚠ And note the treadmill:** Python **3.10 EOLs 2026-10-31**, ~3 months out. A future mypy 3.x
-clamping to ≥3.11 will re-fire this exact failure. FIX-2 is what makes that arrive as a red gate
-instead of a silent green.
-
-**FIX-2 — make the gate fail CLOSED. Three assertions, in this order.**
-
-```python
-    result = subprocess.run(
-        [sys.executable, "-m", "mypy", "firestarter/", "tests/"],   # (i)
-        capture_output=True, text=True, cwd=REPO_ROOT,
-    )
-    output = result.stdout + result.stderr
-
-    # (ii) mypy's contract: 0 = clean, 1 = errors found, ANYTHING ELSE = the
-    # checker did not complete (usage error, bad config, blocking stub error).
-    if result.returncode not in (0, 1):
-        print(f"ERROR: mypy exited {result.returncode} — the type checker did "
-              f"not complete. This is a tool/config failure, not a clean tree.\n"
-              + output.strip(), file=sys.stderr)
-        sys.exit(2)
-
-    # (iii) require the COMPLETION half of the summary line, not just a count.
-    found = re.search(
-        r"^Found (\d+) errors? in \d+ files? \(checked (\d+) source files?\)$",
-        output, flags=re.MULTILINE)
-    clean = re.search(
-        r"^Success: no issues found in (\d+) source files?$", output, flags=re.MULTILINE)
-    ...
-    # (iv) and pin the coverage floor: a run that checked far fewer files than
-    #      the tree contains is a truncated run wearing a plausible number.
-    if checked < MIN_CHECKED_SOURCE_FILES:   # commit the measured 120
-        sys.exit(2)
-```
-
-- **(i) `sys.executable -m mypy`** — binds the checker to the interpreter running the gate, killing
-  the two-`mypy`-on-`PATH` ambiguity. Zero cost in CI (`pip install -e .[test]` puts both in the
-  same env). Also turns "mypy not installed" into a legible `No module named mypy` instead of a
-  `FileNotFoundError` traceback.
-- **(ii) returncode before regex** — this single reordering is *the* fix. It flips the devcontainer
-  from GREEN to exit 2, measured.
-- **(iii) require `(checked N source files)`** — the discriminator. Measured: the truncated path
-  emits `(errors prevented further checking)` and **no** `checked` clause; a complete run always
-  emits `(checked N source files)`. Requiring the completion clause makes the truncated shape
-  unparseable → exit 2, *even if* a future mypy returns 1 on it.
-- **(iv) `MIN_CHECKED_SOURCE_FILES`** — the belt to (iii)'s braces, and the direct analogue of this
-  project's own repeated lesson (`reference_dev_test_absent_chip_false_green_trap`; the gating
-  note's own risk R4): **assert the coverage of the check, not just its verdict.** Commit the
-  measured **120** with a comment saying it is a floor to be raised, not a target.
-
-**Do NOT switch the gate to `mypy --output json`.** Measured: JSON mode emits one object per
-diagnostic and **no summary line at all** — it silently discards the `checked N source files`
-signal that (iii) and (iv) depend on, while still exiting 2 on the truncated path. It is strictly
-worse for this gate.
-
-**FIX-3 — a fail-provable test for the gate itself.** The gate has no paired pytest today
-(`tests/` has `test_check_*` modules for six other `tools/check_*.py` checkers — `check_dispatch`,
-`check_no_log_in_sdp_window`, `check_no_exists_proxy`, `check_no_community_support_status_write`,
-`check_devtest_orchestrator`, `check_sdp_capability` — and **none** for
-`check_mypy_watermark.py`). This is the tool that was fail-open for two months; it earns the
-project's own anti-hollow contract. The pattern is committed and reusable: an env-override seam
-(`FIRESTARTER_DEVTEST_SRC` in `tools/check_devtest_orchestrator.py`) plus a planted-violation
-fixture under `tests/fixtures/`. Here the natural seam is a fake-mypy stub whose stdout is a
-canned summary line: feed it the truncated shape and assert **exit 2**; feed it
-`Found 200 errors … (checked 120 source files)` and assert **exit 1**; feed it
-`Found 3 errors … (checked 4 source files)` and assert **exit 2** on the coverage floor.
-`tests/fixtures/` is already `extend-exclude`d from ruff for exactly this purpose (verified,
-`[tool.ruff] extend-exclude = ["tests/golden", "tests/fixtures"]`).
-
-**Explicitly NOT recommended: a pinned venv for the gate.** It would make the checker version
-reproducible, but CI already gets that from `pip install -e .[test]` in a clean runner, and a second
-venv adds an install step, a cache key, and a way for the gate's mypy to drift from the developer's.
-`sys.executable -m mypy` gets the determinism that actually matters for a third of the cost.
+Everything below is the evidence.
 
 ---
 
-## 2. The 69 errors — re-measured, not repeated
+## Recommended Stack
 
-**Measurement method (so it is reproducible):** a purpose-built py3.12 venv installed with exactly
-`ci.yml`'s `.[test]` closure and nothing else (therefore **numpy-free**, matching CI), running
-`mypy --no-incremental firestarter/ tests/` from the repo root against the committed
-`pyproject.toml`. Resolved: mypy 2.3.0, pytest 9.1.1, click 8.4.2, rich 15.0.0, requests 2.34.2,
-tqdm 4.70.0, packaging 26.2, pyserial 3.5, syrupy 5.5.3, types-pyserial 3.5.0.20260712.
+### Core Technologies — all already installed, no change
 
-```
-Found 69 errors in 17 files (checked 120 source files)      EXIT=1
-```
+| Technology | Version (measured in CI replica) | Purpose | Why it stays, unchanged |
+|---|---|---|---|
+| CPython | **3.11** in CI (`ci.yml` sets `python-version: '3.11'`); `requires-python = ">=3.9"`; mypy targets `3.10` | Runtime | Nothing in this milestone needs a newer feature. Do not touch `requires-python` — it is published PyPI metadata and an operator-level decision (`pyproject.toml` D-13 note). |
+| pytest | **9.1.1** | The whole test surface | Already carries 1,952 passing tests, including the exhaustive whole-DB sweep idiom this milestone needs (`test_erase_flag_invariants.py`, `test_sdp_db_invariant.py`, `test_page_size_invariants.py`). |
+| `hashlib` (stdlib) | — | `dedup_fingerprint` sha256 | Already the implementation. See §(c). |
+| `dataclasses` (stdlib) | — | `Plan` / `Step` / `Fingerprint` / report structures | `dataclasses.asdict()` gives a fully comparable structure for free — this is the entire "schema-driven approach" a plan-shape test needs. |
+| `json` (stdlib) | — | Report serialization + fixture comparison | `json.dumps(..., sort_keys=True)` is sufficient for every comparison this milestone performs. |
+| ruff | **0.16.4** (pinned `>=0.15.14`) | Lint + format, `select = ["E","F","I","UP"]` | Note the standing trap: `select` excludes `BLE`, so every `# noqa: BLE001` in the tree is inert. Do not rely on one. |
+| mypy | **2.3.1** (pinned `>=2.1.0,<3`) | Watermark gate, `tools/check_mypy_watermark.py` | `firestarter.chip_test` and `firestarter.diagnostic_report` are in **neither** strict-island override list in `pyproject.toml` — they contribute only to the watermark count, not to a strict gate. Adding typed helpers there is free; it will not trip a new gate. |
+| pytest-cov | **7.1.0** | `--cov-fail-under=70` | Deleting dead fields (`voltage.vpp_mv`, `banner.locked_steps`) *removes* lines; coverage can only go up. No risk. |
 
-**69 confirmed independently.** Watermark 35 ⇒ **gap +34**.
+### Supporting Libraries
 
-**Cross-check that rules out a tooling artefact:** re-running with `--no-local-partial-types
---no-strict-bytes` (the two defaults mypy 2.0 flipped on) yields **exactly 69**. So **none** of the
-drift 35 → 69 is a mypy-2.x default change; it is all accreted code. Also measured:
-`mypy firestarter/` alone = **25 errors in 6 files (checked 28 source files)** ⇒ **44 of the 69 are
-in `tests/`**.
+| Library | Version | Purpose | Verdict |
+|---|---|---|---|
+| syrupy | installed **5.5.3**, PyPI current **6.0.0** (2026-08-22), pinned `>=5.0` **unbounded** | Snapshot assertions; 32 snapshots currently pass, all in `tests/__snapshots__/test_characterization.ambr` | **Constrain the pin.** See §"The one real stack change". |
 
-### 2a. Distribution by file
+### Development Tools
 
-| File | Errors | Class |
-|------|-------:|-------|
-| `firestarter/eprom_operations.py` | 10 | **structural**, one root cause |
-| `tests/test_dev_test_cmd.py` | 9 | 6 cheap + 3 cheap |
-| `tests/test_write_skip_sdp_unlock.py` | 7 | cheap |
-| `tests/test_write_skip_erase_0x0d.py` | 6 | cheap |
-| `tests/test_validate_family_cmd.py` | 6 | cheap |
-| **`tests/test_dev_sdp_cmd.py`** | **6** | **cheap — and this milestone DELETES this file** |
-| `firestarter/database.py` | 6 | 3 cheap + 3 structural |
-| `tests/test_serial_comm.py` | 3 | cheap |
-| `tests/test_revision_constants_parity.py` | 3 | cheap |
-| `firestarter/firmware.py` | 3 | moderate |
-| `firestarter/config.py` | 3 | cheap |
-| `firestarter/ic_layout.py` | 2 | 1 cheap + 1 structural |
-| `tests/test_provenance.py` · `tests/test_protocol_not_implemented_production_path.py` · `tests/test_eprom_database.py` · `tests/test_characterization.py` · `firestarter/submit.py` | 1 each | cheap |
-
-### 2b. Distribution by error class
-
-| Code | Count | Cheap or structural |
-|------|------:|---------------------|
-| `[arg-type]` | **39** (36 in `tests/`, 3 in `firestarter/`) | **cheap** — 30 of the 39 are one single pattern |
-| `[union-attr]` | **10** (all `eprom_operations.py`) | **structural** — one root cause |
-| `[assignment]` | 7 | 4 cheap, 3 structural |
-| `[var-annotated]` | 6 | **cheap** — pure annotations |
-| `[attr-defined]` | 4 | cheap |
-| `[func-returns-value]` | 3 | **cheap** — trivial |
-
-*(28 `[annotation-unchecked]` lines also appear; those are `note:` severity, not errors, and are
-correctly excluded from the 69.)*
-
-### 2c. The two clusters that dominate
-
-**Cluster A — 30 errors, one pattern, mechanically cheap.** Exactly **6 per file × 5 files**:
-`test_dev_test_cmd.py`, `test_write_skip_sdp_unlock.py`, `test_write_skip_erase_0x0d.py`,
-`test_validate_family_cmd.py`, `test_dev_sdp_cmd.py`. Every one is
-`Argument "<field>" to "AppContext" has incompatible type "object"; expected "<RealType>"` —
-the `make_app_context(**overrides: object)` factory at `tests/test_dev_test_cmd.py:84` (verified)
-declares its overrides as `object` and forwards them into a typed dataclass. **One fix — narrow
-`overrides` to a `TypedDict`/`Unpack`, or `cast()` at the five forwarding sites — retires all 30.**
-The pyproject watermark comment already identifies six of these as "6 AppContext mock-type errors";
-it is the same defect replicated five times.
-
-**Cluster B — 10 errors, one root cause, structural *and politically fenced*.** All ten are
-`Item "None" of "SerialCommunicator | None" has no attribute …` at
-`eprom_operations.py:467, 471, 514, 526, 564, 590, 593, 620, 638, 1655` — an `Optional`
-connection attribute that is never narrowed after setup. One decision (assert-once, a non-Optional
-accessor property, or a restructure) retires all ten. **But `firestarter.eprom_operations` is
-*deliberately* outside the strict island** per D-07's "GATE-1.8d read-path ring-fence, deferred to
-v1.9 post-RCA" (verified in `pyproject.toml`'s `follow_imports = "silent"` override block) — so
-touching it is a **policy** question, not just a typing one. And **this milestone opens that exact
-file anyway** (`sdp_lock`/`sdp_unlock` are declared load-bearing survivors). Decide the ring-fence
-question deliberately at scoping; do not let it be answered as a side effect.
-
-### 2d. The watermark arithmetic — and the good news
-
-| Step | Errors | vs watermark 35 |
-|------|-------:|----------------:|
-| today | **69** | +34 (RED) |
-| after deleting `tests/test_dev_sdp_cmd.py` (scope item 1, **free**) | **63** | +28 |
-| \+ Cluster A's remaining 24 (one factory fix) | **39** | +4 |
-| \+ the 6 `[var-annotated]` annotations (`database.py:174,175,325`, `ic_layout.py`) | **33** | **−2 → GREEN** |
-| \+ Cluster B (optional) | **23** | −12 |
-
-**Load-bearing finding for the roadmap: the primary `ci` job can be made GREEN at the *existing*
-watermark of 35 without touching the ring-fenced `eprom_operations.py` union-attr cluster at all.**
-The path is: the deletion the milestone already does, one test-factory fix, and six annotations.
-Cluster B becomes an *optional* extra credit rather than a blocker — which is the difference
-between a scoped phase and an open-ended one.
-
-**Sequencing note:** the deletion (item 1) drops the count by 6 **for free**, so land it *before*
-re-baselining the watermark, or the new number will be wrong within the same milestone.
-
-**Two smaller measured facts worth recording:**
-
-- The strict-island invocation named in `pyproject.toml`'s own comment (*"so `mypy <strict-list>`
-  exits 0"`*) is **no longer true**: running mypy over the eight D-06 strict modules yields
-  `Found 1 error in 1 file (checked 8 source files)` — `firestarter/submit.py:666`. `submit.py`,
-  `chip_test.py`, `diagnostic_report.py`, `sdp_capability.py`, `channel.py`, `py32_dfu.py` were all
-  added after Phase 42 and appear in **neither** override list. There is no CI step behind that
-  claim, so it is stale documentation rather than a hole — but the new leg's code lands in
-  `chip_test.py` and `diagnostic_report.py`, i.e. squarely in the unclassified set. Assign them.
-- Test suite baseline: **1303 tests collected** (`pytest --collect-only`, 0.37s). PROJECT.md's
-  "~1293 as of v1.23" is 10 low.
-
----
-
-## 3. Test tooling for the new SDP leg — everything needed is already committed
-
-### 3a. Can the host reach the Phase 116 trace harness? **No.**
-
-The harness exists and is exactly what the design note says it is:
-
-- `firestarter/test/native/avr/test_sdp_harness/` (Phase 116 Plan 05) — the **always-green** SDP
-  suite. Proves the ordered strobe recorder captures production register-cache elision, and that
-  it can **tell UNLOCK from LOCK from ERASE** via two index-precise planted-fault negatives
-  (TRACE-03a/b). Pins the **production** tables by external linkage:
-  `extern const byte_flip_t EEPROM_SDP_ENABLE[3]` and `EEPROM_SDP_DISABLE[6]`.
-- `firestarter/test/native/avr/test_eeprom28c_sdp/` (Plan 06) — the **parked, RED-by-design** twin.
-
-But these are **PlatformIO `[env:native]` Unity/C++ binaries in the firmware repo**, one statically
-linked executable per directory, run by `pio test -e native`. The host `ci` job installs Python
-deps only; there is no `pio`, no C++ toolchain, and **`firestarter` is declared untouched this
-milestone**. Conclusion: **the trace harness is reachable only by a firmware-repo command, and is
-therefore out of scope as an executable gate for v1.30.** It can be *cited* as the source of the
-emission proof (it already shipped that proof in v1.22); it cannot be *run* as part of this
-milestone's evidence.
-
-### 3b. Is a *locked part* representable in a host-side stub? **No — and the answer is the same on the firmware side.**
-
-This closes the open question in `research/questions.md`.
-
-- **Firmware native side:** the recorder hooks `rurp_write_data_buffer` + `rurp_set_control_pin` and
-  records an ordered *bus stream*. It models the **bus**, never the **die**. There is no state
-  machine anywhere in it that would begin refusing writes after observing the lock sequence.
-  Representing a locked part would mean authoring a new **stateful 28C die model** — new firmware
-  test code, i.e. out of scope.
-- **Host side:** there is no bus stub *at all*. `tests/test_dev_test_cmd.py` builds its world from
-  `Mock(spec=EpromOperator)` (`make_app_context` at `:84`, `make_clean_operator` at `:110`). A
-  "locked part" there is a **scripted return-value sequence** — trivially representable, and
-  trivially worthless as silicon evidence.
-
-**State this split in the phase's own words, or the milestone closes claiming a proof it does not
-hold** (PROJECT.md already names this as the v1.22 C-5 overclaim class).
-
-### 3c. What *can* carry the inverted assertion — named files, already committed
-
-**The best host-side oracle is the fake-serial seam, not the operator mock.** `tests/conftest.py`
-ships (all verified):
-
-| Symbol | Line | What it gives the new leg |
-|--------|-----:|---------------------------|
-| `build_frame(msg_id, params)` | `tests/conftest.py:96` | assembles a real wire frame — magic ǀ len_u16 ǀ id ǀ params ǀ crc8 ǀ 0x0A |
-| `_ref_crc8_ccitt` | `:80` | independent CRC reference (not the production one) |
-| `class _FakeSerial` | `:109` | BytesIO-backed `serial.Serial` stand-in |
-| `fake_serial` fixture | `:165` | per-test instance |
-| `make_comm` fixture | `:172` | a real `SerialCommunicator` over the fake |
-
-`tests/test_dev_sdp_cmd.py` already imports `build_frame` for what its own docstring calls "the one
-dedicated real-operator leg" — so **the precedent for driving a genuine `EpromOperator` over a
-scripted wire already exists inside the very file being deleted.** The design note's instruction to
-"repurpose the gate-ordering cases onto the new leg" should be read to include *this* mechanism,
-which is the more valuable half.
-
-**Concretely, the four assertions and where each lives:**
-
-| Leg property to prove | Harness | Proves |
+| Tool | Purpose | Notes for this milestone |
 |---|---|---|
-| the 4 steps are **plan-derived** for 43 ALLOW chips and `NA`/`SKIPPED`-with-reason for 41 REFUSE | pure `derive_plan(name, db)` unit test; no mocks at all (the pattern `tests/test_sdp_capability.py` + `test_sdp_db_invariant.py` already use) | **plan derivation** |
-| **read-back equality** against pattern A is what decides the verdict | `_FakeSerial` + `build_frame`: script the read response to return pattern A; drive a real `EpromOperator` | **the oracle, end to end through the frame codec** |
-| **Trap 2 sensitivity** — inhibited write *succeeds* ⇒ verdict **BAD**, never `SKIPPED`/`NA` | same seam, mutated script: read returns pattern **B** | the assertion points the right way. **This is the single highest-value new test in the milestone** and it is pure host Python. |
-| **Trap 1** — a *partial* change reads BAD, never OK | feed a half-A/half-B image; assert the verdict and that `classify_fingerprint` (`chip_test.py:138`) does not launder it | gh#11's exact symptom |
+| `tools/check_diagnostic_report_claims.py` | AST string-literal claim scanner over `diagnostic_report.py` | It scans **exactly** that one file. Every new report string literal v1.36 adds (new field labels, the `divergence` metric label, the `elapsed` label) passes through it. Its 14-entry `FORBIDDEN_PATTERNS` table is forked verbatim from the meta-repo gate — do not diverge the vocabulary. |
+| `tools/check_devtest_orchestrator.py` | Orchestrator-contract gate | `dev_test` must not open extra connections. R4's "32 serial connects" work runs straight through this gate's subject matter. |
+| `.venv/ci-replica/` + `tools/ci_replica_venv.sh` | py3.11 CI-parity venv | **Use it for every measurement.** The devcontainer default is 3.12 and has been *proven* to hide breakage that reddens beta CI. |
 
-`chip_test.py` already ships the pattern generators the leg needs — no new ones:
-`generate_pattern(start, length)` (`:59`), `prepass_images(length)` (`:70`, returns a **two-image
-tuple** — that is patterns A and B, already), `_diff_offsets` (`:93`), `Fingerprint` (`:128`),
-`classify_fingerprint` (`:138`).
+## Installation
 
-### 3d. Integration points the design note under-states
+```bash
+# Nothing new is installed. The only change is a tightened bound in
+# firestarter_app/pyproject.toml, in [project.optional-dependencies].test:
+#
+#   -    "syrupy>=5.0",
+#   +    "syrupy>=5.0,<7",     # or <6 — see the decision note below
+#
+# Verify against the CI-parity interpreter, never the devcontainer default:
+cd firestarter_app
+bash tools/ci_replica_venv.sh          # (re)build the py3.11 replica
+.venv/ci-replica/bin/python -m pip install -e '.[test]'
+.venv/ci-replica/bin/python -m pytest tests/ -o addopts="" -q
+```
 
-**⚠ `dedup_fingerprint` changes for all 43 ALLOW chips — and the design note says the opposite.**
-The note claims the new ops are picked up "without learning a new field", which is true of the
-*schema*. But `dedup_fingerprint` (`diagnostic_report.py:183`, verified) hashes
-`f"{op}={verdict}:{cls}"` **per step, in order**. Adding four steps to a chip's plan therefore
-**changes that chip's fingerprint value**. Consequence: `tools/parse_devtest_issue.py::count_agreeing`
-groups *saved* report bodies by the already-embedded fingerprint and never re-hashes, so every
-pre-v1.30 community report for a 43-ALLOW chip lands in a **different dedup group** — the N≥2
-promotion count for those chips **resets to zero**. That is arguably correct (a different test was
-run), but it is a real, user-visible consequence of the leg and it must be a stated decision, not a
-discovery.
-
-**Gates the new ops must keep green** (all six have paired fail-provable pytests, verified):
-
-| Gate | Scans | Risk from the new leg |
-|------|-------|-----------------------|
-| `tools/check_devtest_orchestrator.py` | `chip_test.py`, `cli_handlers.py`'s `dev_test`, `submit.py` in full — **AST walk**, denies VPP-set call sites, raw wire-dict construction, and `force=True` pass-through | **High.** The leg's inhibited write must route through `EpromOperator` and must set `FLAG_SKIP_SDP_UNLOCK` via `build_flags` (`eprom_operations.py:200-209`), **never** by hand-assembling a command dict. Wire keys `cmd`/`flags` in a dict literal in `chip_test.py` = instant gate failure. |
-| `tools/check_sdp_capability_invariants.py` | `firestarter/sdp_capability.py` | Low — the predicate is reused, not modified. `tests/fixtures/planted_widenable_allowset.py` and `planted_permit_by_default.py` are its planted negatives. |
-| `tools/check_no_community_support_status_write.py` | `diagnostic_report.py` | Medium — new report rows must stay advisory; no DB `support_status` write. |
-| `tools/check_no_log_in_sdp_window.py` | `../firestarter/src/proms/eeprom_28c.cpp` (cross-repo) | None — firmware untouched. |
-| `tools/check_no_exists_proxy.py` | `tests/` | Medium — do not author a new `.exists()` skip proxy for the new leg; use `tests/fw_presence.py`'s `requires_fw`. |
-| `tests/test_sdp_table_parity.py`, `test_sdp_bus_config_drift.py` | cross-repo `eeprom_28c.cpp` / `_shared/sdp_bus_config.h` | None — but they will **hard-fail** (`MissingScanTargetError`), not skip, if firmware paths move. |
-
-**Cross-repo reach, and its one trap.** The host *can* read the sibling firmware repo:
-`tests/fw_presence.py` resolves `FW_ROOT = <app>/../firestarter`, keys presence on the `.git`
-marker, exposes `requires_fw` and `fw_path()` — and `fw_path()` **hard-fails** on a missing target
-under a *present* repo rather than skipping (the Phase 123 BASE-02 fix for the fail-open A-7
-defect). `tests/scan_paths.py` is the committed 6-path inventory. **⚠ Every one of these is a
-source-text scan; none executes firmware.** And per
-`reference_devcontainer_sibling_layout_masks_ci_test_defects`: the devcontainer's sibling layout
-makes these pass locally while failing in a standalone CI checkout — point `FIRESTARTER_FW_ROOT` at
-an empty dir *before* any `beta` push. Note `FW_ROOT`/`FW_REPO_PRESENT`/`requires_fw` bind **at
-import**, so `monkeypatch.setenv` has no effect; a different root needs a **subprocess**.
-
-**Snapshot tooling:** `syrupy>=5.0` is pinned and in use by 6 test modules
-(`test_submit`, `test_characterization`, `test_eprom_info`, `test_config`,
-`test_audit_coverage_matrix`, `test_serial_comm`). The new report rows and the Trap-3 recoverability
-line are a natural snapshot target — **already available, nothing to add.**
+**No change to `[project].dependencies`.** The shipped runtime dependency set stays exactly
+`pyserial, requests, tqdm, click, rich, packaging`. Every candidate discussed in this document is a
+*test-time* concern, and even those are declined.
 
 ---
 
-## 4. Channel gating (999.15 / gh#8) — the mechanism exists; the surface it gates does not
+## (a) Structural / property testing over `derive_plan` — **ADD NOTHING**
 
-### 4a. What is already built
+### The measurement that settles it
 
-`firestarter/channel.py` (81 lines, read in full — verified):
+`derive_plan(name, db, *, write_scope)` at `firestarter/chip_test.py:486` is a **pure, deterministic
+function of two enumerable inputs**: a chip name from the shipped database, and one of exactly three
+`write_scope` values (`_WRITE_SCOPES`; anything else raises `ValueError`, never silently falls back).
 
-| Symbol | Line | Behaviour |
-|--------|-----:|-----------|
-| `is_prerelease_build()` | 36 | PEP 440 pre-release check on `firestarter.__version__` (currently `3.0.0b15`). **Fails CLOSED** — `InvalidVersion` ⇒ treated as stable ⇒ gated feature stays hidden. |
-| `BETA_ONLY_BOARDS` | **33** | `("py32f071",)` — *"graduates by deletion from this tuple"* |
-| `is_board_available(board)` | 60 | False only for a beta-only board on a stable build |
-| `available_boards(boards)` | 68 | order-preserving filter |
-| `beta_only_message(board)` | 73 | the single shared refusal text |
+Measured on the py3.11 CI replica at HEAD:
 
-**The module already internalised the `${sysenv.VAR}` lesson, verbatim in its own docstring:**
-*"Nothing here reads the environment. A channel gate that can be flipped by an env var is not a
-gate — the firmware side already learned that `-D X=${sysenv.VAR}` fails OPEN."* **Do not add an
-env-var override to this module.** (Note `tests/fw_presence.py` *does* have one env seam,
-`FIRESTARTER_FW_ROOT` — that is a test-harness path seam, a different thing, and it is
-deliberately root-only with the marker name hardcoded.)
-
-And the **command-surface** half exists too, in `cli_handlers.py` (verified):
-`_ALL_BOARDS:142` → `_BOARD_CHOICES:143` → `_PY32_ENABLED:144`, all **computed once at import
-time** ("a wheel's `__version__` is fixed when it is built"), plus `_reject_py32_only_option:147`
-called unconditionally at `:1087-1088`.
-
-### 4b. ⚠ The fail-open that 999.15 will walk straight into
-
-**`hidden=` is a `--help` cosmetic. It does not gate anything.** This is not inference — it is
-documented in `_reject_py32_only_option`'s own docstring as the HOST-02 bug that helper exists to
-close:
-
-> `hidden=not _PY32_ENABLED` on an option's `@click.option` decorator is a `--help` cosmetic only:
-> it keeps the option out of the rendered help text, it does not reject the option when a user types
-> it anyway. That confusion is exactly the bug HOST-02 exists to close: on a stable build,
-> `--usb-id` was accepted (exit 0) while `--dfu-probe` was refused (exit 2), even though both are
-> py32-only surface.
-
-`@dev.command(hidden=True)` behaves identically for a **command**: `firestarter dev reg …` stays
-fully invokable, just undocumented. **999.15 must gate by not registering the command** — a
-channel-derived command set, or a `click.Group` subclass filtering `list_commands`/`get_command` —
-so an absent subcommand produces Click's own `No such command` / exit 2. Anything less is
-security-by-help-text.
-
-### 4c. What 999.15 needs on top — and how v1.30 shrinks it
-
-Live `dev` group inventory (`cli_handlers.py`, verified). **The gating design note says eight
-subcommands; there are now nine** — `sdp` landed after the note was written:
-
-| # | subcommand | `@dev.command` | handler | stable channel (999.15) |
-|--:|---|---:|---:|---|
-| 1 | `read` | 1180 | 1192 | **KEEP** |
-| 2 | `reg` | 1211 | 1253 | gate out |
-| 3 | `addr` | 1273 | 1292 | gate out |
-| 4 | `consistency-check` | 1310 | 1363 | gate out |
-| 5 | `write-cycle` | 1400 | 1424 | gate out |
-| 6 | `fault-inject` | 1453 | 1484 | gate out |
-| 7 | `validate-family` | 1680 | 1704 | gate out |
-| 8 | `test` | 2055 | 2059 | **KEEP** |
-| 9 | `sdp` | 2196 | 2213 | **v1.30 DELETES — 999.15 never has to classify it** |
-
-Needed on top of `channel.py`: **(1)** a command-level registration gate (§4b); **(2)** a
-`dev`-group analogue of `_reject_py32_only_option`'s *single shared refusal path* for anything that
-must refuse rather than vanish; **(3)** a reworded `dev` group docstring — it currently reads
-*"Debug command for development purposes. USR button will break command and return."*
-(`cli_handlers.py:1172-1175`), which actively warns off the stable users `dev read` + `dev test`
-are being kept for.
-
-**The test template is committed and its rationale is already written down.**
-`tests/test_py32_channel_gating.py` uses **one subprocess per simulated version**, because
-`_BOARD_CHOICES`/`_PY32_ENABLED` are import-time constants and an in-process monkeypatch of
-`__version__` after `cli_handlers` is imported yields *"a test that would pass, but for the wrong
-reason."* The same is true of any registration-time command gate. **⚠ Two fail-opens in the test
-layer specifically:** (i) `is_prerelease_build()` returns **True** for a source checkout
-(`2.0.7_dev`, and today's literal `3.0.0b15`), so **the devcontainer and CI always see the beta
-surface** — a stable-behaviour test that forgets the subprocess passes **vacuously**; (ii) per the
-gating note's own R4, assert on the **registered command set** (`dev.commands.keys()`) and the
-`--help` surface, never on an exit code, because absent and present-but-broken exit identically.
-Related and convenient: `tests/test_dev_test_cmd.py:185` already introspects `.commands` — and is
-one of the 69 mypy errors (`"Command" has no attribute "commands"`, fixed by
-`cast(click.Group, …)`).
-
-Also carried forward from the gating note and **still live**: R3, the editable-install trap —
-`dev reg 0 0 0x86 -f` is the held-erase-rail DMM proxy and is load-bearing bench tooling; a
-source-checkout override must be designed **up front**. `fw --pre` / `--stable` already exist
-(`cli_handlers.py:954` / `:969`) so no new firmware-channel flag is needed, and
-`FIRMWARE_VERSION_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+((b|rc)[0-9]+)?\Z")`
-(`firmware.py:52`) needs no widening as long as no `+dev` local-version segment is introduced.
-
----
-
-## 5. What NOT to add — explicit
-
-| Do NOT add | Why |
+| Fact | Measured value |
 |---|---|
-| **Any new runtime dependency** | Runtime closure is 6 packages (`pyserial>=3.5`, `requests>=2.20`, `tqdm>=4.60`, `click>=8.1`, `rich>=14.0`, `packaging>=21.0`) plus the optional `[py32] pyusb>=1.3.1,<2`. Every one of the six scope items is host-side logic, Click wiring, or test code. **A CLI that ships to PyPI pays for a new dependency on every user's install, forever, for a diagnostic leg.** |
-| **A new test framework / property-based testing / a fake-hardware DSL** | pytest 9.x + `unittest.mock` + syrupy + `_FakeSerial` + `build_frame` cover all four of the leg's assertions (§3c). |
-| **`hidden=True` as a gating mechanism** | Documented `--help` cosmetic; the HOST-02 bug class (§4b). |
-| **Any env-var override in `channel.py`** | Its docstring forbids it and names the firmware `${sysenv.VAR}` fail-open as the reason. |
-| **`mypy --output json` as the gate's input** | Measured: drops the summary line, therefore drops the `(checked N source files)` completion/coverage signal the fix depends on (§1f). |
-| **A dedicated venv or a second mypy pin for the gate** | `sys.executable -m mypy` buys the determinism that matters at a fraction of the cost. |
-| **Pinning mypy back to `<2`** | Would restore the 3.9 target by reversing 9 months of tool currency, to type-check for an interpreter that EOL'd 2025-10-31. |
-| **A new option on `dev test`** | Zero options since Phase 121 D-05; the leg is plan-derived. `derive_plan`'s only kwarg is `write_scope` and `locked_destructive` is already permanently empty in production. |
-| **A new `StepResult` field** | `StepResult.op` is the extension axis (D-06/D-07 precedent, `OP_WRITE_PARTIAL`). New op strings only. |
-| **A new `mem_type`/`type` axis or a firmware capability bit** | v1.20 removed the legacy axis; the gating note establishes no handshake dev-capability bit is needed. |
-| **Raising the watermark to 69** | Records the debt as policy. The measured path to **33 ≤ 35** is three mechanical steps (§2d). |
-| **Touching `firestarter/` (firmware)** | Declared out of scope. Consequence: the Phase 116 trace harness cannot be an executable gate here (§3a). |
-| **`--python-version` on the CLI** | Splits the target across two files; reintroduces the exact confusion the current stale comment records. |
-| **Dropping `requires-python = ">=3.9"` in v1.30** | Correct eventually (3.9 EOL 2025-10-31) but it is published-metadata breakage orthogonal to these six items. **Backlog it.** |
+| Rows in `chip_database.json` | **746** |
+| **Distinct** `part_number` values (69 rows duplicate a part number across vendors) | **677** |
+| Full input domain (677 × 3 scopes) | **2,031** plans |
+| Wall-clock to derive **all 2,238** plans (746 rows × 3, i.e. the *superset* including duplicates) | **4.22 s** |
+| Wall-clock to derive all 2,031 and compute a shape census | **~5.3 s** |
+| Current full suite runtime, py3.11 | **737.37 s** (1,952 passed, 3 failed) |
+| Cost of an exhaustive sweep as a share of the suite | **0.57 %** |
+| Distinct plan shapes including `region_policy` + `cycle_payload` | **23** |
+| Distinct `(scope, op-sequence, is_uv)` classes | **9** |
 
----
+The nine classes, verbatim, with their populations:
 
-## 6. File:line audit — every claim in the planning record, checked
+```
+scope    is_uv   n     op sequence
+-------  -----   ---   ------------------------------------------------------------
+none     False   304   id->read->blank-check
+none     True    270   id->read->blank-check->erase
+none     False   103   id->read->blank-check->erase
+full     False   304   id->read->write->verify->erase->blank-check->write-baseline-b->
+                       write-baseline-a->sdp-lock->write-inhibited->sdp-unlock->write-restored
+full     True    270   id->read->blank-check->write->verify->erase->write-baseline-b->
+                       write-baseline-a->sdp-lock->write-inhibited->sdp-unlock->write-restored
+full     False   103   id->read->blank-check->write->verify->erase->write-baseline-b->
+                       write-baseline-a->sdp-lock->write-inhibited->sdp-unlock->write-restored
+partial  False   304   id->read->write-partial->verify->erase->blank-check->write-baseline-b->...
+partial  True    270   id->read->blank-check->write-partial->verify->erase->write-baseline-b->...
+partial  False   103   id->read->blank-check->write-partial->verify->erase->write-baseline-b->...
+```
 
-**8 verified · 11 stale.** The design note is dated 2026-07-31; PROJECT.md's own *corrections* of
-it are also stale.
+The entire 677-chip catalogue partitions into **three populations — 304 / 270 / 103** — and each
+produces one op sequence per scope. That is the whole behaviour space of the function this milestone
+wants to constrain.
 
-| Claim | Source | Live | Status |
+### Why hypothesis is the wrong tool here, specifically
+
+**hypothesis 6.167.1** (PyPI, released 2026-08-30; `requires-python >=3.10`; core deps
+`sortedcontainers>=2.1.0` plus `exceptiongroup` below 3.11) is an excellent library and it is the
+wrong one for this job, for four reasons that are not style preferences:
+
+1. **It samples where you can enumerate.** Hypothesis's value is exploring domains too large to
+   enumerate. This domain is 2,031 items and enumerates in 4.22 s. A default hypothesis profile draws
+   ~100 examples per property — it would examine **5 %** of a domain you can examine *entirely*, and
+   would still leave the roadmap unable to state "this holds for every shipped chip."
+2. **Generated chips are not shipped chips.** Any hypothesis strategy would either (i) draw from the
+   real database — at which point it is a slower, sampling version of the exhaustive loop — or
+   (ii) synthesize DB records, at which point it is testing chips that do not exist and cannot fail
+   for a customer. The milestone's motivating defects (gh#23/#28/#31) are about **specific real parts**.
+3. **It breaks this repo's reachability discipline.** Every whole-DB invariant test in this tree
+   records *reachability evidence*: the leg was observed to fail against a named, temporary mutation
+   before being trusted (`test_erase_flag_invariants.py` docstring transcribes this for six legs; see
+   also `test_sdp_db_invariant.py` legs 4 and 7, its explicit "non-vacuous proof" legs). A randomized
+   input makes "this leg failed against mutation M" a probabilistic rather than a categorical claim,
+   and a flaky red in a 737-second suite is a gate people learn to re-run.
+4. **CI determinism is load-bearing here.** `.github/workflows/ci.yml` runs on **every branch push**.
+   A nondeterministic failure in this suite is indistinguishable from the known-flaky
+   `test_skip_census.py` failures already present in this environment, and would be triaged as noise.
+
+### What to build instead — three tests, all stdlib + pytest
+
+| Test | Shape | Cost | Precedent in-tree |
 |---|---|---|---|
-| `dev_sdp` at `cli_handlers.py:2095-2227` | note §7, PROJECT.md:51 | decorator **2196**, `def dev_sdp` **2213**, block ends **2321** (EOF) | **STALE** — off by ~98; the real block is **2196-2321** |
-| `dev_test(app, chip)` at `cli_handlers.py:1958` | note §4, PROJECT.md:106 | `@dev.command(name="test")` **2055**, `def dev_test` **2059** | **STALE**, actual 2059 |
-| `sdp_capability` at `sdp_capability.py:266` | note §4, PROJECT.md:60 | `def sdp_capability` **272** (266 is inside the preceding helper) | **STALE** by 6 |
-| `eprom_operations.py:1736 sdp_unlock` | note §7 | `def sdp_unlock` **1736** | **VERIFIED** |
-| `eprom_operations.py:1784 sdp_lock` | note §7 | `def sdp_lock` **1784** | **VERIFIED** |
-| `constants.py:72-73` SDP commands | note §7 | `COMMAND_SDP_UNLOCK = 9` **72**, `COMMAND_SDP_LOCK = 10` **73**; `COMMAND_NAMES` entries **90-91**; `FLAG_SKIP_SDP_UNLOCK = 0x100` **121** | **VERIFIED** |
-| `COMMAND_NAMES` deref at `eprom_operations.py:301` and `:377` | note §7, PROJECT.md:130 | **329** and **405** | **STALE** — the `KeyError` risk is real, the lines are wrong |
-| host-side auto-unlock at `eprom_operations.py:1637` | note §2 | 1637 is a comment; the live gate is `if is_protocol_0x0d and (operation_flags & FLAG_SKIP_SDP_UNLOCK)` at **1654** | **PARTIALLY STALE** |
-| `chip_test.py:289-295` op vocabulary | note §7 | `OP_ID` **289** … `OP_ERASE` **295** | **VERIFIED** |
-| `chip_test.py:636 _DESTRUCTIVE_OPS` | note §7 | **636** | **VERIFIED** |
-| `diagnostic_report.py:183 dedup_fingerprint` | (§3d) | **186** | **VERIFIED** |
-| `channel.py` `BETA_ONLY_BOARDS` | scope item 5 | **33** | **VERIFIED** |
-| `dev` group at `cli_handlers.py:960`, docstring `:965` | gating note | `def dev()` **1173**, docstring **1174-1177** | **STALE** |
-| "**eight** dev subcommands" | gating note | **nine** (`sdp` added after the note) → back to eight after v1.30 | **STALE** |
-| `fw --pre` `cli_handlers.py:797`, `--stable` `:810` | gating note | **956** / **969** | **STALE** |
-| `firmware.py:47` version regex | gating note | `FIRMWARE_VERSION_RE` **52** (47 is its comment) | **STALE** by 5 |
-| `--sdp-relock` deferral at `STATE.md:154` / `PROJECT.md:671` | note §8 | — | **STALE** (note says so itself) |
-| `--sdp-relock` deferral at `STATE.md:532` / `PROJECT.md:705` | PROJECT.md:134 (its *own correction*) | live: **`STATE.md:538`** and **`PROJECT.md:823`** | **ALSO STALE** — fix both when the stub is scoped |
-| "test suite ~1293" | PROJECT.md | **1303** collected | **STALE** by 10 |
+| **1. Plan-class census (the anti-narrowing gate)** | Sweep all 677 × 3, bucket by `(scope, tuple(op for op in steps), is_uv)`, assert the result equals a committed 9-row table **element for element**, naming any chip that moved in either direction. | ~5 s | `test_sdp_db_invariant.py` leg 5 — `_COMMITTED_SDP_ALLOW_ENTRIES` element-wise parity, with the explicit rationale that a committed snapshot is "cheap insurance that costs nothing to keep". |
+| **2. The no-information invariant** | Same single sweep (reuse via a module-scoped fixture — pay the 4.22 s **once**, not per leg). For every plan, for every step: assert no step is emitted whose result is empty by construction, and assert **every `write*` step is followed by a `verify` in the same cycle** — the milestone's own named load-bearing dependency. Collect **all** violations and fail once with the full offender list, rather than aborting on the first. | ~0 s marginal | `test_erase_flag_invariants.py` leg 3 — "expressed *from the rule* rather than a snapshot". |
+| **3. The closure sentinel** | Derive the op vocabulary from the module's own `OP_*` constants (`{v for n,v in vars(chip_test).items() if n.startswith("OP_") and isinstance(v,str)}`) and assert the enumerated set equals it, so a future tenth op cannot escape by omission. | ~0 s | **Copy `test_shipped_ops_never_reach_sdp_arm` (`tests/test_chip_test_sdp_leg.py:827`) directly** — it already does exactly this, including the "a future eighth shipped op cannot silently escape this sentinel by omission" clause. This is the sentinel the milestone brief names. |
+
+**Use `pytest.mark.parametrize` over the 9 classes, and a plain loop over the 2,031 plans.** Do *not*
+parametrize 2,031 cases: pytest collection metadata for 2,031 ids is real overhead for zero diagnostic
+gain, and a single loop-and-collect assertion produces a *better* failure message (all offenders at
+once). This is exactly what the existing whole-DB sweeps do.
+
+### A finding the milestone brief has not counted: a fifth no-information case
+
+The brief names **four** measured cases of work that is empty by construction. The sweep found a
+fifth, and it is the largest:
+
+> **637 of 677 chips (94.1 %) carry six SDP-leg steps in `Plan.steps` that are `supported=False` for
+> every one of them.** Only **40** chips have any SDP step supported. Of the 637: **367** are refused
+> as "not on the SDP-capable list … pre-SDP generation", and **270** are UV parts refused with "SDP
+> lock/unlock applies only to protocol 0x0D parallel EEPROMs (observed protocol 0x0B)".
+
+`run_plan`'s own docstring says "NA steps are recorded without any operator call" — so these six cost
+no serial traffic. **But they are not free**, because they *do* produce a `StepResult`, which *does*
+enter `report.results`, which *does* enter `dedup_fingerprint`. That makes them the single largest
+collision between this milestone's two headline requirements. See §(c), hazard 1.
+
+**Roadmap implication:** the structural test must be written to *permit* the six unsupported SDP steps
+to remain in the plan (they are hash ballast, not waste), or the fingerprint gate must be redesigned.
+The phase that writes the invariant needs to state which, explicitly, before it writes the assertion.
 
 ---
 
-## 7. Version pins — the complete decision set
+## (b) Versioned JSON schema evolution, 1.7 → 1.8 — **ADD NOTHING**
 
-| Package / setting | Current | v1.30 action | Why |
-|---|---|---|---|
-| `mypy>=2.1.0` | resolves 2.3.0 | **unchanged** | Fine; the gate, not the pin, is broken. Consider a `<3` upper bound so mypy 3.x's next minimum-target clamp lands as a resolver decision rather than a surprise red — optional, and FIX-2 already makes it loud. |
-| `[tool.mypy] python_version` | `"3.9"` (silently ignored) | **→ `"3.10"`** | The only honest value mypy 2.x will accept. **Zero error-count change** (measured). |
-| `# mypy_error_watermark` | `35` | **keep 35**; re-baseline downward *after* the `dev sdp` deletion | 69 → 33 in three mechanical steps (§2d) |
-| `requires-python` | `>=3.9` | **unchanged in v1.30**; backlog the 3.9 drop | 3.9 EOL 2025-10-31; breaking published metadata is its own decision |
-| `[tool.ruff] target-version` | `"py39"` | **unchanged — now load-bearing** | It becomes the *only* remaining py39 floor enforcement once mypy targets 3.10 |
-| `ruff>=0.15.14` | local 0.16.0 | unchanged | `extend-exclude = ["tests/golden", "tests/fixtures"]` already handles the 0.16 markdown-formatting collision |
-| `pytest>=8.0`, `syrupy>=5.0`, `pytest-cov>=7.1.0`, `types-pyserial` | resolve 9.1.1 / 5.5.3 / — / 3.5.0.20260712 | unchanged | pytest 9.x is the source of the numpy stub chain but the chain is inert in CI (no numpy) |
-| runtime deps (6) + `[py32] pyusb` | — | **unchanged — add nothing** | §5 |
-| CI `Set up Python 3.11` | 3.11 | unchanged | Adding a py3.9 matrix leg would restore real 3.9 coverage — separate decision, not v1.30 |
-| `ci.yml` `push: branches: [main]` | main only | **worth revisiting** | `beta` pushes never run `ci.yml`, which is why a RED primary gate went unnoticed for two months |
-| coverage floor | `--cov-fail-under=70` | unchanged | pytest never ran in the failing runs; re-verify once the mypy gate passes |
+### What already exists (measured, not assumed)
 
----
-
-## Sources & confidence
-
-| Finding | Method | Confidence |
+| Mechanism | Where | What it already guarantees |
 |---|---|---|
-| mypy 2.3.0 rejects `python_version = 3.9` non-fatally and clamps to 3.10; CLI form is a fatal usage error | **reproduced** on this tree with 3 purpose-built probe configs and revealed-type branch analysis | **HIGH** |
-| Truncated-run summary `Found 1 error in 1 file (errors prevented further checking)` + exit 2 vs complete `Found 69 errors in 17 files (checked 120 source files)` + exit 1 | **reproduced**; PoC fixed gate flips devcontainer GREEN→exit 2 and reports 69/120 in a CI-like venv | **HIGH** |
-| 69 errors, 17 files, 120 checked; 25 in `firestarter/`, 44 in `tests/`; the class/file distributions; `--no-local-partial-types --no-strict-bytes` also = 69 | **measured** in a numpy-free venv reproducing `ci.yml`'s `.[test]` closure | **HIGH** |
-| numpy chain `pytest → _pytest/python_api.py:21 → numpy/__init__.pyi:737`; numpy absent from CI's closure | traced hop by hop; venv verified `ModuleNotFoundError: numpy` | **HIGH** |
-| CI is RED at exactly the `mypy type check (watermark gate)` step; `ci.yml` never runs on `beta` pushes | `gh run view 30708836339`; `ci.yml` read | **HIGH** |
-| Every file:line in §6; `channel.py` in full; the `hidden=`-is-cosmetic finding; `dedup_fingerprint` hashing `op` | read from the live tree | **HIGH** |
-| Phase 116 harnesses are `[env:native]` C++/Unity binaries in the firmware repo | `firestarter` @ `0933bd7`: `test/native/avr/test_sdp_harness/`, `test_eeprom28c_sdp/`, `platformio.ini` `[env:native]` | **HIGH** |
-| mypy **2.0** removed `--python-version 3.9`; **1.20** was the last release supporting it and dropped running on 3.9; latest changelog section is **2.3**; 2.0 also defaulted `--local-partial-types` / `--strict-bytes` on | live `python/mypy` `CHANGELOG.md` (raw, master) via WebFetch, **cross-checked** against the reproduced error message and the 2.1.0-vs-2.3.0 pair on this box | **MEDIUM** (verified: cross-checked) |
-| Python 3.9 EOL **2025-10-31**; Python 3.10 EOL **2026-10-31** | WebSearch, multiple concurring sources incl. endoflife.date | **MEDIUM** (verified: cross-checked) |
+| Single source of truth for the shape | `diagnostic_report.py:771` `to_dict()` — deliberately **hand-written, not `dataclasses.asdict()` wholesale** ("Pitfall 3") | One place bakes in `schema_version`; `render()` and `to_json_block()` both consume that same dict, so a field cannot exist in JSON but not in the table. |
+| Version-tolerant consumer | `tools/parse_devtest_issue.py`, proven by `tests/test_parse_devtest_issue.py:151` `test_detect_schema_version_matched_by_presence_not_exact_value` (the test literally feeds `"9.9-future"` and expects success) | **A 1.8 report parses today, with zero consumer change.** A previous version of that test hardcoded `"1.2"` and broke on the 1.3 bump; the current one imports `SCHEMA_VERSION` rather than restating it (line 116-123). That lesson is already learned and encoded. |
+| Frozen old-shape fixtures | `tests/test_parse_devtest_issue.py` — `_B11_BODY` (schema 1.1, populated `fw_board_identity`) and `_NULL_IDENTITY_BODY` (schema **1.2**, `fw_board_identity: null`), both carrying an explicit **"Must NEVER be regenerated from live `to_dict()` output"** instruction | Backward-compatible parsing of the exact shapes v1.36 must keep reading. |
 
-Sources:
-- [python/mypy CHANGELOG.md (master)](https://raw.githubusercontent.com/python/mypy/master/CHANGELOG.md)
-- [Python | endoflife.date](https://endoflife.date/python)
-- [Python 3.10 EOL — discuss.python.org](https://discuss.python.org/t/python-3-10-eol-is-there-an-official-end-of-support-date-within-october-2026/108064)
+**The 1.2 fixture already contains every field v1.36 deletes** — `voltage.vpp_mv`, `voltage.vpe_mv`,
+and `banner.locked_steps` are all present in `_NULL_IDENTITY_BODY`. This is the correct and complete
+mechanism for a field deletion, and it already works: **stop producing the field, keep tolerating it on
+read.** That producer/consumer asymmetry is the whole of "backward-compatible schema evolution" here.
+
+### Why a JSON Schema validator does not earn its place
+
+`jsonschema` **4.26.0** (PyPI, 2026-01-07; `requires-python >=3.10`; core deps `attrs`,
+`jsonschema-specifications`, `referencing`, `rpds-py`) is the obvious candidate. Decline it:
+
+1. **It would be a third declaration of one shape.** `to_dict()` declares it; the frozen fixtures pin
+   it; a `.schema.json` would declare it a third time, and the *only* thing keeping the three in sync
+   would be a human. The failure mode is a schema file that drifts and silently validates nothing —
+   this repo has a documented history of exactly that class of defect (a gate that fails open, a
+   selector that iterates the wrong level and passes vacuously).
+2. **It solves a problem this project does not have.** JSON Schema earns its place when *untrusted
+   third parties produce* documents you must validate. Here `firestarter_app` is the **sole producer**
+   and `tools/parse_devtest_issue.py` is the sole consumer, both in the same repo, both under the same
+   CI. There is no interop boundary.
+3. **`rpds-py` is a compiled Rust extension.** Even as a test extra it adds a wheel-availability and
+   platform surface to a repo whose one existing compiled dependency (`pyusb`/libusb) was deliberately
+   isolated into its own optional extra *and its own separate CI job* precisely so it could not take
+   down the primary gate (`ci.yml`, Phase 127 D-01/D-02). That precedent argues against, not for.
+
+### What to build instead
+
+| Need | Mechanism | Cost |
+|---|---|---|
+| Prove 1.8 still parses in the consumer | Nothing — already proven by presence-based detection. Add **one** frozen 1.8 body to the existing fixture family for symmetry. | 1 fixture |
+| Prove the 1.2 fixtures still parse after the deletions | They already do; add an explicit assertion that the *deleted* keys are still tolerated on read, so the tolerance is a stated contract rather than an accident. | 1 assertion |
+| Prove the new fields actually appear | Assert on `to_dict()` keys directly, as `test_diagnostic_report.py` already does. | existing idiom |
+| Catch an accidental key rename/removal | A committed sorted key list for `to_dict()`, asserted element-wise — the `_COMMITTED_SDP_ALLOW_ENTRIES` pattern applied to schema keys. This is the *one* genuinely missing gate: no test today pins the full key set of `to_dict()`. | ~20 lines |
+
+---
+
+## (c) Stable content-addressed hashing across schema changes — **ADD NOTHING, but two proven hazards**
+
+### Why no canonicalizer is needed
+
+`dedup_fingerprint()` (`diagnostic_report.py:186-240`) does **not** hash `to_dict()`. It builds an
+explicit list and joins it with `"|"`:
+
+```
+parts = [ac.chip, str(ac.protocol)]
+    + [f"{r.op}={r.verdict}:{cls}" for r in report.results]
+    + [repeat_policy_tag(...)]   # appended only when non-empty
+    + [coverage_tag(...)]        # appended only when non-empty
+canonical = "|".join(parts)
+sha256(canonical.encode("utf-8")).hexdigest()[:12]
+```
+
+This is an **allow-list hash over a hand-picked field set**, and it is the correct design. It is
+immune to key ordering, key addition, key deletion, float formatting, `None`-vs-absent and every other
+canonical-serialization hazard, *because the schema is not its input.*
+
+RFC 8785 (JSON Canonicalization Scheme) and its Python implementation `jcs` are the standard answer
+when the hash input **is** the JSON document — sorted keys, ECMAScript number serialization, no
+inter-token whitespace. **That is not this design and adopting it would be a regression:** hashing the
+canonicalized document would make every additive field in the 1.8 bump re-key every report, which is
+precisely the outcome the milestone forbids. **Do not adopt `jcs`. Do not switch to hashing
+`to_dict()`.** Record that as a decision, because it is the tempting refactor.
+
+The two existing tag functions (`repeat_policy_tag`, `coverage_tag`) already encode the correct
+evolution discipline in-source, and the source comments state it: *compute, then append to `parts`
+**only when non-empty**, so the default case stays byte-identical and no historical `count_agreeing`
+group is re-keyed.* **Any new discriminator v1.36 adds must follow that exact shape.**
+
+### Hazard 1 — pruning no-information steps re-keys the fingerprint (PROVEN)
+
+Run on this tree at HEAD, `m27c512`, `write_scope="full"`, 12 steps:
+
+```
+A) today, all 12 steps                          -> a00791f1c2b4
+B) with the 6 unsupported SDP steps pruned      -> 7d1cd4157cfa      B == A ?  False
+```
+
+Because `parts` gains one entry **per `StepResult`**, removing an operation from the plan removes an
+entry and changes the hash. For the **637 of 677 chips** whose six SDP steps are all `supported=False`,
+"stop emitting the operation that cannot tell you anything" and "keep `dedup_fingerprint`
+byte-identical" are **directly contradictory** as currently specified.
+
+`PROJECT.md`'s blast-radius statement — *"Not one field being added, filled or deleted is in that hash
+today"* — is **true for report fields and does not cover this.** The hazard is at the plan-composition
+layer, not the schema layer.
+
+**The resolution that costs nothing:** distinguish *not running* an operation from *not recording*
+it. Keep the `StepResult` (op + an NA/skipped verdict + empty classification) so `parts` is unchanged,
+and skip only the work. That is already exactly what `run_plan` does for unsupported steps today —
+"NA steps are recorded without any operator call." Extending that existing mechanism to the four (five)
+newly-identified empty-by-construction cases satisfies both requirements simultaneously. **This should
+be a named decision in the first v1.36 phase**, because the naive implementation (drop the step from
+`Plan.steps`) is the one that breaks the gate.
+
+### Hazard 2 — canonical chip naming re-keys the fingerprint (PROVEN)
+
+`ac.chip` is `parts[0]`. It is assigned the **raw CLI token** at `cli_handlers.py:2384` (`chip=chip`),
+and `db.get_eprom` is case-insensitive.
+
+```
+A) chip="m27c512"  (what a user types, and what every open issue title shows)  -> a00791f1c2b4
+C) chip="M27C512"  (the canonical database part_number)                       -> a6f6c6354047
+C == A ?  False
+```
+
+**732 of 746** database rows have a `part_number` that is not equal to its own lowercase form. The six
+motivating issues are titled `[dev test] at28c256 — FAIL`, `m27c512`, `w27e257` — all lowercase.
+Therefore the "Canonical chip naming" deliverable, implemented as stated, **re-keys essentially every
+historical fingerprint in the project**, resetting every `count_agreeing` group and disturbing the same
+Phase 114 GRAD-01 no-auto-graduate lock the milestone brief says must not be disturbed.
+
+**Two mutually exclusive resolutions; the roadmap must pick one explicitly:**
+
+| Option | Mechanism | Cost |
+|---|---|---|
+| **R1 (recommended)** — decouple display from hash | Add a **new** `auto_capture.canonical_part_number` field for the issue title and the report body, and leave `ac.chip` (and therefore `parts[0]`) carrying the raw token. Purely additive; zero re-key. | One field; the issue title reads from the new field. |
+| **R2** — normalize `parts[0]` | Feed `parts[0]` a case-folded or canonicalized name. Re-keys history. Only defensible if the operator explicitly accepts a one-time global re-key and the `count_agreeing` reset that follows. | Operator decision, not a phase's to make. |
+
+Also note before implementing either: the database's `name` field is a **comma-joined alias list**
+(`at28c256` resolves to `"AT28C256,AT28C256E,AT28C256F,AT28HC256,..."`), so "the canonical name" needs
+`part_number`, not `name`, and needs a stated rule for which alias an issue title shows.
+
+### Hazard 3 — the byte-identity gate the brief assumes exists, does not
+
+`PROJECT.md` says the gate is *"asserted against the frozen schema-1.2 fixtures."* Measured:
+
+- The frozen 1.2/1.1 fixtures carry `dedup_fingerprint` values `"deadnu11id00"`, `"aaaa11112222"`,
+  `"shared0000ab"`, `"b11deadbeef"` — **hand-written tokens, not real hashes.** They prove *parsing*
+  and *grouping*, and cannot prove hash continuity.
+- Every dedup test in `tests/test_diagnostic_report.py` is **relational**, computed at runtime:
+  `dedup_fingerprint(a) == dedup_fingerprint(b)`, or `!=`. A change to the hash **algorithm** passes all
+  of them.
+- There is **exactly one** frozen expected-hash literal in the whole suite:
+  `tests/test_diagnostic_report.py:1377` and `:1381`, both asserting `"a0a50436ae3d"` (added by the
+  `coverage_tag` quick task).
+
+**So the first thing v1.36 must build is the gate itself:** a `pytest.mark.parametrize` table of
+frozen `(report shape → expected 12-char hash)` pairs, computed **once, at the start of the milestone,
+against HEAD before any change lands**, covering at minimum the three populations × three scopes and
+both `repeat_policy_tag` / `coverage_tag` states. Stdlib + pytest; no library. Precedent and idiom:
+`test_diagnostic_report.py:1377`. Without this, the "blast-radius gate" is a claim, not a check — and
+hazards 1 and 2 above are exactly what it would have caught.
+
+---
+
+## The one real stack change: bound `syrupy`
+
+| Fact | Value | Source |
+|---|---|---|
+| Pin in `pyproject.toml` `[test]` extra | `syrupy>=5.0` — **no upper bound** | measured |
+| Resolved in `.venv/ci-replica/` | **5.5.3** | `importlib.metadata` |
+| Current on PyPI | **6.0.0**, released **2026-08-22** | PyPI JSON API |
+| `syrupy` runtime deps | `pytest>=8.0.0` only | PyPI JSON API |
+| 6.0.0 breaking change #1 | *"stdlib dataclasses are now serialized natively by the Amber serializer. The separate `DataclassPlugin` has been removed."* Dataclass snapshots may change from repr-style strings to structured Amber form. | syrupy releases page |
+| 6.0.0 breaking change #2 | JSON extension serializes `datetime.date` as `YYYY-MM-DD` instead of a `repr` string. | same |
+| 6.0.0 breaking change #3 | `path_value(..., regex=False)` now replaces values at nested paths such as `user.token`. | same |
+
+**Current exposure: zero.** The single `.ambr` file holds only CLI-output strings — a scan for
+dataclass-repr blocks returns 0 matches, and all 32 snapshots pass under 5.5.3.
+
+**v1.36 exposure: real.** `Plan`, `Step`, `Fingerprint` and the report structures are all
+`@dataclass`, and a milestone about report shape is precisely when someone reaches for
+`assert report == snapshot`. Under an unbounded pin, CI resolves 6.0.0 on the next clean install and
+that assertion's serialization changes under the milestone's feet, with the diff arriving as a
+snapshot mismatch rather than as a dependency change.
+
+**Recommendation:** `"syrupy>=5.0,<7"`, with a comment in the same style as the existing `mypy<3` and
+`pyusb<2` bounds (which is this repo's documented practice: *"Raise the bound deliberately and
+re-verify … in the same commit"*). Choose `<7` over `<6` if the milestone first re-runs the 32
+snapshots under 6.0.0 and they pass; choose `<6` if it does not want to spend that verification. Either
+is defensible; **unbounded is not.**
+
+**Plus one belt-and-braces rule for the phase:** snapshot `report.to_dict()` — a plain `dict` — never
+the `DiagnosticReport` dataclass. That sidesteps the 6.0.0 dataclass-serialization change entirely and
+keeps the snapshot readable as the JSON that actually ships in the issue body.
+
+---
+
+## Alternatives Considered
+
+| Recommended | Alternative | When the alternative would be right |
+|---|---|---|
+| Exhaustive sweep over 677 × 3 | **hypothesis 6.167.1** | If `derive_plan` took a continuous or combinatorially large input (address ranges, byte patterns, timing values). It does not. **Reconsider only if a future phase makes plan derivation depend on a wide numeric input** — e.g. arbitrary `write_region` tuples — where 2,031 enumerable cases become 2³² unenumerable ones. |
+| Frozen fixtures + committed key list | **jsonschema 4.26.0** | If a third party outside this repo began producing `dev test` reports (a community fork, a different host tool). Then a published schema is the interop contract and worth its weight. Today the producer and the consumer are the same package. |
+| Frozen fixtures + committed key list | **pydantic 2.13.5** | If report construction needed *runtime input validation* of untrusted data. It does not — the report is assembled from this program's own execution, and `pydantic` would be a **shipped runtime dependency** with a compiled `pydantic-core`, which is a materially larger ask than any test extra. Hard no. |
+| Hand-picked allow-list hash | **`jcs` / RFC 8785 canonical JSON** | If the hash input were the document. Adopting it here would make every additive 1.8 field re-key every report — the exact opposite of the requirement. |
+| Loop-and-collect assertion | **pytest-subtests 0.15.0** | If the 2,031 cases each needed independent pass/fail reporting in CI output. They do not — one failure message listing all offending chips is more useful and adds no dependency. |
+| Element-wise committed comparison | **deepdiff 9.1.0** (33 requires-dist entries) | Never, for this. `json.dumps(..., sort_keys=True)` plus set difference produces a message that names the chip that moved, which is what a maintainer needs. |
+| Element-wise committed comparison | **dirty-equals 0.11** | Marginal. Would make a few assertions terser; adds a dependency to save a helper function. Decline. |
+
+## What NOT to Use
+
+| Avoid | Why, specifically | Use instead |
+|---|---|---|
+| Any new entry in `[project].dependencies` | This package ships to end users on PyPI. Its runtime dependency set is six well-known libraries; every one of them is needed at runtime by the CLI. Nothing in v1.36 executes at user runtime that stdlib does not already cover. | stdlib `hashlib`, `json`, `dataclasses` |
+| `hypothesis` | Samples a domain that enumerates in 4.22 s; makes reachability evidence probabilistic; introduces flake into a 737 s suite that runs on every branch push | exhaustive sweep + the 9-class census |
+| `jsonschema` (and `fastjsonschema`) | Third redeclaration of a shape already declared twice; no interop boundary exists; `rpds-py` adds a compiled-extension surface this repo deliberately quarantines | frozen fixtures + a committed `to_dict()` key list |
+| `pydantic` | Would be a **runtime** dependency with a compiled core, to validate data this program itself produced | the existing hand-written `to_dict()` |
+| `jcs` / hashing `to_dict()` | Would make every additive 1.8 field re-key every historical fingerprint — the precise failure the milestone forbids | keep the hand-picked `parts` allow-list |
+| Unbounded `syrupy>=5.0` | 6.0.0 changes dataclass serialization; every report structure is a dataclass; CI resolves it today | `syrupy>=5.0,<7` |
+| `dataclasses.asdict()` wholesale in `to_dict()` | `diagnostic_report.py:771` names this "Pitfall 3" — it would leak every internal field into the wire shape automatically, which is how an unreviewed field reaches a stranger's GitHub issue | keep the hand-written dict |
+| Dropping unsupported steps from `Plan.steps` | Re-keys the fingerprint for 637 of 677 chips (**proven**: `a00791f1c2b4` → `7d1cd4157cfa`) | keep the `StepResult`, skip only the work |
+| Setting `ac.chip` to the canonical `part_number` | Re-keys essentially every historical fingerprint (**proven**: `a00791f1c2b4` → `a6f6c6354047`); 732/746 part numbers differ from their lowercase form | add `canonical_part_number` as a new field (R1) |
+| Measuring anything in the devcontainer's default py3.12 | Proven in this project to hide breakage that reddens beta CI | `.venv/ci-replica/` (py3.11) |
+| Relying on a `# noqa: BLE001` | `[tool.ruff.lint] select = ["E","F","I","UP"]` — `BLE` is not selected, so every such noqa in this tree is inert | catch the specific exception |
+
+## Stack Patterns by Variant
+
+**If a phase adds a new discriminator to `dedup_fingerprint`:**
+- Follow `repeat_policy_tag` / `coverage_tag` exactly — compute it, append to `parts` **only when
+  non-empty**, default to `""` for the pre-existing case.
+- Because that is the only shape that leaves every already-filed fingerprint byte-identical, and both
+  in-source comment blocks say so.
+
+**If a phase removes an operation from a plan:**
+- Keep the `StepResult` with an NA/skipped verdict; skip only the work.
+- Because `parts` gains one entry per `StepResult`, and `run_plan` already records NA steps without an
+  operator call.
+
+**If a phase adds a report field:**
+- Add it to `to_dict()` beside the existing keys, extend the committed key list, add nothing to
+  `dedup_fingerprint`.
+- Because the hash's input is an allow-list, so additive schema change is free by construction.
+
+**If a phase snapshots report output:**
+- Snapshot `report.to_dict()`, not the dataclass.
+- Because syrupy 6.0.0 changed dataclass serialization and the pin is currently unbounded.
+
+## Version Compatibility
+
+| Package | Version | Compatible with | Notes |
+|---|---|---|---|
+| pytest 9.1.1 | current | syrupy ≥5.0 (needs pytest ≥8.0.0), pytest-cov 7.1.0 | No conflict. |
+| syrupy 5.5.3 → 6.0.0 | **unbounded pin** | pytest ≥8.0.0 | **Action required.** 6.0.0 requires-python ≥3.10; CI runs 3.11, so the floor is fine — the *behaviour* is the problem. |
+| mypy 2.3.1 | pinned `<3` | `python_version = "3.10"` | `chip_test` and `diagnostic_report` are in neither strict-island list; new code there is watermark-only. |
+| ruff 0.16.4 | pinned `>=0.15.14` | `target-version = "py39"` | `tests/golden` and `tests/fixtures` are excluded; put no new gate input in `tests/golden` expecting it to be formatted. |
+| CPython 3.11 (CI) vs 3.9 (`requires-python`) | divergent, deliberately | — | Nothing type-checks against the advertised 3.9 floor (backlog 999.26). Do not use a 3.10+ stdlib API in shipped code without checking. |
+| hypothesis 6.167.1 | *not adopted* | requires-python ≥3.10 | Would be compatible; declined on merit, not compatibility. |
+| jsonschema 4.26.0 | *not adopted* | requires-python ≥3.10 | Would be compatible; declined on merit. |
+
+## Measurement Reproduction
+
+```bash
+cd /workspaces/firestarter_app
+.venv/ci-replica/bin/python - <<'PY'
+from firestarter.database import EpromDatabase
+from firestarter.chip_test import derive_plan
+import collections
+db = EpromDatabase(skip_local_override=True)
+names = sorted({r["part_number"] for _, rows in db.proms.items() for r in rows})
+c = collections.Counter()
+for nm in names:
+    for sc in ("none", "full", "partial"):
+        p = derive_plan(nm, db, write_scope=sc)
+        c[(sc, tuple(s.op for s in p.steps), p.is_uv)] += 1
+print(len(names), "chips ->", len(c), "classes")
+PY
+```
+
+The two re-key proofs in §(c) are reproduced by constructing a `DiagnosticReport` with one
+`StepResult` per plan step and calling `dedup_fingerprint` three times — once as-is, once with the
+six NA SDP results removed, once with `chip="M27C512"`.
+
+## Sources
+
+**Primary — this tree, measured 2026-09-02 (confidence HIGH).** Every count, timing, hash and plan
+shape above was produced by executing the code at `firestarter_app` @ `0a93999` in
+`.venv/ci-replica/` (CPython 3.11), and transcribed verbatim. Files read: `pyproject.toml`,
+`.github/workflows/ci.yml`, `firestarter/chip_test.py`, `firestarter/diagnostic_report.py`,
+`firestarter/cli_handlers.py`, `tests/test_chip_test_sdp_leg.py`, `tests/test_diagnostic_report.py`,
+`tests/test_parse_devtest_issue.py`, `tests/test_erase_flag_invariants.py`,
+`tests/test_sdp_db_invariant.py`, `tools/check_diagnostic_report_claims.py`.
+
+**Package versions — PyPI JSON registry API (`https://pypi.org/pypi/<name>/json`), queried
+2026-09-02 (confidence HIGH).** The Context7 MCP server is **not available in this runtime** — no
+`mcp__context7__*` tool is exposed — so the `research-plan` seam's `context7` route could not be
+executed. PyPI's own registry API was used instead. For the specific question asked (*"verify current
+versions"*) this is a **stronger** source than Context7: it is the canonical publisher of the version,
+release date, `requires-python` and `requires-dist` metadata, not a documentation index of it. Values
+transcribed: hypothesis 6.167.1 (2026-08-30), jsonschema 4.26.0 (2026-01-07), syrupy 6.0.0
+(2026-08-22), pytest 9.1.1 (2026-06-19), pytest-subtests 0.15.0 (2025-10-20), dirty-equals 0.11
+(2025-11-17), deepdiff 9.1.0 (2026-05-15), pydantic 2.13.5 (2026-08-28), fastjsonschema 2.22.2
+(2026-08-15).
+
+**syrupy 6.0.0 breaking changes** — `https://github.com/syrupy-project/syrupy/releases`, fetched
+2026-09-02. Confidence **MEDIUM** (vendor release notes, single source; the *consequence* for this
+repo — 32 snapshots, none dataclass-shaped — was verified locally and is HIGH).
+
+**RFC 8785 / JCS canonical JSON** — `https://www.rfc-editor.org/info/rfc8785/`,
+`https://datatracker.ietf.org/doc/html/rfc8785`, `https://pypi.org/project/jcs`. Confidence **LOW**
+per the classify-confidence seam for a `websearch` provider; used only to establish that a standard
+canonicalizer exists and to explain why it does not apply here — a conclusion that rests on the
+locally-measured structure of `dedup_fingerprint`, not on the search.
+
+**Confidence tiers** obtained from `gsd_run query classify-confidence`: `context7` → MEDIUM,
+`websearch` → LOW, `webfetch` → LOW.
+
+---
+*Stack research for: v1.36 `dev test` Fidelity — host-app-only Python CLI change*
+*Researched: 2026-09-02*

@@ -1,1027 +1,572 @@
 # Pitfalls Research
 
-**Domain:** Host-only CLI change to a mature EPROM-programmer tool — adding a **behaviourally self-verifying SDP lifecycle** (an *inverted* assertion: a write must FAIL) to an existing community-validation command, deleting a published subcommand, and hardening two fail-open gates.
-**Milestone:** v1.30 SDP Surface Retirement & Behavioral Lock Proof (phases continue at 131)
-**Researched:** 2026-08-03
-**Confidence:** HIGH for everything grounded in first-party source reads and locally-reproduced runs (the large majority below); MEDIUM for the two externally-sourced facts, both cross-checked against the installed library's own source.
+**Domain:** Repair of an existing community-facing hardware test/diagnostic harness (`firestarter dev test <chip>`) — conditional diagnostics, a skipped safety pre-check, fault attribution, and a machine-readable report schema evolution, all in one host-only milestone.
+**Researched:** 2026-09-02
+**Confidence:** HIGH for everything measured against `firestarter_app` at `0a93999` (executed, not inferred); MEDIUM for the external schema-evolution and failure-triage corroboration.
+
+## How to read this file
+
+Every pitfall below is either **MEASURED** (I ran it or read it out of source at HEAD and cite the line) or **REASONED** (a consequence I derived from measured facts). Nothing here is generic advice dressed up in project vocabulary.
+
+**Two of these pitfalls falsify claims the milestone currently makes about itself.** They are Pitfall 1 and Pitfall 5, and both were proven by execution, not argument. They are first because a roadmap that does not answer them will ship a regression the milestone's own blast-radius gate was written to prevent.
+
+**The counter-argument put to me was tested, not repeated.** The milestone's answer to "the `ff_ratio` read-back is a false-PASS detector, so it must stay unconditional" is that a verify follows every write in the same cycle and a near-all-`0xFF` device cannot pass a verify against a generated pattern. **That reasoning is correct as far as it goes** — see Pitfall 3, where I test it against a real counter-case and find the argument sound but *under-scoped*: it holds for the write step, does not hold for the verify step's own read-back on a `--fast` run, and says nothing about the two consequences that actually bite (Pitfalls 1 and 2), which are not about diagnostic power at all.
 
 ---
 
-## How to read this document
+## Critical Pitfalls
 
-Every pitfall below is **specific to this milestone touching this tree**. Each carries:
+### Pitfall 1: Gating the fingerprint read-back re-keys `dedup_fingerprint` on every passing run — the milestone's own blast-radius gate, broken by the milestone's own feature
 
-- **What goes wrong** — the concrete failure, with the file/line that enables it
-- **Why it happens** — usually: an existing, correct-for-its-purpose mechanism reused in a context where its polarity is wrong
-- **Mechanical prevention** — a named gate, test, fixture or fail-closed construct. Not "be careful".
-- **Warning signs** — what you would observe before it bites
-- **Where it bit before** — the phase/milestone in this repo's own record
-- **Phase to address**
-
-Recommended phase owners use the numbering proposed in §"Pitfall-to-Phase Mapping". Phases continue at **131**.
-
-**The two defining hazard classes are P-01…P-08 (false-green) and P-09…P-11 (inverted sensitivity).** They are treated exhaustively, ahead of everything else, because on this milestone a hollow oracle is not a quality gap — it is the milestone failing to deliver its only deliverable.
-
----
-
-# PART A — The false-green magnet (exhaustive)
-
-The leg's load-bearing assertion is that a write **does not take effect**. Every unrelated failure — transport error, brownout, absent chip, blank-check abort, closed destructive gate, capability refusal, an unmapped op — produces something the surrounding machinery already treats as "fine" or "not applicable". Below is every route in the current code by which the leg can report OK (or contribute `0` to `dev test`'s exit code) while proving nothing.
-
-The canonical in-repo statement of this class is `tests/test_characterization.py:470-474`:
-
-> *"cannot distinguish 'no programmer found' from 'found a real board and it refused'. Both tests patch `serial.Serial` with a MagicMock and assert it was never called, proving no port was ever opened."*
-
-and `tests/test_dev_test_cmd.py:583`, whose SAFE-04 test names `read_hardware_revision_value.assert_not_called()` as **"the load-bearing assertion"** — the exit code was not evidence. Every prevention below is an application of that same idiom: *assert the mechanism, not the outcome.*
-
----
-
-### P-01 (CRITICAL, headline): The oracle is vacuous because pattern A and pattern B are the same bytes
+**MEASURED. This is the single most important finding in this document.**
 
 **What goes wrong:**
-`firestarter/chip_test.py:59` —
 
-```python
-def generate_pattern(start: int, length: int) -> bytes:
-    return bytes(address_fold_byte(start + i) for i in range(length))
+`dedup_fingerprint` hashes, per step, the literal string `f"{result.op}={result.verdict}:{cls}"` where `cls = result.fingerprint.classification if result.fingerprint else ""` (`firestarter_app/firestarter/diagnostic_report.py:212-214`).
+
+`classify_fingerprint` has exactly **four** buckets and **no "clean match" bucket** (`chip_test.py:138-141`, `:194-259`). A perfect read-back — `bad = 0`, `ff_ratio` far below the 0.98 threshold, no bit clustering, not divergent — falls all the way through to the `indeterminate` fallback. I ran it:
+
+```
+perfect-match classification -> 'indeterminate'  bad=0  ff_ratio=0.0039
 ```
 
-`address_fold_byte` (`:48`) is `(addr ^ (addr>>8) ^ (addr>>16) ^ (addr>>24)) & 0xFF` — a **pure function of the absolute address**. `generate_pattern` is therefore a pure function of `(start, length)`. There is exactly **one** pattern per region in this engine, and `_write_region_for(step, eprom_data)` returns the region `derive_plan` already fixed once for the whole plan.
+So **today, on a passing full-device run, the write and verify steps each carry `classification="indeterminate"`, and that string is inside the hash.** Gating the read-back on `not all(outcomes)` makes `result.fingerprint` `None` on exactly those runs, so `cls` becomes `""`, so the canonical string changes, so the hash changes. Measured on a six-step SST27SF512-shaped result set:
 
-So if the implementer builds step 1 ("write pattern A") and step 3 ("write pattern B") the way every other write step in this module is built — `expected = generate_pattern(region_start, region_length)` — **A and B are byte-identical**. The oracle "read-back must still equal pattern A" then evaluates TRUE unconditionally: whether the lock inhibited the write, whether the lock did nothing, whether the write silently no-op'd, whether the chip is a brick that happens to still hold A. The single most important assertion in the milestone becomes a tautology, and it looks completely idiomatic in review because it reuses the module's blessed pattern generator.
+```
+dedup today (fingerprint attached on pass): 4dc282a5d596
+dedup after R2 (no fingerprint on pass)  : 60a031573aab
+BYTE-IDENTICAL? False
+```
+
+Every previously-filed *passing* report now sits in a different dedup group from every future passing report of the same chip. `count_agreeing` (`tools/parse_devtest_issue.py:164-183`) groups saved issue bodies by this embedded value and never re-hashes, so the N≥2 cross-report agreement signal is **reset to 1 for every chip that has ever passed**, silently, at the moment the change lands.
 
 **Why it happens:**
-`generate_pattern` is the *correct* choice everywhere else in `chip_test.py` — its whole design rationale (`:51-54`) is address-fault sensitivity, which requires determinism. Reusing it is the path of least resistance and the reviewer's expectation. Nothing in the module signals that a *second, distinguishable* payload is ever needed, because until now no step needed one.
 
-**Mechanical prevention:**
-1. **A committed test that asserts the two payloads differ at every byte**, keyed off the same functions production uses — not off literals:
-   ```
-   a, b = _sdp_pattern_a(region), _sdp_pattern_b(region)
-   assert len(a) == len(b) == region_length
-   assert all(x != y for x, y in zip(a, b))        # differ EVERYWHERE, not just somewhere
-   assert b != bytes(region_length)                # not all-0x00
-   assert b != b"\xff" * region_length             # not blank
-   assert a != bytes(region_length) and a != b"\xff" * region_length
-   ```
-   "Differ at every byte" (not "differ somewhere") is load-bearing: a partial lock leak that changes *one page* must be detectable, which requires the two payloads to disagree everywhere the write could have landed.
-2. **Derive B by a construction that cannot collapse to A** — bitwise complement of A is the cheapest (`bytes(~x & 0xFF for x in a)`), and on a 0x0D EEPROM both bit directions are writable, so B is genuinely programmable over A. A *nonce* or timestamp is worse: it makes the report non-reproducible and breaks the `dedup_fingerprint` hash. Complement is deterministic *and* maximally distinguishable.
-3. **Refuse to accept `generate_pattern` as the B source at all** — give B its own named function and add a lint-style test asserting the inhibited-write step's payload is not `generate_pattern(...)`'s output for the plan's region.
+The milestone inherited its blast-radius reasoning from Backlog 999.36, whose analysis is correct *for 999.36*: "Not one field in Class A, B or D is in that hash." That statement is about the **report schema** change. Backlog 999.43 (the sequencing work) is a **data** change to a field that *is* in the hash. Nobody re-ran the gate against R2 because the gate was written for a different feature and then quoted forward into a milestone that merged both. PROJECT.md:95-99 states the gate in the schema-work's terms ("Not one field being added, filled or deleted is in that hash today") — which is true and irrelevant to the change that breaks it.
+
+**How to avoid:**
+
+Decide the semantics explicitly, in a phase that lands *before* any sequencing change:
+
+1. **Preferred:** give `classify_fingerprint` a fifth, honest bucket for `bad == 0` (call it `match`), emit it on the *cheap* path without any read-back — the verify already proved equality — and hash *that*. This costs nothing, keeps a non-empty `cls` on every passing run, and removes the `indeterminate`-on-a-perfect-match absurdity the project already recorded as MEASURED-SUPERSEDED in `tests/test_chip_test.py:2707-2733`. It still re-keys history once, but for a reason you can defend and describe in the issue tracker.
+2. **Or:** keep the hash input stable by making `dedup_fingerprint` substitute the historical string when the read-back was skipped — i.e. the hash reads a *plan-shape* fact, not an *execution* artifact. Ugly, but it is the only option that is genuinely byte-identical.
+3. **Never:** land R2 and discover this from a community report that two identical passes no longer agree.
+
+Whichever is chosen, the phase must ship a **pinned-hash regression test**: a frozen list of `(result-shape, expected 12-hex)` pairs covering pass/fail/marginal/`--fast`/uv-slot/full-device, asserted byte-for-byte. The project has this discipline already (quick tasks 260821-wna and 260822-aq6 both reasoned about it) but it lives in prose, not in an assertion.
 
 **Warning signs:**
-- The inhibited-write step's plan/summary says "write pattern B" but the code calls `generate_pattern` with the same `step.write_region` as step 1.
-- A native test of the leg passes on the very first attempt with no fixture that models a *leaky* lock.
-- No test in the phase distinguishes "lock worked" from "lock did nothing" — because with A == B, no test *can*.
 
-**Where it bit before:**
-This is the v1.22 C-5 shape one layer down. v1.22's whole opening finding was that a check which looked like verification — the `(0x5555, 0x20)` success check — was **inverted**, not merely weak, and had shipped since v1.0. And v1.12's GATE-03 was an "asserted-empty-but-never-populated" detector; `RETROSPECTIVE.md:404` states the rule: *"A safety gate must actually be able to fail. A detector that's asserted-empty-but-never-populated is worse than no gate (false assurance)."*
+- Any plan that says "dedup is unaffected because no *field* changed" — the hash reads a *value*, and R2 changes a value.
+- A test suite that passes while no test constructs a **passing** run's dedup fingerprint. Grep: the existing dedup tests exercise failure shapes.
+- `count_agreeing` returning all-1 counts on a corpus where it used to return 2s.
 
-**Phase to address:** the SDP-leg phase (proposed **133**), as its first plan, before any step is wired.
+**Phase to address:** A **dedup/ladder invariance harness phase, sequenced FIRST (suggested 174)**, before any sequencing or schema change. It is the gate every later phase is measured against, and a gate authored after the content it guards is the project's own documented anti-pattern (`reference_gate_authored_before_content_can_be_unreachable`).
 
 ---
 
-### P-02 (CRITICAL): `_diff_offsets` reports **zero differences** for an empty read-back
+### Pitfall 2: The same gating silently flips the promotion ladder from "none" to "community-reported"
+
+**MEASURED. Second-order consequence of Pitfall 1, in a different mechanism, with a different blast radius.**
 
 **What goes wrong:**
-`firestarter/chip_test.py:93-104` —
 
-```python
-cmp_len = min(len(expected), len(actual))
-diff_offsets = [o for o in range(cmp_len) if expected[o] != actual[o]]
-pct = 100.0 * len(diff_offsets) / cmp_len if cmp_len else 0.0
+`build_db_diff` routes disposition on `has_indeterminate_fingerprint` (`diagnostic_report.py:304-312`): any step carrying `classification == "indeterminate"` forces `inconclusive` / `_LADDER_NONE`. Because a perfect match *is* `indeterminate` (Pitfall 1), **today an all-OK non-SDP run can never reach `community-reported`.** Remove the read-back on pass and it can. Measured:
+
+```
+today (unconditional read-back)    disposition='inconclusive -- needs N>=2 agreement (advisory)' ladder=''
+after R2 (gated)                   disposition='suggests: candidate for community-reported (advisory)' ladder='community-reported'
 ```
 
-Its docstring says explicitly: *"unequal-length inputs are compared only over their common prefix and never raise."* With `actual = b""` (a failed read-back), `cmp_len == 0`, `diff_offsets == []`, `pct == 0.0`. **A total read failure is indistinguishable from a byte-perfect match.**
-
-This is the *one* divergence primitive the module mandates (`:86-88`: *"do NOT add a second parallel divergence implementation elsewhere in this codebase (D-04 mandate)"*), so the implementer is instructed by the code to use it. Written the obvious way —
-
-```python
-if not _diff_offsets(pattern_a, readback)[1]:
-    verdict = VERDICT_OK   # "chip unchanged — lock held"
-```
-
-— a read-back that returned nothing at all reports **the lock held**. Same for a *short* read-back: 256 bytes expected, 4 bytes returned that happen to match → `[]` → OK.
+A performance change therefore moves chips onto the promotion ladder. That is squarely in Phase 114 GRAD-01's neighbourhood — the no-auto-graduate lock — and it is being made as a side effect of a change whose stated goal is "run no operation whose result is empty by construction."
 
 **Why it happens:**
-`_diff_offsets`'s never-raise, common-prefix semantics are correct for its original job (comparing two reads of unknown length for a *divergence metric*, where 0 is a safe default). Used as an *equality oracle* the same defaults invert into a false green. The polarity of "no differences found" flips depending on whether you're measuring divergence or proving equality.
 
-**Mechanical prevention:**
-1. **A length gate before any comparison**, in the leg's own code:
-   ```python
-   if len(readback) != len(pattern_a):
-       return StepResult(op=OP_SDP_INHIBITED_WRITE, verdict=VERDICT_BAD,
-                         reason=f"read-back length {len(readback)} != expected "
-                                f"{len(pattern_a)} — oracle inconclusive, not a pass")
-   ```
-   `VERDICT_BAD`, never `SKIPPED` (see P-09 for why).
-2. **A non-blank / non-empty guard**: an all-0xFF read-back is a blank/contact condition, not evidence — `prepass_images` (`:70`) exists precisely to name that condition and `classify_fingerprint` already treats all-0xFF as a blank/contact signal. Route the SDP read-back through `classify_fingerprint` too so a contact fault reads as a contact fault, not as "unchanged".
-3. **A planted-fixture test per degenerate input**, each asserting BAD: `b""`, a short prefix of A, all-0xFF, all-0x00. Four cases, four asserts. Without these the oracle is untested against exactly the inputs a real bench failure produces.
+The `indeterminate`-on-a-perfect-match behaviour is an emergent property of two shipped mechanisms meeting, discovered and recorded during v1.30 Phase 134 (`tests/test_chip_test.py:2707-2733`, explicitly labelled "SECOND, DEEPER MEASURED FINDING" and "MEASURED-SUPERSEDED"). It is documented in a *test docstring*. Nobody planning a sequencing change reads that docstring, because the change is not about the ladder.
+
+**How to avoid:**
+
+- Treat the ladder outcome as a **first-class success criterion of the sequencing phase**, not a side effect: state, before implementation, whether an all-OK run *should* reach `community-reported`, and make that the assertion.
+- If the answer is "yes, and it always should have been" (which is defensible — `indeterminate` on a bit-perfect compare is noise, not a finding), then say so publicly, because it changes what the triage skill and any human reader infer from a report.
+- Pin `build_db_diff`'s output for the all-OK non-SDP shape in the same invariance harness as Pitfall 1. Note the AT28C256 case is *not* affected — its SDP leg attaches fingerprints in every arm and keeps forcing `_LADDER_NONE` — so a test that only exercises AT28C256 will not see this.
 
 **Warning signs:**
-- The leg's comparison calls `_diff_offsets` (or `==` on `bytes`) without a preceding length assertion.
-- A test named something like `test_lock_holds` whose fixture read-back is built from `generate_pattern` — i.e. the happy path only.
-- gh#20 (AT28C256 `dev test` FAIL, open since 2026-07-30) is exactly the situation that produces degenerate read-backs on this family in the field.
 
-**Where it bit before:**
-`chip_test.py:1140-1160`'s own comment records the same swallow being *deliberately* accepted for the fingerprint: *"a readback failure … must NOT convert an otherwise successful write/verify outcome into BAD (Pitfall 1 extends to this internal readback call too) — it only means no Fingerprint could be attached."* That choice is right for a diagnostic fingerprint and **catastrophically wrong for an oracle**. Reusing that code path is P-03.
+- The ladder assertion at `tests/test_chip_test.py:2752` (`assert db_diff.ladder_state == ""`) turning RED, and someone "fixing" it by editing the expectation without adjudicating what it means.
+- A chip appearing at `community-reported` in a report and nobody being able to say which change put it there.
 
-**Phase to address:** 133.
+**Phase to address:** Same invariance harness phase (suggested 174) for the pin; the adjudication belongs to the **conditional-diagnostics phase (suggested 175)** as a named decision, not a discovery.
 
 ---
 
-### P-03 (CRITICAL): Reusing `_dispatch_multi_run` makes the write's boolean the oracle — three separate ways
+### Pitfall 3: An oracle cheaper than the diagnostic it gates covers fewer fault modes than the diagnostic — and here the gap is narrow but real
+
+**REASONED from measured code. This is where the milestone's counter-argument gets tested.**
 
 **What goes wrong:**
-`_dispatch_multi_run` (`chip_test.py:1039-1195`) is the only place write-shaped ops execute. Routing the inhibited write through it inherits three defects at once:
 
-**(a) The verdict is the write's return value.** `:1170-1173`:
-```python
-verdict = VERDICT_OK if outcomes and outcomes[0] else VERDICT_BAD
-```
-`outcomes` is `[operator.write_eprom(...) for _ in range(runs)]`. So the step's verdict is *"did the write report success"* — precisely the "exit-code-only" oracle the design note forbids. If the firmware's inhibited write returns `True` (it wrote nothing but reported OK, or the lock never reached silicon), the step is **OK**. If the write returns `False` for a transport reason, the step is **BAD** — right answer, wrong reason, and a maintainer reading the report cannot tell which.
+The general shape: you gate an expensive diagnostic D on a cheap oracle O, on the argument that "O fails whenever D would have found something." The failure mode is that O's fault-mode set is a strict *subset* of D's, so faults in `D \ O` become invisible — and they become invisible **silently**, because the run reports PASS and nothing records that D did not execute. Functional-safety practice frames exactly this as diagnostic coverage against an enumerated failure-mode set; the enumeration is the work, and skipping the enumeration is the mistake.
 
-**(b) `runs` defaults to 2, so the inhibited write executes TWICE.** `run_plan(..., runs: int = 2)`, and `runs < 2` is *rejected* (`:768-780`). Two attempted writes of B against a locked part means: if the lock leaks partially, run 1 changes some bytes and run 2 changes more, so the read-back state depends on how many passes ran. Worse, `marginal` fires on disagreement (`:1169-1171`) — and `marginal` maps to exit code **2**, a *third* outcome for what should be a binary claim. Worst: if both runs return the same boolean, `marginal` does *not* fire and the disagreement signal is lost.
+For this project the specific question is: does `verify` cover everything the fingerprint read-back covers, on a passing run?
 
-**(c) The read-back is best-effort and swallowed.** `:1147-1160`:
-```python
-except EpromOperationError:
-    actual = b""
-...
-if actual:
-    fingerprint = classify_fingerprint(...)
-```
-A read-back failure yields no fingerprint and **leaves the write-boolean verdict standing**. Combined with (a): the write says OK, the read-back that was supposed to falsify it silently didn't happen, and the step reports OK with no fingerprint. Nothing in the report says the oracle didn't run.
+**The project's argument is sound for the write step.** `verify_eprom` streams the same expected buffer host→device and the firmware compares byte-for-byte. A near-all-`0xFF` device cannot pass a verify against `generate_pattern(start, length)`, so the `ff_ratio ≥ 0.98` blank/contact false-PASS bucket genuinely cannot fire on a run where verify passed. That is not hand-waving; it is arithmetic, and I could not construct a counter-case.
+
+**But the argument is under-scoped in three places the milestone does not currently name:**
+
+1. **The verify step's own read-back.** `_dispatch_multi_run` attaches a fingerprint for `OP_VERIFY` as well as `OP_WRITE` (`chip_test.py:3100`). For that step, "a verify follows in the same cycle" is *the step itself* — there is no second, independent oracle. Gating it on `not all(outcomes)` is still fine (a passing verify already proved equality on-device), but the justification is different: it is "the firmware already compared," not "a later step will catch it." Conflating the two justifications in one gate is how the SDP leg gets gated by accident later.
+2. **`--fast` (`runs=1`, `allow_single_run=True`).** With one run, `repeat_divergent` is `None`, no read divergence is computed, and there is exactly one verify. The safety margin the project is relying on is thinner on the mode the community is most likely to run. This does not break the argument, but it means the structural test must cover `--fast` plans, not just the default policy.
+3. **The `write-inhibited` SDP-leg arm.** `_dispatch_sdp_leg` attaches a fingerprint in *every* arm including the arm where a write is *expected* to be blocked — there, "OK" means "the write did not take," and the read-back *is* the oracle. R1/R2 must be structurally incapable of reaching that code path.
+
+**Separately: R1 and R2 contradict each other on the same call site.** The seed's R1 says "Any place the engine reads the whole device back to compare it against a buffer it already holds is a verify. **This applies to the fingerprint read-backs.**" R2 says the fingerprint read-back should *stay a read-back*, merely conditional. Read literally, R1 converts the diagnostic into an oracle and destroys the mismatch distribution `classify_fingerprint` exists to compute. The cost-model note resolves the tension correctly ("Verify decides; a read-back diagnoses; the read-back only needs to run when verify says something is wrong") but the seed does not. A planner working from the seed alone will implement the destructive reading.
+
+**How to avoid:**
+
+- Write the **fault-mode table** before the code: rows = the four `classify_fingerprint` buckets plus "false PASS via undriven bus"; columns = "caught by verify?", "caught by read-back?", "caught by blank-check?". Any row where the read-back is the only Yes is a row the gate must not suppress. This is a half-page artifact and it is the difference between a defensible gate and a hopeful one.
+- Make the structural test assert the **dependency**, as the milestone already intends: over `derive_plan` output, in the shape of `tests/test_chip_test_sdp_leg.py:827`'s `test_shipped_ops_never_reach_sdp_arm` — every `OP_WRITE`/`OP_WRITE_PARTIAL` step must be followed, in the same cycle, by an `OP_VERIFY` over the same region. Make it fail on a hand-built counter-plan (a plan with a write and no verify), or it proves nothing.
+- Amend the seed's R1 sentence in the same phase. A rule that contradicts itself in the artifact the planner reads is a defect in the artifact.
+
+**Warning signs:**
+
+- A plan that cites "verify covers it" without naming *which* fault modes.
+- The structural test passing on the shipped plans but never having been shown to fail on a counter-plan.
+- Any diff that touches `_dispatch_sdp_leg` while implementing R1/R2.
+
+**Phase to address:** **Conditional-diagnostics phase (suggested 175)**, with the fault-mode table as a named deliverable and the counter-plan test as a non-vacuity leg.
+
+---
+
+### Pitfall 4: Skipping the diagnostic silently removes it from the record — a PASS that skipped D looks identical to a PASS that ran D
+
+**REASONED from measured code.**
+
+**What goes wrong:**
+
+Today every passing full-device run emits `fingerprint: "indeterminate"` — a value that at least proves the read-back happened. After gating, it emits `fingerprint: null`. But `null` is *also* what a step that never had a fingerprint emits (`id`, `read`, `erase`, `blank-check`, and any write whose read-back returned `b""` because the chip was absent). **Three very different situations collapse onto one JSON value**, and one of them is the project's own documented absent-chip false-green history (`_read_region` returns `b""` on any error and never raises, `chip_test.py:2739-2743`).
+
+So after the change, a reviewer looking at a filed issue cannot distinguish: (a) the read-back was skipped because everything passed, (b) the read-back ran and produced nothing because the chip was not making contact, (c) this op never had a fingerprint.
 
 **Why it happens:**
-`_MULTI_RUN_OPS` is documented as the mandatory registration point: *"any future op added to the vocabulary MUST be added to both frozensets in this block or it fails closed by construction"* (`:672-676`). An implementer reading that correctly concludes "register my new ops in both frozensets" — and registering the inhibited write in `_MULTI_RUN_OPS` routes it straight into the boolean-verdict path. **The fail-closed instruction leads directly into the false-green path.** That is the trap.
 
-**Mechanical prevention:**
-1. **The inhibited-write step gets its own dispatch arm in `_dispatch_step`, above the `_MULTI_RUN_OPS` branch** — a dedicated function whose verdict is computed *only* from the read-back comparison. The write's boolean becomes a recorded *reason* field, never the verdict.
-2. **`runs == 1` for the inhibited write, enforced structurally**: the new arm takes no `runs`. Assert `run_count == 1` in a committed test. A second attempted write against a possibly-leaky lock destroys the evidence the first attempt produced.
-3. **Register the lock/unlock/inhibited ops in `_DESTRUCTIVE_OPS` (all three mutate or attempt to mutate) but keep the inhibited write OUT of `_MULTI_RUN_OPS`** — and add a test asserting that op is *not* in `_MULTI_RUN_OPS`, with a comment pointing at this pitfall. Otherwise a future tidy-up "completes" the registration and silently restores the boolean oracle.
-4. **A deliberate-break test**: mock `write_eprom` to return `True` *and* a read-back equal to pattern **B** (i.e. the write took effect). Assert the step is `BAD`. Then mock `write_eprom` to return `False` with a read-back equal to **A**. Assert the step is `OK`. These two cases together prove the verdict is driven by the read-back and *not* by the boolean. Without both directions, the test passes on a boolean-driven implementation.
+Skipping work is modelled as "produce nothing" rather than "produce a record that says the work was skipped and why." It is the cheapest implementation and it is the one that destroys the audit trail.
+
+**How to avoid:**
+
+Emit the *reason*, not the absence. Since the milestone is already bumping the schema and already adding fingerprint siblings (`total`/`bad`/`bad_pct`/`evidence`), add a sibling that states the gate outcome — e.g. `fingerprint_source: "skipped: all runs passed" | "read-back" | "unavailable: empty read"`. This is the same discipline the project applied to `run_count` in schema 1.7 ("the number reached NO consumer outside the test suite... it is now stated on every disclosure surface"), and it is the cheapest possible insurance against Pitfall 3 being wrong in a way nobody notices for six months.
+
+Note the pleasing consequence: this key also solves Pitfall 1 if the gate outcome is what gets hashed, and it makes the R3 sampling provenance (Pitfall 6) representable in the same idiom.
 
 **Warning signs:**
-- The new op strings appear in `_MULTI_RUN_OPS`.
-- `StepResult.run_count == 2` for the inhibited write.
-- The step's `reason` is empty on a pass (the boolean path sets `reason = ""`).
-- A grep for the new op name finds no new `if step.op ==` arm in `_dispatch_step`.
 
-**Where it bit before:**
-Phase 121 Plan 02, RESEARCH C-5 / "Pitfall 1a": `_MULTI_RUN_OPS` had **zero references anywhere in the tree**; `_dispatch_step`'s trailing `return _dispatch_multi_run(...)` was unconditional and `_dispatch_multi_run` ended in `else: # OP_ERASE`, so **any** op string reached `operator.erase_eprom()` and reported `VERDICT_OK` — *"proven empirically: an unmapped op called erase_eprom() twice and returned OK"* (`chip_test.py:644-650`). The guard that fixed it is the same guard that now funnels new ops into the boolean-verdict path.
+- A schema-1.8 report where you cannot answer "did this run do a read-back?" from the JSON alone.
+- The word "skipped" appearing only in a code comment.
 
-**Phase to address:** 133.
+**Phase to address:** **Report schema phase (suggested 180)** owns the key; the **conditional-diagnostics phase (suggested 175)** owns populating it. They must not be separated by a release.
 
 ---
 
-### P-04 (CRITICAL): `SKIPPED` and `NA` both map to exit code **0** — six routes to a green run with no oracle
+### Pitfall 5: The UV blank-check skip does not stop a UV part failing — the standalone blank-check step still reports BAD and still aborts the second cycle
+
+**MEASURED from source. This falsifies a target-feature claim in PROJECT.md:78-83.**
 
 **What goes wrong:**
-`cli_handlers.py:1862-1868`:
-```python
-_VERDICT_EXIT_CODES = {VERDICT_OK: 0, VERDICT_NA: 0, VERDICT_SKIPPED: 0,
-                       VERDICT_MARGINAL: 2, VERDICT_BAD: 1}
-```
-and `dev_test`'s contract (`cli_handlers.py:2091`): *"0 if every step is OK/NA/SKIPPED, 2 if any step is marginal (and none BAD), 1 if any step is BAD"*, computed as `max(...)`. **Any path that turns the oracle step into SKIPPED or NA yields `firestarter dev test <chip>` → exit 0**, and a community member reports "PASS".
 
-Every route in the current code:
+PROJECT.md says "**UV parts stop failing for the tool's own blank check** ... Pass `FLAG_SKIP_BLANK_CHECK` on `uv-slot` writes." That fixes the *write-init* pre-flight inside the firmware. It does not touch the **plan's own standalone `blank-check` step**, which is a separate op that `derive_plan` puts in every UV plan (`chip_test.py:658-678`; confirmed in the cost model's per-chip table: `m27c512` → "blank-check before write").
 
-| # | Route | Mechanism | Result today |
-|---|-------|-----------|--------------|
-| R1 | **Chip-ID mismatch closes the destructive gate** | `run_plan:784` — `if step.op in _DESTRUCTIVE_OPS and destructive_gate_closed: results.append(_skip_result(step.op, _DESTRUCTIVE_GATE_REASON))` | oracle step `SKIPPED` → 0 |
-| R2 | **`_id_step_closes_gate` fires on ANY id uncertainty** — `result.verdict in (BAD, SKIPPED)` (`:808`) | a flaky id read, an absent chip in DB case B, a transport hiccup | oracle `SKIPPED` → 0 |
-| R3 | **`resolve_chip` refusal** — `_resolve_or_none` maps `ChipNotImplementedError`/`ChipNotFoundError` → `SKIPPED` (`:696-706`) | support-status refusal on the chip | oracle `SKIPPED` → 0 |
-| R4 | **`step.supported is False`** → `_skip_result(..., verdict=VERDICT_NA)` (`:781`) | a `sdp_capability()` REFUSE, or a mis-keyed applicability predicate | oracle `NA` → 0 |
-| R5 | **`write_scope="none"`** — `derive_plan` structurally OMITS write/verify/erase from `Plan.steps` and puts them on `locked_destructive`; *"run_plan has no code path to iterate them"* (`:405-409`) | if the SDP steps are added outside the `write_execute` branch, you get lock-with-no-baseline-and-no-unlock; if inside, they vanish silently | either a hazard (P-13) or an invisible omission |
-| R6 | **Empty `results`** — `if not results: sys.exit(0)` (`cli_handlers.py:2187`) | a `derive_plan` failure returning an empty plan | exit 0 with nothing run |
+Trace the second run of a used UV part through HEAD:
 
-And a seventh, subtler one:
+1. `_run_step` → `operator.check_eprom_blank(...)` → `False` → `StepResult(verdict=VERDICT_BAD, error_code=MSG_ERR_NOT_BLANK)` (`chip_test.py:2527-2542`).
+2. In the cycle loop, `if result.error_code is not None: hardware_refused = True` → after the cycle, `break` (`chip_test.py:1568-1570`). **Cycle 2 never runs.**
+3. `run_count` for the destructive ops collapses to 1 → `repeat_policy_tag` returns the degraded tag (`chip_test.py:1094-1097`) → `dedup_fingerprint` gets a `fast`-shaped discriminator on a run the operator did not ask to be fast.
+4. `overall_verdict` is FAIL-dominant on any BAD (`submit.py:140-152`) → the submit prompt still offers **`[dev test] AM27C020 — FAIL`**.
 
-| R7 | **The N-of-M banner does not notice.** `_RAN_VERDICTS = {OK, BAD, marginal}` (`chip_test.py:1209`); `count_applicable` computes `M = sum(1 for s in plan.steps if s.supported) + len(plan.locked_destructive)` and `N = count of results whose verdict is in _RAN_VERDICTS`. An `NA` SDP step is **excluded from M as well as N**, so the headline coverage ratio stays at `N == M` while the oracle never ran. |
+So after the planned host-half fix, the write and verify steps go OK — and the run still reports FAIL, still aborts after one cycle, and still files against the chip. **The milestone's stated outcome is not reached by its stated change.**
 
 **Why it happens:**
-`SKIPPED`/`NA` → 0 is *correct* for every pre-existing step: an inapplicable erase on a UV part is genuinely not a failure. The SDP oracle is the first step in this command whose *absence* is itself a finding — and the exit-code table has no vocabulary for that.
 
-**Mechanical prevention:**
-1. **A distinct verdict or a distinct reporting slot for "the oracle did not run on a chip where it applies".** Concretely: when `sdp_capability()` returns ALLOW, a `SKIPPED` oracle step must be surfaced, not absorbed. Options, in order of preference:
-   - Add the SDP oracle result to `DiagnosticReport` as a **named, always-present field** (not just another row in `results`), rendered on every ALLOW-chip run as one of `HELD / NOT-HELD / NOT-RUN(reason)`. `NOT-RUN` is then visible in the JSON artifact and in the filed issue even at exit 0.
-   - And/or: map an `ALLOW`-chip oracle `SKIPPED` to exit **2** (`marginal`) rather than 0 — "we tried and could not tell" is genuinely marginal.
-2. **A test per route R1–R6**, each asserting the *observable* outcome, in the SAFE-04 idiom:
-   - R1/R2: mock a chip-ID mismatch. Assert `operator.sdp_lock.assert_not_called()` **and** that the report's SDP field reads `NOT-RUN` with the gate reason. `test_dev_test_cmd.py:667-679` already does exactly this shape for `write_eprom` (`operator.write_eprom.assert_not_called()`) — extend it.
-   - R4: mock a REFUSE chip. Assert `sdp_lock.assert_not_called()` and that the `reason` string carried into the `NA` step is `sdp_capability()`'s own reason text, not a generic one (the design note requires REFUSED chips get *"an `NA`/`SKIPPED` step carrying `reason`, never a silent omission"*).
-   - R5: assert `derive_plan(name, db, write_scope="none")` yields **zero** SDP ops in `Plan.steps` and lists them in `locked_destructive` with a reason.
-   - R6: assert an empty plan for an ALLOW chip is impossible, or that it exits non-zero.
-3. **Extend `count_applicable`'s M to include the SDP oracle for ALLOW chips regardless of outcome**, so an `NA`/`SKIPPED` oracle *drops the N/M ratio* and fires the banner. Pin with a test.
+Backlog 999.44's root-cause analysis is precise about the *firmware* call site (`eprom_internal_write_init_body` → `mem_util_blank_check`) and correct that the host flag suppresses it. It simply does not follow the *other* caller — the plan's own blank-check op — because that one is not a defect, it is working as designed. The design is what needs adjudicating.
+
+**How to avoid:**
+
+Decide, explicitly, what a non-blank UV part's `blank-check` step *means*, and make it stop being a chip verdict:
+
+- The seed already gives the right frame: "blankness is an operator-actionable **finding**." A finding is not a FAIL. The natural shape is a distinct verdict or an `NA`-with-reason for the UV+non-blank case: *the part is not blank, this is expected on a re-tested UV part, the slot mechanism handles it*.
+- Whatever verdict is chosen, it must **not** set `error_code`, or `hardware_refused` still aborts cycle 2 and the run silently degrades to single-run — which then re-keys the dedup hash for a second, independent reason.
+- The regression test the backlog names ("a UV part holding data outside the target slot must accept a slot write") is necessary but **not sufficient**. The test that proves the milestone's claim is: *a UV part holding data outside the target slot completes a full two-cycle run with `overall_verdict == "PASS"`.* Assert the title, not the write.
 
 **Warning signs:**
-- The phase's tests assert `result.exit_code == 0` on a happy path and nothing else.
-- No test mocks a chip-ID mismatch alongside the SDP leg.
-- The report's Markdown table (`cli_handlers.py:2166-2172`) is the only place the SDP steps appear.
 
-**Where it bit before:**
-Phase 114.1 exists *solely* because absent-chip handling was wrong, and its fix's real assertion was `read_hardware_revision_value.assert_not_called()`, not the exit code (`tests/test_dev_test_cmd.py:576-598`). Recorded in memory as *"dev test absent-chip false-green trap — exit-code-only tests lie"*.
+- A plan whose success criterion is "the write step reports OK" rather than "the run reports PASS."
+- `run_count == 1` on a run invoked without `--fast`.
+- Bench evidence showing write/verify green and blank-check red, being read as success.
 
-**Phase to address:** 133, with the report field owned jointly with `diagnostic_report.py`.
+**Phase to address:** **UV slot phase (suggested 178)**, whose success criterion must be the *overall verdict*, not the write step. It has a hard dependency on the **fault-attribution phase (suggested 179)** for the verdict vocabulary — sequence 179 before or with 178.
 
 ---
 
-### P-05 (HIGH): The baseline step is non-discriminating because the pattern is idempotent
+### Pitfall 6: Gating the skip on the region *policy* rather than on the monotonicity *witness*
+
+**REASONED from measured code.**
 
 **What goes wrong:**
-Step 1 is "write pattern A + verify" and exists so *"a locked-from-the-factory part cannot read as 'lock works'"*. But because `generate_pattern` is deterministic (P-01), **the second `dev test` run on the same chip finds pattern A already on the die.** A verify that passes because the bytes were already there is not evidence that the write path works — and the write path working is the entire premise of step 3's inference.
 
-Concretely: a chip whose write path is dead but which carries A from a previous run passes step 1 (verify OK), passes step 3 (read-back == A, because nothing can ever be written), and passes step 4 (verify OK again). **A completely dead write path produces a perfect SDP leg result.** This is the single most convincing false green available, and it requires no bug — just running `dev test` twice.
+The safety argument for `FLAG_SKIP_BLANK_CHECK` is that the write is monotone: `mask_write_pattern` computes `P = C & D` per byte (`chip_test.py:2057-2073`), which can only clear 1→0. That property comes from `C` being a **real probe read** of the exact target region. Today the uv-slot branch of `_resolve_write_target` guarantees it: the block read is checked for exact length and a short read `continue`s to the next block rather than assuming blank (`chip_test.py:2842-2846`), and the returned target carries `masked=True`, `current_source="probe read"`, and the actual `current` bytes.
+
+The trap is implementing the flag as `if step.region_policy == REGION_POLICY_UV_SLOT: flags |= FLAG_SKIP_BLANK_CHECK`. Policy and monotonicity are **currently** coextensive, but they are not the same predicate — and the docstring at `chip_test.py:2769-2772` shows they were *not* coextensive one design iteration ago (the removed "chip reported blank AND `full_device_permitted` → mask taken as all-`0xFF`, the device is never read again" branch). That branch, if it ever returns, is a uv-slot write with an **assumed** current, and applying the skip to it means an unmasked-in-effect write with no blank check and no probe. On a UV part that is unrecoverable without a UV eraser.
+
+**How to avoid:**
+
+- Derive the flag from the **witness**: `target.masked and target.current is not None and target.current_source == "probe read"`. Never from the policy string, never from `is_uv`.
+- Add the fail-closed assertion in the emitter: refuse to set the flag if the witness is absent, and make *that* a test with a hand-built unmasked uv-slot target.
+- This mirrors a pattern the codebase already uses deliberately — `coverage_tag` "locates the write step STRUCTURALLY, via `result.write_target is not None`... must never compare `result.op` against an op-name constant" (`chip_test.py:1115-1117`).
+
+**Warning signs:**
+
+- The literal string `"uv-slot"` or `REGION_POLICY_UV_SLOT` appearing in the flag-computation expression.
+- The flag being set anywhere other than the one function that already maps wire flags (`build_flags`, `eprom_operations.py:261-300`, whose own comment insists every wire flag bit stays mapped in one place).
+
+**Phase to address:** **UV slot phase (suggested 178).**
+
+---
+
+### Pitfall 7: The host-only skip makes `dev test` validate a path the shipped product cannot use
+
+**REASONED. This is the scope decision at PROJECT.md:104-108, stated as a consequence rather than a boundary.**
+
+**What goes wrong:**
+
+The milestone knowingly ships 999.44's host half without its firmware half. After that, `firestarter dev test m27c512` succeeds on a non-blank part by passing `FLAG_SKIP_BLANK_CHECK`, while `firestarter write foo.bin -a 0x3FF00` on the identical part is still refused by the identical firmware. The harness whose entire purpose is "validate that the firmware, host and database work for this chip type" now passes by using a flag the user-facing command does not set.
+
+That is not merely incomplete — it inverts the harness's meaning for this class of part. A community `PASS` on a UV chip will no longer imply that a user can write that chip.
 
 **Why it happens:**
-Nothing in the existing engine ever needed to prove a *transition*; it only ever needed to prove a *final state*. `verify_eprom` compares against expected bytes; it has no notion of "and these bytes changed".
 
-**Mechanical prevention:**
-1. **Prove a transition, not a state.** Before writing A, read the region and assert it is **not already** A; if it is, write the complement first, then A. Both reads/writes are already available. Record the pre-state hash in the report.
-   Simpler and cheaper: **write B first, verify B, then write A, verify A.** Two transitions in opposite directions, both proven, before any lock is applied. This costs one extra write on a 256-byte or full-device region and buys the only evidence that the write path is live.
-2. **A committed test with a fixture whose "chip" starts holding pattern A and whose write is a no-op.** Assert the baseline step reports BAD. Without this fixture the defect is unobservable in a test suite whose mocks always start blank.
-3. **Record the pre-write read hash in the JSON artifact** so a community report contains the evidence even when the leg passes.
+The scope boundary was drawn on the *repository* axis (host only, no dual-repo lockstep) rather than the *semantic* axis (does the harness still represent the product?). The backlog itself rejected the host half alone on exactly this ground, and the milestone takes it knowingly — which is the right call for a host-only milestone, but only if the consequence is *disclosed in the artifact*, not just in the planning file.
+
+**How to avoid:**
+
+- Emit the divergence in the report. If the run set `FLAG_SKIP_BLANK_CHECK`, the report must say so — a `plan.flags` or `write_flags` key alongside the already-planned `plan.is_uv`. Otherwise a triager reading a UV PASS has no way to know the harness took a shortcut the product does not take.
+- Keep the firmware half named and open in `MILESTONES.md` carry-forward with the literal product-level symptom (`firestarter write -a` on a non-erasable part holding data anywhere is refused), so it is findable by the symptom a user would report, not only by a backlog number.
 
 **Warning signs:**
-- The baseline step is a plain reuse of the existing `OP_WRITE` + `OP_VERIFY` pair.
-- No test starts the mock chip in a state that already matches the pattern.
-- `dev test` run twice back-to-back on the same part gives identical output including timings.
 
-**Where it bit before:**
-Adjacent, and instructive: `write -b` "SKIPS ERASE, not just blank-check — silently corrupts non-blank chips, still reports 'successful'" (recorded in memory). Same shape: an operation whose success report is decoupled from whether it changed anything. Also v1.14/v1.15's insistence on *non-vacuous negative controls* (`RETROSPECTIVE.md:431`, `:467`).
+- A UV `PASS` report that contains no evidence that a flag was set.
+- The phrase "host half is sufficient" in any plan.
 
-**Phase to address:** 133.
+**Phase to address:** **UV slot phase (suggested 178)** for the disclosure key; **report schema phase (suggested 180)** for its serialization. Both, or neither.
 
 ---
 
-### P-06 (HIGH): The lock step's own "success" is an emission claim and will be read as a state claim
+### Pitfall 8: Changing `duration_s`'s meaning in place, when the only version marker is accepted by presence
+
+**MEASURED consumer surface + HIGH-confidence external consensus.**
 
 **What goes wrong:**
-`eprom_operations.py:1736 sdp_unlock` / `:1784 sdp_lock` return `bool`, and their docstrings are explicit: *"A `True` return means only that the command sequence was **emitted** over the wire — it is never a claim that silicon actually left the protected state."* Wrapped as a `StepResult`, that boolean becomes `verdict=OK` in a table headed **Verdict**, next to steps whose OK *is* a state claim. A reader of the filed issue sees `sdp_lock | OK` and concludes the chip is locked.
 
-Then step 3's read-back-equals-A is read as *confirming* it. The two together look like a proof. They are not: on the causal claim, step 2 contributes nothing at all.
+External schema-evolution consensus is unambiguous and unanimous across the sources I checked: renaming a field, deleting a field, **and changing what an existing field means** are all breaking changes, and the standard mitigation is to *never redefine in place* — add a new key with the new semantics, populate both through a transition, migrate consumers, delete the old key later.
+
+The milestone plans to redefine `duration_s` in place (sum-across-cycles → per-operation cost) and add `elapsed`. The version marker that would let a consumer disambiguate is `schema_version` — and both `[dev test]` parsers accept it **by presence only, never by value** (a live fixture carries `"9.9-future"`, `tests/test_parse_devtest_issue.py:138`). So there is no consumer anywhere that can tell a 1.7 `duration_s` from a 1.8 one. The two numbers land under the same key, in the same public issue tracker, and differ by a factor of the cycle count.
+
+**It gets worse from an interaction.** `duration_s` is stamped around the *whole step* (`chip_test.py:2751-2782`), which today includes the fingerprint read-back. R2 removes that read-back from passing runs. So in this one milestone `duration_s` changes for **two independent reasons at once** — a semantics change and a workload change — and a reader comparing a 1.7 report to a 1.8 report cannot attribute the difference to either, let alone to the chip.
+
+**A third defect in the same field, unaddressed:** "per-operation cost" is not well-defined by the current instrumentation. `_aggregate_cycle_results` sums per-cycle stamps, each of which covers one operator call; but on the non-cycle path a single stamp covers `runs` calls. Computing per-op as `total / run_count` averages a cold first call (which includes a serial connect, `find_and_connect`) with a warm second — and on a `marginal` step it averages a *fast failing* run with a *slow passing* one, producing a number that describes neither. The verify path makes this worse, not better, because verify early-returns on first mismatch: a failing verify is genuinely faster.
+
+**How to avoid:**
+
+- **Do not redefine `duration_s` in place.** Add `duration_op_s` (or `op_cost_s`) with the new meaning, leave `duration_s` carrying its historical sum, and delete `duration_s` in a later schema version once the tracker corpus has turned over. This costs one key and removes the entire class of problem. If the operator's rule ("a field that can carry real data gets populated with real data") is read as forbidding this, note that `duration_s` is not carrying *fake* data — it is carrying a real sum under a name a reader misreads. That is a naming defect, and the standard remedy for a naming defect is a new name.
+- If it is redefined in place anyway, then **make at least one parser gate on the version**, so the ambiguity is detectable somewhere. A version field nobody checks is decoration.
+- Instrument per-operation cost by **stamping inside the operator-call loop** and emitting the per-call list (or min/median), never by dividing a step total by a run count. State which statistic it is in the key name.
+
+**Warning signs:**
+
+- A plan that says "the schema bump documents the change" without naming the consumer that reads the bump.
+- Any arithmetic of the form `total / run_count` in the timing path.
+- A `duration_op_s`-shaped number that is smaller on a failing verify than a passing one, with nothing explaining why (it is correct — early return — but it will read as a bug forever if unstated).
+
+**Phase to address:** **Report schema phase (suggested 180).** The version-gating decision must be made in that phase, not deferred.
+
+---
+
+### Pitfall 9: Deleting `voltage.vpp_mv` breaks a documented skill consumer, and the fallback it will reach for means something else entirely
+
+**MEASURED. This is a genuine integration defect the field audit did not surface.**
+
+**What goes wrong:**
+
+Backlog 999.36 Class B justifies deleting `voltage.vpp_mv`/`vpe_mv` on the ground that "no assignment exists anywhere in the app." True at HEAD. But two things follow that the audit did not chase:
+
+1. **The frozen schema-1.2 fixtures carry real values** — `"vpp_mv": 11800`, `"vpe_mv": 13700` (`.claude/skills/devtest-triage/fixtures/dev-test-at28c256-null-identity.md:87-88` and the populated-identity sibling). So the field was populated at some point and **the already-filed issue corpus contains real readings under it**. Deletion is a forward-only change over a corpus where the key is sometimes meaningful — the parsers must keep tolerating it (the note gets this right) *and* consumers must not read its future absence as a measurement of zero.
+2. **There is a live documented consumer.** `.claude/skills/devtest-triage/SKILL.md:375` instructs the triager, in its datasheet-comparison table, to compare the report's `vpp_mv` against the chip's program voltage: *"`vpp_mv: 13500` | MISMATCH — neither the program nor the erase voltage."* That is an LLM-driven skill being told to read a key that is about to disappear. The predictable failure is that it falls back to the nearest key with the same name — `chip_database.json`'s `electrical.vpp_mv` — which on 5V-only families (`flash_nor_unlock`, `flash_5v_page`, `sram`, `eeprom28c`) encodes the **WP-pin voltage, not programming VPP**. `tools/check_dispatch.py:60-94` says so explicitly and says that comparing it as programming VPP "would produce false positives on every AMD/SST flash chip."
+
+So a deletion justified as "removing a dead field" can convert a triage skill into a machine that mis-blames every 5 V flash part.
+
+**How to avoid:**
+
+- Treat the two skills (`devtest-triage`, `devtest-rootcause`) as **first-class consumers in the deletion phase**, with their prompt text updated in the same commit as the schema change. The project already knows skill/source drift is a real class (`feedback_skills_must_own_their_scripts`); this is the prose version of it.
+- Grep the skills for **every** key being deleted or re-meant, not just the ones with Python readers. `chip_id_actual` is already known to have two script consumers that improve for free; `vpp_mv` has a *prose* consumer that breaks.
+- In `SKILL.md`, replace the `vpp_mv` row with the keys that are actually populated — `vpp_before_mv` / `vpp_after_mv` — and state in the same row what they do and do not prove (see Pitfall 10).
+
+**Warning signs:**
+
+- A deletion plan whose consumer sweep covered `.py` files only.
+- A triage comment quoting a VPP number on a report that has none.
+
+**Phase to address:** **Report schema phase (suggested 180)**, with a named consumer-sweep task covering `.claude/skills/**` markdown as well as code.
+
+---
+
+### Pitfall 10: Auto-classifying rig faults from a sensor that cannot see the rig fault
+
+**MEASURED against firmware behaviour recorded in project reference memory. This is the highest-stakes pitfall in change #3.**
+
+**What goes wrong:**
+
+The motivating community report is gh#23: *"the first one didn't have VPP correctly hooked up."* The obvious implementation of "never file a rig fault as a chip verdict" is to classify on the voltage sampler: if `vpp_before_mv` is low or absent, call it a rig fault.
+
+**The sampler cannot see that fault.** `sample_vpp_mv` issues `COMMAND_READ_VPP` → `hw_read_voltage`, which sets `CTRL_VPP_REGULATOR_ENABLE` (and the drop-enable bit) and **none of the socket-routing bits** (`CTRL_VPP_A9_ENABLE`, `CTRL_VPE_ENABLE`, `CTRL_VPP_P1_ENABLE`). It measures the **boost-regulator rail via ADC**; the high voltage never reaches the socket pins. That is why the monitors are safe to run with a chip seated — and it is exactly why they are blind to "VPP not hooked up to the chip." A rig with a disconnected VPP jumper reports a perfectly healthy `vpp_before_mv: 11800`.
+
+So a classifier built on that signal will report **"rig OK"** on precisely the run that motivated the milestone, and its confidence will be entirely fabricated. Worse, it will be *right* often enough elsewhere to be trusted.
 
 **Why it happens:**
-`StepResult` has one `verdict` axis and it is overloaded. There is no "emitted / not-observable" verdict in the vocabulary.
 
-**Mechanical prevention:**
-1. **The lock and unlock steps must carry a non-empty `reason` on SUCCESS** stating emission-only and unreadability, and the report renderer must print it. A test in the `test_dev_sdp_cmd.py` mould:
-   ```
-   assert "cannot be read back" in <the sdp_lock row's rendered text>
-   assert "not a claim about the chip's actual state" in <same>
-   ```
-   These are the *exact* assertions `tests/test_dev_sdp_cmd.py:395-478` already makes — see P-16 for why they must be **moved, not deleted**.
-2. **Positive-framing assertion, not a forbidden-word list** — `test_no_fabricated_lock_state_boolean_in_the_report` (`:453`) records the reasoning: *"a positive framing assertion, not a brittle forbidden-substring word-list, so this leg does not rot as wording evolves."* Reuse that discipline.
-3. **No boolean named `locked` anywhere in `DiagnosticReport` or its `to_dict()`.** A JSON consumer (`parse_devtest_issue.py`, the dedup fingerprint, anyone reading the artifact) will treat a JSON `true` as ground truth. Assert its absence.
+The field name says `vpp`, the value is plausible, and the physical distinction between "the rail is up" and "the rail reaches the socket" lives in firmware control-register bits nobody reads while writing a host-side classifier.
+
+**How to avoid:**
+
+- **Enumerate, per proposed cause label, the signal that carries it and what that signal physically measures.** For "VPP not connected," the honest available signal is *not* the sampler — it is the `blank/contact` fingerprint bucket (`ff_ratio ≥ 0.98`, an undriven bus reading all-`0xFF`) plus a floating chip-ID (the project's recorded `0x303` signature). Note the tension with Pitfall 3: the fingerprint bucket is the very diagnostic being made conditional, so **the fault-attribution feature depends on the read-back that the sequencing feature is gating away.** They must be planned as one thing. On a failing run the gate lets the read-back through, so this works — but only if the gate is `not all(outcomes)` and nothing narrower.
+- Where no honest signal exists, emit **`unknown`**, not a guess. The external triage literature is consistent that classifiers need an explicit unknown bucket and per-class measured accuracy, and that the dangerous direction is labelling a real defect as environmental — the Firefox case, where developers dismissing flaky failures produced a documented rise in user-visible crashes. Applied here: a classifier eager to say "rig fault" will start hiding real chip and firmware defects from the community, which is the same disease as today's "blame the chip," pointed the other way.
+- **Never let auto-classification silence the report.** The fix for "a tool fault is filed as a chip verdict" is to change the *title and disposition* (`[dev test] AM27C020 — INCONCLUSIVE (harness)`), never to suppress the submit prompt. Suppression converts a visible wrong verdict into an invisible missing one.
+- Give every label a **human override path**. The project's existing shape for this is the advisory `db_diff` — "read-only advisory triage text, never a DB write." Follow it.
 
 **Warning signs:**
-- `report.to_dict()` gains a key like `sdp_locked` or `protection_enabled`.
-- The lock step's `reason` is `""` on success.
-- The Markdown table's `Reason` column reads `-` for the lock row.
 
-**Where it bit before:**
-v1.22 Phase 120 HOST-05 built exactly these three assertions, and v1.22's C-5 correction was an overclaim of precisely this shape reaching *a locked project decision*. Also Phase 117 D-05 / Phase 118 D-02 / Phase 119 D-12 — three separate phases establishing that protection state is not readable on this family.
+- Any classifier reading `vpp_before_mv` / `vpe_before_mv` as evidence about the socket.
+- A cause taxonomy with no `unknown` member.
+- A `--submit` path that can decide, on its own, not to offer to file.
+- A label whose accuracy has never been measured against the six open community issues (#21, #23, #28, #31, #45, #50) — which are a ready-made labelled evaluation set and should be used as one, even though replying to them is out of scope.
 
-**Phase to address:** 133 (report rows) and the close phase (136) for the outward-facing prose.
+**Phase to address:** **Fault-attribution phase (suggested 179)**, sequenced **after** the conditional-diagnostics phase (it consumes the fingerprint the gate controls) and **before or with** the UV slot phase (which needs its verdict vocabulary — Pitfall 5).
 
 ---
 
-### P-07 (MEDIUM-HIGH): `check_devtest_orchestrator.py` silently does not scan the leg's new helper
+### Pitfall 11: Bit-structured sampling changes the read step's own verdict source, and a hole-padded sample cannot be diffed against a full read
+
+**MEASURED from source. Two concrete implementation traps in R3, plus one cost trap.**
 
 **What goes wrong:**
-`tools/check_devtest_orchestrator.py:138-150` hardcodes:
-```python
-_HANDLER_FUNCTION_NAMES = frozenset({"dev_test", "_verdict_code", "_sanitize_chip_token",
-    "_is_uv_eprom", "_resolve_write_scope", "_default_uv_write_confirm",
-    "_chip_id_fields", "_is_interactive", "_make_sampler"})
-```
-`_scan_target_functions` (`:281-315`) fails closed **only when NONE of the names match**. A *partial* match — `dev_test` present, a new `_sdp_leg_*` helper absent from the list — scans successfully and **silently omits the new function**. So a new helper in `cli_handlers.py` that sets VPP, hand-assembles a wire dict, or passes `force=True` is invisible to the orchestrator-only gate. The gate prints `PASS:` and means nothing about the new code.
 
-**Why it happens:**
-The allow-list was scoped narrowly for a good reason (`cli_handlers.py` has 10 pre-existing legitimate `--force` flags on unrelated commands, so a whole-file scan would be permanently red). But an **allow-list of function names is fail-open against ADDITIONS** — and the docstring's fail-closed guarantee is written only about *renames and removals*, not additions.
+Three separate things, all in `_dispatch_read` (`chip_test.py:2626-2671`):
 
-**Mechanical prevention:**
-1. **Add every new SDP-leg helper name to `_HANDLER_FUNCTION_NAMES` in the same commit that creates it** — and make that mechanical rather than remembered: add a test that derives the required set from the AST (every module-level function whose name starts with `_` and is *referenced from `dev_test`'s body*) and asserts it is a subset of `_HANDLER_FUNCTION_NAMES`, naming any omission. This converts an additive fail-open into an additive fail-closed.
-2. **Prefer putting new logic in `chip_test.py`, which is scanned in FULL** (`_scan_file`, `:58`: *"`chip_test.py` is unaffected and still scans the ENTIRE file"*). Keeping the leg's logic in the engine and the handler thin sidesteps the allow-list entirely. This is also the right architectural placement.
-3. **Re-run the checker with a planted violation inside a NEW helper name** as part of the phase's acceptance — proving the gate can see the new code, not just the old code. `tests/test_check_devtest_orchestrator.py` already has the `FIRESTARTER_DEVTEST_SRC`/`FIRESTARTER_DEVTEST_HANDLER` seams for this.
+1. **Verdict source.** `last_ok` is the return value of the **last** run, and the step's verdict is `OK if last_ok else BAD`. Replace run 2 with a 2560-byte sample and the step's pass/fail oracle is now a sample read, not a full-device read. A device that fails a full read only outside the sampled blocks now reports OK. The verdict must stay anchored to the full read — either keep run 1 as the verdict source explicitly, or `all()` the outcomes, and assert it.
+2. **Hole padding.** A region/sample read produces a **hole-padded file whose real bytes sit at their absolute offsets** — `_read_region`'s own docstring records this ("`eprom_operations._write_to_file`'s `file_handle.seek(address)`... slicing anywhere else would silently read zero-padding"). Feeding such a file straight into `_diff_offsets(run_bytes[0], run_bytes[1])` compares the full read against zero padding everywhere outside the sample and reports catastrophic false divergence. The comparison must be assembled block-by-block against the matching slices of run 1.
+3. **Cost.** A ten-block bit-structured sample is **ten separate `read_eprom` calls**, and `EpromOperator.comm` is torn down after every call (`eprom_operations.py:547`), so it is **ten connects** where the full read was one. The project's own honesty ledger states per-connect cost is **unmeasured**. If a connect costs more than ~0.5 s, R3 is *slower* than the full read it replaces on a 64 KiB part, and the milestone's headline saving is negative for this rule. **R3 is therefore blocked on the R4 measurement, not merely informed by it.**
+
+**How to avoid:**
+
+- Measure a connect **first**, as its own deliverable, before scoping R3 or R4. PROJECT.md:112-113 already commits to this ("must be measured before it is scoped") — hold that line even under schedule pressure, because R3's sign depends on it.
+- Pin the read step's verdict source in a test that fails if it moves to the sample.
+- Build the sample comparison from explicit `(offset, block)` pairs, never from whole-file bytes.
+- Carry sampling provenance into the exported `divergence` metric (see Pitfall 12).
 
 **Warning signs:**
-- New `_`-prefixed functions in `cli_handlers.py` and no diff to `tools/check_devtest_orchestrator.py`.
-- `python3 tools/check_devtest_orchestrator.py` still prints `PASS:` after the leg lands, with no new function names in its output.
 
-**Where it bit before:**
-The general class is documented in this repo as *"App gates scan FIRMWARE source — renames break them ... they fail OPEN"* (4× in Phase 117), and Phase 123 BASE-02/D-09 removed the same fail-open shape from **seven** host test modules. `.planning/STATE.md:701-703` warns the `_FW_ABSENT` idiom was fixed for the host suite in Phase 123 but *"six modules shared it — worth confirming none survive."*
+- A `divergence` record with `cmp_len` far below `memory-size` and nothing saying why.
+- A read step that goes green on a part that fails a plain `firestarter read`.
+- Any R3 timing claim quoted from the model rather than measured — the model's rates come from **one** log, on **one** Leonardo, against **one** 64 KiB `0x07` part, and the note's own correction shows read rate varies ~24% by protocol.
 
-**Phase to address:** the gate-hardening phase (proposed **131**) for the derived-subset test; 133 for the additions themselves.
+**Phase to address:** A **connect-cost measurement phase (suggested 176, before sampling)**, then the **sampling phase (suggested 177)**. If the measurement says R3 is net-negative, cutting R3 is a success, not a failure.
 
 ---
 
-### P-08 (MEDIUM): The always-writes notice under-describes the run, and its test does not check content
+### Pitfall 12: Exporting `divergence` and the fingerprint counts as exact numbers when the change also makes them estimates
+
+**REASONED from the two features' interaction.**
 
 **What goes wrong:**
-`_ALWAYS_WRITES_NOTICE` (`cli_handlers.py:2042-2049`) currently promises:
 
-> *"Every write/verify/erase step runs TWICE per invocation, so most chips receive the full device written twice"*
+999.36 exports the read step's `divergence` (`cmp_len`, `bad`, `pct`, `first_offset`) and the fingerprint's `total`/`bad`/`bad_pct` for the first time. 999.43 R3 simultaneously converts `cmp_len` on a passing run from a whole-device count into a **sampled-subset count**. Ship both in one milestone and the report gains, in the same release, a field that looks like an exact whole-device measurement and is not.
 
-After the leg, an ALLOW-listed AT28C receives **three or four** additional write passes plus a lock, and the part may be **left locked on abort**. The committed test `test_always_writes_notice_is_the_first_line_unconditionally` (`test_dev_test_cmd.py:244`) asserts only that the notice is *first* and *unconditional* — **not what it says**. So the notice can silently become false while its test stays green, and the false notice is the first thing a community member reads before consenting to sacrifice a chip.
+`bad_pct: 0.005%` over `total: 65536` and `bad_pct: 0.005%` over `total: 2560` are radically different statements about a chip, and the second one — an estimate over 3.9% of the device — will be read as the first by every human and every skill that consumes it.
 
-**Mechanical prevention:**
-1. Update the notice, and add a content assertion: it must name the SDP lock, must state the part is left unlocked on a *completed* run, and must state the recovery for an *aborted* run in the words "rewrite" (see P-14).
-2. A test asserting the notice's write-pass count matches the plan the engine actually derives for a representative ALLOW chip — i.e. derive it, don't hardcode the sentence twice.
+**How to avoid:**
 
-**Where it bit before:** Phase 121 D-04 introduced the notice precisely because the destructiveness had changed and the old wording was stale.
-
-**Phase to address:** 133.
-
----
-
-# PART B — Inverted sensitivity (exhaustive)
-
-> *"If the lock never reaches silicon (the v1.22 defect class), the inhibited write **succeeds** — and the leg must then report BAD. An unexpected success is the failure signal, never an inapplicable step; it must never be allowed to downgrade to `SKIPPED`/`NA`."* — PROJECT.md, trap 2
-
-This is not a hypothetical defect class. v1.22 established that the SDP-**disable** sequence *"has shipped since v1.0-era Phase 06-01 … and almost certainly never reached silicon"* because `/WE` was emitted HIGH — a documented Write Inhibit — on all four `0x0D` pinouts, across all 84 `0x0D` chips. The lock half (Phase 119) has never been exercised on silicon at all. **The most likely real-world outcome of step 3 is that the write succeeds.** The leg exists to say so.
-
----
-
-### P-09 (CRITICAL): Every route by which an unexpected SUCCESS gets downgraded
-
-Enumerated, because each is a plausible implementer choice that individually looks defensible:
-
-| # | The downgrade | Why an implementer would do it | Why it inverts the leg |
-|---|---|---|---|
-| D1 | **"The write succeeded, so the lock must not be supported on this part — mark `NA`."** | Mirrors `derive_plan`'s existing NA-on-inapplicable convention, and feels charitable. | This is the *finding*. Turning the finding into "inapplicable" deletes it. `NA` → exit 0. |
-| D2 | **"The write succeeded, so we can't test the lock — mark `SKIPPED`."** | Mirrors `_resolve_or_none`'s refusal→SKIPPED mapping. | Same: `SKIPPED` → exit 0. |
-| D3 | **"The lock emission returned False, so skip the oracle."** | Defensive: don't test what didn't set up. | A failed lock *emission* is itself a BAD finding, and skipping the oracle hides whether the write then succeeded. Report BOTH: lock emission BAD **and** oracle run anyway (a write attempt on an unlocked part is exactly what `dev test` already does, so it adds no risk). |
-| D4 | **Auto-widening the capability predicate on error.** `sdp_capability()` returning ALLOW-by-default on an exception or a missing DB field. | An unexpected exception "shouldn't fail the run". | Permit-by-default on the applicability predicate. There is already a planted fixture for this class: `tests/fixtures/planted_permit_by_default.py` and `planted_widenable_allowset.py`, enforced by `tools/check_sdp_capability_invariants.py`. Extend those, don't bypass them. |
-| D5 | **Treating `marginal` as the landing zone.** Two runs disagree → `marginal` → exit 2, which "isn't a failure". | `_dispatch_multi_run`'s existing D-06 policy. | For a *binary* causal claim, `marginal` is a laundering channel. Solved by P-03's `runs == 1`. |
-| D6 | **A `try/except Exception: pass` around the oracle** so the leg "never breaks the run". | `run_plan`'s Pitfall-1 contract genuinely is *"one step's BAD verdict or exception NEVER aborts the remaining steps"* (`:734-737`), and `_sample`'s `except Exception: pass` (`:1036-1040`) is a committed precedent. | Non-fatal ≠ silent. Non-fatal means *record BAD and continue*. `_sample`'s swallow is correct because a sampler is a diagnostic; the oracle is not a diagnostic. |
-| D7 | **Reporting the oracle as a `divergence` metric instead of a verdict.** `_dispatch_read`'s D-06 policy: *"read-step disagreement across runs is a byte-level divergence metric … NEVER a verdict flip and NEVER `marginal`"* (`:983-990`). | It's the module's stated policy for read disagreements, and the oracle *is* a read comparison. | That policy is about *repeat-read flakiness*, not about a *deliberate* expected-vs-actual comparison. Applying it makes the oracle produce a number nobody gates on. |
-| D8 | **Suppressing the finding because `0x0D` is `UNVERIFIED` anyway.** | "We already know it's unverified, so a BAD here is expected noise." | Then the leg has no purpose. A BAD here is the first actionable evidence the feature has ever produced. |
-
-**Mechanical prevention (one construct, several assertions):**
-
-1. **A single explicit truth table in the leg's code, with no default arm**, e.g.:
-
-   | read-back == A | read-back == B | read-back == something else | length/blank bad |
-   |---|---|---|---|
-   | `OK` — lock held (emission-only caveat still applies) | `BAD` — **lock did not inhibit the write** (the v1.22 defect class) | `BAD` — **partial change**, gh#11's exact symptom | `BAD` — oracle inconclusive |
-
-   Four arms, all four reachable, **none of them `NA`/`SKIPPED`/`marginal`**, and a final `raise AssertionError` for anything unclassified (the shape `_dispatch_multi_run:1130` already uses for its unreachable arm).
-
-2. **A committed test per arm, with the "write succeeded" arm asserting `verdict == VERDICT_BAD` and `exit_code == 1`.** This is the single most important test in the milestone. It must exist as a *named, listed acceptance criterion*, not an incidental case.
-
-3. **A "polarity pin" test that would fail if the arms were swapped** — assert the BAD arm's `reason` text contains the causal statement ("the write was not inhibited") and the OK arm's does not. A reviewer reading a diff that inverts the comparison must see two tests go red, not one.
-
-4. **A grep-style gate over the leg's source forbidding `VERDICT_NA`, `VERDICT_SKIPPED` and `VERDICT_MARGINAL` inside the oracle function** — mechanical, three lines, and paired with a planted-violation fixture in the house style (`tests/fixtures/planted_*.py`).
-
-5. **`tests/test_skip_census.py` is a free ally here.** Its `ALLOWED_SKIP_REASONS` frozenset means any *new* pytest skip reason introduced by this milestone **fails the census** unless deliberately added with a comment (`test_every_skip_reason_is_allow_listed`). Do not add an entry for anything SDP-related without an explicit, reviewed justification — and note the census asserts a *non-zero collected count* (`test_census_child_run_is_live`) precisely so a collection regression cannot silence it. Use it; don't work around it.
+- Export the *scope* alongside the *number*, always: `total`, plus what `total` was drawn from. Pitfall 4's `fingerprint_source`-style key generalises here.
+- Sequence the schema phase **after** the sampling phase so the schema knows what it is describing, or hold `divergence` export back until sampling is settled. Exporting an exact metric and then quietly making it an estimate two phases later is worse than either alone.
+- State the estimator's blind spot in the report, not just in the seed: a fault confined entirely to unsampled bytes is missed on the first pass.
 
 **Warning signs:**
-- The oracle function contains the token `NA`, `SKIPPED`, `marginal`, or a bare `except`.
-- The phase's test list has one "lock holds" test and no "lock does not hold" test.
-- The word "expected" appears in a comment near the write-succeeded branch.
 
-**Where it bit before:**
-The v1.22 opening finding: the `(0x5555, 0x20)` success check was **inverted**, not merely weak — an oracle that reported success on the failure condition, shipped for two years. And `RETROSPECTIVE.md:404`: *"A safety gate must actually be able to fail."*
+- Two different `total` magnitudes for the same chip across two reports, with no key explaining the difference.
+- A triage comment computing a bad-bytes count from `bad_pct × memory-size`.
 
-**Phase to address:** 133, as a named acceptance criterion.
+**Phase to address:** **Report schema phase (suggested 180)**, sequenced after sampling (177).
 
 ---
 
-### P-10 (HIGH): The applicability predicate becomes the escape hatch
+### Pitfall 13: Canonical chip naming changes the issue title *and* the dedup input at the same time
+
+**MEASURED.**
 
 **What goes wrong:**
-`sdp_capability(chip_name, db)` (`firestarter/sdp_capability.py:266`) is the fail-closed allow-set: **43 ALLOW / 41 REFUSE of 84** `0x0D` chips. When the leg reports BAD in the field on, say, an AT28C256, the cheapest way to make the report green is to move that chip to REFUSE. That converts a real finding into an `NA` step at exit 0 and quietly retires the only evidence path the feature has.
 
-**Mechanical prevention:**
-1. `tools/check_sdp_capability_invariants.py` + `tests/fixtures/planted_widenable_allowset.py` already gate *widening*. **The missing gate is against NARROWING for convenience.** Add a committed count assertion — `43 ALLOW / 41 REFUSE / 84 total`, derived not literal — so any partition change is a visible, justified diff, and pin the derivation source (`infoic.xml` `flags` bit 15) rather than a hand list.
-2. `tests/test_sdp_db_invariant.py` and `test_sdp_table_parity.py` exist; extend the parity assertion to the counts.
-3. **A note in the ledger:** a chip may only move ALLOW→REFUSE with a *decode* reason (its `flags` bit changed / the decode was wrong), never with a *test-outcome* reason.
+`dedup_fingerprint`'s first hash component is `ac.chip` (`diagnostic_report.py:211`), and `build_title` composes `[dev test] {chip} — {verdict} ({shorthash})` (`submit.py:155-165`). Switching from the operator's raw CLI token to the matched database `part_number` therefore changes **both** the title string and the hash — so every chip whose canonical name differs in case or punctuation from what testers have been typing gets a fresh dedup group *and* a title that no longer matches the tracker's existing issues for that part.
 
-**Where it bit before:**
-The 43/41 partition was taken **at operator directive** in v1.22 Phase 120 as a *derived* set, precisely to prevent hand-curation. `.planning/STATE.md:920` records the SEVENTH PROJECT.md correction documenting the derived provenance.
+This is a third, independent re-keying path in the same milestone, alongside Pitfall 1 (fingerprint) and Pitfall 5 (`run_count`/`repeat_policy_tag`). Three re-keyings shipped together are indistinguishable from each other in the aftermath.
 
-**Phase to address:** 131 (the count gate) and 133 (the leg's use of it).
+**How to avoid:**
 
----
-
-# PART C — Overclaiming at close, and the claim-gate reuse question
-
-### P-11 (CRITICAL): Naively copying `check_permitted_claims.py` produces a gate that **PASSES while scanning v1.23's artifacts**
-
-This is the direct answer to the milestone's claim-gate question, and the answer is: **neither existing copy is safe to copy verbatim, and the v1.23 copy is the more dangerous of the two.**
-
-**The two copies on disk** (both committed to the meta repo, both with paired tests and planted fixtures):
-
-| | `.planning/phases/122-close-…/check_permitted_claims.py` (9.4 KB) | `.planning/phases/123-non-regression-…/check_permitted_claims.py` (~14 KB) |
-|---|---|---|
-| Domain of `FORBIDDEN_PATTERNS` | **AT28C / SDP / silicon** — `verified-fixed`, `confirmed-working`, `silicon-verified`, `verified-on-silicon`, `works-on-silicon`, `now-works`, `should-now-work`, `proven-on-silicon` | **PY32F071** — `runs-on-py32`, `works-end-to-end`, `flashed-a-py32`, `closed-loop-vpp`, `pin-map-correct`, … |
-| `REQUIRED_CAVEAT_PROSE` | `"no AT28C silicon was tested"` | `"no PY32F071 hardware exists"` |
-| Target resolution | `_HERE`-relative, 5 artifacts in its **own** phase dir | `_HERE/../130-close-honesty-ledger-claim-gate-release-decision/`, 4 artifacts in a **sibling** dir named by a string constant |
-| Proximity scoping | **none** — whole-text scan | D-16 line-scoped ±1 line around a `py32` token |
-| Arming | none — a missing target is always a hard failure | D-15 all-or-nothing: **zero** of 4 exist → `UNARMED:` + **exit 0**; 1–3 exist → hard failure |
-| Vacuity guard ordering | missing-target check first, empty-list check after | empty-list check hoisted first (deliberate hardening over v1.22) |
-| Env seam | `FIRESTARTER_CLAIMSCAN_TARGETS` | **the same name, reused verbatim** (documented as assumption A3) |
-
-**What breaks if the v1.23 copy is copied into a v1.30 phase directory:**
-
-`_PHASE_130_DIR = os.path.normpath(os.path.join(_HERE, os.pardir, "130-close-honesty-ledger-claim-gate-release-decision"))`. `_HERE` becomes the *new* phase's directory; `os.pardir` is still `.planning/phases/`; and **`.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/` still exists on disk with all four artifacts present.** So the copied checker:
-
-1. resolves four **real, existing** files,
-2. finds all four carry `"no PY32F071 hardware exists"` (they do — that was v1.23's requirement),
-3. finds zero py32-proximate forbidden phrases (v1.23's Phase 130 made that true),
-4. prints **`PASS: scanned ../130-…/130-LEDGER.md, …`** and exits **0**.
-
-**This is strictly worse than the C-2 defect it was built to fix.** C-2 produced `UNARMED:` + exit 0 — a message that at least says nothing was scanned. A copied v1.23 checker produces a confident `PASS:` naming four real files, on a milestone whose artifacts it has never opened, using a forbidden-phrase vocabulary about a microcontroller this milestone does not touch, and requiring a PY32F071 caveat that v1.30's honest prose has no reason to contain. Every diagnostic signal points the wrong way.
-
-Secondary breakages of a naive copy (either version):
-
-- **Wrong vocabulary.** v1.23's eight patterns cannot detect a single SDP overclaim. v1.22's eight *can* — that copy is the right **starting vocabulary**.
-- **Missing proximity scoping in the v1.22 copy.** `now\s+works?\b` is unqualified by design (C-5's real near-miss, *"AT28C parts should now work"*, had no object to anchor on). In v1.30 that pattern will fire on honest sentences like *"the leg now works in the native envs"* — and the checker's own docstring warns the wrong response is to narrow the pattern. Without D-16's window, authors will narrow it.
-- **Missing arming in the v1.22 copy.** With `_HERE`-relative defaults and no arming, the gate is **RED from the moment it is authored until every closing artifact exists** — which conflicts with this project's practice of authoring gates early (v1.23 BASE-01…08 authored six gates before any firmware moved).
-- **Env-var collision.** `FIRESTARTER_CLAIMSCAN_TARGETS` would be shared by **three** checkers. Assumption A3 records this as safe *"today"* because *"the two checkers live in different phase directories and never coexist in one process"* — and names the fix: *"suffix the name (e.g. `_V123`), not to reuse a single seam across two live scanners."* A third scanner makes suffixing mandatory.
-- **Test-module basename collision.** Three files named `test_check_permitted_claims.py` in three non-package directories. Under pytest's default `prepend` import mode that is an "import file mismatch" collection error for anyone who ever runs pytest from `/workspaces`. (The app's own CI is unaffected — it runs from `firestarter_app/` — but the meta repo runs no pytest workflow at all, which is exactly how v1.23's C-3 RED went unseen.)
-- **Archival orphaning.** Phase dirs get archived at close. A checker whose defaults name a sibling phase dir by a **string literal** breaks silently when either directory moves. This is the documented class *"Milestone close breaks its own record gates — archived sections orphan `lines=N` exemptions; `git rm REQUIREMENTS.md` trips fail-closed target lists."*
-
-**The right claim-gate design for v1.30:**
-
-1. **Fork from the v1.22 copy for its VOCABULARY, from the v1.23 copy for its MECHANICS.** Concretely: v1.22's eight AT28C/silicon patterns + v1.22's `REQUIRED_CAVEAT_PROSE` shape, retargeted (`"no AT28C silicon was tested"` remains exactly right and is already the milestone's ceiling sentence); plus v1.23's D-16 proximity window (token = `at28c|sdp|0x0d`), D-15 all-or-nothing arming, and hoisted never-vacuous guard.
-2. **Add the milestone's own forbidden claims** — the ones the evidence ceiling actually forbids, which v1.22's set does not cover:
-   - `lock inhibited the write` / `the lock held` (unqualified)
-   - `proven behaviour` / `behaviourally verified` / `behaviorally verified`
-   - `now provable` drifting to `now proven` — forbid `now proven` outright
-   - `self-verifying` used without the word "emission" or the caveat in the window
-   - `dev test proves` (unqualified)
-   Cross-check the final list against REQUIREMENTS' Validation Ceiling section once written, the way v1.23 did (*"both sources agree on all eight"*).
-3. **Resolve targets against the checker's OWN phase dir and put the checker in the phase that AUTHORS the artifacts** — i.e. the close phase. That is v1.22's shape and it was correct *for v1.22* precisely because author and host were the same phase. Do not repeat v1.23's cross-phase pre-authoring unless the arming + sibling-dirname coupling is re-derived from scratch, with a test.
-4. **Two mandatory NEW test legs beyond the seven v1.22 already has**, both about the failure modes above:
-   - `test_default_targets_resolve_inside_this_phase_directory` — asserts every `_DEFAULT_TARGETS` entry's resolved path has this module's own directory as its parent. This is the one assertion that makes a future naive copy fail loudly instead of passing against a stale sibling.
-   - `test_default_target_basenames_are_this_milestones` — asserts every default target basename starts with this phase's number prefix. A copy carrying `130-*.md` names into a `13x-` phase goes red immediately.
-5. **Suffix the env seam** (`FIRESTARTER_CLAIMSCAN_TARGETS_V130`) and **rename the test module** (`test_check_permitted_claims_v130.py`) to defuse both collisions.
-6. **Carry v1.22's explicit non-claim verbatim**: a green run is *"the mechanizable half"* only, closed by this gate **plus** a blocking operator wording review. v1.22's D-16 review and v1.30's stated *"behind operator wording review"* for the gh#12 reply are the same instrument.
-7. **Because the meta repo runs no pytest workflow**, the checker's own suite must be run as an explicit, recorded acceptance criterion in the phase (`pytest .planning/phases/13x-…/ -q`, output captured in the SUMMARY). v1.23's C-3 found this checker's suite *already RED* (`1 failed, 9 passed`) with nothing able to notice.
+- Measure the blast radius **before** implementing: for each chip with a filed `[dev test]` issue, compute `raw_token → part_number` and count how many actually differ. It may be near-zero (testers copy names from `firestarter list`), in which case this is free — but that is a measurement, not an assumption.
+- Whatever the count, it belongs in the same invariance harness as Pitfall 1, and the three re-keying sources must be enumerated in one place in the milestone record so a future reader can attribute a group split to the right cause.
 
 **Warning signs:**
-- A `check_permitted_claims.py` appears in a v1.30 phase dir whose docstring still says "py32" or "PY32F071".
-- The checker prints `PASS:` before any v1.30 closing artifact exists.
-- The `PASS:` line names files with a `130-` prefix.
-- `grep -c FIRESTARTER_CLAIMSCAN_TARGETS` across `.planning/` returns more than two distinct env-var names for three checkers.
 
-**Where it bit before:**
-v1.22 C-5 (the overclaim reached a **locked** decision D-14). v1.23 C-2 (`_HERE`-relative defaults → `UNARMED:` + exit 0, *"a green run that scanned nothing, on the milestone's only outward-facing overclaim gate"*). v1.23 C-3 (the checker's own suite was already RED and CI could not see it). Memory: *"`check_permitted_claims.py`'s `_HERE` resolves to the CHECKER's phase dir — cross-phase reuse scans nothing and exits 0; repoint `_DEFAULT_TARGETS`, never pass argv."*
+- A plan treating canonical naming as a cosmetic title fix.
+- Two open issues for the same physical part under different names after the release.
 
-**Phase to address:** the close phase (proposed **136**) authors and hosts it; the gate-hardening phase (**131**) may pre-author the **vocabulary list and the two new test legs** as long as the targets resolve locally.
-
----
-
-### P-12 (HIGH): "Now provable" drifts into "now proven" in the four outward-facing artifacts
-
-**What goes wrong:**
-The milestone's honest claim is: *the lock's emission is provable, the plan derivation and read-back logic are provable, and the causal claim is reachable only from a community `dev test` report which does not gate the close.* Four artifacts will be written by someone who has just spent a milestone making the leg work, and the natural sentence is "the SDP lock is now verified" — because in every sense the author cares about, it is.
-
-The four surfaces at risk, all outward-facing:
-1. The **gh#12 reply** — and it must additionally state honestly that gh#12 asked for "enable/disable" and gets neither *by that name*; a rewording of the reporter's own ask, *"and should be stated as such"*.
-2. The **app release notes** for the next beta cut.
-3. The **milestone ledger / decision** artifacts.
-4. The **`dev test` report text itself** — which goes to strangers on every run and is the surface no gate scans today.
-
-Surface 4 is the one no existing mechanism covers: `check_permitted_claims.py` scans `.md` artifacts, not `diagnostic_report.py`'s rendered strings.
-
-**Mechanical prevention:**
-1. Add `firestarter_app/firestarter/diagnostic_report.py` (or a captured rendering of it) to the claim gate's target set — or better, add a **host-side** checker in `firestarter_app/tools/` scanning the report renderer's string literals against the same forbidden vocabulary, with a planted-violation fixture in the established house style. That gate lives in the app repo where CI actually runs it.
-2. The positive-framing assertions from P-06 (`"cannot be read back"`, `"not a claim about the chip's actual state"`) applied to the leg's report rows.
-3. The blocking operator wording review, as an explicit non-`<automated>` step. v1.30 already records the gh#12 reply as *"behind operator wording review"* — keep it there and do not let a plan's `<automated>` block draft it.
-
-**Where it bit before:** v1.22 C-5 / D-14; v1.23's six-tier honesty ledger pairing every permitted claim with an explicit non-claim (18 corrections landed under a label-aware checker, 0 unlabeled of 60).
-
-**Phase to address:** 133 (the report renderer's own strings + gate), 136 (the four artifacts).
-
----
-
-# PART D — Gates that fail OPEN
-
-### P-13 (CRITICAL, and already RED): `check_mypy_watermark.py` — reproduced locally this session
-
-**What goes wrong — measured, not inferred.** Run in this devcontainer, 2026-08-03:
-
-```
-$ mypy firestarter/ tests/
-pyproject.toml: [mypy]: python_version: Python 3.9 is not supported (must be 3.10 or higher)
-/usr/local/lib/python3.12/site-packages/numpy/__init__.pyi:737: error: Type statement is only supported in Python 3.12 and greater  [syntax]
-Found 1 error in 1 file (errors prevented further checking)
-
-$ python3 tools/check_mypy_watermark.py
-mypy errors: 1 (watermark: 35)
-INFO: 1 errors — 34 below watermark. Lower watermark in pyproject.toml.
-$ echo $?
-0
-```
-
-The gate's own anti-bypass guard (`count_mypy_errors`, `tools/check_mypy_watermark.py:44-73`) is written correctly for the failure it anticipated — *"a broken type checker must fail the gate, never be mistaken for a clean tree"* — and is **defeated by the abort producing a parseable count**. `re.search(r"Found (\d+) errors?", output)` matches `Found 1 error`; `1 <= 35`; exit 0. Two independent tells were printed and ignored, and the gate then *invites you to lower the watermark* — which would bake the broken run's number in permanently.
-
-`requires-python = ">=3.9"` and `python_version = "3.9"` are both correct for the package; the devcontainer's Python 3.12 is what makes them unsatisfiable locally. CI runs 3.11 (`ci.yml:36`) and is **RED with 69 errors against a watermark of 35**.
-
-**Mechanical prevention (five parts; the last is the load-bearing one):**
-1. **Fail on `errors prevented further checking`** anywhere in the output → `sys.exit(2)`.
-2. **Fail on any line matching `^pyproject\.toml: \[mypy\]:`** — a config rejection is never a clean run.
-3. **Invoke `[sys.executable, "-m", "mypy", ...]`, not bare `"mypy"`.** The bare form resolves to whatever is on `PATH` (`/home/vscode/.local/bin/mypy` here) with an unrelated interpreter and site-packages.
-4. **Pin mypy** to a narrow range in the `[test]` extra (it is currently `mypy>=2.1.0`, unbounded) so the output format the regex depends on cannot drift.
-5. **A canary floor, not just a ceiling.** Commit a tiny fixture module with a known, deliberate number of type errors and assert the run reports **at least** that many. An aborted or scope-collapsed run loses the canary's errors and the gate goes red. This is the only one of the five that catches an *unanticipated* abort mode — the other four each patch one known symptom. The paired planted-violation fixture discipline this repo already uses everywhere (`tests/fixtures/planted_*.py`) is exactly this idea.
-6. **A paired pytest** (`tests/test_check_mypy_watermark.py` does not exist today) invoking the checker as a **subprocess** against planted mypy output, in the shape of `test_check_permitted_claims.py`'s seven legs: clean pass, exceeds-watermark, aborted-run, config-rejection, unparseable, and canary-missing.
-
-**On the 69 errors themselves:** v1.23 measured its own net contribution at **zero** (69 → 72 → 69), so the debt is genuinely inherited. Two traps in discharging it:
-- **Do not lower the watermark to make the gate green.** That is the fail-open move in a different costume — and `RETROSPECTIVE.md`/BASE-08's principle (*amending a ship gate so your own act clears it*) names it directly. Fix errors and **lower the watermark to the new true count** in the same commit, or raise it explicitly with a dated, reasoned comment.
-- **Fix the gate before counting.** Any error count measured with the broken gate is meaningless. Order: harden → measure in a CI-equivalent env → fix → re-measure → set watermark.
-
-**Warning signs:**
-- `python3 tools/check_mypy_watermark.py` prints "N below watermark. Lower watermark in pyproject.toml." with N in single digits.
-- The CI `ci` job is red on the mypy step but green locally.
-- A commit lowers the watermark without a diff to any source file.
-
-**Where it bit before:** v1.23 Phase 127 Plan 11 found it and, per operator instruction, **did not fix it** — carried as an open finding (`.planning/STATE.md:1049`). Memory: *"Devcontainer py3.12 masks app CI (py39/3.11) — mypy watermark gate is FAIL-OPEN locally (hid 69 errors)."*
-
-**Phase to address:** **131**, first plan, before any other work — every later phase's green suite is otherwise unverified.
-
----
-
-### P-14 (HIGH): The fail-open idioms present in `firestarter_app/` today, and which of them this milestone's own gates would inherit
-
-Surveyed this session. The inventory:
-
-| Idiom | Where | Status | Can v1.30's new gates inherit it? |
-|---|---|---|---|
-| **`_FW_ABSENT = not <one file>.exists()`** — a firmware *rename* reads as firmware *absence*, flipping legs PASS→SKIP at exit 0 | was in **seven** host test modules | **FIXED** in Phase 123 Plans 07/08 → `tests/fw_presence.py` keyed on the un-renameable `../firestarter/.git`, plus `MissingScanTargetError` making a missing target under a present repo a hard failure. Recurrence forbidden by `tools/check_no_exists_proxy.py` (an AST walk over module-level assignments, with `tests/fixtures/planted_no_exists_proxy.py`) | **No** — v1.30 touches no firmware. But `.planning/STATE.md:703` warns *"six modules shared it — worth confirming none survive"*: run `check_no_exists_proxy.py` as a cheap acceptance leg. |
-| **A parseable-but-aborted subprocess count** | `tools/check_mypy_watermark.py` | **BROKEN** (P-13) | **Yes, directly** — any new checker that greps a tool's stdout for a number. The canary-floor rule generalises. |
-| **Allow-list of function names, fail-closed only on ZERO matches** | `tools/check_devtest_orchestrator.py:138` `_HANDLER_FUNCTION_NAMES` | fail-open **against additions** | **Yes** (P-07) — and v1.30 adds functions to exactly the scanned handler. |
-| **Explicit non-pattern default target lists** (never a glob, never a tree-walk, so `fixtures/` is unreachable) | `check_no_exists_proxy.py`, `check_devtest_orchestrator.py`, both `check_permitted_claims.py` | **CORRECT — copy this** | Yes, deliberately. |
-| **Env seam read with `os.environ.get(...)` and NO default, precedence tested with `is not None`** so present-but-empty ⇒ zero targets, never a silent fallback | `FIRESTARTER_CLAIMSCAN_TARGETS`, `FIRESTARTER_DISP01_REPORT`, `FIRESTARTER_DEVTEST_SRC`, `FIRESTARTER_PROXY_LINT_TARGETS`, `FIRESTARTER_FW_ROOT` | **CORRECT — copy this** | Yes. |
-| **Import-time binding** — `FW_ROOT`, `FW_REPO_PRESENT`, `requires_fw`, `_BOARD_CHOICES`, `channel.is_prerelease_build()`'s effect on option construction are all frozen at import/collection; `monkeypatch.setenv` runs **after** and has **no effect** | `tests/fw_presence.py:35-45` documents it explicitly (RESEARCH C-15) | correct-but-treacherous | **Yes** — any v1.30 test that tries to simulate the *stable* channel in-process will silently test the prerelease channel and pass. Must use a subprocess (P-17). |
-| **`except Exception: pass` diagnostic swallow** | `chip_test.py:1036-1040` `_sample` | correct **for a sampler** | **Yes, hazardously** — it is a precedent an implementer will cite around the oracle (P-09 D6). |
-| **Best-effort read-back swallow leaving a boolean verdict standing** | `chip_test.py:1147-1160` | correct **for a fingerprint** | **Yes, hazardously** (P-02, P-03c). |
-| **`_diff_offsets` never raises; empty input ⇒ zero differences** | `chip_test.py:93-104` | correct **for a divergence metric** | **Yes, hazardously** (P-02). |
-| **`${sysenv.VAR}` build-flag gating fails OPEN** | firmware side | documented, and `firestarter/channel.py`'s docstring cites it: *"A channel gate that can be flipped by an env var is not a gate — the firmware side already learned that `-D X=${sysenv.VAR}` fails OPEN and quietly ships the gated thing. **Nothing here reads the environment.**"* | **No, if 999.15 reuses `channel.py`.** Yes if it invents a new env-var-driven gate. `channel.py` is the correct pattern and fails **closed** on an unparseable version. |
-| **A gate authored before its content is UNREACHABLE and nothing notices** | v1.23 general finding | class-level | **Yes** — v1.30 will pre-author gates. Every pre-authored gate needs a RED-preserving proof that it can *actually* fire on a planted violation, and its failure reasons must be *read*, not assumed. Memory: *"A pre-authored gate leg can be UNREACHABLE — RED proves nothing until seen to pass."* |
-| **`test_skip_census.py`'s `ALLOWED_SKIP_REASONS`** | fails **closed** on any new skip reason; `test_census_child_run_is_live` prevents a collection regression from silencing it; `test_parser_recognises_a_real_skip` prevents a dead parser from making it vacuous | **CORRECT — a v1.30 ally** | Use it. Do not add an SDP entry casually. |
-
-**Phase to address:** 131 owns the sweep (`check_no_exists_proxy.py` re-run, the derived `_HANDLER_FUNCTION_NAMES` subset test, mypy hardening); 133 owns not inheriting the three `chip_test.py` swallows.
-
----
-
-# PART E — Deleting a published surface
-
-### P-15 (HIGH): The syrupy snapshot fails the whole session — twice, for two different reasons
-
-**What goes wrong:**
-`tests/__snapshots__/test_characterization.ambr` line **141** contains, inside the `test_help_dev` snapshot (`# name: test_help_dev`, line 124):
-
-```
-    sdp                Enable or disable Software Data Protection (SDP) on...
-```
-
-Deleting the subcommand changes `firestarter dev --help` and reddens `test_help_dev` — expected, and easily fixed. The **second** failure is the one v1.23 hit and is not obvious:
-
-**syrupy 5.5.3 fails the entire pytest session on UNUSED snapshots**, unless `--snapshot-warn-unused` is passed. Verified in syrupy's own source: `pytest_sessionfinish` does `session.exitstatus |= exitstatus | session.config._syrupy.finish()`, and `session.py:301`'s branch is `elif not self.update_snapshots and not self.warn_unused_snapshots:`. `firestarter_app`'s `addopts` is `"-ra -q"` — **no** `--snapshot-warn-unused`. So:
-
-- If `test_help_dev` is renamed or parametrised — which the 999.15 channel split **requires**, into `test_help_dev[test_help_dev_stable]` / `[..._prerelease]`, exactly the shape `test_help_fw` already uses (`.ambr:168`, `:212`) — the old unnamed `test_help_dev` entry becomes **unused** and fails the session **even though every assertion passes**.
-- `pytest --snapshot-update` deletes unused entries, but **regenerates every snapshot in the selection**, silently blessing any unrelated drift. Running it broadly to "fix the reds" is how a genuine regression in `test_help`, `test_info_known_chip` or `test_list` gets committed as the new truth.
-
-**Mechanical prevention:**
-1. **Scope the update** to the affected node ids only, then **review `git diff tests/__snapshots__/test_characterization.ambr` against a named expected shape** as an explicit acceptance criterion: *"the only changes are the removal of the `sdp` line from `test_help_dev` and the addition of two named `test_help_dev[...]` entries"*. Record `git diff --stat` in the SUMMARY. A diff-shape criterion is version-independent and does not rely on syrupy's node-scoping behaviour being what you think it is.
-2. **Do the channel split and the deletion in a deliberate order**: delete first with a plain snapshot update (one-line diff), then split into two named snapshots (two-entry diff). Two small reviewable diffs beat one large one.
-3. Copy `_run_fw_help_at_version` (`tests/test_characterization.py:242-286`) rather than reinventing it — it already solves the import-time channel binding *and* documents why `CliRunner` is wrong here (`CliRunner.isolation()` forces `click.formatting.FORCED_WIDTH = 80`, which wraps help text differently from a real subprocess's unforced 78). Generalise it to `_run_help_at_version(argv, version)`.
-
-**Where it bit before:** v1.23 — *"the merge changed `fw --help` and reddened a snapshot, and the fix had to be channel-aware because `_BOARD_CHOICES` is import-time"*; Phase 127 Plan 04 took approved added scope to split `test_help_fw` into two named snapshots for exactly this reason.
-
-**Phase to address:** the deletion phase (**132**) for the removal diff; the channel-gating phase (**135**) for the split.
-
----
-
-### P-16 (HIGH): Deleting `tests/test_dev_sdp_cmd.py` deletes four honesty assertions that exist nowhere else
-
-**What goes wrong:**
-`tests/test_dev_sdp_cmd.py` (558 lines) is named for deletion. It contains, besides the gate-ordering cases the design note flags for repurposing, **four tests that are the only committed enforcement of the milestone's own honesty requirements**:
-
-| Test | What it is the only enforcement of |
-|---|---|
-| `test_summary_line_carries_the_unreadable_state_caveat_on_both_directions` (`:395`) | that the caveat appears on **both** directions. Its docstring records *why* the host is the sole carrier: firmware's `0x5F` (`MSG_INFO_SDP_UNLOCK_DONE_US`) frame *"carries no honesty caveat where `0x61` (`MSG_INFO_SDP_LOCK_DONE_US`) does (F-120-03) — so the host summary line is the ONLY carrier of the caveat on the unlock direction."* |
-| `test_summary_line_carries_no_duration_figure` (`:423`) | that no fabricated microsecond figure leaks into the host's own line |
-| `test_no_fabricated_lock_state_boolean_in_the_report` (`:453`) | the three positive-framing assertions: `"was emitted"`, `"cannot be read back"`, `"not a claim about the chip's actual state"` |
-| `test_firmware_too_old_is_reported_when_unknown_cmd_comes_back` (`:513`) | that an old firmware answering `0x0D`-unknown is *reported*, not silently absorbed. **Note:** *"Host cannot distinguish firmware b11 from b12"* — `_probe_port`'s `[\d.x]+` truncates the prerelease suffix, so an ack is the only detector. This is still true and the new leg needs it. |
-
-Deleting the file with a `git rm` retires all four. A community member on b14/b15 firmware would then get the new leg with none of these guarantees, and no test would notice.
-
-**Mechanical prevention:**
-1. **`git mv`, don't `git rm`.** Move the file to `tests/test_dev_test_sdp_leg.py` in the same commit and retarget each case onto the new leg. The four honesty cases apply almost verbatim — the SUT changes from `dev sdp <chip> enable` to the leg's report rows.
-2. **Order the leg BEFORE the deletion.** Deleting first opens a window in which the SDP capability has no test coverage at all and the four assertions exist nowhere. If the roadmap wants deletion early (to shrink 999.15's diff), do both in the **same phase**.
-3. **An acceptance criterion asserting no net loss of assertions**: `git log --diff-filter=D --name-only` for the phase must show the old file only if the new file exists in the same commit, and the four assertion strings (`"cannot be read back"`, `"not a claim about the chip's actual state"`, `"was emitted"`, plus the duration-regex) must each still be grep-findable in `tests/`. Four greps, mechanical.
-
-**Where it bit before:** the general class is memory-recorded: *"'Empty git diff' criteria break on later `#if` guards — scope to assertions-unchanged, or name blob SHAs."* Same lesson: assert the *assertions*, not the file.
-
-**Phase to address:** 132/133 jointly (recommend one phase).
-
----
-
-### P-17 (MEDIUM-HIGH): Every other trace a deleted subcommand leaves
-
-Enumerated. Grepped this session; the surprising result is how *little* is in the app repo and how much is outside it.
-
-| # | Trace | Location | Breaks how | Prevention |
-|---|---|---|---|---|
-| 1 | **`test_help_dev` snapshot** | `tests/__snapshots__/test_characterization.ambr:141` | P-15 | scoped update + diff review |
-| 2 | **Unused-snapshot session failure** | syrupy default | P-15 | as above |
-| 3 | **`tests/test_dev_sdp_cmd.py`** | 558 lines, 4 honesty tests | P-16 | `git mv` |
-| 4 | **`COMMAND_SDP_UNLOCK`/`COMMAND_SDP_LOCK` and their `COMMAND_NAMES` entries** | `constants.py:72-73`, dereferenced at `eprom_operations.py:301` and `:377` | **a missing `COMMAND_NAMES` entry is a `KeyError` at operation setup, not a cosmetic gap.** An over-eager "remove the SDP constants" cleanup breaks `write`'s auto-unlock and `--sdp-relock` too | a test that dereferences `COMMAND_NAMES[COMMAND_SDP_LOCK]` and `[COMMAND_SDP_UNLOCK]` and asserts non-empty. Trivial and permanent. |
-| 5 | **`sdp_capability.py` in full** | now serves three consumers: `write`'s D-04 auto-set, the new leg, `--sdp-relock` | deleting or narrowing it breaks all three | the count/parity gate from P-10 |
-| 6 | **`shell_complete=_complete_eprom` registrations** | `cli_handlers.py:2194` | a user's cached shell completion still offers `dev sdp` after upgrade | not fixable host-side; mention in release notes |
-| 7 | **The gh#12 reply** (`122-GH12-COMMENT.md:15`), **published 2026-07-30** | GitHub, `henols/firestarter_prom` | a one-day-old public instruction becomes wrong; and gh#12's ask is *reworded*, not answered | the owed follow-up, **behind operator wording review**, stating the substitution honestly and not letting "now provable" become "now proven" (P-12) |
-| 8 | **b14 app release notes** (`122-RELEASE-NOTES-app.md:12,22`), same date | GitHub release | names a command that no longer exists in the next beta | a "Removed" section in the next release notes naming the replacement paths explicitly |
-| 9 | **PyPI `--pre` installs of `3.0.0b14`/`3.0.0b15`** | live | `firestarter dev sdp` starts erroring for anyone who upgrades | Click's own "No such command" is adequate *if* the release notes carry the mapping. Consider a one-release deprecation shim that errors with the replacement instruction — but note it would then need 999.15 channel classification, which is exactly the diff the deletion is meant to shrink. **Recommend: clean deletion + release-notes mapping.** |
-| 10 | **`.planning/` record** — `PROJECT.md`, `STATE.md`, `MILESTONES.md`, the v1.22 phase artifacts, `ROADMAP.md` | meta repo | archived/historical text legitimately describes a shipped command. **Do not sweep it.** v1.23's C-7 found that a naive sweep *"would have deleted accurate history"* | use the established `<!-- recordscan:history reason: … -->` labelling for anything a live-claim scanner flags; correct only *live* forward-looking statements |
-| 11 | **The stale `--sdp-relock` deferral label** | `.planning/STATE.md:532` and `.planning/PROJECT.md:705` read **"v1.23+"**, written before v1.23 became PY32F071 Integration. (The design note's own `STATE.md:154` / `PROJECT.md:671` citations are themselves stale — the live lines are 532/705) | the flag currently has no home; a reader following the label lands on a shipped, unrelated milestone | fix both rows when the stub is scoped, as an explicit task, *"not silently left to be discovered"* |
-| 12 | **No app-repo `.md` mentions it** | verified: `grep -rn "dev sdp" --include=*.md firestarter_app/` → **zero hits**; `README.md` mentions only `dev test` (`:131-133`) | nothing to fix | confirm with the same grep as an acceptance leg |
-
-**Phase to address:** 132 (traces 1–6, 12), 135 (trace 9's interaction), 136 (traces 7, 8, 10, 11).
-
----
-
-# PART F — Test-suite hazards specific to this repo
-
-### P-18 (HIGH): The devcontainer cannot see three whole classes of defect this milestone can ship
-
-Three independent divergences, all live:
-
-**(a) Python 3.12 local vs 3.11 CI vs a 3.9 floor.** This is precisely what made the mypy gate fail open (P-13). It also means: any `from __future__` / typing-syntax / stdlib-behaviour assumption that works at 3.12 may fail at 3.9 (`requires-python = ">=3.9"`; `ruff target-version = "py39"`; `mypy python_version = "3.9"`). ruff *is* CI-scoped correctly today, but must be **run CI-scoped locally** (`ruff check firestarter/ tests/`, `ruff format --check firestarter/ tests/`) — not on a wider or narrower path set.
-
-**(b) The sibling-repo layout.** This devcontainer **has** `../firestarter/`; standalone CI does **not**. `.planning/STATE.md:688-697`:
-
-> *"⚠ Before any push to a sub-repo `beta`, point the sibling checkout root at an empty directory first. This devcontainer *has* the sibling layout standalone CI lacks, which is exactly why three CI-only sibling-checkout test defects fired simultaneously on the real b15 push and were invisible locally."*
-
-Two out-of-plan fixes landed directly on `beta` during that hand-off (`firestarter_app` `5934a54` — which is the current fork base `16a313a`'s parent), and **one of them softened a Phase-129-authored hard assert (`test_present_root_with_missing_target_raises_not_skips`) to a skip — a defect-class change**, recorded as worth revisiting.
-
-**(c) A live board on `/dev/ttyACM*` beats the `comports=[]` patch.** `test_no_programmer_found_read` / `_erase` (`tests/test_characterization.py:478`, `:518`) *have already been hardened*: they now patch `SerialCommunicator._list_potential_ports` (the real enumeration seam, D-19) **as well as** `comports`, and assert `mock_serial.assert_not_called()`. Any **new** test the SDP leg adds that touches port discovery must do the same, or it goes red on the operator's bench and green in CI — or worse, green in both while having silently opened a real port.
-
-**Mechanical prevention:**
-1. **A CI-equivalent local run recipe, executed and recorded, before any push to `beta`:**
-   ```
-   FIRESTARTER_FW_ROOT=$(mktemp -d) python3 -m pytest tests/ -q     # (b) empty sibling root
-   python3 -m pytest tests/ -q                                      # with the sibling present
-   ruff check firestarter/ tests/ && ruff format --check firestarter/ tests/
-   python3 tools/check_mypy_watermark.py                            # after P-13's fix
-   ```
-   `FIRESTARTER_FW_ROOT` is the **one** seam `fw_presence.py` exposes for exactly this (`:80`), and it is read at **module scope** — so it must be set in the **environment of the pytest process**, never monkeypatched.
-2. **Also detach the physical board** (or run with no `/dev/ttyACM*`) for one of the two runs, and record both.
-3. **Prefer a 3.9-or-3.11 verification for anything type-related.** If a matching interpreter is unavailable locally, say so and defer the claim to a CI run URL — the same discipline v1.23 D-07 imposed on ARM sizes (*"a local build supports delta / byte-identity claims only — never an absolute size"*).
-4. **Revisit the softened assert** (`test_present_root_with_missing_target_raises_not_skips`) as a named item: it was a Phase-129 hard assert downgraded to a skip under time pressure, and it is currently the fork base. Either restore the hard assert with a correct standalone-checkout guard, or record the downgrade deliberately.
-5. **The still-owed `81fa53c` carry.** `.planning/STATE.md:534` and `:684-686`: an app CI fix exists on `beta` **only** and *"must be reintroduced at the next merge toward `main`"* — it adds `skipif` guards to `test_check_is_memory_cmd_no_ifdef.py` and `test_check_no_log_in_sdp_window.py`'s clean-source legs, which hard-fail in a standalone checkout. **`main` has still never been merged in any of the three repos**, so this stays latent — but v1.30 touches `check_no_log_in_sdp_window.py`'s neighbourhood and should not make it worse.
-
-**Where it bit before:** the b15 push (three simultaneous CI-only failures); Phase 122's `122-CUT.md` §8; memory: *"Devcontainer sibling layout masks CI-only test defects — point the sibling root at an empty dir BEFORE any beta push."*
-
-**Phase to address:** 131 authors the recipe as a reusable acceptance leg; every phase runs it; the cut phase (136) runs it before any push.
-
----
-
-### P-19 (MEDIUM): The stable channel surface is unreachable in any local run
-
-**What goes wrong:**
-`channel.is_prerelease_build()` (`firestarter/channel.py:36-57`) derives the channel from the package's own `__version__`, and *"dev versions (`2.0.7_dev`) parse as pre-releases and therefore keep gated features enabled while working from a checkout."* So **every local run, and every in-process test, sees the prerelease surface.** 999.15's whole deliverable is the *stable* surface (`dev read` + `dev test` only), and it cannot be observed locally by default.
-
-Compounding it: option construction and `_BOARD_CHOICES`-style choices bind at **import time**, so `monkeypatch.setattr("firestarter.__version__", "3.0.0")` inside a test that has already imported `cli_handlers` does nothing — and *passes*.
-
-**Mechanical prevention:**
-1. **Simulate the channel in a subprocess**, patching `firestarter.__version__` *before* `cli_handlers` is imported. `_run_fw_help_at_version` (`test_characterization.py:242`) and `tests/test_py32_channel_gating.py`'s D-07 discipline both already do this; generalise, don't reinvent.
-2. **Both channels pinned against their OWN named snapshot**, per `test_help_fw`'s rationale: *"if `--board`'s real choices ever drift from what a channel should expose, one of these two assertions goes red — neither is derived from the other."* Apply to `dev --help`.
-3. **Positive AND negative membership assertions**, not just snapshots — e.g. `assert "sdp" not in stable and "sdp" not in prerelease` (post-deletion), `assert "test" in stable`, `assert "read" in stable`, `assert "reg" not in stable`. A snapshot alone tells you the text changed; these tell you *what* the channel exposes.
-4. **Reuse `channel.py`. Do not invent an env-var gate.** Its docstring is the project's own recorded lesson: *"A channel gate that can be flipped by an env var is not a gate."* It fails **closed** on an unparseable version.
-
-**Where it bit before:** memory: *"gh#8 dev-tools gating: the CHANNEL is the gate — stable keeps `dev read`+`dev test`; `${sysenv.VAR}` fails OPEN."* And v1.23's `test_help_fw` split.
-
-**Phase to address:** 135, with the harness authored in 131 or 132 (whichever first needs a channel-aware help assertion).
-
----
-
-# PART G — Leaving a chip locked
-
-### P-20 (CRITICAL, safety): An abort between lock and unlock ships a locked part back to a community member
-
-**What goes wrong:**
-`run_plan` (`chip_test.py:757-802`) is a **flat `for` loop over `plan.steps`** with per-step `try/except` and **no `try/finally` and no cleanup phase**. Its per-step handler catches `EpromOperationError`, `ChipNotImplementedError`, `ChipNotFoundError` — not `KeyboardInterrupt`, not `SystemExit`, not a `serial` transport exception class outside that set. So:
-
-- **Ctrl-C** between step 2 (`sdp_lock`) and step 4 (`sdp_unlock`) → the loop unwinds, `dev test` exits, the part stays locked.
-- **A cable yank / brownout** → an unhandled transport exception propagates the same way.
-- **The destructive gate.** If `sdp_lock` is placed in `_DESTRUCTIVE_OPS` (it must be — it mutates the part) but the id step is *later* re-run or the gate closes *mid-plan*, the write steps skip while the lock does not, or vice versa. Worse and more likely: **if `sdp_unlock` is placed in `_DESTRUCTIVE_OPS`, a gate that closes after the lock will SKIP the unlock** — the gate designed to protect the chip becomes the mechanism that leaves it locked.
-- **A `sdp_unlock` emission failure** at step 4 → `BAD` (exit 1), which is honest, but the part is locked and the report must say so in recovery terms, not just "BAD".
-
-Recovery genuinely exists — firmware auto-unlocks at the start of **every** protocol-`0x0D` write (`eeprom28c_write_init`; host side `eprom_operations.py:1637`) — so a plain `firestarter write` recovers the part. But: **`0x0D` has no erase operation at all.** The word "erase" in a recovery instruction is not merely imprecise, it is *actively wrong advice* that sends a user looking for a command that does not exist for their chip and cannot exist.
-
-**Mechanical prevention:**
-1. **`sdp_lock` in `_DESTRUCTIVE_OPS`; `sdp_unlock` EXEMPT from the destructive gate.** The gate's purpose is "don't mutate a chip you can't identify". A cleanup unlock on a possibly-misidentified chip is the lesser harm than leaving a possibly-locked chip — and if the lock never ran, the unlock is a no-op emission. Encode the asymmetry explicitly with a comment and a test: *closed gate ⇒ `sdp_lock` SKIPPED and `sdp_unlock` not attempted (because nothing was locked); lock ran then gate closed ⇒ `sdp_unlock` STILL attempted.*
-2. **A `try/finally` around the lock→unlock window**, wide enough to catch `BaseException`, whose `finally` attempts `sdp_unlock` once and records the attempt as a `StepResult` before re-raising. This is a deliberate, narrow deviation from `run_plan`'s flat-loop shape and must be documented as such.
-3. **Baseline-gate the whole leg.** If step 1 (baseline write + verify) is not `OK`, steps 2–4 must **not run at all** — `SKIPPED` with reason *"baseline not established; the part was not locked"*. Locking a chip whose write path is already failing has zero oracle value and maximal harm. **This is not hypothetical: gh#20 (AT28C256 `dev test` FAIL, reported 2026-07-30) is still open** — the first community `dev test` report on an SDP-capable `0x0D` part is a failure, and v1.30 is about to add a lock to that same run.
-4. **Report wording, asserted by test:**
-   - On a completed run: *"the part was unlocked before this run ended"*.
-   - On an aborted/failed-unlock run: an explicit recovery line using the word **"rewrite"**: *"this part may still be SDP-locked. Recover it by running `firestarter write <chip> <file>` — the firmware unlocks automatically at the start of every write. There is no erase operation for this chip family."*
-   - Test both strings. A `"erase"`-forbidding grep over the leg's recovery strings is three lines and permanent.
-5. **What host-side cleanup can honestly promise:** *"an unlock sequence was emitted"* — nothing more. Protection state is not readable on this family (Phase 117 D-05, Phase 119 D-12), so the report **cannot** say "the part is unlocked". It can say: the unlock was emitted; the emission returned OK; and a plain `write` will unlock it again regardless. Do not let the cleanup line become a state claim (P-06).
-6. **Also state the endurance cost.** The leg adds three write passes to a run that already writes twice. `_ALWAYS_WRITES_NOTICE` must reflect the true count (P-08).
-
-**Warning signs:**
-- No `finally` anywhere in the leg.
-- `sdp_unlock` appears in `_DESTRUCTIVE_OPS`.
-- The recovery string contains "erase".
-- A test kills the run mid-plan and asserts nothing about the unlock.
-- Steps 2–4 run unconditionally after step 1's verdict.
-
-**Where it bit before:** design-note Trap 3 states it. Related in-repo precedent for "the gate becomes the harm": Phase 119 LOCK-04's *"generic op-layer NULL-main guard, not the harmful `default:` arm"* — the same reasoning that a refusal must fail in the safe direction, chosen deliberately rather than inherited.
-
-**Phase to address:** 133, as a named safety criterion.
-
----
-
-# PART H — The removal-safety dependency
-
-### P-21 (MEDIUM, but high half-life): "Removal is safe because auto-unlock is default-on" decays into an unfindable sentence
-
-**What goes wrong:**
-The deletion of the standalone unlock is safe **only** because firmware auto-unlocks on every `0x0D` write. If that default is ever revisited — made opt-in, gated, or removed — the deletion becomes reckless retroactively: there would then be **no** way for a user to recover an SDP-locked AT28C, and the standalone command that used to provide one is gone. The design note says *"record the dependency"*; PROJECT.md repeats it. **A sentence in a note is not a mechanism.** It will not be found by whoever changes the auto-unlock default two milestones from now, because they will be reading `eprom_operations.py`, not v1.30's design note.
-
-**Mechanical prevention — put the tripwire where the change will happen, not where the decision was made.** Four layers, cheapest first:
-
-1. **A comment at the change site.** In `eprom_operations.py` at the auto-unlock default (and at `FLAG_SKIP_SDP_UNLOCK`'s definition in `constants.py`), a block comment naming v1.30 and the dependency: *"the standalone `dev sdp <chip> disable` was DELETED in v1.30 because this unlock is unconditional. Changing this default removes the only recovery path for an SDP-locked part and must re-open that decision."* A developer changing the default reads this line by construction.
-2. **A committed test that fails when the default changes.** `tests/test_write_skip_sdp_unlock.py` already exists and covers `--skip-sdp-unlock`; add a test named for the *dependency*, e.g. `test_auto_unlock_is_default_on_because_dev_sdp_was_deleted`, asserting that a `0x0D` write without `FLAG_SKIP_SDP_UNLOCK` set carries the unlock. Its **name and docstring** are the record. A test that fails and whose failure message explains the coupled decision is the only form of documentation that reliably gets read.
-3. **A ledger row pairing the claim with its condition.** v1.23's six-tier honesty ledger paired every permitted claim with its explicit non-claim; do the same here: *permitted claim — "no capability is lost by deleting `dev sdp`"; condition — "auto-unlock is default-on"; if the condition fails, the claim fails."*
-4. **An explicit `STATE.md` "coupled decisions" entry**, not merely a deferred item — deferred items get *acknowledged* (six consecutive closes for the standing 14), whereas a coupled-decision entry naming the exact source file is actionable. And a `todos` entry is not enough: 13 are already pending.
-
-Layers 1 and 2 are the ones that survive; 3 and 4 serve the reader who is already in `.planning/`.
-
-**Warning signs:**
-- The dependency exists only in `.planning/notes/` and `PROJECT.md`.
-- No test names it.
-- No comment at `eprom_operations.py:1637` mentions it.
-
-**Where it bit before:** the class is well documented here — `RETROSPECTIVE.md:409`: *"'Accepted tech debt' for a safety artifact deserves a tracked follow-up, not just a note. The hollow GATE-03 detector is safe today only because the host guard exists; if the host guard ever changes, the hollow gate won't catch it."* Identical structure, identical remedy.
-
-**Phase to address:** 132 (comment + test land with the deletion); 136 (ledger + STATE row).
-
----
-
-# PART I — Remaining pitfalls
-
-### P-22 (MEDIUM): `--sdp-relock`'s skip-on-verify-failure is itself a false-green shape
-
-**What goes wrong:**
-Polarity is decided (operator, 2026-08-03): **on verify failure the relock is SKIPPED and the skip is reported loudly.** The hazard is the word "loudly". A skip that only appears in a log line at `INFO` is not loud; the user asked to protect a part and it is unprotected, and they will assume otherwise. Worse: because protection state cannot be read back, **there is no way for them to discover the part is unprotected** — the failure is permanently invisible on the hardware.
-
-The symmetric hazard: relocking anyway would protect a bad image behind a lock that cannot be read back and can only be cleared by another write. That is why the decision is right; the implementation is what can betray it.
-
-**Mechanical prevention:**
-1. **A non-zero exit code**, or at minimum a `WARNING`-level message plus an explicit final line. `write` returning 0 after silently skipping the user's requested relock is the false green. Recommend: the write's own success drives the exit code, and the skipped relock adds a distinguishable non-zero (or a mandatory final `WARNING:` line asserted by test).
-2. **The skip message must state the state the part is in** and how to retry: *"the write did not verify, so `--sdp-relock` was NOT applied — this part is UNPROTECTED. Fix the image or the contact and re-run with `--sdp-relock`."*
-3. **Three committed tests**: verify-OK ⇒ relock emitted; verify-FAIL ⇒ relock **not** emitted (`operator.sdp_lock.assert_not_called()` — the SAFE-04 idiom) **and** the warning present **and** the exit code non-zero; flag absent ⇒ relock never emitted.
-4. **Refuse `--sdp-relock` up front on a REFUSE-list chip**, before the port opens, with `sdp_capability()`'s own reason — the same gate-ordering discipline `test_dev_sdp_cmd.py:151-260` proves for `dev sdp` (four ordered gates, each refusing before the confirm and before any port is opened). Those gate-ordering cases are exactly what the design note means by *"repurpose the gate-ordering cases … where they still apply"* — they apply here, to `write --sdp-relock`, more than to the `dev test` leg.
-
-**Also fix the stale label** (`STATE.md:532`, `PROJECT.md:705` read "v1.23+") as an explicit task, not a discovery.
-
-**Phase to address:** the `--sdp-relock` phase (proposed **134**), inheriting 132's repurposed gate-ordering tests.
-
----
-
-### P-23 (MEDIUM): New ops must be registered in more places than the code tells you
-
-**What goes wrong:**
-Adding ops to `chip_test.py`'s vocabulary touches a set of registries that is *partly* self-enforcing and partly not:
-
-| Registry | Fails closed on omission? |
-|---|---|
-| `_DESTRUCTIVE_OPS` (`:636`) | **No** — an omitted write-shaped op writes to a misidentified chip ungated. The comment says so: *"a write-shaped op absent from this frozenset would write to a misidentified chip ungated by the chip-ID mismatch check, which is a critical-severity correctness bug, not a cosmetic omission."* |
-| `_MULTI_RUN_OPS` (`:657`) | **Yes** — `BAD` with an explicit refusal reason. But see P-03: registering here is the trap. |
-| `_dispatch_step`'s arms (`:903-948`) | **Yes** — the terminal `return StepResult(verdict=VERDICT_BAD, …)` refuses fail-closed |
-| `derive_plan`'s step construction | **No** — an op simply never appears |
-| `_RAN_VERDICTS` / `count_applicable` M | **No** — silently excluded from the coverage ratio (P-04 R7) |
-| `dedup_fingerprint` hash inputs | **No** — the design note says consumers *"pick them up without learning a new field"*, which is true for reading `StepResult.op` but means the fingerprint's meaning silently changes |
-| `diagnostic_report.py` renderer | **No** — an unrendered op is invisible in the report |
-| `tools/parse_devtest_issue.py` | **No** — a new op in a filed issue may not parse |
-| `_ALWAYS_WRITES_NOTICE` | **No** (P-08) |
-| `check_devtest_orchestrator.py`'s allow-list | **No** for new *handler* helpers (P-07) |
-
-**Mechanical prevention:** a single **op-registration parity test** that, for every op string in the module's `OP_*` constants, asserts membership-or-explicit-exemption in each registry above, with the exemptions listed and commented. One test, ten assertions, and it converts eight fail-open registries into one fail-closed gate. The house already has the shape (`test_revision_constants_parity.py`, `test_sdp_table_parity.py`, `test_dispatch_mirror.py`).
-
-**Where it bit before:** Phase 121 Plan 06 added `OP_WRITE_PARTIAL` and had to add it to **both** frozensets, proven by a deliberate-break test (121-06 Task 3) — establishing the pattern but not generalising it.
-
-**Phase to address:** 133 (the parity test lands with the new ops).
-
----
-
-### P-24 (MEDIUM): Requirements get marked Complete before all their plans land
-
-**What goes wrong:**
-A documented, repeated executor behaviour in this project: *"Executors prematurely mark multi-plan reqs Complete — 4× in P116; name allowed IDs when dispatching."* This milestone has requirement clusters that will span plans (the leg's four steps; the mypy hardening; the channel split), so it is squarely in scope.
-
-**Mechanical prevention:** name the exact requirement IDs each plan is permitted to mark Complete, in the dispatch prompt. Verify against the requirements file at phase verification, not at plan close.
-
-**Phase to address:** every phase; a dispatch-time discipline.
-
----
-
-### P-25 (LOW-MEDIUM): Planning-tool hazards that have bitten this project at exactly this point in the cycle
-
-Not code pitfalls, but they cost real time in v1.22 and v1.23 and this milestone will hit the same steps:
-
-| Hazard | Prevention |
-|---|---|
-| **`/gsd-new-milestone` step 6 `phases.clear` is DESTRUCTIVE** — hard-deletes 50+ phase dirs | skip it |
-| **`gsd-tools query commit` can switch branches** — an unanchored `##…vX.Y` regex scrapes ROADMAP prose | `git rev-parse --abbrev-ref HEAD` after every `gsd-tools query commit`; `git diff` STATE.md after every state write |
-| **`phase.complete` can CORRUPT frontmatter**, and jumps to (close) when the next phase has no dir | diff, don't infer; check the first `[ ]` checkbox |
-| **`--auto`/`--chain` AUTO-APPROVES human-verify gates**; `autonomous: false` is not self-protecting | this milestone has an operator-wording-review gate (gh#12) and a bench-free evidence ceiling — do not run the close under `--auto` |
-| **Tag pushes fire zero CI, but local `beta` lags origin**; a `beta` merge+push at close **auto-fires CI → a spurious new beta** (fired twice at v1.21) | ff-only to `origin/beta` **before** tagging; expect the CI fire and plan for it |
-| **Milestone close breaks its own record gates** — archived sections orphan `lines=N` exemptions; `git rm REQUIREMENTS.md` trips fail-closed target lists | expect it; P-11's target-resolution tests are the local instance |
-
-**Phase to address:** 136 and the close procedure.
+**Phase to address:** **Invariance harness phase (suggested 174)** for the measurement; **report schema phase (suggested 180)** for the change.
 
 ---
 
 ## Technical Debt Patterns
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|---|---|---|---|
-| Reuse `generate_pattern` for both A and B | zero new code; looks idiomatic | **the milestone's only deliverable becomes a tautology** | **Never** |
-| Register the inhibited write in `_MULTI_RUN_OPS` | the fail-closed instruction is satisfied; multi-run machinery for free | write-boolean oracle + double write + swallowed read-back (P-03) | **Never** |
-| Compare with `_diff_offsets`/`==` and no length guard | one line; reuses the mandated primitive | empty read-back reads as perfect equality (P-02) | **Never** |
-| Downgrade an unexpected write success to `SKIPPED`/`NA` | keeps `dev test` green for users | inverts the leg's entire purpose (P-09) | **Never** |
-| Lower the mypy watermark to make CI green | `ci` job green today | bakes 69 unchecked errors in permanently; the fail-open move BASE-08 exists to prevent | **Never** — fix errors and lower to the true count in the same commit |
-| Skip the SDP oracle when the lock emission fails | fewer moving parts | hides whether the write then succeeded (P-09 D3) | **Never** — run it and report both |
-| `git rm tests/test_dev_sdp_cmd.py` | one clean commit | retires 4 honesty assertions with no replacement (P-16) | **Never** — `git mv` |
-| Copy `check_permitted_claims.py` verbatim | a claim gate "for free" | a confident `PASS:` scanning v1.23's artifacts (P-11) | **Never** |
-| A deprecation shim for `dev sdp` | kindest to b14/b15 `--pre` users | re-adds a subcommand 999.15 must classify — the exact diff the deletion shrinks | Only if 999.15 lands first and classifies it; otherwise clean deletion + release-notes mapping |
-| Defer the causal claim to a community report | honest, and the only option | the milestone closes with its central claim unproven and **no** gate forcing anyone to say so | **Acceptable and correct** — this is the evidence ceiling. It is acceptable **only** with P-11's claim gate and an explicit ledger non-claim. |
-| Rely on the report's `N of M` banner to surface a non-running oracle | free | `NA` steps are excluded from *both* N and M, so the ratio stays perfect (P-04 R7) | Never as the only signal |
-
----
+|----------|-------------------|----------------|-----------------|
+| Gate the read-back on `not all(outcomes)` and accept the dedup re-key silently | R2 lands in a day; ~24% saving | Every chip's `count_agreeing` resets to 1 with no record of why; future group splits become unattributable | **Never silently.** Acceptable *only* as a declared, dated, one-time re-key with the cause named in `MILESTONES.md` |
+| Gate the flag on `region_policy == "uv-slot"` instead of the mask witness | One line, reads naturally | A future unmasked uv-slot branch inherits a blank-check skip and can brick a UV part irrecoverably | Never — the witness form is the same line count |
+| Redefine `duration_s` in place because "the schema bump documents it" | No new key; matches the operator's "no decoration" rule | Two incompatible meanings under one key in a public tracker, with no consumer able to tell them apart | Only if at least one parser is simultaneously made to gate on `schema_version` |
+| Ship the sampled `divergence` export before the sampling design is settled | Both backlog items close in one milestone | An "exact" field silently becomes an estimate in a later phase of the same milestone | Never — order the phases instead; it costs nothing |
+| Land the UV host half and call 999.44 done | Removes the loudest community complaint | The harness now passes on a path `firestarter write -a` still refuses; a UV PASS stops implying the product works | Acceptable **with** a `write_flags`-style disclosure key and the firmware half named as open |
+| Take the seed's R1 literally and convert the fingerprint read-back into a verify | Biggest single saving in the model | Destroys `classify_fingerprint`'s input entirely; the four-bucket diagnostic becomes one mismatch address | Never — fix the seed's wording in the same phase |
+| Quote the cost model's second-counts as expected outcomes | Clean-looking success criteria | Every rate is from one log, one Leonardo, one 64 KiB `0x07` part; read rate varies ~24% by protocol and Uno's 512 B buffer is unmodelled | Only as *directional* claims ("fewer ops"), never as numeric acceptance thresholds |
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
-|---|---|---|
-| **PyPI `--pre` (b14/b15 carry `dev sdp`)** | delete silently; let users discover Click's "No such command" | release-notes "Removed" section mapping `dev sdp disable` → `write` (automatic) and `dev sdp enable` → `write --sdp-relock`; deletion is cheap now and *"strictly more expensive every week it waits"* |
-| **GitHub `henols/firestarter_prom` (gh#12)** | reply claiming the ask was delivered | state the substitution honestly: gh#12 asked for enable/disable and gets neither *by that name*; a rewording of the reporter's own ask. Behind operator wording review. **Issue tracking is centralized in `henols/firestarter_prom`** — `dev test --submit` has misfiled into the app repo before and b11 still does |
-| **`gh` CLI for the follow-up** | `gh issue create --label` with a non-existent label; assume write access | pre-existing labels only; assert the negative argv in a test |
-| **Community `dev test` reports (the ONLY causal-evidence path)** | assume the report will arrive and gate the close on it | **it does not gate the close, by design.** Make sure the report *carries the evidence*: the SDP oracle's pre-write hash, read-back hash, and `HELD/NOT-HELD/NOT-RUN` state must be in `report.to_dict()`, or the one report that could settle `0x0D` arrives unable to |
-| **`tools/parse_devtest_issue.py`** | new op strings unparsed in a filed issue | extend the parser and its golden fixtures in the same phase as the new ops |
-| **Firmware (b14/b15) — NOT touched** | assume the host can tell b11 from b12 by version | it cannot: `_probe_port`'s `[\d.x]+` truncates the prerelease suffix. Detect capability by an **ack**, which is what `test_firmware_too_old_is_reported_when_unknown_cmd_comes_back` already does |
-| **`beta` branch CI** | push and hope | the app b15 cut was gated on a full green `pytest tests/` plus two codegen gates, all blocking, all before the version bump. Run P-18's recipe first |
+|-------------|----------------|------------------|
+| `.claude/skills/devtest-triage` (prompt-level consumer) | Sweeping only `.py` files for readers of a deleted key, missing `SKILL.md:375`'s instruction to compare the report's `vpp_mv` | Sweep `.claude/skills/**` markdown too; update the skill's table to `vpp_before_mv`/`vpp_after_mv` in the same commit, and state what those do *not* prove |
+| `chip_database.json` `electrical.vpp_mv` | A triager falling back to the DB field after the report field is deleted — on 5V families it encodes **WP-pin voltage**, not programming VPP (`tools/check_dispatch.py:60-94`) | Name the collision explicitly in the skill text; forbid the substitution in prose the model will read |
+| GitHub issue corpus (already-filed bodies) | Assuming a deleted key is absent everywhere — the frozen schema-1.2 fixtures carry real `vpp_mv: 11800` | Keep parsers tolerant forward AND backward; never read a future absence as a measured zero |
+| `tools/parse_devtest_issue.py::count_agreeing` | Assuming it re-hashes and will self-heal after a dedup change — it reads the **embedded** value and never re-hashes | Any hash-input change is permanent for the historical corpus; plan for a one-time, declared split |
+| `.claude/skills/devtest-rootcause/scripts/seed_debug_session.py` | Ignoring it because it only "improves for free" from `chip_id_actual` | Still re-run it against a 1.8 body; a key it iterates over changing shape is not free |
+| Firmware (`FLAG_SKIP_BLANK_CHECK`) | Setting the bit outside `build_flags`, the one function that maps wire flags | Route through `build_flags`/`operation_flags`; `write_eprom`'s `operation_flags` is positional before `address_str` — pass it by keyword |
+| The two `[dev test]` parsers | Relying on the 1.7→1.8 bump to disambiguate | They accept `schema_version` by **presence only** (a fixture carries `"9.9-future"`); the bump disambiguates nothing until someone gates on it |
 
----
+## Performance Traps
 
-## Scale / Robustness Traps
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Bit-structured sampling costs one connect per block | Read step gets *slower* on small parts despite reading 96% fewer bytes | Measure a connect first; batch blocks inside one session (R4) before enabling R3 | Immediately, on any part where 10 connects > 1 full read — i.e. plausibly at 64 KiB, certainly below it |
+| Optimising the read path while `write` is 65% of a full-device run | Headline saving lands but operators still wait minutes | Keep the write path (per-byte VPE settle, firmware-side) explicitly out of scope and out of every claim | Already true today; the risk is a claim, not a regression |
+| Model rates treated as acceptance criteria | Bench run misses the modelled figure; time spent explaining a model, not a defect | Success criteria in *operation counts* (a passing run performs 0 fingerprint read-backs), never in seconds | On the first non-`0x07` part, and on any Uno-class board |
+| Verify's early return making failing runs faster than passing ones | A `duration_op_s` that is *smaller* on failure reads as an instrumentation bug forever | State it in the field's own description in the schema | The first time anyone compares a FAIL to a PASS |
+| Folding `sample_vpp_mv` + `sample_vpe_mv` into one monitor read | −2 connects per write step, genuinely free | None — this is the safest item in the whole milestone | n/a; take it early as a confidence-builder |
 
-Not user-scale — chip-scale and run-scale.
+## Security Mistakes
 
-| Trap | Symptoms | Prevention | When it breaks |
-|---|---|---|---|
-| **Write-pass inflation** | `dev test` on an AT28C256 goes from 2 full-device write passes to 5–8 | make the SDP leg's write region the same bounded region the plan already chose (`step.write_region`), not a second full-device pass; state the true count in `_ALWAYS_WRITES_NOTICE` | immediately, on every ALLOW chip |
-| **Run-time inflation on a community member's bench** | a `dev test` that took ~1 min takes several | as above; and `runs == 1` for the inhibited write (P-03b) halves the added cost | immediately |
-| **EEPROM endurance** | not a practical limit (`0x0D` parts are rated ≥10⁴ cycles) but the *notice* must be honest | notice content assertion (P-08) | never practically; the honesty matters regardless |
-| **43 ALLOW chips × 4 new steps in `derive_plan`** | plan derivation is pure and cheap; no risk | — | — |
-| **`test_skip_census.py`'s full-suite subprocess (~40–50 s, `lru_cache`d)** | suite wall-clock grows as the milestone adds tests | it is already cached to one child run per session; do not add a second census-style module | if a second full-suite-in-subprocess test is added |
-
----
-
-## Hardware-Safety Mistakes
+Not a security-sensitive domain in the usual sense; the analogous risk is **public disclosure quality**, because this tool files issues into a public tracker on a community member's behalf.
 
 | Mistake | Risk | Prevention |
-|---|---|---|
-| Locking a part whose baseline write never worked | a locked chip returned to a stranger with no oracle gained. **gh#20 proves this is live** | baseline-gate steps 2–4 (P-20.3) |
-| `sdp_unlock` inside `_DESTRUCTIVE_OPS` | the chip-ID gate becomes the mechanism that leaves the part locked | exempt unlock; assert the asymmetry (P-20.1) |
-| No `finally` around the lock→unlock window | Ctrl-C / cable yank / brownout ships a locked part | `try/finally` catching `BaseException`, one unlock attempt, recorded (P-20.2) |
-| Recovery advice saying "erase" | actively wrong — `0x0D` has **no erase operation at all**; sends the user after a command that cannot exist | the word is **"rewrite"**; forbid "erase" in the leg's recovery strings by grep-gate (P-20.4) |
-| A new write-shaped op omitted from `_DESTRUCTIVE_OPS` | writes to a **misidentified** chip, ungated by the chip-ID check | op-registration parity test (P-23) |
-| `dev test` opening a port outside the orchestrator (SAFE-02) | the orchestrator-only contract broken invisibly | keep logic in `chip_test.py` (scanned in full); derived `_HANDLER_FUNCTION_NAMES` subset test (P-07) |
-| A fabricated `locked: true` in the JSON artifact | a downstream consumer treats an emission as a state | no such key; assert its absence (P-06.3) |
-
----
+|---------|------|------------|
+| Filing `[dev test] <chip> — FAIL` when the fault is the tool's | Public, durable, wrong attribution against a manufacturer's part; the reputational failure mode the milestone exists to fix | Verdict vocabulary that can express "harness/rig" without suppressing the report (Pitfall 10) |
+| Auto-classifier suppressing the submit prompt when it decides "rig fault" | A real chip or firmware defect never reaches the tracker — the Firefox flaky-dismissal failure mode | Classification changes the title and disposition, never the offer to file |
+| New schema fields widening the PII surface | `evidence` dicts and per-op timings are new payload passing through the Phase-113 sanitizer | Re-run the sanitizer's tests against a 1.8 body; confirm every new key is sanitizer-visible |
+| Report claiming a measured VPP the hardware never measured at the socket | A community member replaces a good chip on the strength of a fabricated voltage claim | Never present rail readings as socket readings; label them as rail measurements in the schema |
 
 ## UX Pitfalls
 
 | Pitfall | User Impact | Better Approach |
-|---|---|---|
-| `sdp_lock \| OK` in a **Verdict** column | reader concludes the chip is locked | non-empty emission-only `reason` on success, rendered (P-06) |
-| An oracle that did not run, absorbed as `NA` at exit 0 | a "PASS" report proving nothing; the community-validation channel poisoned | a named, always-present report field: `HELD / NOT-HELD / NOT-RUN(reason)` (P-04.1) |
-| `--sdp-relock` silently skipped on verify failure | user believes a part is protected; **cannot check, ever** | non-zero exit or mandatory `WARNING:` final line naming the state and the retry (P-22) |
-| An understated always-writes notice | consent given on false information, before a part is sacrificed | notice content assertion (P-08) |
-| A locked part with no recovery line | a stranger with a part that appears bricked | the "rewrite" recovery line, asserted (P-20.4) |
-| `dev sdp` vanishing with no mapping | a b14/b15 `--pre` user's script breaks with "No such command" | release-notes "Removed" section + gh#12 follow-up (P-17.7/8/9) |
-
----
+|---------|-------------|-----------------|
+| A UV part still titled FAIL after the "UV parts stop failing" fix | The headline community complaint is unresolved while the milestone reports it as delivered | Success criterion is `overall_verdict == "PASS"` on a used UV part, not "the write step went OK" (Pitfall 5) |
+| `fingerprint: null` meaning three different things | A reporter cannot tell "skipped, everything passed" from "chip not making contact" | Emit the reason, not the absence (Pitfall 4) |
+| A faster run that quietly does less, with nothing saying so | Community trust in a validation tool depends on knowing what was validated | Every skipped operation is a stated, exported fact |
+| `duration_s` meaning something different in two reports of the same chip | Reporters compare numbers and draw conclusions about their chip that are artifacts of a version bump | New key for new semantics (Pitfall 8) |
+| Canonical naming splitting a part's issue history across two titles | Duplicate issues; a triager missing prior art | Measure the raw-token→`part_number` delta before shipping (Pitfall 13) |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **The SDP oracle:** patterns A and B asserted to differ at **every** byte, and neither equals blank or all-zero — verify a test exists that would fail if `generate_pattern` were used for both (P-01)
-- [ ] **The SDP oracle:** a length guard precedes every comparison; `b""`, short, all-0xFF and all-0x00 read-backs each have a fixture asserting `BAD` (P-02)
-- [ ] **The SDP oracle:** the inhibited-write op is **not** in `_MULTI_RUN_OPS`; `run_count == 1`; verdict provably driven by read-back, proven by BOTH directions (write-True+readback-B ⇒ BAD, write-False+readback-A ⇒ OK) (P-03)
-- [ ] **Inverted sensitivity:** a test exists in which the inhibited write **succeeds** and asserts `VERDICT_BAD` + `exit_code == 1`. This is the milestone's single most important test (P-09)
-- [ ] **Inverted sensitivity:** the oracle function contains no `VERDICT_NA`, `VERDICT_SKIPPED`, `VERDICT_MARGINAL`, or bare `except` (P-09.4)
-- [ ] **Baseline:** a fixture whose chip already holds pattern A and whose write is a no-op reports `BAD`; the pre-write read hash is in the JSON artifact (P-05)
-- [ ] **Exit-code laundering:** a test per route R1–R6, each asserting `sdp_lock.assert_not_called()` **and** a visible `NOT-RUN` reason (P-04)
-- [ ] **Coverage banner:** an ALLOW-chip `NA`/`SKIPPED` oracle **drops** N/M and fires the banner (P-04 R7)
-- [ ] **Safety:** `sdp_lock` ∈ `_DESTRUCTIVE_OPS`; `sdp_unlock` exempt; `try/finally` over the window; steps 2–4 gated on step 1 being OK; recovery says "rewrite" not "erase" — five separate checks (P-20)
-- [ ] **Honesty:** the four `test_dev_sdp_cmd.py` honesty assertions are grep-findable in `tests/` after the deletion commit (P-16.3)
-- [ ] **Deletion:** `COMMAND_NAMES[COMMAND_SDP_LOCK]` and `[COMMAND_SDP_UNLOCK]` still dereference (P-17.4)
-- [ ] **Deletion:** `grep -rn "dev sdp" firestarter_app/` is empty; the `.ambr` diff matches its named expected shape (P-15, P-17.12)
-- [ ] **mypy gate:** the hardened checker exits **2** on a planted aborted-mypy output, and a canary fixture's known error count is asserted as a floor (P-13)
-- [ ] **mypy gate:** the watermark was lowered only in a commit that also fixed errors (P-13)
-- [ ] **Gates:** `check_no_exists_proxy.py` green; `check_devtest_orchestrator.py` proven able to see a planted violation in a **new** helper (P-07, P-14)
-- [ ] **Gates:** every pre-authored gate observed to actually FAIL on a planted violation before being called done (P-14, last row)
-- [ ] **Claim gate:** targets resolve inside the checker's own phase dir; basenames carry this milestone's number; env seam and test module renamed; the checker's own suite run and its output recorded (P-11)
-- [ ] **Claim gate:** the report renderer's own strings are covered by a claim scan, in the **app** repo where CI runs (P-12.1)
-- [ ] **CI parity:** the suite run twice — once with `FIRESTARTER_FW_ROOT` at an empty dir, once with the sibling present — plus CI-scoped ruff, with no board attached for one run, before any `beta` push (P-18)
-- [ ] **Channel:** `dev --help` pinned on BOTH channels via a subprocess that patches `__version__` before import, with positive AND negative membership assertions (P-19)
-- [ ] **Removal-safety:** a comment at `eprom_operations.py`'s auto-unlock site AND a named test whose failure explains the coupled decision (P-21)
-- [ ] **Labels:** `STATE.md:532` / `PROJECT.md:705` "v1.23+" corrected (P-17.11, P-22)
-- [ ] **gh#20** triaged before or with the leg — an AT28C256 `dev test` already fails in the field (P-20.3)
-
----
+- [ ] **Conditional read-back:** often missing the **passing-run dedup pin** — verify a frozen `(passing shape → 12-hex)` assertion exists and was seen to fail before it passed.
+- [ ] **Conditional read-back:** often missing the **ladder assertion** — verify `build_db_diff` output for the all-OK non-SDP shape is pinned, and that `tests/test_chip_test.py:2752` was adjudicated rather than edited.
+- [ ] **Structural write→verify test:** often missing **non-vacuity** — verify it fails on a hand-built plan with a write and no verify. The project has shipped an unreachable gate before; a RED that was never observed proves nothing.
+- [ ] **Structural write→verify test:** often missing the **`--fast` / single-run plan** — verify it covers `allow_single_run=True`.
+- [ ] **UV blank-check skip:** often missing the **standalone blank-check step** — verify a used UV part reaches `overall_verdict == "PASS"` and completes **two** cycles (`run_count == 2`, no `repeat_policy_tag`).
+- [ ] **UV blank-check skip:** often missing the **witness gate** — verify the flag expression names `masked`/`current`, not `"uv-slot"`.
+- [ ] **UV blank-check skip:** often missing the **product-divergence disclosure** — verify the report says a flag was set that `firestarter write` does not set.
+- [ ] **Fault attribution:** often missing the **`unknown` bucket** and per-label accuracy against the six open issues used as a labelled set.
+- [ ] **Fault attribution:** often missing the check that classification **never suppresses** the submit offer.
+- [ ] **Fault attribution:** often missing the finding that the **voltage sampler reads the rail, not the socket** — verify no cause label is derived from `vpp_before_mv`/`vpe_before_mv` alone.
+- [ ] **Sampling:** often missing the **verdict-source pin** — verify the read step's OK/BAD still derives from a full read.
+- [ ] **Sampling:** often missing the **hole-padding** handling — verify the sample is compared block-wise, never whole-file.
+- [ ] **Sampling:** often missing the **measured connect cost** that decides whether R3 is net-positive at all.
+- [ ] **Schema 1.8:** often missing the **skill markdown sweep** — verify `SKILL.md:375`'s `vpp_mv` row was updated.
+- [ ] **Schema 1.8:** often missing **backward parse of the frozen 1.2 fixtures** — verify both fixtures still parse and their `dedup_fingerprint` values are unchanged.
+- [ ] **Schema 1.8:** often missing a **statement of scope** on `divergence`/`bad_pct` when sampling is on.
+- [ ] **Milestone-wide:** often missing the **enumeration of every dedup re-keying source** shipped together (fingerprint gating, `run_count` collapse, canonical naming) in one place in the record.
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
-|---|---|---|
-| P-01 vacuous oracle (A == B) shipped | **HIGH** | every SDP result ever filed is void; a new beta, a retraction in the next release notes, and a corrected gh#12 follow-up. Caught in review: LOW |
-| P-02 empty-read-back reads as equality | **MEDIUM-HIGH** | same class; any filed "HELD" result must be re-read to see whether the read-back was empty — recoverable **only if** the read-back hash and length are in `to_dict()`. Another reason for P-04.1 |
-| P-09 inverted sensitivity shipped | **HIGH** | the leg reports OK exactly when the defect is present; there is no way to tell from the archive. Requires re-running on hardware nobody owns |
-| P-20 a locked chip reaches a community member | **LOW technically, HIGH in trust** | a plain `firestarter write <chip> <file>` recovers it. Only low **if** the report told them so, in the word "rewrite" |
-| P-13 mypy watermark lowered to a broken run's count | **MEDIUM** | revert the watermark, harden the gate, re-measure in a CI-equivalent env, fix, lower to the true count |
-| P-15 `--snapshot-update` blessed unrelated drift | **LOW-MEDIUM** | `git diff` the `.ambr` against the previous tag and revert the unintended entries. Costly only if committed and shipped |
-| P-16 four honesty tests deleted | **LOW** | recover from git history and retarget. Only low while anyone remembers they existed — which is why P-16.3's grep gate is worth three lines |
-| P-11 claim gate passed against v1.23's artifacts | **MEDIUM** | the gate was never armed, so its `PASS:` in a SUMMARY is a false record and must be corrected; re-run armed and re-record |
-| P-17 a `--pre` user's script breaks | **LOW** | release-notes mapping + gh#12 follow-up; blast radius is days of pre-release installs and no stable release ever carried the command |
-| P-21 auto-unlock default changed later, dependency lost | **HIGH, deferred** | the deletion becomes retroactively wrong and the recovery path is gone. Prevention is the only real remedy |
-
----
+|---------|---------------|----------------|
+| Dedup re-keyed silently (P1) | **HIGH** — partly irreversible | Filed bodies carry the old hash forever and `count_agreeing` never re-hashes. Recovery is: publish the mapping (old shape → new hash) in the tracker, accept the one-time group split, and add the pin so it cannot recur. There is no way to retroactively merge groups. |
+| Ladder flipped unnoticed (P2) | MEDIUM | `db_diff` is advisory and writes no DB, so nothing graduated. Re-adjudicate, correct the disposition text, re-triage the affected reports by hand. |
+| Verify-only gate proved insufficient (P3) | MEDIUM | Revert the gate to unconditional for the affected op; the field is additive so no schema change is needed. Costs one release of speed. |
+| UV part still FAILs after the fix (P5) | LOW if caught at bench, HIGH if caught by the community | Caught at bench: extend to the blank-check step's verdict. Caught publicly: a second wrong FAIL on the same part, on top of the one being apologised for. Bench-gate this one. |
+| Blank check skipped on an unmasked write (P6) | **VERY HIGH** — physically unrecoverable | A UV part written with a non-monotone pattern needs a UV eraser and 20+ minutes, or is scrapped. Prevention only; there is no software recovery. |
+| `duration_s` redefined in place (P8) | MEDIUM, permanent in the corpus | Add the correctly-named key retroactively in 1.9 and deprecate `duration_s`; the mixed-meaning bodies already in the tracker cannot be repaired. |
+| `vpp_mv` deleted, skill mis-blames flash parts (P9) | LOW to fix, MEDIUM to undo | Correct `SKILL.md`, then re-triage every issue triaged in the window — the wrong comments are public. |
+| Classifier mis-labels a real defect as rig fault (P10) | HIGH | Measure per-label accuracy against the six open issues *before* enabling; if it ships wrong, disable the label (keep `unknown`) rather than tuning it live. |
+| R3 turns out net-negative on connects (P11) | LOW if measured first | Cut R3. The model already shows R1+R2 deliver roughly two thirds of the saving; dropping R3 is a legitimate outcome. |
 
 ## Pitfall-to-Phase Mapping
 
-Proposed phase numbering (phases continue at **131**). **The ordering rationale is this project's own established gate-first pattern** (v1.12's baseline-and-gate-before-touching-firmware; v1.23 Phase 123's six fail-provable gates authored *before any firmware moved*): a milestone whose deliverable is an oracle must not build the oracle on a suite whose gates are known fail-open.
+Phase numbers are **suggested** — v1.36 continues at 174 and the roadmap owns the numbering. What is not negotiable is the **ordering**, which is driven by real dependencies, not preference.
 
-| Phase | Name (proposed) | Pitfalls owned | Verification |
-|---|---|---|---|
-| **131** | **Gate hardening & test-harness baselines** — the mypy gate, the fail-open sweep, the CI-parity recipe, the channel/snapshot harness, the claim-gate vocabulary | P-13, P-14, P-07 (derived subset test), P-10 (count gate), P-18 (recipe), P-11 (vocabulary + the two new target-resolution test legs) | primary `ci` job GREEN; hardened checker exits 2 on planted aborted output and on a missing canary; `check_no_exists_proxy.py` green; the recipe run and its two outputs recorded |
-| **132** | **Retire `dev sdp`; re-home its honesty and gate-ordering tests** | P-15, P-16, P-17, P-21 (comment + named test), P-08 | `grep -rn "dev sdp"` empty; the four honesty assertion strings still grep-findable; `.ambr` diff matches its named shape; `COMMAND_NAMES` dereference test green |
-| **133** | **The plan-derived SDP leg in `dev test`** — the oracle | **P-01, P-02, P-03, P-04, P-05, P-06, P-09, P-20, P-23**, P-12 (report strings) | the write-succeeded ⇒ BAD test; both-directions oracle test; four degenerate-read-back fixtures; routes R1–R6 tests; the `try/finally` + baseline-gate tests; the "erase"-forbidding grep; the op-registration parity test |
-| **134** | **`write --sdp-relock`** | P-22, and the stale label fix | verify-FAIL ⇒ `sdp_lock.assert_not_called()` + `WARNING` + non-zero exit; gate-ordering cases inherited from 132 |
-| **135** | **999.15 / gh#8 dev-tools channel gating** | P-19, P-17.9 | `dev --help` pinned on both channels with positive AND negative membership assertions; `channel.py` reused, zero new env-var gates |
-| **136** | **Close: honesty ledger, armed claim gate, gh#12 follow-up** | **P-11 (armed), P-12**, P-21 (ledger + STATE row), P-25 | the claim gate armed and green with a `PASS:` naming **this** milestone's four artifacts; its own suite run and recorded; operator wording review completed as a non-`<automated>` step |
-| — | cross-cutting | P-24 (name allowed requirement IDs at dispatch), P-18 (run the recipe every phase) | per-phase verification |
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| P1 dedup re-key on pass | **174 — Invariance harness (FIRST)** | Frozen `(result-shape → 12-hex)` table covering pass/fail/marginal/`--fast`/uv-slot/full-device; each entry seen RED before green |
+| P2 ladder flip | 174 (pin) + 175 (adjudication) | `build_db_diff` output pinned for the all-OK non-SDP shape; the decision written as a D-NN, single-line label (the coverage gate needs single-line bullets) |
+| P13 canonical naming re-key | 174 (measure) + 180 (change) | Count of chips whose raw token differs from `part_number` across the filed corpus, stated as a number |
+| P3 oracle coverage gap | **175 — Conditional diagnostics (R1/R2)** | Fault-mode table shipped as an artifact; `derive_plan` structural test proven to fail on a write-without-verify counter-plan; seed's R1 wording corrected |
+| P4 skip is unrecorded | 175 (populate) + 180 (key) | A 1.8 report distinguishes skipped / ran / unavailable for every step |
+| P11 sampling traps + connect cost | **176 — Connect-cost measurement**, then **177 — Sampling (R3/R4)** | A measured seconds-per-connect figure exists before 177 is scoped; read-step verdict source pinned; block-wise comparison asserted |
+| P12 exact-vs-estimate export | 177 before 180 | `divergence`/`bad_pct` carry their scope; a sampled run's `total` is legible as sampled |
+| P5 UV still FAILs | **178 — UV slot** (after/with 179) | A used UV part reaches `overall_verdict == "PASS"` with `run_count == 2` — bench leg, hardware-gated |
+| P6 policy-vs-witness gate | 178 | Flag expression names the mask witness; test with a hand-built unmasked uv-slot target |
+| P7 harness diverges from product | 178 (disclose) + 180 (serialize) | 1.8 report states the flag; firmware half named open in `MILESTONES.md` with the product symptom |
+| P10 classification false confidence | **179 — Fault attribution** (before/with 178) | No label derives from the rail sampler; `unknown` bucket exists; accuracy measured against #21/#23/#28/#31/#45/#50; submit offer never suppressed |
+| P8 `duration_s` semantics | **180 — Report schema 1.8** | Either a new key, or a parser that gates on `schema_version` — one of the two, named |
+| P9 deleted-key consumers | 180 | `.claude/skills/**` markdown swept; `SKILL.md:375` updated in the same commit; both frozen 1.2 fixtures still parse with unchanged dedup values |
 
-**Two ordering constraints worth stating explicitly:**
+**Ordering rationale, stated as dependencies:**
 
-1. **131 before everything.** Any green suite reported by 132–136 is unverified until the mypy gate can fail and the fail-open sweep is done.
-2. **The leg (133) before or with the deletion (132).** Deleting first opens a window in which the SDP capability has zero test coverage and the four honesty assertions exist nowhere. If the roadmap prefers deletion early to shrink 999.15's diff, put both in one phase and use `git mv`. (Sequencing note from the design record: whichever of the deletion and 999.15 lands first shrinks the other's diff, and v1.30 **deletes** a subcommand 999.15 would otherwise have to classify — so 132 before 135 either way.)
-
----
-
-## Confidence per pitfall
-
-| Pitfall | Confidence | Basis |
-|---|---|---|
-| P-01, P-02, P-03, P-04, P-05, P-06, P-07, P-08, P-16, P-17, P-19, P-20, P-23 | **HIGH** | direct first-party reads of the exact files and line numbers cited in this milestone's scope |
-| P-13 | **HIGH** | reproduced locally this session; exact command output quoted |
-| P-11 | **HIGH** | both checker copies read in full, including their own docstrings' recorded C-2/A3 findings; the failure mode is a direct consequence of `_HERE` + a still-existing sibling directory |
-| P-15 | **HIGH** for the `.ambr:141` content and the project's `addopts`; **MEDIUM→HIGH** for syrupy's unused-snapshot default, cross-checked against syrupy 5.5.3's own `session.py`/`__init__.py` source, not docs alone |
-| P-09, P-10, P-12, P-14, P-18, P-21, P-22 | **HIGH** on the mechanisms; **MEDIUM** on which specific downgrade an implementer will reach for (the routes are enumerated from the code; the likelihood ordering is judgement) |
-| P-24, P-25 | **MEDIUM** | this project's own recorded incident history, not re-verified this session |
-
----
+- **174 first** because it is the gate everything else is measured against, and a gate written after its content is the project's own recorded failure (`reference_gate_authored_before_content_can_be_unreachable`).
+- **175 before 179** because fault attribution consumes the fingerprint that 175 makes conditional.
+- **179 before or with 178** because the UV fix needs a verdict that is not "chip FAIL," and that vocabulary is 179's deliverable.
+- **176 before 177** because R3's *sign*, not just its size, depends on the connect measurement.
+- **177 before 180** because the schema cannot honestly describe a metric whose scope is still being decided.
+- **180 last** because it serializes decisions the four preceding phases make.
 
 ## Sources
 
-**First-party source reads (HIGHEST confidence — the authoritative sources for this milestone):**
+**Primary — read or executed against `firestarter_app` at `0a93999` (HIGH confidence):**
+- `firestarter/chip_test.py` — `classify_fingerprint` (`:162-259`), `_dispatch_read` (`:2626-2671`), `_read_region` (`:2710-2744`), `_resolve_write_target` (`:2747-2890`), `mask_write_pattern` (`:2057-2073`), `repeat_policy_tag`/`coverage_tag` (`:1081-1128`), `_aggregate_cycle_results` (`:1280-1332`), the cycle-abort path (`:1557-1571`), the fingerprint gate (`:3100`)
+- `firestarter/diagnostic_report.py` — `dedup_fingerprint` (`:186-240`), `build_db_diff`/`has_indeterminate_fingerprint` (`:300-322`), `_step_dict` (`:667-729`), `_voltage_dict` (`:619-640`), `SCHEMA_VERSION` (`:48`)
+- `firestarter/submit.py` — `overall_verdict` (`:140-152`), `build_title` (`:155-165`)
+- `firestarter/eprom_operations.py` — `build_flags` (`:261-300`), `write_eprom` signature (`:1813-1821`)
+- `firestarter/hardware.py` — `sample_vpp_mv`/`sample_vpe_mv` (`:440-448`)
+- `tools/parse_devtest_issue.py` — `count_agreeing` (`:164-183`)
+- `tools/check_dispatch.py:60-94` — the `electrical.vpp_mv` WP-pin-voltage collision
+- `tests/test_chip_test.py:2695-2755` — the v1.30 Phase 134 MEASURED-SUPERSEDED ladder finding
+- `.claude/skills/devtest-triage/SKILL.md:375` and both frozen schema-1.2 fixtures
+- **Two executed experiments** (this session): perfect-match → `indeterminate`; dedup `4dc282a5d596` → `60a031573aab`; ladder `''` → `'community-reported'`
 
-- `firestarter_app/firestarter/chip_test.py` — `generate_pattern:59`, `address_fold_byte:48`, `_diff_offsets:93`, `derive_plan:394`, `_DESTRUCTIVE_OPS:636`, `_MULTI_RUN_OPS:657`, `StepResult:662`, `_skip_result:685`, `run_plan:713`, `_id_step_closes_gate:800`, `_write_region_for:823`, `_run_step:865`, `_dispatch_step:903`, `_dispatch_read:975`, `_sample:1029`, `_dispatch_multi_run:1039`, `_RAN_VERDICTS:1209`, `count_applicable:1226`
-- `firestarter_app/firestarter/cli_handlers.py` — `dev` group `:1171`, `_VERDICT_EXIT_CODES:1865`, `_ALWAYS_WRITES_NOTICE:2045`, `dev_test:2055`, `dev_sdp:2196-2230`
-- `firestarter_app/firestarter/channel.py`, `sdp_capability.py:266`, `eprom_operations.py:1736 sdp_unlock` / `:1784 sdp_lock`
-- `firestarter_app/tools/check_mypy_watermark.py`, `check_devtest_orchestrator.py`, `check_no_exists_proxy.py`, `check_sdp_capability_invariants.py`
-- `firestarter_app/tests/` — `fw_presence.py`, `conftest.py`, `test_skip_census.py`, `test_characterization.py:242-330,470-530`, `test_dev_test_cmd.py:566-600,635-690`, `test_dev_sdp_cmd.py:125-558`, `__snapshots__/test_characterization.ambr:124-150`
-- `firestarter_app/.github/workflows/ci.yml`, `pyproject.toml`
-- `.planning/phases/122-close-…/check_permitted_claims.py` + `test_check_permitted_claims.py` + `fixtures/`
-- `.planning/phases/123-non-regression-…/check_permitted_claims.py` + `fixtures/`
+**Project record (HIGH confidence):**
+- `.planning/seeds/dev-test-adaptive-sequencing.md`, `.planning/notes/dev-test-sequence-cost-model.md`, `.planning/notes/devtest-report-known-but-unstated-fields.md`
+- `.planning/ROADMAP.md` §999.36, §999.43, §999.44
+- Memory `reference_vpp_vpe_no_socket_routing` — `hw_read_voltage` sets no socket-routing bits; corroborated by that memory's own firmware review of 2026-06-03
 
-**Locally reproduced measurements (this session, 2026-08-03):**
-- `mypy firestarter/ tests/` → `Found 1 error in 1 file (errors prevented further checking)` preceded by `pyproject.toml: [mypy]: python_version: Python 3.9 is not supported`
-- `python3 tools/check_mypy_watermark.py` → `mypy errors: 1 (watermark: 35)` / `INFO: 34 below watermark` / exit **0**
-- syrupy 5.5.3 installed; `pytest_sessionfinish` ORs `_syrupy.finish()` into `session.exitstatus`; `session.py:301` gates on `not self.update_snapshots and not self.warn_unused_snapshots`; project `addopts = "-ra -q"`
-
-**This repo's own post-mortem record:**
-- `.planning/PROJECT.md` §"Current Milestone: v1.30" (`:38-155`), §v1.22 / §v1.23 archives (`:32`, `:34`, `:231`)
-- `.planning/STATE.md` — v1.30 context `:40-60`, Deferred Items `:60-100`, `:188-196`, `:379`, `:447`, `:534`, `:680-712`, `:1049`, `:1057`
-- `.planning/RETROSPECTIVE.md:390`, `:404`, `:409`, `:431`, `:467`, `:724`
-- `.planning/notes/sdp-surface-retirement-and-behavioral-proof.md` (all 157 lines; §5's three traps, §7's insertion points)
-- `.planning/research/questions.md:195-220`
-- Phase records: v1.12 GATE-03 (hollow gate), v1.21 Phase 121-02 RESEARCH C-5 / Pitfall 1a (unmapped op → `erase_eprom()` → OK), Phase 114.1 (absent-chip hard-fail), v1.22 Phases 116–122 (C-5 overclaim, inverted `(0x5555,0x20)` check, `/WE` HIGH), v1.23 Phases 123 (BASE-02/D-09 fail-open proxy) / 127 (mypy fail-open, `test_help_fw` channel split) / 130 (C-2, C-3, C-7, C-8)
-- Open community issues: gh#20 (AT28C256 `dev test` FAIL, 2026-07-30), gh#18, gh#11, gh#12
-
-**External (MEDIUM, cross-checked against installed source):**
-- [syrupy README / releases — unused-snapshot handling and `--snapshot-warn-unused`](https://github.com/syrupy-project/syrupy/blob/main/README.md)
-- [syrupy on PyPI](https://pypi.org/project/syrupy/)
-- [syrupy issue #138 — filtering unused snapshots when specifying test nodes](https://github.com/tophat/syrupy/issues/138)
+**External (MEDIUM confidence, corroborating only):**
+- Schema evolution: [Confluent — Schema Evolution & Compatibility Types](https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html), [Conduktor — Schema Evolution Best Practices](https://www.conduktor.io/glossary/schema-evolution-best-practices), [JSON Schema Migration Strategy](https://jsonic.io/guides/json-migrations) — unanimous that changing a field's meaning is breaking and the mitigation is a new key
+- Failure triage: [An Empirical Evaluation of Flaky Failure Classifiers (arXiv 2401.15788)](https://arxiv.org/pdf/2401.15788), [TestDino — Test Failure Analysis](https://testdino.com/blog/test-failure-analysis), [Harness — Flaky Tests](https://www.harness.io/blog/flaky-tests-the-quiet-killer-of-productivity-in-your-ci-pipeline) — the Firefox flaky-dismissal crash-rate case; classifiers need an explicit unknown bucket
+- Diagnostic coverage: [Diagnostic Coverage overview (ScienceDirect)](https://www.sciencedirect.com/topics/engineering/diagnostic-coverage), [Microchip FMEDA](https://ww1.microchip.com/downloads/en/DeviceDoc/Failure-Mode-Effect-Diagnostics-Analysis-DS00003638A.pdf), [US6167545 — Self-adaptive test program](https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/6167545) — coverage is defined against an enumerated failure-mode set; skippable-test flows are an established ATE pattern with the same enumeration obligation
 
 ---
-*Pitfalls research for: v1.30 SDP Surface Retirement & Behavioral Lock Proof — host-only, `firestarter_app`*
-*Researched: 2026-08-03*
-*Not committed — the research synthesizer commits all artifacts.*
+*Pitfalls research for: `dev test` fidelity — conditional diagnostics, skipped pre-check, fault attribution, report schema evolution*
+*Researched: 2026-09-02*
