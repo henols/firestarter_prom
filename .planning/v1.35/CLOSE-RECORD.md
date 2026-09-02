@@ -68,14 +68,41 @@ and `ci.yml` on `firestarter_app`. Measured: no new workflow run registered on a
 repositories within the observation window (roughly 10 seconds between push and delete). This is
 recorded as a measured non-confirmation, not claimed as a prediction that held.
 
-**The cut's disposition.** Per D-03, if the full `beta` lockstep cut is not authorized and
-performed before this close, POLICY-04 is marked **complete on the probe**, with the missing half
-stated as a ledger non-claim — criterion 1's own wording permits "an actual cut **or** an
-equivalent dry run that exercises the same paths." As of this document's writing, plan 173-09 (the
-plan that would record a real cut, per D-04) has not yet run. This close therefore does **not**
-claim a `beta` lockstep cut was performed under these rulesets — see ledger row L8. Per D-03, this
-is stated as a non-claim, not written up in a v1.34-style deviation section — D-03 explicitly
-declined that shape for POLICY-04, and this document does not use it.
+**The cut's disposition — performed and verified.** The operator authorized the full lockstep cut
+(`evidence/173-09-operator-approval.txt`: `APPROVED-FOR-BETA-CUT: firestarter_prom firestarter
+firestarter_app`, Henrik Olsson, 2026-09-02), and plan 173-09's Task 3 performed it. Three pull
+requests targeting `beta` were opened and merged — `firestarter_prom#56` (merge `6e84030b`),
+`firestarter#59` (merge `ef0de427`), `firestarter_app#58` (merge `11e1b8dd`) — carrying the Phases
+171–173 remainder. `git cherry` measures zero commits differing in either direction between local
+`HEAD` and a freshly fetched `origin/beta`, whose tip is confirmed a two-parent merge commit by
+reading its parent list: meta's own close tail was merged onto `beta`, not fast-forwarded, exactly
+as `origin/beta`'s pre-existing merge-commit tip required. CI cut the matched prerelease pair,
+**observed tags read from the release API, never predicted**: firmware `3.0.0b25` (4 hex assets —
+Uno, Uno328PB, Leonardo, PY32F071 — published 2026-09-02T17:21:41Z) and app `3.0.0b36` (published
+2026-09-02T16:14:37Z, 0 GitHub assets, shipped via PyPI). Both channels were independently
+re-verified from a clean environment against the release and PyPI JSON APIs, never the editable
+install and never a green CI tick: the firmware `.hex` asset re-downloaded and confirmed a
+well-formed Intel HEX (64617 B, sha256 `6f2cae2c…`, 1437 records, `:00000001FF` terminator); the app
+resolved from a fresh venv with `pip install --pre` to `3.0.0b36`, matching PyPI's own JSON listing.
+Meta was tagged `v1.35` — annotated tag object `da49a737`, peeling to `origin/beta`'s tip `6e84030b`
+— and pushed; `git ls-remote --tags origin 'v1.35*'` shows exactly one such ref. All three `main`
+SHAs are unchanged from before the cut, and both sub-repositories' stable-release sets are
+unchanged (one `--limit 100` pagination artefact on each, both individually confirmed to still
+exist and remain non-prerelease — `evidence/173-09-beta-cut.txt` §8 — no stable release was cut).
+Full detail, including a rate-limit interruption mid-cut and this recording pass's independent
+re-verification of every figure above, is in `evidence/173-09-beta-cut.txt`.
+
+Per D-03, POLICY-04 does not depend on the cut either way — criterion 1's own wording permits "an
+actual cut **or** an equivalent dry run that exercises the same paths," and the probe above
+(unchanged) already discharges it alone. With the cut now performed, POLICY-04 rests on **both**
+halves: the probe and this performed, verified cut.
+
+**A record discrepancy this section names rather than absorbs:** ledger row L8 (§5, below) was
+written before Task 3 ran and reads "unless plan 173-09 records one having occurred, **none did**."
+Plan 173-09 has now recorded one having occurred. §5's row is left byte-unchanged, per this plan's
+scope (it is authorized to finalize only §2 and §4) — a later reader should treat **this section**,
+not L8's original wording, as the current status of the `beta` lockstep cut; L8's conditional
+clause resolves against the paragraph above, not against its own frozen text.
 
 ---
 
@@ -128,12 +155,19 @@ corrections below was found by measuring against the live system, not by reading
    `main`, `ship.md`'s `--base main`, and three fork-point consumers — all fixed by the same D-06
    repoint, but the stated rationale was wrong. Plan 173-02's note names the real surfaces in its
    place.
-4. **The stale manual-PyPI-dispatch premise.** D-04 states the PyPI dispatch for a `beta` lockstep
-   cut "is not optional detail: it is manual." Measured (`173-RESEARCH.md` Correction C-4):
-   `beta-release.yml:129-134` already calls `publish.yml` via `workflow_call` with `secrets:
-   inherit`, and PyPI (`3.0.0b33`, `b34`, `b35`) already agrees with GitHub's latest prerelease
-   with no manual dispatch having been performed for those three. The manual `workflow_dispatch`
-   trigger survives only as an operator escape hatch, not as the required step D-04 describes.
+4. **The stale manual-PyPI-dispatch premise — now demonstrated directly, not just measured.** D-04
+   states the PyPI dispatch for a `beta` lockstep cut "is not optional detail: it is manual."
+   Measured (`173-RESEARCH.md` Correction C-4): `beta-release.yml:129-134` already calls
+   `publish.yml` via `workflow_call` with `secrets: inherit`, and PyPI (`3.0.0b33`, `b34`, `b35`)
+   already agreed with GitHub's latest prerelease with no manual dispatch having been performed for
+   those three. **This close's own performed cut (§2) is a fourth, direct confirmation rather than
+   a fifth inference**: `publish.yml`'s own run history shows no `workflow_dispatch` run since
+   2026-08-02, `beta-release.yml` fired once on the PR #58 merge (`event: push`,
+   `2026-09-02T16:11:30Z`), and PyPI carries `3.0.0b36` regardless (`evidence/173-09-beta-cut.txt`
+   §5). The plan therefore drops the manual dispatch and keeps the verification discipline, exactly
+   as authorized at plan 173-09's Task 3 checkpoint — recorded here as a correction to D-04, not a
+   silent deviation. The manual `workflow_dispatch` trigger survives only as an operator escape
+   hatch, not as the required step D-04 describes.
 
 Three further corrections `173-CONTEXT.md` itself already found, carried here rather than
 rediscovered:
