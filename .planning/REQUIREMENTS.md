@@ -65,8 +65,8 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 - [x] **POLICY-01**: The documentation states plainly that `firestarter_prom` is the only issue tracker, that `firestarter` and `firestarter_app` have Issues disabled, and that pull requests go to the repository containing the changed code.
 - [x] **POLICY-02**: `firestarter_prom` offers issue templates covering at least a bug report, a feature request, and a `dev test` chip-validation report.
 - [x] **POLICY-03**: `main` in all three repositories is behind a ruleset whose enforcement is **active** — pull request required, no direct push, no force-push, no deletion. (`firestarter` has such a ruleset today with enforcement **disabled**; the other two have none.)
-- [ ] **POLICY-04**: The `beta` lockstep cut still works under those rulesets, demonstrated rather than assumed — this project's milestone convention pushes `beta`, not `main`.
-- [ ] **POLICY-05**: The GSD close procedure is updated for PR-only `main`, either as a PR flow or a documented admin bypass, so `/gsd-complete-milestone` does not break at the next close.
+- [x] **POLICY-04**: The `beta` lockstep cut still works under those rulesets, demonstrated rather than assumed — this project's milestone convention pushes `beta`, not `main`. *(Marked complete on the probe alone, per D-03 — see `evidence/173-09-closing-sweep.txt` criterion 1. Whether a full lockstep cut was additionally performed is recorded separately in this phase's Task 3 evidence and does not change this mark.)*
+- [x] **POLICY-05**: The GSD close procedure is updated for PR-only `main`, either as a PR flow or a documented admin bypass, so `/gsd-complete-milestone` does not break at the next close. *(Documented PR flow delivered by construction; no admin bypass exists to document — `current_user_can_bypass` is `never` on all three rulesets. See `evidence/173-09-closing-sweep.txt` criterion 2.)*
 
 ### Honesty — claims survive the move unchanged
 
@@ -178,8 +178,8 @@ Populated during roadmap creation.
 | POLICY-02 | Phase 172 | Complete |
 | POLICY-03 | Phase 172 | Complete |
 | LEGACY-01 | Phase 172 | Complete |
-| POLICY-04 | Phase 173 | Pending |
-| POLICY-05 | Phase 173 | Pending |
+| POLICY-04 | Phase 173 | Complete — on the probe, per D-03 |
+| POLICY-05 | Phase 173 | Complete |
 
 **Coverage:**
 
