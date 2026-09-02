@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 172
 current_phase_name: POLICY — One Tracker, Protected `main`
 status: executing
-stopped_at: Completed 172-08-PLAN.md
-last_updated: "2026-09-02T09:14:00.000Z"
+stopped_at: Completed Phase 172 (all 9 plans)
+last_updated: "2026-09-02T09:52:00.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 172 plan 08 complete — three .github-only PRs merged under active rulesets, surfaces live on all three default branches
+last_activity_desc: Phase 172 COMPLETE — all 9 plans, all 4 requirements marked against named evidence; one tracker stated and configured, three main branches protected
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 32
-  completed_plans: 31
-  percent: 43
+  completed_plans: 32
+  percent: 57
 ---
 
 # Project State
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 172 — POLICY — One Tracker, Protected `main`
+**Current focus:** Phase 173 — CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 172 (POLICY — One Tracker, Protected `main`) — EXECUTING
-Plan: 9 of 9
-Status: Ready to execute
-Last activity: 2026-09-02 — Completed 172-08-PLAN.md (prom#54, firestarter#58, firestarter_app#57 all MERGED through the PR route; four issue templates, three CONTRIBUTING.md files and wiki-check.yml live at ?ref=main; Wiki check registered with Actions; three rulesets still active and never bypassed; no firmware release cut; dev test --submit browser tier confirmed PREFILLED). Body line repaired: it had still read 172-05 after plan 07's state write touched frontmatter only.
+Phase: 172 (POLICY — One Tracker, Protected `main`) — COMPLETE · next is Phase 173 (CLOSE)
+Plan: 9 of 9 complete
+Status: Phase 172 closed; ready to plan Phase 173
+Last activity: 2026-09-02 — Completed Phase 172, all 9 plans. Plan 09 closed it: three wiki checkers green against fresh clones with all 11 pages, LEGACY-01 green on the merits across four surfaces (after correcting a ugrep-vs-GNU-grep hazard that measured 0 against 38 and would have passed the gate vacuously), both gitlinks re-pinned and proven equal per submodule, and POLICY-01/02/03 + LEGACY-01 marked complete against named evidence with ROADMAP.md provably untouched. Four non-claims and three findings carried to Phase 173; the release-path breakage filed as a pending todo.
 
 ## Roadmap Summary (v1.35)
 
