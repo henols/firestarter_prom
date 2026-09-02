@@ -6,6 +6,7 @@ status: pending
 type: cleanup
 priority: low
 source: /gsd-explore 2026-08-23 (devtest-report-known-but-unstated-fields.md)
+resolves_phase: 181
 ---
 
 # Delete `banner.locked_steps` / `Plan.locked_destructive`

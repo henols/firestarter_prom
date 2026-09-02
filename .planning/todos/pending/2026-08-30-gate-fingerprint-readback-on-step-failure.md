@@ -7,6 +7,7 @@ files:
   - firestarter_app/tests/test_chip_test*.py (fingerprint-presence assertions)
   - .planning/notes/dev-test-sequence-cost-model.md (measurement)
   - .planning/seeds/dev-test-adaptive-sequencing.md (rule R2)
+resolves_phase: 177
 ---
 
 ## Problem
