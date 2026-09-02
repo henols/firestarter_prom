@@ -71,3 +71,10 @@ node_modules
 
 # v1.34 host-arm worktree root (two firestarter_app worktrees + venvs, Phase 160 D-06).
 /.v1.34-arms/
+
+# GSD runtime state. Regenerable and session-local, never tracked: state.json is
+# a cache scraped from STATE.md's body, milestone.lock is a per-session phase lock
+# carrying a pid, and .gsd/ holds dispatch sentinels. Same class as .claude/* above.
+.planning/state.json
+.planning/milestone.lock
+.gsd/
