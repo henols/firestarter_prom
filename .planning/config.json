@@ -38,7 +38,9 @@
     "research": "opus"
   },
   "git": {
-    "branching_strategy": "milestone"
+    "branching_strategy": "milestone",
+    "base_branch": "beta",
+    "protected_branches": ["main"]
   },
   "graphify": {
     "enabled": true
