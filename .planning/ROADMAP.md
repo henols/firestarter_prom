@@ -462,6 +462,33 @@ Plans:
   4. Every unfixed finding surfaced during the migration is filed as a backlog item rather than carried as prose, and the 999.9 rename sweep is recorded with the specific phases whose links will need re-sweeping (169, 170, 172).
   5. The upstream replies owed on GitHub are sent or explicitly deferred with a reason: gh#7 (generated-site premise rejected, Wiki chosen, content requirements carried to 999.12), gh#5 (surviving tracker for the deferred content), gh#9 (pinned orientation issue describing the configured end state).
 
+**Plans**: 9 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 173-01-PLAN.md — Tracer: `tools/wiki/provenance_footers.py`, the bidirectional footer guard, RED on the migration table as it stands then GREEN on the corrected one, plus five planted failures and the four-checker regression proof
+- [ ] 173-02-PLAN.md — POLICY-05 by construction: `git.base_branch: "beta"` and `git.protected_branches: ["main"]` with the distinguishing read-back, the close-procedure note, and the auto-loaded `CLAUDE.md` pointer
+- [ ] 173-03-PLAN.md — The D-02 ruleset rejection probe against all three protected `main` branches, from a true descendant of `origin/main`, accepted on the exact `remote:` rule-violation text and never on the exit code *(pushes to public repositories — not autonomous)*
+- [ ] 173-04-PLAN.md — Draft the four upstream replies into the phase record as the exact bytes that will be posted, with every link resolved and nothing public
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 173-05-PLAN.md — Generate the six provenance footers, run the full suite before pushing, publish one wiki commit, and re-verify from an independent fresh clone *(writes to a public wiki — not autonomous)*
+- [ ] 173-07-PLAN.md — Post the four approved bodies byte for byte, close gh#7 and gh#6, pin gh#9, behind D-13's blocking wording review *(public comments and closures — not autonomous)*
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 173-06-PLAN.md — The fourth `wiki-check.yml` leg, comment-free, its body extracted and executed locally before trusting a workflow with zero runs, then a pull request into a protected `main` *(not autonomous)*
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 173-08-PLAN.md — `.planning/v1.35/CLOSE-RECORD.md`: the comprehensive honesty ledger, the findings table, both backlog row bodies handed to the orchestrator, and the 999.9 rename-sweep record *(ROADMAP insertion is the orchestrator's — not autonomous)*
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 173-09-PLAN.md — Closing sweep written before any checkbox moves, both gitlinks re-pinned and proven per submodule, and the operator-gated `beta` lockstep cut performed and channel-verified or recorded as not performed *(one-way outward-facing step — not autonomous)*
+
 ## v1.34 — Pre-Merge Hardware Regression Validation (CLOSED 2026-08-29 — EARLY / SCOPE-REDUCED)
 
 **Milestone goal:** Prove on real silicon that v1.33's size reduction changed nothing behavioural — across every Arduino board and every RURP shield revision the operator owns — before [`prom#43`](https://github.com/henols/firestarter_prom/pull/43), [`fw#56`](https://github.com/henols/firestarter/pull/56) and [`app#54`](https://github.com/henols/firestarter_app/pull/54) merge to `beta`. v1.33 shipped **−2938 B flash / −13 B RAM** on all three AVR targets on a premise of byte-level equivalence — heap allocator removed, the 438 B 64-bit runtime dropped, `jsmntok_t` narrowed 8 → 6 B, the `key_parsers[]` command-decode table rewritten, handle types narrowed — backed by native tests, golden traces and cold builds, and **run on no Arduino.** A size-reduction milestone is exactly the shape of change whose failure mode is invisible to a build gate and obvious on a bench, so the merge gets a hardware gate in front of it. v1.34 touches no product code unless the bench proves v1.33 broke something.
