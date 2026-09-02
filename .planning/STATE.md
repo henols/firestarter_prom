@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 status: executing
-stopped_at: Phase 173 context gathered
-last_updated: "2026-09-02T13:26:43.999Z"
+stopped_at: Completed 173-01-PLAN.md
+last_updated: "2026-09-02T14:01:18.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 172 COMPLETE — all 9 plans, all 4 requirements marked against named evidence; one tracker stated and configured, three main branches protected
+last_activity_desc: Phase 173 plan 01 complete — provenance-footer checker built, demonstrated RED then GREEN, five failures planted and restored, six footers proven safe against all three prior checkers
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 41
-  completed_plans: 32
-  percent: 43
+  completed_plans: 33
+  percent: 80
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — READY TO EXECUTE
-Plan: 9 of 9 complete
-Status: Phase 172 closed; ready to plan Phase 173
-Last activity: 2026-09-02 — Completed Phase 172, all 9 plans. Plan 09 closed it: three wiki checkers green against fresh clones with all 11 pages, LEGACY-01 green on the merits across four surfaces (after correcting a ugrep-vs-GNU-grep hazard that measured 0 against 38 and would have passed the gate vacuously), both gitlinks re-pinned and proven equal per submodule, and POLICY-01/02/03 + LEGACY-01 marked complete against named evidence with ROADMAP.md provably untouched. Four non-claims and three findings carried to Phase 173; the release-path breakage filed as a pending todo.
+Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
+Plan: 1 of 9 complete
+Status: Executing Phase 173 — plan 01 done (provenance-footer checker), plans 02-09 remaining
+Last activity: 2026-09-02 — Completed 173-01-PLAN.md. Built tools/wiki/provenance_footers.py (bidirectional table/wiki checker + generator), corrected MIGRATION-TABLE.md (Post-move edits column, Protocol-Flags/Protocol-ID relocated to retired table, 3 unrecorded live pages added), and committed three evidence files proving RED-before-trusted on real inputs then GREEN, five planted failures each restored, and all three prior tools/wiki checkers staying green with the six footers present.
 
 ## Roadmap Summary (v1.35)
 
