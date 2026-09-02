@@ -52,7 +52,7 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 
 ### Legacy — correcting what is already wrong
 
-- [ ] **LEGACY-01**: No documentation page sends a reader to an issue tracker that is disabled — the six links into `henols/firestarter/issues` and `henols/firestarter_app/issues` are gone.
+- [x] **LEGACY-01**: No documentation page sends a reader to an issue tracker that is disabled — the six links into `henols/firestarter/issues` and `henols/firestarter_app/issues` are gone.
 - [x] **LEGACY-02**: The app README's table of contents lists exactly the sections the document contains — today it advertises `Id`, `Vpe` and `Hw`, none of which exist, and omits `List`, `Search` and `VCC`, which do.
 - [x] **LEGACY-03**: No README opens with accumulated breaking-change notices ahead of its install instructions; the v1.10 / v1.20 / v1.32 history is reachable on the wiki instead.
 - [x] **LEGACY-04**: `firestarter_app/things.md` — a six-line scratch note about finding avrtools on Windows — is either a real wiki page or deleted.
@@ -62,9 +62,9 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 
 ### Policy — Backlog 999.13 in full
 
-- [ ] **POLICY-01**: The documentation states plainly that `firestarter_prom` is the only issue tracker, that `firestarter` and `firestarter_app` have Issues disabled, and that pull requests go to the repository containing the changed code.
-- [ ] **POLICY-02**: `firestarter_prom` offers issue templates covering at least a bug report, a feature request, and a `dev test` chip-validation report.
-- [ ] **POLICY-03**: `main` in all three repositories is behind a ruleset whose enforcement is **active** — pull request required, no direct push, no force-push, no deletion. (`firestarter` has such a ruleset today with enforcement **disabled**; the other two have none.)
+- [x] **POLICY-01**: The documentation states plainly that `firestarter_prom` is the only issue tracker, that `firestarter` and `firestarter_app` have Issues disabled, and that pull requests go to the repository containing the changed code.
+- [x] **POLICY-02**: `firestarter_prom` offers issue templates covering at least a bug report, a feature request, and a `dev test` chip-validation report.
+- [x] **POLICY-03**: `main` in all three repositories is behind a ruleset whose enforcement is **active** — pull request required, no direct push, no force-push, no deletion. (`firestarter` has such a ruleset today with enforcement **disabled**; the other two have none.)
 - [ ] **POLICY-04**: The `beta` lockstep cut still works under those rulesets, demonstrated rather than assumed — this project's milestone convention pushes `beta`, not `main`.
 - [ ] **POLICY-05**: The GSD close procedure is updated for PR-only `main`, either as a PR flow or a documented admin bypass, so `/gsd-complete-milestone` does not break at the next close.
 
@@ -174,10 +174,10 @@ Populated during roadmap creation.
 | LEGACY-04 | Phase 171 | Complete |
 | LEGACY-05 | Phase 171 | Complete |
 | LEGACY-07 | Phase 171 | Complete |
-| POLICY-01 | Phase 172 | Pending |
-| POLICY-02 | Phase 172 | Pending |
-| POLICY-03 | Phase 172 | Pending |
-| LEGACY-01 | Phase 172 | Pending |
+| POLICY-01 | Phase 172 | Complete |
+| POLICY-02 | Phase 172 | Complete |
+| POLICY-03 | Phase 172 | Complete |
+| LEGACY-01 | Phase 172 | Complete |
 | POLICY-04 | Phase 173 | Pending |
 | POLICY-05 | Phase 173 | Pending |
 
