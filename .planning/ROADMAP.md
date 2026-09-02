@@ -5194,7 +5194,14 @@ Run id `33447867312`, workflow name `Catalog sync check`, conclusion `failure`, 
 
 ---
 
-### Phase 999.48: `wiki-check.yml` is registered on `firestarter_prom`'s `main` but `tools/wiki/` is not — every checker leg it runs is unresolvable there (BACKLOG — filed 2026-09-02 during v1.35 Phase 173)
+### Phase 999.48: ~~`wiki-check.yml` is registered on `firestarter_prom`'s `main` but `tools/wiki/` is not~~ — **WITHDRAWN 2026-09-02, hours after filing** (BACKLOG — filed and withdrawn the same day, during v1.35 Phase 173)
+
+> **Withdrawn because the workflow it was filed against was deleted.** This row asked that
+> `tools/wiki/` be landed on `main` so the registered `Wiki check` workflow could execute. The
+> operator instead retired the workflow and every checker under `tools/wiki/` as
+> disproportionate to a 12-page wiki — see `.planning/v1.35/CLOSE-RECORD.md` §8 for the
+> measurements and for the non-claim that retirement creates. Nothing remains to make runnable.
+> The finding below is preserved as the record of why the workflow could never have worked.
 
 **Goal:** Put the four checker scripts `wiki-check.yml` invokes onto `firestarter_prom`'s `main`, so the registered workflow can actually execute rather than dying on a missing path.
 
