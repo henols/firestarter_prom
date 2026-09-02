@@ -4,14 +4,14 @@ milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
-status: executing
-stopped_at: Completed Phase 173 (all 9 plans)
-last_updated: "2026-09-02T17:55:00.000Z"
+status: completed
+stopped_at: Phase 173 complete — all phases complete
+last_updated: "2026-09-02T18:13:07.172Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 plan 09 complete — Phase 173 COMPLETE, all 9 plans. Task 3's outward-facing beta lockstep cut was performed by a prior executor (three pull requests merged to `beta` — firestarter_prom#56, firestarter#59, firestarter_app#58 — meta tagged and pushed `v1.35`) but that executor was killed mid-flight by a session rate limit before verifying or recording it; the orchestrator completed the remaining outward-facing verification. This RECOVERY + RECORDING dispatch (commit 741c8dd5) performed zero further outward-facing actions and instead independently re-verified every claim with fresh read-only commands — git cherry equivalence against a refetched origin/beta, all three merge SHAs read from the GitHub API, the observed prerelease pair (firestarter 3.0.0b25, firestarter_app 3.0.0b36) re-read from the release API, the firmware .hex asset re-downloaded and re-hashed, the app package re-resolved into a brand-new venv via `pip install --pre`, the v1.35 tag confirmed on the remote, and all three `main` SHAs confirmed unchanged — then wrote the full record to evidence/173-09-beta-cut.txt and finalized CLOSE-RECORD.md §2 (POLICY-04 now rests on both the probe and the performed cut) and §4 (the C-4 correction to D-04, now directly demonstrated: no manual `publish.yml` dispatch fired, PyPI carries 3.0.0b36 anyway). Also found and ran down a `--limit 100` pagination artefact in the stable-release-set comparison (two tags briefly read as "missing" were confirmed still present and non-prerelease by individual lookup — no unauthorized release occurred). POLICY-04 and POLICY-05 are both complete (marked by Task 1, commit b23aba19). Phase 173's own ROADMAP.md checklist box remains the orchestrator's write, not performed by this plan. Known carried discrepancy, unresolved by this plan (CLOSE-RECORD.md §1's fourth item, this file's own `progress.completed_phases` undercount): left at 4 rather than corrected here, per this project's own prior finding that `gsd-tools`' automated state verbs have silently corrupted this exact field twice already this phase.
+last_activity_desc: Phase 173 COMPLETE — 9/9 plans, verification passed 5/5; beta lockstep cut performed and both channels verified; v1.35 tagged
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 7
   total_plans: 41
   completed_plans: 41
   percent: 100
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — COMPLETE (all 9 plans)
-Plan: 9 of 9 complete (01, 02, 03, 04, 05, 06, 07, 08, 09 — none remaining)
-Status: Phase 173 COMPLETE. Plan 09 wrote the closing sweep and marked POLICY-04/POLICY-05 (Task 1, b23aba19), re-pinned both gitlinks and proved equality per submodule (Task 2, 0fdc10eb), and performed the full `beta` lockstep cut for the Phases 171-173 remainder under operator authorization — three pull requests merged to `beta` (firestarter_prom#56, firestarter#59, firestarter_app#58), CI cutting firestarter 3.0.0b25 and firestarter_app 3.0.0b36, both channels verified from a clean environment, meta tagged and pushed `v1.35`. That outward-facing work was performed by a prior executor who was killed mid-flight by a session rate limit before recording it; the orchestrator completed the remaining verification, and this final RECOVERY + RECORDING dispatch (741c8dd5) independently re-verified every figure from scratch and wrote the full record to evidence/173-09-beta-cut.txt, finalizing CLOSE-RECORD.md §2 and §4. No stable release was cut in either sub-repository; `main` is unchanged in all three repositories. Phase 173's own ROADMAP.md checklist box is the orchestrator's write, not yet performed by this executor.
-Last activity: 2026-09-02 — Completed 173-09-PLAN.md, Phase 173 COMPLETE (all 9 plans). See last_activity_desc in this file's frontmatter for the full recovery-dispatch account, including the found-and-resolved `--limit 100` stable-release pagination artefact and the carried, unresolved `progress.completed_phases` discrepancy this plan did not attempt to fix.
+Phase: 173
+Plan: Not started
+Status: All phases complete
+Last activity: 2026-09-02 — Phase 173 complete
 
 ## Roadmap Summary (v1.35)
 
@@ -3178,7 +3178,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-02T17:55:00.000Z
-**Stopped at:** Completed Phase 173 (all 9 plans) — beta lockstep cut performed, verified and recorded (evidence/173-09-beta-cut.txt); POLICY-04 and POLICY-05 complete
+**Stopped at:** Phase 173 complete — all phases complete
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
