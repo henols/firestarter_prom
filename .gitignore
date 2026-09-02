@@ -64,6 +64,17 @@ chip-test/
 # Phase 115 fresh-machine onboarding transcripts).
 /*.bin
 node_modules
+# The line-16 comment already says root package*.json "stays local", but only
+# skills-lock.json ever got a rule. Root-anchored so nested manifests are unaffected.
+/package.json
+/package-lock.json
 
 # v1.34 host-arm worktree root (two firestarter_app worktrees + venvs, Phase 160 D-06).
 /.v1.34-arms/
+
+# GSD runtime state. Regenerable and session-local, never tracked: state.json is
+# a cache scraped from STATE.md's body, milestone.lock is a per-session phase lock
+# carrying a pid, and .gsd/ holds dispatch sentinels. Same class as .claude/* above.
+.planning/state.json
+.planning/milestone.lock
+.gsd/

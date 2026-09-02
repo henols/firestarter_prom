@@ -233,11 +233,11 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 ### Phases
 
 - [x] **Phase 167: WIKI — Bootstrap, In-Repo Source, Sync & Drift Check** — Stand up the publishing pipeline *before* any content moves: the in-repo wiki source tree that is the single source of truth, a one-command publish that is idempotent, and a drift check demonstrated failing before it is trusted. The wiki's own creation is operator-only; everything else in this phase is buildable and testable against a local fixture without it. (WIKI-01, WIKI-02, WIKI-03, WIKI-04, WIKI-05, WIKI-06) — **COMPLETE AS BUILT, THEN LARGELY SUPERSEDED.** All six plans executed and verification passed 6/6 on 2026-08-30; the live wiki publish, idempotence and drift detection were all demonstrated against the real remote. **Later the same day the operator reversed the model** this phase implemented (activation decision 5), choosing wiki-only authoring. **Retired:** `wiki/` (3 pages), `.github/workflows/wiki-publish.yml`, and `wiki.py`'s `publish` / `sidebar` / `check` subcommands. **Survives:** WIKI-01 and WIKI-06 as delivered; [`tools/wiki/MIGRATION-TABLE.md`](../tools/wiki/MIGRATION-TABLE.md), which lives under `tools/` rather than `wiki/` and is still what makes Phase 168's move auditable and what the Backlog 999.9 rename sweep greps; and `wiki.py links` (orphan detection, link-form allowlist, filename legality), which can be repointed at a cloned wiki to serve WIKI-05. The phase is **not** reopened — it delivered what it was asked for. The reversal is recorded against the milestone, not against the phase's execution.
-- [ ] **Phase 168: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim** — Move 12 of the 13 `doc/` files to the wiki, remove both directories, and prove the move changed no claim. Two of the migrating files are framed as GSD phase artifacts ("Phase 58", "Phase 59") and must read as reference material or not ship. The app must still build, install and test afterwards — three of these files are currently in its sdist. **Also absorbs the model reversal's leftovers:** WIKI-02 (no in-repo mirror exists anywhere) and WIKI-05 (navigation, now hand-maintained, checked against a wiki clone rather than a generated sidebar). (MIGRATE-01, MIGRATE-02, MIGRATE-03, MIGRATE-04, HONEST-01, HONEST-02, LEGACY-06, WIKI-02, WIKI-05)
-- [ ] **Phase 169: FRONT — `firestarter_prom` Becomes the Front Door** — Write the central repo's first README: what Firestarter is in the first screenful, and a path from nothing to a first successful chip read without opening another document. Set all three GitHub repository descriptions, which are empty today. (FRONT-01, FRONT-02, FRONT-03, FRONT-04)
-- [ ] **Phase 170: REPO — Sub-Repo READMEs Cut to Repo Scope** — Cut both sub-repo READMEs to what is specific to their own repository, linking up for the rest, and fix the two defects they carry: a table of contents that advertises three sections that do not exist, and breaking-change walls standing above the install instructions. Bound the PyPI thinning that decision 1 accepted. (REPO-01, REPO-02, REPO-03, REPO-04, LEGACY-02, LEGACY-03)
-- [ ] **Phase 171: STRAY — The Root-Level Documentation Files** — Three files sitting loose at the app repo root: a six-line scratch note about finding avrtools on Windows, an autocompletion guide, and a `SECURITY.md` that is a GSD Phase 69 audit record occupying the path GitHub reads as the repository's security policy. Each becomes a real wiki page, a real policy, or nothing. (LEGACY-04, LEGACY-05, LEGACY-07)
-- [ ] **Phase 172: POLICY — One Tracker, Protected `main`** — State the repository policy in the documentation and make the configuration match it: one issue tracker, issue templates that cover what people actually file, enforcing rulesets on all three `main` branches, and no surviving link to a disabled tracker. (POLICY-01, POLICY-02, POLICY-03, LEGACY-01)
+- [x] **Phase 168: MIGRATE — The 13 `doc/` Files, Moved Without Upgrading a Claim** — Move 12 of the 13 `doc/` files to the wiki, remove both directories, and prove the move changed no claim. Two of the migrating files are framed as GSD phase artifacts ("Phase 58", "Phase 59") and must read as reference material or not ship. The app must still build, install and test afterwards — three of these files are currently in its sdist. **Also absorbs the model reversal's leftovers:** WIKI-02 (no in-repo mirror exists anywhere) and WIKI-05 (navigation, now hand-maintained, checked against a wiki clone rather than a generated sidebar). (MIGRATE-01, MIGRATE-02, MIGRATE-03, MIGRATE-04, HONEST-01, HONEST-02, LEGACY-06, WIKI-02, WIKI-05) — **COMPLETE 2026-09-01.** All 13 plans executed; verification passed 8/8 success criteria and 9/9 requirement IDs, independently re-verified from a fresh wiki clone after the LEGACY-06 body-de-framing fix (`b010660`). The sole human item — visual inspection of the 14 rendered wiki pages — was performed and passed by the operator on 2026-09-01; the second human item (a real `workflow_dispatch` run of `wiki-check.yml`) was withdrawn the same day by operator decision, the workflow relying on its weekly `schedule` trigger.
+- [x] **Phase 169: FRONT — `firestarter_prom` Becomes the Front Door** — Write the central repo's first README: what Firestarter is in the first screenful, and a path from nothing to a first successful chip read without opening another document. Set all three GitHub repository descriptions, which are empty today. (FRONT-01, FRONT-02, FRONT-03, FRONT-04) — **COMPLETE 2026-08-31, executed ad hoc.** Done as direct commits (`3d381098`, `3cb8a617`) rather than through the phase machinery: no plans, no summaries, no `gsd-verifier` pass, and no `phases/169-*/` directory exists or will. `README.md` is 37 lines; all three GitHub repository descriptions are set and distinct. **FRONT-02 is NOT met, by operator decision on 2026-08-31** — it cannot both carry the getting-started path and not duplicate the wiki (FRONT-03), and the operator chose the wiki `Home` page. Criteria re-checked against the live artifacts at Phase 168 close; see [`notes/v135-phases-169-170-executed-ad-hoc.md`](notes/v135-phases-169-170-executed-ad-hoc.md).
+- [x] **Phase 170: REPO — Sub-Repo READMEs Cut to Repo Scope** — Cut both sub-repo READMEs to what is specific to their own repository, linking up for the rest, and fix the two defects they carry: a table of contents that advertises three sections that do not exist, and breaking-change walls standing above the install instructions. Bound the PyPI thinning that decision 1 accepted. (REPO-01, REPO-02, REPO-03, REPO-04, LEGACY-02, LEGACY-03) — **COMPLETE 2026-08-31, executed ad hoc.** Done as direct commits in the sub-repos (`firestarter_app` `767079a`, `firestarter` `c26562a`) rather than through the phase machinery: no plans, no summaries, no `gsd-verifier` pass, and no `phases/170-*/` directory exists or will. App README 779 → 118 lines, firmware README 151 → 91. LEGACY-02 verified mechanically (9 TOC entries, 0 unresolved anchors, 0 headings missing); LEGACY-03 verified on both READMEs with the version history reachable on the wiki's Breaking-Changes page; REPO-04 verified against a locally built sdist's `PKG-INFO`. See [`notes/v135-phases-169-170-executed-ad-hoc.md`](notes/v135-phases-169-170-executed-ad-hoc.md).
+- [x] **Phase 171: STRAY — The Root-Level Documentation Files** — Three files sitting loose at the app repo root: a six-line scratch note about finding avrtools on Windows, an autocompletion guide, and a `SECURITY.md` that is a GSD Phase 69 audit record occupying the path GitHub reads as the repository's security policy. Each becomes a real wiki page, a real policy, or nothing. (LEGACY-04, LEGACY-05, LEGACY-07) — **COMPLETE 2026-09-01.** All 4 plans executed through the phase machinery; closing sweep discharged V-01…V-19 (V-17/V-18 cited to plan 171-02's evidence, not re-run); both submodule gitlinks re-pinned, equality-asserted (V-19). Criterion 2's GitHub-surface property (empty Security tab) is observable only after the milestone merges to `main` — `SECURITY.md` never reached `main`, so this phase prevented a latent misrepresentation rather than remediating a live one.
+- [x] **Phase 172: POLICY — One Tracker, Protected `main`** — State the repository policy in the documentation and make the configuration match it: one issue tracker, issue templates that cover what people actually file, enforcing rulesets on all three `main` branches, and no surviving link to a disabled tracker. (POLICY-01, POLICY-02, POLICY-03, LEGACY-01)
 - [ ] **Phase 173 (close): CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger** — Demonstrate that the `beta` lockstep cut still works under the new rulesets rather than assuming it, update the GSD close procedure for PR-only `main`, and close with an honesty ledger pairing each claim with its non-claim — chiefly that relocation is not verification, and that the deferred wiki content is deferred, not delivered. (POLICY-04, POLICY-05)
 
 ## Phase Details
@@ -340,6 +340,8 @@ Plans:
 
 ### Phase 169: FRONT — `firestarter_prom` Becomes the Front Door
 
+**✔ COMPLETE 2026-08-31 — executed ad hoc, outside the phase machinery.** No plans, no summaries, no `gsd-verifier` pass and no `phases/169-*/` directory; the requirement marks rest on a criterion-by-criterion re-check made at Phase 168 close against the live artifacts, recorded in [`notes/v135-phases-169-170-executed-ad-hoc.md`](notes/v135-phases-169-170-executed-ad-hoc.md). **Criterion 2 (FRONT-02) is NOT met**, by operator decision — the getting-started path lives on the wiki `Home` page instead, because criteria 2 and 3 cannot both hold
+
 **Goal**: Someone who has never heard of Firestarter can land on `firestarter_prom`, understand what it is, and reach a first successful chip read.
 **Depends on**: Phase 168 — the README links into the wiki, so the wiki must already hold the content it links to.
 **Requirements**: FRONT-01, FRONT-02, FRONT-03, FRONT-04
@@ -351,6 +353,8 @@ Plans:
   4. All three GitHub repository descriptions are non-empty and distinguish the repos — the central project, the Python CLI, the AVR firmware. All three are empty today.
 
 ### Phase 170: REPO — Sub-Repo READMEs Cut to Repo Scope
+
+**✔ COMPLETE 2026-08-31 — executed ad hoc, outside the phase machinery.** No plans, no summaries, no `gsd-verifier` pass and no `phases/170-*/` directory; the requirement marks rest on a criterion-by-criterion re-check made at Phase 168 close against the live artifacts, recorded in [`notes/v135-phases-169-170-executed-ad-hoc.md`](notes/v135-phases-169-170-executed-ad-hoc.md). All six criteria met, criterion 6 checked against a locally built sdist's `PKG-INFO`
 
 **Goal**: Each sub-repo README carries only what belongs to that repository, and the two defects they currently carry are fixed rather than relocated.
 **Depends on**: Phase 168 (wiki pages to link to) and Phase 169 (the front door to link up to).
@@ -366,6 +370,12 @@ Plans:
 
 ### Phase 171: STRAY — The Root-Level Documentation Files
 
+**✔ COMPLETE 2026-09-01.** All three criteria met and mechanically re-verified in the plan 171-04
+closing sweep. Both submodule gitlinks re-pinned in one meta commit that also legitimately carries
+Phase 170's two un-pinned README commits (stated plainly in the commit message and named as such,
+not a Phase 171 firmware change). No CI covers any part of this phase; every check ran locally and
+its output is recorded in `evidence/171-04-validation-sweep.txt`.
+
 **Goal**: Nothing is left sitting at a repository root that a reader could mistake for maintained documentation or for a policy the project does not actually have.
 **Depends on**: Phase 167 — anything that survives becomes a wiki page.
 **Requirements**: LEGACY-04, LEGACY-05, LEGACY-07
@@ -374,6 +384,25 @@ Plans:
   1. `firestarter_app/things.md` — six lines about finding avrtools on Windows — is either a wiki page a reader can find, or deleted. It is not left at the repository root under that name.
   2. `firestarter_app/SECURITY.md` is a genuine security policy stating how to report a vulnerability, or it is removed. A GSD Phase 69 audit record dated 2026-06-15 no longer occupies the path GitHub surfaces as the repository's security policy — which today silently misrepresents an internal audit artifact as a disclosure policy.
   3. `firestarter_app/autocomplete.md` is folded into the app README or published as a wiki page, and nothing links to the old root path.
+
+**Plans**: 4 plans
+
+Plans:
+**Wave 1**
+
+- [x] 171-01-PLAN.md — Publish `autocomplete.md` as the wiki page `Shell-Completion` with the three shape corrections, plus the `_Sidebar.md` and `Home.md` entries a new page owes, in one push *(writes to a public wiki — not autonomous; the push is a `human-action` gate)*
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [x] 171-02-PLAN.md — Delete `things.md`, `SECURITY.md` and `autocomplete.md` in one path-scoped commit, gated on the page being live; prove recoverability at `d56424e`, the empty link sweep, the clean-tree sdist identity and the py3.11 suite
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 171-03-PLAN.md — Record all three dispositions in `tools/wiki/MIGRATION-TABLE.md`: the `Shell-Completion` main-table row and a new 3-column removed-never-published section, without breaking `honest01`'s parse
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [x] 171-04-PLAN.md — Re-pin both submodule gitlinks (which also carries Phase 170's un-pinned commits) and run the closing validation sweep, since no CI covers any part of this phase
 
 ### Phase 172: POLICY — One Tracker, Protected `main`
 
@@ -387,6 +416,39 @@ Plans:
   3. `firestarter_prom` offers issue templates covering at least a bug report, a feature request, and a `dev test` chip-validation report — the last because that is a real, structured, recurring submission this project already parses.
   4. `main` in all three repositories is behind a ruleset with **`enforcement: active`** requiring a pull request and forbidding direct push, force-push and deletion. Read back from the API, not from the settings page. Note the trap: `henols/firestarter` already has a ruleset named `Protect main` whose enforcement is `disabled` — its existence is not compliance, and a check that only asserts a ruleset exists would pass today against a repo with no protection at all.
 
+**Plans**: 9 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 172-01-PLAN.md — Publish the canonical `Contributing` page as the eleventh wiki page, with the `_Sidebar.md` and `Home.md` entries a new page owes in the same push, and its authored-page row in `MIGRATION-TABLE.md` *(writes to a public wiki — not autonomous)*
+- [ ] 172-02-PLAN.md — Author the three issue templates and `config.yml` in `firestarter_prom`: two YAML issue forms, a Markdown `dev test` template that routes to the CLI under a non-`[dev test]` marker, and `blank_issues_enabled: true` *(not autonomous)*
+- [ ] 172-03-PLAN.md — Fix the two reproduced `wiki-check.yml` defects (`--wiki-dir` passed to a parser that rejects it; the resolver landing scheduled runs on `main`), then add the LEGACY-01 grep leg and demonstrate it RED before trusting it
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 172-04-PLAN.md — Add `.github/CONTRIBUTING.md` to all three repositories as pointers, and trim the three README tracker sections to a single link each
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 172-05-PLAN.md — Capture ruleset `4998759` into evidence before anything can destroy it, write the one canonical body, and create prom's ruleset first as a canary *(nothing irreversible happens here — not autonomous)*
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 172-06-PLAN.md — Delete the incumbent `4998759` and create the other two from the same body, behind a blocking `checkpoint:decision` — the phase's only one-way door *(not autonomous)*
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 172-07-PLAN.md — Open three `.github`-only pull requests, each branched from its own repository's `main` so none drags the 733/531/781-commit milestone history behind it *(not autonomous)*
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 172-08-PLAN.md — Merge the three pull requests and prove from the API that the surfaces they carry are live on each default branch *(not autonomous)*
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 172-09-PLAN.md — Closing sweep: the three checkers green against fresh clones with the eleventh page, the three-way ruleset equality, both gitlinks re-pinned, and the four requirement marks paired with their evidence
+
 ### Phase 173 (close): CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 
 **Goal**: The protection this milestone added does not break the way this project actually ships, and the milestone closes with its non-claims stated as plainly as its claims.
@@ -399,6 +461,33 @@ Plans:
   3. An honesty ledger pairs every claim this milestone makes with its explicit non-claim. At minimum: **relocation is not verification** — a document moved to the wiki is not thereby confirmed accurate, only relocated intact; the deferred content (FUT-W-01…05) is deferred, not delivered; and HONEST-02's stamp-or-check establishes agreement with the database at a point in time, not continuously.
   4. Every unfixed finding surfaced during the migration is filed as a backlog item rather than carried as prose, and the 999.9 rename sweep is recorded with the specific phases whose links will need re-sweeping (169, 170, 172).
   5. The upstream replies owed on GitHub are sent or explicitly deferred with a reason: gh#7 (generated-site premise rejected, Wiki chosen, content requirements carried to 999.12), gh#5 (surviving tracker for the deferred content), gh#9 (pinned orientation issue describing the configured end state).
+
+**Plans**: 9 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 173-01-PLAN.md — Tracer: `tools/wiki/provenance_footers.py`, the bidirectional footer guard, RED on the migration table as it stands then GREEN on the corrected one, plus five planted failures and the four-checker regression proof
+- [ ] 173-02-PLAN.md — POLICY-05 by construction: `git.base_branch: "beta"` and `git.protected_branches: ["main"]` with the distinguishing read-back, the close-procedure note, and the auto-loaded `CLAUDE.md` pointer
+- [ ] 173-03-PLAN.md — The D-02 ruleset rejection probe against all three protected `main` branches, from a true descendant of `origin/main`, accepted on the exact `remote:` rule-violation text and never on the exit code *(pushes to public repositories — not autonomous)*
+- [ ] 173-04-PLAN.md — Draft the four upstream replies into the phase record as the exact bytes that will be posted, with every link resolved and nothing public
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 173-05-PLAN.md — Generate the six provenance footers, run the full suite before pushing, publish one wiki commit, and re-verify from an independent fresh clone *(writes to a public wiki — not autonomous)*
+- [ ] 173-07-PLAN.md — Post the four approved bodies byte for byte, close gh#7 and gh#6, pin gh#9, behind D-13's blocking wording review *(public comments and closures — not autonomous)*
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 173-06-PLAN.md — The fourth `wiki-check.yml` leg, comment-free, its body extracted and executed locally before trusting a workflow with zero runs, then a pull request into a protected `main` *(not autonomous)*
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 173-08-PLAN.md — `.planning/v1.35/CLOSE-RECORD.md`: the comprehensive honesty ledger, the findings table, both backlog row bodies handed to the orchestrator, and the 999.9 rename-sweep record *(ROADMAP insertion is the orchestrator's — not autonomous)*
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 173-09-PLAN.md — Closing sweep written before any checkbox moves, both gitlinks re-pinned and proven per submodule, and the operator-gated `beta` lockstep cut performed and channel-verified or recorded as not performed *(one-way outward-facing step — not autonomous)*
 
 ## v1.34 — Pre-Merge Hardware Regression Validation (CLOSED 2026-08-29 — EARLY / SCOPE-REDUCED)
 
@@ -5031,6 +5120,104 @@ and running, not photographed and reverse-engineered.
 **Why (a) alone was rejected:** slot acceptance is on the `cleared`/`retained` floors, **not** on blankness, so a masked write into a partially-programmed slot would still be refused — a narrower version of the same bug. **Why (b) alone was rejected:** it leaves the product-level `firestarter write -a` bug untouched.
 
 **Test surface.** Firmware-touching → dual-repo lockstep, golden register traces and the size baseline all in play. The native trace stubs record no time and miss register-write elision, so a trace diff cannot carry this alone. **The regression test that matters is the one that did not exist:** a UV part with data outside the target slot must accept a slot write. Nothing in the suite covers a non-blank non-erasable part, which is exactly why this shipped.
+
+### Phase 999.45: Unattributed `_AT28C_DIP24_NAMES` rename in `build_db.py`, and the twice-stale docstring citation it exposed (BACKLOG — filed 2026-09-02 during v1.35 Phase 172, product code out of scope)
+
+**Goal:** Dispose of an uncommitted, unattributed rename sitting in `firestarter_app/tools/build_db.py`, and repair the two test docstrings that cite the renamed symbol — one of which was already citing a line number that has been wrong for two milestones.
+
+**Filed, not fixed, on purpose.** v1.35 is documentation and repository configuration only. `REQUIREMENTS.md`'s scope note says any product-code change found necessary in this milestone is **filed rather than fixed**, and `172-08-PLAN.md` restates it as an enforced prohibition. `build_db.py` is product source — it is the generator the whole chip database is built by — so this phase may not touch it. It is left dirty in the working tree rather than reverted or committed.
+
+**The rename.** `_AT28C_DIP24_NAMES` → `AT28C_DIP24_NAMES`, two substitutions, at [`build_db.py:545`](../firestarter_app/tools/build_db.py#L545) (the definition) and [`build_db.py:564`](../firestarter_app/tools/build_db.py#L564) (the only use). No line counts change.
+
+**It is unattributed.** No artifact in v1.35 Phases 170, 171 or 172 mentions `AT28C_DIP24` at all — checked by grep across every `PLAN.md`, `SUMMARY.md`, evidence file and research document in those three phase directories. The last three commits touching that region are `4a156b8` (`fix(168-03): repoint AT28C DIP24 adapter reason at the wiki page`), `d56424e` (`refactor: strip GSD provenance from tools/`) and `73c6394` (`refactor: strip narrative comments from the database generator`), and all three are landed. Nothing in the tree claims this edit.
+
+**The rename is probably backwards.** The symbol is a **local variable**, not a module constant: it is nested inside `main()` ([`:405`](../firestarter_app/tools/build_db.py#L405)) → `for db` ([`:420`](../firestarter_app/tools/build_db.py#L420)) → `for mfg` ([`:421`](../firestarter_app/tools/build_db.py#L421)) → deeper still. A leading underscore is the right convention for that, and dropping it makes the symbol read like the module-level decode tables (`PROTOCOL_MAP`, `VPP_MV`, `NMOS_TRUE_VPP_MV`, `VCC_VOLTAGES`) which it is emphatically not one of. **Recommended disposition: revert to `_AT28C_DIP24_NAMES`** — but it is a coin-flip a human should ratify rather than a defect, which is why this is a backlog item and not a fix.
+
+**It does NOT break the gate — measured, not assumed.** [`tests/test_numeric_schema_source_scan.py`](../firestarter_app/tests/test_numeric_schema_source_scan.py)'s `_top_level_dict_constant_names` helper walks `tree.body` only, **deliberately not** `ast.walk`, so a local nested four levels deep never enters the scan whatever it is called. It also matches `ast.Dict` only, and this is a **set** literal. Two independent reasons the rename is invisible to the assertion. DATA-04's closed-list gate is unaffected and `_KNOWN_MODULE_LEVEL_DICT_NAMES` needs no new entry.
+
+**What it does break is the prose.** Two docstrings name the symbol with its underscore and now describe something that is not in the source: [`test_numeric_schema_source_scan.py:40`](../firestarter_app/tests/test_numeric_schema_source_scan.py#L40) (the module docstring's enumeration of test 4) and [`:129`](../firestarter_app/tests/test_numeric_schema_source_scan.py#L129) (the `_top_level_dict_constant_names` docstring). Both exist precisely to explain *why the helper is scoped the way it is*, so a reader who greps the name they cite and finds nothing loses the explanation for the scoping — the one thing that keeps this test from firing on a false positive.
+
+**Separately, and pre-existing: the same docstring's line citation has been wrong since v1.33.** Line 40 reads ``on `_AT28C_DIP24_NAMES` (build_db.py:594)``. The definition has **never** been at 594 in recent history — traced by `git show <sha>:tools/build_db.py`, it sat at **601** before `73c6394`, moved to **546** when that commit stripped the narrative comments, and to **545** at `4a156b8`. Line 594 today is an unrelated stderr message followed by a `continue`. So the citation is stale by ~49 lines and went stale during the **v1.33 Phase 154 provenance sweep** — the same class of breakage as `test_config_schema_pinned.py`'s `_C14_CONSUMER_SITES`, which that phase caught and re-pinned while this one slipped through because it lives in a docstring rather than in an assertion and nothing scans docstrings for `file:LINE` drift.
+
+**Chosen fix, two parts.** **(a)** Settle the rename — revert to the underscore unless someone claims the edit, and either way make the two docstrings agree with the source. **(b)** **De-pin the citation rather than re-pin it.** It has now gone stale twice for the same reason (a comment sweep shifting lines in a file nothing cross-checks), so replacing `594` with `545` only resets the clock. Cite the symbol and its enclosing function — "a local inside `main()`'s manufacturer loop" — which survives any line shift, or add the file to whatever citation-drift oracle exists.
+
+**Test surface.** Host-only, no firmware. `tests/test_numeric_schema_source_scan.py` must stay green — including its non-vacuity leg `test_scan_helper_detects_planted_forbidden_tokens`, which proves `_find_forbidden_tokens` can still report a violation. A docstring-only change to that file should move no assertion; if it does, the change was not docstring-only. Note that a regenerated `chip_database.json` is **not** expected from either half: the rename is name-only and cannot change emitted values, and that should be proven by a `sha256` comparison of the generator's output before and after rather than asserted.
+
+---
+
+### Phase 999.46: The v1.35 `Protect main` rulesets block the stable-release version bump in both sub-repositories (BACKLOG — filed 2026-09-02 during v1.35 Phase 173, product and workflow code out of scope)
+
+**Goal:** Rework both sub-repositories' stable-release workflows so the version-bump step no longer targets a branch its own `Protect main` ruleset rejects.
+
+**Filed, not fixed, on purpose.** v1.35 is documentation and repository configuration only. `REQUIREMENTS.md`'s scope note says any product-code change found necessary in this milestone is **filed rather than fixed**, and the milestone's own scope note binds both release workflows by name even though they are the files this finding is about — neither `firestarter_app/.github/workflows/release.yml` nor `firestarter/.github/workflows/build.yml` is edited by this filing.
+
+**The measured mechanism.** Phase 172 put `main` in all three repositories behind an **active** ruleset whose only bypass actor is `DeployKey:null:always`. A `DeployKey` bypass does not cover a `GITHUB_TOKEN`-authenticated push — `stefanzweifel/git-auto-commit-action` authenticates as `github-actions[bot]` through the installation token, not a deploy key. Both sub-repositories push a version-bump commit back onto `main` from CI on the stable-release path, re-verified against the live workflow files this session:
+
+- [`firestarter_app/.github/workflows/release.yml:2-5`](../firestarter_app/.github/workflows/release.yml#L2-L5) — `on: push: branches: [main]`.
+- [`firestarter_app/.github/workflows/release.yml:32-35`](../firestarter_app/.github/workflows/release.yml#L32-L35) — the `Commit updated version` step, `stefanzweifel/git-auto-commit-action@v5`, with its `GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}` override **commented out**.
+- [`firestarter_app/.github/workflows/release.yml:37-43`](../firestarter_app/.github/workflows/release.yml#L37-L43) — the `Release` step immediately after, which **does** pass `PERSONAL_ACCESS_TOKEN`; creating a release is not a branch push, so this step would work if the job ever reached it.
+- [`firestarter/.github/workflows/build.yml:34`](../firestarter/.github/workflows/build.yml#L34) — `branches: ['**', '!beta']`, which fires on `main`.
+- [`firestarter/.github/workflows/build.yml:182-183`](../firestarter/.github/workflows/build.yml#L182-L183) — the same auto-commit action, gated `if: github.event_name == 'push' && github.ref == 'refs/heads/main'`, below the file's own `PUBLISH BOUNDARY` comment.
+- [`firestarter/.github/workflows/build.yml:199-200`](../firestarter/.github/workflows/build.yml#L199-L200) — the `softprops/action-gh-release` publish step, gated on the same condition and depending on that push having succeeded.
+
+**Consequence:** the next stable release in *both* repositories fails at the version-bump step, and in `firestarter` the release-publish step that follows does not run either — it never reaches the gate.
+
+**Chosen fix.** Move the version bump off `main` — either by bumping on `beta`, or by a tag-triggered release that pushes nothing back. This is the todo's option 2. It is the recommended remedy because it removes the conflict rather than carving an exception through it: no ruleset amendment, no new bypass actor, no widened token scope.
+
+**Rejected candidates, with the reasons they are not recommended:**
+
+- **Re-enable the commented-out `PERSONAL_ACCESS_TOKEN` override.** The smallest change, but it does not clearly work either: all three rulesets read `current_user_can_bypass: never`, so a PAT pushing as the account owner (`henols`) is subject to the same `pull_request` rule as anyone else — the token identity does not exempt the push from the ruleset.
+- **Register a deploy key and have CI push with it.** The existing `DeployKey:null:always` bypass actor would cover it, but this leans on a residual this milestone has already recorded as a non-claim rather than a mechanism to build on: `actor_id: null` means *any* deploy key, present or future, silently receives the same bypass with no further ruleset change. All three repositories measure zero deploy keys today, which is the only reason the bypass grants nothing to anyone right now; registering one to fix this finding would spend that inert state on a release-path workaround rather than leaving it inert.
+
+**Test surface.** What would have to be proven: a stable release reaching both channels (GitHub release, PyPI for the app) end to end with no push to `main` occurring anywhere in the workflow, and the rulesets left unamended — no new bypass actor, no widened token, no exception carved through `current_user_can_bypass: never`.
+
+---
+
+### Phase 999.47: `firestarter_prom`'s default branch was already red on `Catalog sync check` before Phase 172's merges (BACKLOG — filed 2026-09-02 during v1.35 Phase 173, catalog content out of scope)
+
+**Goal:** Get `firestarter_prom`'s `Catalog sync check` workflow passing on `main` again.
+
+**Filed, not fixed, on purpose — it predates this milestone's merges and is carried, not caused.** `main` was already failing this check before v1.35 Phase 172 landed its three pull requests, and the check runs over catalog content that sits outside this milestone's documentation-and-configuration scope. `REQUIREMENTS.md`'s scope note files rather than fixes; this finding is the same shape.
+
+**The measured evidence.** The failing `Catalog sync check` run sits on `ad08a06`, the first parent of `firestarter_prom`'s merge commit for pull request #34, dated 2026-08-31 — before any of Phase 172's three merges. Recorded at the time in `evidence/172-08-post-merge-surfaces.txt` so no reader misattributes it to this milestone's own changes. Re-confirmed live during this phase's own research session:
+
+```
+gh run list --repo henols/firestarter_prom
+→ completed / failure / Catalog sync check / main / push / 33447867312 / 2026-08-31T22:47:56Z
+```
+
+Run id `33447867312`, workflow name `Catalog sync check`, conclusion `failure`, event `push`, branch `main`, created `2026-08-31T22:47:56Z`. Re-confirmed 2026-09-02, still failing, no intervening green run.
+
+**Chosen fix.** Investigate `Catalog sync check`'s failure cause on `main` directly — most likely a drift between whatever catalog source it validates and the checked-in artifact it compares against — and land a fix as its own scoped change, independent of this milestone.
+
+**Test surface.** What would have to be proven: `gh run list --repo henols/firestarter_prom --workflow 'Catalog sync check'` shows the most recent run on `main` as `completed / success`, and the fix does not touch any file this milestone's own scope note reserves (documentation, `.planning/`, or the wiki-related tooling under `tools/wiki/`).
+
+---
+
+### Phase 999.48: `wiki-check.yml` is registered on `firestarter_prom`'s `main` but `tools/wiki/` is not — every checker leg it runs is unresolvable there (BACKLOG — filed 2026-09-02 during v1.35 Phase 173)
+
+**Goal:** Put the four checker scripts `wiki-check.yml` invokes onto `firestarter_prom`'s `main`, so the registered workflow can actually execute rather than dying on a missing path.
+
+**Filed, not fixed, on purpose.** Phase 173's scope was the close: the probe, the config repoint, the upstream replies, the footers and the ledger. This finding surfaced during plan 173-06's pull-request work and is recorded in `.planning/v1.35/CLOSE-RECORD.md` ledger row **L21**. It originates in **Phase 172's `prom#54`**, which merged `wiki-check.yml` to `main` without the tree it depends on — it is carried by this milestone, not caused by this phase.
+
+**The measured mechanism.** `.github/workflows/wiki-check.yml` is on `main` and registered with Actions (workflow id `348256804`, name `Wiki check`, state `active`). Its steps invoke four scripts under `meta/tools/wiki/`, where `meta` is the checked-out meta repository:
+
+- `meta/tools/wiki/wiki.py links` — the WIKI-05 reachability leg.
+- `meta/tools/wiki/honest02_truth.py` with `meta/tools/wiki/claim-allowlist.json` — the HONEST-02 truth leg.
+- `meta/tools/wiki/dispatch_mirror.py` — the dispatch-mirror leg.
+- `meta/tools/wiki/provenance_footers.py` with `meta/tools/wiki/MIGRATION-TABLE.md` — the provenance-footer leg added by Phase 173 plan 173-06.
+
+`main` carries none of them. Re-confirmed 2026-09-02: `GET /repos/henols/firestarter_prom/contents/tools/wiki?ref=main` returns `404`, and `GET …/contents/tools?ref=main` lists `catalog` alone.
+
+**Consequence.** The workflow's first step (`LEGACY-01 dead tracker link check`) is pure shell and would run. The **second** (`WIKI-05 reachability check`) is the first to invoke a Python file that does not exist, so the job fails there and the two legs after it — plus Phase 173's new provenance-footer leg — never execute. This has never been observed because `gh run list --workflow 'Wiki check'` returns zero rows: the workflow has a weekly `schedule` trigger and has not yet fired. It is therefore not merely "registered but unproven" (Phase 172's NON-CLAIM 3) but **registered and unrunnable as it stands**.
+
+**Partial remedy already in flight.** `henols/firestarter_prom#55`, opened by plan 173-06 and left **open and unmerged** by operator decision, carries `provenance_footers.py` and `MIGRATION-TABLE.md`. Merging it fixes two of the six missing files and nothing else; the job would still fail earlier, at WIKI-05.
+
+**Chosen fix.** Land the whole of `tools/wiki/` on `main` — `wiki.py`, `honest02_truth.py`, `dispatch_mirror.py`, `claim-allowlist.json`, `claim-vocabulary.json` and `selftest.sh` alongside the two already in `prom#55` — as one pull request into the protected branch, then trigger the workflow once by `workflow_dispatch` rather than waiting a week for the cron to reveal whether it works. This is recommended over trimming `wiki-check.yml`'s legs down to what `main` carries: the legs are the guards HONEST-02 and WIKI-05 were built to be, and deleting them to make a red workflow green would retire the checks rather than fix the deployment.
+
+**Rejected candidate.** *Wait for the milestone merge to carry `tools/wiki/` to `main` on its own.* It would eventually work, but it leaves a registered workflow on the default branch that fails on every scheduled run in the meantime, and it makes the first green run an accident of merge timing rather than something anyone verified.
+
+**Test surface.** What would have to be proven: a `workflow_dispatch` run of `Wiki check` on `main` completing with conclusion `success`, with all four checker legs reporting their own `OK:` line — not a run that merely stops failing because a leg was removed. `gh run list --repo henols/firestarter_prom --workflow 'Wiki check'` must show that run against `main`.
 
 ---
 

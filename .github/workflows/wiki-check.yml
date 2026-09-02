@@ -55,15 +55,25 @@ jobs:
 
       - name: Resolve sub-repo ref (same branch name, else beta)
         id: subref
+        env:
+          META_REF: ${{ github.head_ref || github.ref_name }}
+          META_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          CAND="${{ github.head_ref || github.ref_name }}"
-          echo "meta ref under test: $CAND"
+          DEF="${META_DEFAULT_BRANCH:-main}"
+          CAND="$META_REF"
+          if [ "$CAND" = "$DEF" ]; then
+            CAND=""
+          fi
+          if [ -n "$CAND" ]; then
+            echo "meta ref under test: $CAND"
+          else
+            echo "meta ref under test: none (meta default branch, falling through to beta)"
+          fi
           for repo in firestarter firestarter_app; do
-            if git ls-remote --exit-code --heads \
+            RESOLVED="beta"
+            if [ -n "$CAND" ] && git ls-remote --exit-code --heads \
                  "https://github.com/henols/$repo.git" "$CAND" >/dev/null 2>&1; then
               RESOLVED="$CAND"
-            else
-              RESOLVED="beta"
             fi
             echo "${repo}_ref=$RESOLVED" >> "$GITHUB_OUTPUT"
             echo "$repo -> $RESOLVED"
@@ -86,6 +96,14 @@ jobs:
       - name: Clone the live wiki
         run: git clone --depth 1 https://github.com/henols/firestarter_prom.wiki.git wiki-clone
 
+      - name: LEGACY-01 dead tracker link check
+        run: |
+          if grep -rInE 'henols/firestarter(_app)?/issues' meta firestarter firestarter_app wiki-clone --exclude-dir=.git --exclude-dir=.planning; then
+            echo "FAIL: a page links to an issue tracker that is disabled"
+            exit 1
+          fi
+          echo "OK: no page links to a disabled issue tracker"
+
       - name: WIKI-05 reachability check
         run: |
           python3 meta/tools/wiki/wiki.py links --source-dir wiki-clone
@@ -102,7 +120,13 @@ jobs:
       - name: Dispatch-mirror check
         run: |
           python3 meta/tools/wiki/dispatch_mirror.py \
-            --wiki-dir wiki-clone \
             --app-dir firestarter_app \
             --fw-dir firestarter
           echo "OK: the wiki's dispatch table still mirrors the host tool and the firmware test"
+
+      - name: Provenance footer check
+        run: |
+          python3 meta/tools/wiki/provenance_footers.py \
+            --table meta/tools/wiki/MIGRATION-TABLE.md \
+            --wiki-dir wiki-clone
+          echo "OK: every migrated wiki page still carries the provenance footer its migration-table row states, and every live page is accounted for by that table"

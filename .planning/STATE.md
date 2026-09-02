@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.35
-milestone_name: — Documentation Consolidation & Wiki Migration
-current_phase: 168
-current_phase_name: MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
-status: awaiting-uat
-stopped_at: Phase 168 verified — 8/8 criteria, 2 human items outstanding
-last_updated: "2026-08-31T12:13:23.217Z"
-last_activity: 2026-08-31
-last_activity_desc: "168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger -- Phase 168 ready for verification"
+milestone_name: Documentation Consolidation & Wiki Migration
+current_phase: 173
+current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
+status: executing
+stopped_at: Completed 173-08-PLAN.md
+last_updated: "2026-09-02T15:36:00.000Z"
+last_activity: 2026-09-02
+last_activity_desc: Phase 173 plan 08 complete (continuation agent — Tasks 1, 2 and the orchestrator's Task 3a pre-completed). This continuation independently re-verified the orchestrator's Task 3a ROADMAP insertion (commit 6d0eae0a — both backlog rows 999.46/999.47 inserted verbatim, Phase 172's checklist box checked, the pending todo retired only after the row existed) rather than trusting it, confirming all 999.40-999.47 headings appear exactly once, the v1.14 divider intact, and ROADMAP.md/REQUIREMENTS.md untouched by this executor from 6d0eae0a forward. Then captured the Backlog 999.9 rename-sweep target list at evidence/173-08-rename-sweep-targets.txt (commit ac160756) — a mechanical, /usr/bin/grep-scoped-to-git-ls-files inventory across three tracked trees (meta, firestarter, firestarter_app), totalling 82,796 references across 3,533 files, with phases 169/170/172 and this phase's own outputs named explicitly, and the six wiki footers flagged as a fourth surface outside any tracked tree scanned. .planning/v1.35/CLOSE-RECORD.md's 21-row honesty ledger and the two filed backlog rows (999.46, 999.47) are now complete; ledger row L21 (tools/wiki/ absent from origin/main) recorded as a carried non-claim, not a third/fourth filing. Plan 08 SUMMARY.md written and committed (02747cba). Plan 09 remains — it owns flipping POLICY-04/POLICY-05 and Phase 173's own ROADMAP checklist box at close.
 progress:
-  total_phases: 6
-  completed_phases: 2
-  total_plans: 19
-  completed_plans: 19
-  percent: 33
+  total_phases: 7
+  completed_phases: 4
+  total_plans: 41
+  completed_plans: 40
+  percent: 98
 ---
 
 # Project State
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 168 — MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim
+**Current focus:** Phase 173 — CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 168 (MIGRATE — The 13 `doc` Files, Moved Without Upgrading a Claim) — READY FOR VERIFICATION
-Plan: 13 of 13
-Status: All 13 plans executed and verified 8/8 criteria / 9/9 requirements. Verification returned human_needed — two items in 168-UAT.md require a person: visual inspection of the 14 rendered wiki pages, and a real workflow_dispatch run of wiki-check.yml (branch never pushed to origin). Phase NOT marked complete.
-Last activity: 2026-08-31 — 168-13-PLAN.md executed: wiki-check.yml rewrite, MIGRATE-03 CI-floor verification, closing gate sweep, STATE.md correction, honesty ledger
+Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
+Plan: 8 of 9 complete (01, 02, 03, 04, 05, 06, 07, 08 — plan 09 remaining)
+Status: Executing Phase 173 — plans 01, 02, 03, 04, 05, 06, 07, 08 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review; six generated provenance footers published to firestarter_prom.wiki.git and independently re-verified from a fresh clone; four upstream replies posted, gh#7/gh#6 closed, gh#9 pinned; provenance-footer CI leg wired into wiki-check.yml and opened, not merged, as henols/firestarter_prom#55 per the operator's narrowing; the v1.35 honesty ledger with 21 cited rows, both filed backlog rows 999.46/999.47 inserted into ROADMAP.md by the orchestrator, and the Backlog 999.9 rename-sweep target list capturing 82,796 references across 3,533 tracked files), plan 09 remaining
+Last activity: 2026-09-02 — Completed 173-08-PLAN.md (continuation agent; Tasks 1, 2 and the orchestrator's Task 3a pre-completed, commits 575f513d, ed96cee5, 6d0eae0a). This continuation independently re-verified the orchestrator's Task 3a ROADMAP insertion rather than trusting it — all 999.40 through 999.47 headings appear exactly once, the v1.14 divider is intact, Phase 172's checklist box is checked, the pending todo is gone, and ROADMAP.md/REQUIREMENTS.md are provably untouched by this executor's own commits from 6d0eae0a forward. Then captured evidence/173-08-rename-sweep-targets.txt (commit ac160756) — a mechanical inventory scoped with /usr/bin/grep over `git ls-files` across three tracked trees (meta, firestarter, firestarter_app), never the PATH ugrep which honours .gitignore, naming phases 169/170/172 and this phase's own outputs explicitly and flagging the six wiki footers as a fourth surface (a wiki clone) outside any tracked tree this scan could reach. Ledger row L21 (tools/wiki/ absent from origin/main) recorded as a carried non-claim, not filed as a numbered backlog row. Plan 08 SUMMARY.md written and committed (02747cba). Plan 09 remains — it owns flipping POLICY-04/POLICY-05 and Phase 173's own ROADMAP checklist box at phase close.
 
 ## Roadmap Summary (v1.35)
 
@@ -2770,6 +2770,15 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 168]: wiki-check.yml's no-recursive-submodule rationale comment written to avoid the plural literal token its own automated verify forbids
 - [Phase 168]: A live GitHub Actions workflow_dispatch run was not attempted -- the branch has never been pushed to origin; all three checker steps were exercised locally instead
 - [Phase 168]: STATE.md's false v1.35-touches-no-product-code claim retracted and replaced with the enumerated bounded set of product-source edits Phase 168 actually made
+- [Phase 171 Plan 01]: Operator approved the live wiki push (Task 2, "push approved") after reviewing the pre-flight `wiki.py links` evidence, the three-file commit stat and both navigation hunks; pushed as `7ec9988..bf787fb master -> master` on `firestarter_prom.wiki.git`
+- [Phase 171 Plan 01]: Operator waived Task 3's rendered on-github.com visual inspection ("approved -- skip the look"), accepting the mechanical fresh-clone evidence (V-10..V-13, `wiki.py links` rc=0) in its place. Recorded as a deliberate waiver, not a performed visual check -- `wiki.py links` parses markdown and never renders anything, so nothing that actually ran in this plan proves the logo image, code fences or rendered title look correct on github.com. That residual risk is operator-accepted, not closed.
+- [Phase 172]: Contributing.md's em-dash provenance row copied character-for-character from the existing Home row, not typed, to avoid a look-alike character silently miscounting in honest01_claims
+- [Phase 172]: Package-legitimacy gate for check-jsonschema resolved as option B (declined install); shipped issue-form validation is a zero-install structural check, weaker than schema validation, recorded plainly in evidence/172-02-package-legitimacy.txt.
+- [Phase 172]: Reworded LEGACY-01 step's OK line to avoid self-matching its own scanned source file — RESEARCH.md Pattern 3's literal wording spelled out both disabled tracker paths in the success message, which self-matched when the workflow file was checked out into the meta directory the leg scans
+- [Phase 172]: Reworded prom's repository-table tracker cell to remove an unlabelled fourth restatement of POLICY-01's tracker fact, keeping 'stated once' true by construction
+- [Phase 172]: D-10 REVERSED at the Task 1 checkpoint:decision gate: amended henols/firestarter's ruleset 4998759 in place (PUT) instead of deleting and recreating it, after measurement showed it already matched the prom canary on every field except enforcement. Its id and 2025-04-22 creation date are preserved. — Deleting and recreating would have destroyed 4998759's identity permanently for zero functional gain, since the incumbent was already equal to the canary apart from enforcement; D-10's own rationale (shedding a dead DeployKey bypass) was voided by D-09's mid-phase revision making DeployKey canonical.
+- [Phase 172]: 172-07: three policy/contributor-policy branches pushed and opened as PRs (firestarter_prom#54, firestarter#58, firestarter_app#57), scope proven server-side .github/-only. No merge (172-08 owns it). — Branches cut from each repo's own fetched origin/main in throwaway worktrees, never the milestone branch, avoiding a 733/531/781-commit drag into a default branch.
+- [Phase 172]: 172-07 Pitfall 5 verdict: the firmware .github-only merge will NOT fire build.yml or cut a release. — Measured from origin/main's own tree: build.yml already excludes .github/** in paths-ignore, and py32f071.yml does not exist on main at all -- both independently sufficient, confirmed via zero check-runs read twice and zero workflow_runs for the branch.
 
 ## Performance Metrics
 
@@ -3153,11 +3162,34 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 168 P11 | 25min | 3 tasks | 5 files |
 | Phase 168 P12 | 35min | 3 tasks | 8 files |
 | Phase 168 P13 | 45min | 3 tasks | 6 files |
+| Phase 171 P01 | 55min | 3 tasks | 2 files |
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 172 P01 | 3min | 3 tasks | 6 files |
+| Phase 172 P02 | 15 min | 3 tasks | 6 files |
+| Phase 172 P03 | 40min | 2 tasks | 5 files |
+| Phase 172 P04 | 15min | 3 tasks | 7 files |
+| Phase 172 P06 | 62min | 3 tasks | 3 files |
+| Phase 172 P07 | 15min | 3 tasks | 3 files |
+| Phase 173 P06 | 25min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-31T12:13:23.145Z
-**Stopped at:** Completed 168-13-PLAN.md — Phase 168 CLOSED
+**Last session:** 2026-09-02T15:15:00.000Z
+**Stopped at:** Completed 173-06-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-05-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-03-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-04-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-02-PLAN.md
+**Was (superseded, retained for continuity):** Phase 173 PLANNED — 9 plans, 26 tasks, 5 waves; plan-checker passed, requirements 2/2 and decisions 13/13 covered; NOT auto-advanced to execute (outward-facing operator gates)
+**Was (superseded, retained for continuity):** Phase 173 context gathered
+**Was (superseded, retained for continuity):** Completed 172-04-PLAN.md
+**Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
+**Was (superseded, retained for continuity):** Phase 171 context gathered
+**Was (superseded, retained for continuity):** Completed 168-13-PLAN.md — Phase 168 CLOSED
 **Was (superseded, retained for continuity):** Phase 168 context gathered
 **Was (superseded, retained for continuity):** Completed 162-06-PLAN.md (plan 162-07 executed but never summarised — the sweep stopped mid-plan on operator direction; plans 162-08/09/10 never ran)
 **Was (superseded, retained for continuity):** Completed 160-12-PLAN.md (BRINGUP-wrv: write-read-verify oracle exercised on silicon for the first time -- clean SHA match over the full 65536B device size against the written image, three v1.33-arm reads agreeing with each other AND with the written image, app's unjudged verdict agreeing too; RIG-04 marked complete). Open item (not a blocker): a stray ~/.firestarter directory (traced circumstantially to an unlogged plan-11 invocation) still exists on the container filesystem outside git; the frozen FIRESTARTER_CONFIG_DIR itself is independently confirmed unchanged (D-07 holds). A plan-authoring defect (a literal-string mismatch) was found and worked around in 160-12's own Task 2 verify leg -- see 160-12-SUMMARY.md.
@@ -3195,7 +3227,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/173-close-beta-cut-under-protection-close-procedure-honesty-ledg/173-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing

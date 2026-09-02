@@ -38,10 +38,10 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 
 ### Sub-repo READMEs — repo-scoped only
 
-- [ ] **REPO-01**: `firestarter/README.md` carries only firmware-specific information and links to `firestarter_prom` for everything else.
-- [ ] **REPO-02**: `firestarter_app/README.md` carries only app-specific information and links to `firestarter_prom` for everything else.
-- [ ] **REPO-03**: Each sub-repo README is short enough to read in one sitting — assessed by judgement at review, deliberately not against a line-count ceiling. (They are 151 and 779 lines today, for reference only; the number is not the criterion.)
-- [ ] **REPO-04**: The PyPI listing built from `firestarter_app/README.md` still names the project, gives the install command, links to the documentation, and states the license — the accepted thinning does not become an unusable package page.
+- [x] **REPO-01**: `firestarter/README.md` carries only firmware-specific information and links to `firestarter_prom` for everything else.
+- [x] **REPO-02**: `firestarter_app/README.md` carries only app-specific information and links to `firestarter_prom` for everything else.
+- [x] **REPO-03**: Each sub-repo README is short enough to read in one sitting — assessed by judgement at review, deliberately not against a line-count ceiling. (They are 151 and 779 lines today, for reference only; the number is not the criterion.)
+- [x] **REPO-04**: The PyPI listing built from `firestarter_app/README.md` still names the project, gives the install command, links to the documentation, and states the license — the accepted thinning does not become an unusable package page.
 
 ### Migration — emptying `doc/`
 
@@ -52,21 +52,21 @@ Full record, including what survives of Phase 167 and why: [`notes/v135-wiki-onl
 
 ### Legacy — correcting what is already wrong
 
-- [ ] **LEGACY-01**: No documentation page sends a reader to an issue tracker that is disabled — the six links into `henols/firestarter/issues` and `henols/firestarter_app/issues` are gone.
-- [ ] **LEGACY-02**: The app README's table of contents lists exactly the sections the document contains — today it advertises `Id`, `Vpe` and `Hw`, none of which exist, and omits `List`, `Search` and `VCC`, which do.
-- [ ] **LEGACY-03**: No README opens with accumulated breaking-change notices ahead of its install instructions; the v1.10 / v1.20 / v1.32 history is reachable on the wiki instead.
-- [ ] **LEGACY-04**: `firestarter_app/things.md` — a six-line scratch note about finding avrtools on Windows — is either a real wiki page or deleted.
-- [ ] **LEGACY-05**: `firestarter_app/SECURITY.md` is a genuine security policy or is removed; a GSD Phase 69 audit record no longer occupies the path GitHub reads as the repository's security policy.
+- [x] **LEGACY-01**: No documentation page sends a reader to an issue tracker that is disabled — the six links into `henols/firestarter/issues` and `henols/firestarter_app/issues` are gone.
+- [x] **LEGACY-02**: The app README's table of contents lists exactly the sections the document contains — today it advertises `Id`, `Vpe` and `Hw`, none of which exist, and omits `List`, `Search` and `VCC`, which do.
+- [x] **LEGACY-03**: No README opens with accumulated breaking-change notices ahead of its install instructions; the v1.10 / v1.20 / v1.32 history is reachable on the wiki instead.
+- [x] **LEGACY-04**: `firestarter_app/things.md` — a six-line scratch note about finding avrtools on Windows — is either a real wiki page or deleted.
+- [x] **LEGACY-05**: `firestarter_app/SECURITY.md` is a genuine security policy or is removed; a GSD Phase 69 audit record no longer occupies the path GitHub reads as the repository's security policy.
 - [x] **LEGACY-06**: No user-facing documentation page is titled or framed as a GSD phase artifact — `pinout-safety-review.md` ("Phase 58") and `sram-nvram-behavior.md` ("Phase 59") read as reference material or do not ship.
-- [ ] **LEGACY-07**: `firestarter_app/autocomplete.md` is folded into the app README or the wiki rather than sitting loose at the repository root.
+- [x] **LEGACY-07**: `firestarter_app/autocomplete.md` is folded into the app README or the wiki rather than sitting loose at the repository root.
 
 ### Policy — Backlog 999.13 in full
 
-- [ ] **POLICY-01**: The documentation states plainly that `firestarter_prom` is the only issue tracker, that `firestarter` and `firestarter_app` have Issues disabled, and that pull requests go to the repository containing the changed code.
-- [ ] **POLICY-02**: `firestarter_prom` offers issue templates covering at least a bug report, a feature request, and a `dev test` chip-validation report.
-- [ ] **POLICY-03**: `main` in all three repositories is behind a ruleset whose enforcement is **active** — pull request required, no direct push, no force-push, no deletion. (`firestarter` has such a ruleset today with enforcement **disabled**; the other two have none.)
-- [ ] **POLICY-04**: The `beta` lockstep cut still works under those rulesets, demonstrated rather than assumed — this project's milestone convention pushes `beta`, not `main`.
-- [ ] **POLICY-05**: The GSD close procedure is updated for PR-only `main`, either as a PR flow or a documented admin bypass, so `/gsd-complete-milestone` does not break at the next close.
+- [x] **POLICY-01**: The documentation states plainly that `firestarter_prom` is the only issue tracker, that `firestarter` and `firestarter_app` have Issues disabled, and that pull requests go to the repository containing the changed code.
+- [x] **POLICY-02**: `firestarter_prom` offers issue templates covering at least a bug report, a feature request, and a `dev test` chip-validation report.
+- [x] **POLICY-03**: `main` in all three repositories is behind a ruleset whose enforcement is **active** — pull request required, no direct push, no force-push, no deletion. (`firestarter` has such a ruleset today with enforcement **disabled**; the other two have none.)
+- [x] **POLICY-04**: The `beta` lockstep cut still works under those rulesets, demonstrated rather than assumed — this project's milestone convention pushes `beta`, not `main`. *(Marked complete on the probe alone, per D-03 — see `evidence/173-09-closing-sweep.txt` criterion 1. Whether a full lockstep cut was additionally performed is recorded separately in this phase's Task 3 evidence and does not change this mark.)*
+- [x] **POLICY-05**: The GSD close procedure is updated for PR-only `main`, either as a PR flow or a documented admin bypass, so `/gsd-complete-milestone` does not break at the next close. *(Documented PR flow delivered by construction; no admin bypass exists to document — `current_user_can_bypass` is `never` on all three rulesets. See `evidence/173-09-closing-sweep.txt` criterion 2.)*
 
 ### Honesty — claims survive the move unchanged
 
@@ -165,21 +165,21 @@ Populated during roadmap creation.
 | FRONT-02 | Phase 169 | **Not met — superseded 2026-08-31** |
 | FRONT-03 | Phase 169 | Complete |
 | FRONT-04 | Phase 169 | Complete |
-| REPO-01 | Phase 170 | Pending |
-| REPO-02 | Phase 170 | Pending |
-| REPO-03 | Phase 170 | Pending |
-| REPO-04 | Phase 170 | Pending |
-| LEGACY-02 | Phase 170 | Pending |
-| LEGACY-03 | Phase 170 | Pending |
-| LEGACY-04 | Phase 171 | Pending |
-| LEGACY-05 | Phase 171 | Pending |
-| LEGACY-07 | Phase 171 | Pending |
-| POLICY-01 | Phase 172 | Pending |
-| POLICY-02 | Phase 172 | Pending |
-| POLICY-03 | Phase 172 | Pending |
-| LEGACY-01 | Phase 172 | Pending |
-| POLICY-04 | Phase 173 | Pending |
-| POLICY-05 | Phase 173 | Pending |
+| REPO-01 | Phase 170 | Complete |
+| REPO-02 | Phase 170 | Complete |
+| REPO-03 | Phase 170 | Complete |
+| REPO-04 | Phase 170 | Complete |
+| LEGACY-02 | Phase 170 | Complete |
+| LEGACY-03 | Phase 170 | Complete |
+| LEGACY-04 | Phase 171 | Complete |
+| LEGACY-05 | Phase 171 | Complete |
+| LEGACY-07 | Phase 171 | Complete |
+| POLICY-01 | Phase 172 | Complete |
+| POLICY-02 | Phase 172 | Complete |
+| POLICY-03 | Phase 172 | Complete |
+| LEGACY-01 | Phase 172 | Complete |
+| POLICY-04 | Phase 173 | Complete — on the probe, per D-03 |
+| POLICY-05 | Phase 173 | Complete |
 
 **Coverage:**
 

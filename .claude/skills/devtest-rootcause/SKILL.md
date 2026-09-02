@@ -1,13 +1,13 @@
 ---
 name: devtest-rootcause
-description: Investigate the firestarter code behind a triaged `dev test` chip failure and fix the real defect — a decode bug in the database generator, or a genuine bug in the host app or firmware. Knows that chip_database.json is generated and must never be hand-edited. Use when asked to investigate why an EPROM fails, root-cause a dev test issue, fix a chip's pinout or protocol or VPP, correct the database generator, act on the datasheet findings left on an issue, or make a chip like at28c256 or w27e257 work.
+description: Investigate the firestarter code behind a triaged `dev test` chip failure and fix the real defect — a decode bug in the database generator, or a genuine bug in the host app or firmware — then report the fix on the issue with the artefact versions carrying it and a fix:committed / fix:released label. Knows that chip_database.json is generated and must never be hand-edited. Use when asked to investigate why an EPROM fails, root-cause a dev test issue, fix a chip's pinout or protocol or VPP, correct the database generator, act on the datasheet findings left on an issue, say which version fixes a chip, or make a chip like at28c256 or w27e257 work.
 ---
 
 # Root-cause a `dev test` failure in the code
 
 Takes the datasheet findings `devtest-triage` left on an issue and turns them into a
-fix in the **right** file. The hard part is not the fix, it is knowing which files may
-be edited at all.
+fix in the **right** file, then reports on the issue which artefact versions carry that
+fix. The hard part is not the fix, it is knowing which files may be edited at all.
 
 **Self-contained.** `scripts/infoic_lookup.py` is stdlib-only and owns its decode
 tables outright — it never imports `build_db.py`, so it works even with
@@ -19,13 +19,20 @@ the thing being fixed — exactly like `pytest` or `pio run`. A skill must not
 reimplement or shadow them; regenerating the database means running the real generator.
 
 ```bash
-APP=/workspaces/firestarter_app
-FW=/workspaces/firestarter
-S=/workspaces/.claude/skills/devtest-rootcause/scripts
+# ROOT works from anywhere in the checkout, including inside either submodule.
+ROOT=$(git rev-parse --show-superproject-working-tree 2>/dev/null)
+ROOT=${ROOT:-$(git rev-parse --show-toplevel)}
+
+APP=$ROOT/firestarter_app
+FW=$ROOT/firestarter
+S=$ROOT/.claude/skills/devtest-rootcause/scripts
 
 python3 $S/infoic_lookup.py AT28C256        # what upstream actually says about the chip
 python3 $S/infoic_lookup.py --check         # our tables still agree with build_db.py?
-python3 $S/seed_debug_session.py 32         # seed a GSD debug session from the issue
+python3 $S/seed_debug_session.py 21         # seed a GSD debug session from the issue
+
+grep VERSION $FW/include/version.h          # firmware version, for the §5 fix report
+grep __version__ $APP/firestarter/__init__.py   # host version, same
 ```
 
 ## The fix surface — read this before editing anything
@@ -45,20 +52,18 @@ python3 $S/seed_debug_session.py 32         # seed a GSD debug session from the 
 **The generator may not emit a field it cannot prove from `infoic.xml`.**
 
 Every value in a database entry must be *decoded from an attribute upstream actually
-carries*. Do not add invented fields, per-chip lookup tables keyed on part number, or
-hand-maintained override stacks. Three such guess tables were deliberately deleted in
-Phase 70; do not reintroduce the pattern under a new name.
+carries*. No invented fields, no per-chip lookup table keyed on part number, no
+hand-maintained override stack — under any name.
 
 If a chip decodes wrongly, the bug is in **how an existing attribute is interpreted**
 — `flags`, `voltages`, `protocol_id`, `variant`, `pin_map`, `type` — and the fix
 belongs in the function that interprets it. If the information genuinely is not in
 `infoic.xml`, the honest outcome is to report that, not to invent a field.
 
-> Known pre-existing exception, flagged rather than copied: `_PAGE_SIZE_BY_PART` in
-> `build_db.py` adds a `page_size` field from `[CITED:]` **datasheets**, not from
-> `infoic.xml`. It predates this rule and is the exact shape the rule forbids. Do not
-> extend it or add siblings to it. Upstream carries `infoic_page_size_raw` for this,
-> which is the principled seam if page size ever needs revisiting.
+> One exception exists: `_PAGE_SIZE_BY_PART` (`build_db.py:114`) adds `page_size` from
+> `[CITED:]` **datasheets**, not from `infoic.xml` — the exact shape this rule forbids.
+> Do not extend it or add siblings to it. Upstream carries `infoic_page_size_raw`, which
+> is the principled seam if page size ever needs revisiting.
 
 ## 1. See what upstream actually says
 
@@ -97,18 +102,14 @@ It reads the generator **as text** (`ast.literal_eval`, never importing or runni
 running it would regenerate the database) and exits 1 naming any key that disagrees.
 With `firestarter_app` absent it prints `SKIP` and exits 0; the lookup still works.
 
-**It fails CLOSED on a rename.** The generator's VPP table was `VPP_VOLTAGES` when this
-skill was written and is `VPP_MV` today, and the original check looked for the old name
-only — so from the rename onward it printed `WARN: ... not found` and exited **0**, and
-the one table most worth verifying was verified by nothing. A constant the check cannot
-find is now a DRIFT, not a warning, and the message names every name it tried
-(`GENERATOR_VPP_NAMES`). The owned table is held in **millivolts** to match the
-generator exactly, so the comparison is a plain dict equality with no string round-trip;
-`format_vpp()` does the `12000 -> "12V"` rendering at the print site.
+**It fails CLOSED on a rename.** A constant the check cannot find is a DRIFT, not a
+warning, and the message names every name it tried (`GENERATOR_VPP_NAMES`). The owned
+table is held in **millivolts** to match the generator exactly, so the comparison is a
+plain dict equality with no string round-trip; `format_vpp()` does the `12000 -> "12V"`
+rendering at the print site.
 
-Never "improve" a table value from memory. An earlier draft of this script guessed
-`0x80` as 18V when it is **13.5V**, which would have "proved" a decode bug in W27E257
-that does not exist. Transcribe, then run `--check`.
+Never "improve" a table value from memory — transcribe it from the generator, then run
+`--check`. A misremembered VPP index reads as a decode bug in a chip that has none.
 
 `--raw` dumps every attribute verbatim when you need one the decoder ignores.
 
@@ -171,14 +172,14 @@ Seed the session first — the whole point of the handoff is that the debugger i
 the datasheet work instead of redoing it:
 
 ```bash
-python3 $S/seed_debug_session.py 32                    # from the triaged issue
-python3 $S/seed_debug_session.py 32 --slug at28c256-sdp-write
+python3 $S/seed_debug_session.py 21                    # from the triaged issue
+python3 $S/seed_debug_session.py 21 --slug at28c256-sdp-write
 ```
 
 ```
-[debug] Session: /workspaces/.planning/debug/at28c256-sdp-write.md
-[debug] Status: investigating
-[debug] Carried over 5 eliminated hypotheses from triage
+[gsd] Session: <root>/.planning/debug/at28c256-sdp-write.md
+[gsd] Status: investigating
+[gsd] Carried over 6 eliminated hypotheses from triage
 ```
 
 It reads the issue and the `devtest-triage` comment, then writes a standard GSD debug
@@ -233,12 +234,12 @@ change from the regen-and-diff proof.
 to use the skill, so the seeder detects and degrades:
 
 ```bash
-python3 $S/seed_debug_session.py 32 --mode standalone   # force it either way
+python3 $S/seed_debug_session.py 21 --mode standalone   # force it either way
 ```
 
 ```
 [standalone] Investigation record: gsdless/devtest-investigations/at28c256-sdp.md
-[standalone] Carried over 5 eliminated hypotheses from triage
+[standalone] Carried over 6 eliminated hypotheses from triage
 [standalone] GSD not detected — emitting a plain investigation prompt with no gsd-debugger dependency.
 ```
 
@@ -300,16 +301,88 @@ cd $FW && pio run -e uno && pio test
 A firmware protocol change cannot be validated without a chip on the bench. Say that
 explicitly rather than implying the fix is confirmed.
 
-## 5. Close the loop
+## 5. Report the fix on the issue
 
-Report on the issue what changed and what remains unproven:
+A code change is not a validation. What closes a `dev test` issue is a fresh PASS
+report from the reporter's bench — and only `devtest-triage` closes it, against the
+three-leg supersede test in its §3a. Leg 2 of that test compares **artefact versions**,
+so a fix comment that does not name them cannot be acted on: the reporter does not know
+what to install, and a later PASS cannot be shown to post-date the fix.
+
+So the deliverable here is a comment naming **which artefact versions carry the fix**,
+plus the label that says whether anyone can test it yet.
+
+### Read every version, never state one from memory
+
+| Artefact | Version lives in | How it appears in a report |
+|---|---|---|
+| Firmware | `$FW/include/version.h` → `VERSION` | the `firmware` row, rendered `VERSION:board` by `FW_VERSION` |
+| Host app | `$APP/firestarter/__init__.py` → `__version__` | the `host` row |
+| Chip database | **no version of its own** | it is regenerated into the host package, so a database fix ships under the host version above |
+
+That third row is the one that catches people. A `build_db.py` or `pinouts.json` fix has
+no version of its own to cite — cite the host release that will carry it.
 
 ```bash
-gh issue comment 32 --repo henols/firestarter_prom --body-file /tmp/fix.md
+grep VERSION $FW/include/version.h
+grep __version__ $APP/firestarter/__init__.py
+git -C $FW log --oneline -3          # the commits carrying the fix
+git -C $APP log --oneline -3
 ```
 
-Leave the issue **open** until a fresh `dev test` run passes on hardware — a code fix
-is not a validation. Only `devtest-triage` closes issues, and only on a PASS report.
+### Post it
+
+```bash
+gh issue comment 45 --repo henols/firestarter_prom --body-file /tmp/fix.md
+```
+
+Template — keep the artefact table even when a row is empty, because "the host is not
+involved" is itself a finding:
+
+```markdown
+### Fix — <one line saying what was wrong>
+
+**Root cause:** <the mechanism, in the code, at file:line>
+
+| Artefact | Commits | Version carrying the fix |
+|---|---|---|
+| Firmware | `1e8bbae`, `a218b4f` (fw#56 → `beta`) | none yet — later than `3.0.0b22` |
+| Host app | — | — (not involved) |
+| Chip database | — | — (not involved) |
+
+**Proof:** <the gate output that showed it works — diff_db.py, pytest, pio test>
+**Unproven:** <what needs a chip on the bench>
+
+**To re-test:** install firmware <version> and host <version>, then
+`firestarter dev test <chip>`. A PASS on those versions closes this issue.
+```
+
+### Label it
+
+| State | Label | Means |
+|---|---|---|
+| Commits exist, no release carries them | `fix:committed` | Nobody can test it yet. Say which release will carry it if you know |
+| A released version carries the fix | `fix:released` | The reporter can act — re-running `dev test` on that build is what closes this |
+
+```bash
+gh issue edit 45 --repo henols/firestarter_prom --add-label fix:committed
+```
+
+Move the label from `fix:committed` to `fix:released` when the release lands — that
+transition is the signal to the reporter, so do not leave it stale:
+
+```bash
+gh issue edit 45 --repo henols/firestarter_prom \
+  --remove-label fix:committed --add-label fix:released
+```
+
+Both labels come from the shared taxonomy;
+`python3 $ROOT/.claude/skills/devtest-triage/scripts/devtest_issues.py labels`
+creates it if the tracker does not have it yet.
+
+Leave the issue **open** either way. A fix you have proven in CI is still unproven on
+the reporter's hardware, and that gap is exactly what the label and the version
+references exist to close.
 
 ## Hard rules
 
@@ -331,6 +404,12 @@ is not a validation. Only `devtest-triage` closes issues, and only on a PASS rep
 - Any prompt handed to a debugger must carry the fix-surface rules. It has Write access
   and does not otherwise know the database is generated. `seed_debug_session.py`
   includes them; if you hand-write a prompt, include them yourself.
+- **A fix is not reported until the artefact versions are on the issue** (§5). Name the
+  firmware and host versions read from `version.h` and `__init__.py`, and label
+  `fix:committed` or `fix:released`. Without them the reporter cannot know what to
+  install, and `devtest-triage` cannot show a later PASS post-dates the fix.
+- Never close a `dev test` issue from this skill. A code change is not a validation —
+  only a PASS report closes one, via `devtest-triage`.
 
 ## Troubleshooting
 
@@ -346,5 +425,8 @@ is not a validation. Only `devtest-triage` closes issues, and only on a PASS rep
 | Debugger edited `chip_database.json` | Its prompt lacked the fix-surface rules. Revert, reseed with `seed_debug_session.py`, respawn |
 | Session manager returns "waiting…" and nothing changed | Known devcontainer failure. Spawn `gsd-debugger` directly instead (§3) |
 | `seed_debug_session.py` refuses a PASS issue | Correct — a PASS goes to `devtest-triage` to be closed and logged |
+| `gh: 'fix:committed' not found` | The shared taxonomy is not created on this tracker — run `devtest_issues.py labels` from `devtest-triage/scripts` |
+| A fix landed but the issue still says `fix:committed` | The release shipped and nobody moved the label. Swap it to `fix:released` and post the version that carries it (§5) |
+| Reporter asks "which version has the fix?" | §5's comment was skipped or omitted the artefact table. Read the versions from `version.h` and `__init__.py` — never from memory — and post it |
 | `--check` reports DRIFT | `build_db.py` changed. Update the table in `infoic_lookup.py` to match the generator — the generator is authoritative, not this script |
 | `--check` says "no VPP table found under any known name" | The generator renamed the table again. Find the new name, prepend it to `GENERATOR_VPP_NAMES`, then **re-verify every value** — a rename and a value change can arrive in the same commit |

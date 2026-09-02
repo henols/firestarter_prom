@@ -25,7 +25,7 @@ declares both code sub-projects as gitlinks pointing at independent GitHub repos
 
 The meta-repo itself tracks only planning and agent-tooling artifacts — `.planning/`,
 `.claude/skills/` (hand-authored skills only), `.devcontainer/`, `.github/`, `.vscode/`,
-`tools/`, `CLAUDE.md`, `.gitignore`, `.gitmodules`. Everything else at the root is
+`tools/`, `wiki/`, `CLAUDE.md`, `.gitignore`, `.gitmodules`. Everything else at the root is
 gitignored local state. Evidence: `.gitmodules` (the two gitlinks) and `.gitignore`
 (`.claude/*` with `!.claude/skills/`, plus the generated `platformio.ini`, `.pio/`,
 `graphify-out/`, extra worktrees, and bench artifacts).
@@ -60,7 +60,9 @@ directories empty.
 │   ├── post-create.sh                #   provisioning: platformio.ini, pip -e, pio pkg, graphify
 │   ├── gen-platformio-ini.py         #   emits the gitignored root platformio.ini
 ├── .github/workflows/
-│   └── catalog-sync-check.yml        # TRACKED — the repo's ONLY workflow
+│   ├── catalog-sync-check.yml        # TRACKED — guards cross-sub-repo catalog identity
+│   ├── wiki-check.yml                # TRACKED — offline wiki source integrity + selftest
+│   └── wiki-publish.yml              # TRACKED — publishes wiki/ to the GitHub wiki on beta
 ├── .vscode/                          # TRACKED — mostly PlatformIO-generated
 │   ├── c_cpp_properties.json         #   AUTO-GENERATED; /home/henrik/... host paths
 │   ├── launch.json                   #   AUTO-GENERATED; 3 platformio-debug configs (uno)
@@ -68,6 +70,8 @@ directories empty.
 │   └── extensions.json               #   recommends platformio-ide; unwants cpptools pack
 ├── .planning/                        # TRACKED — the durable project record
 ├── tools/catalog/messages.toml       # TRACKED — authoritative message catalog (CI-asserted)
+├── tools/wiki/                       # TRACKED — wiki publish/check tooling (wiki.py, selftest.sh)
+├── wiki/                             # TRACKED — in-repo source for the firestarter_prom wiki
 ├── CLAUDE.md                         # TRACKED — agent onboarding brief (48 lines)
 ├── .gitmodules                       # TRACKED
 ├── .gitignore                        # TRACKED
@@ -120,7 +124,7 @@ under `.planning/v1.7/**` except `*.md` (raw chat dumps and photo binaries stay 
 | Container definition | `.devcontainer/devcontainer.json`, `.devcontainer/Dockerfile` |
 | Provisioning steps | `.devcontainer/post-create.sh` |
 | Root PlatformIO wrapper generator | `.devcontainer/gen-platformio-ini.py` |
-| CI | `.github/workflows/catalog-sync-check.yml` |
+| CI | `.github/workflows/catalog-sync-check.yml`, `.github/workflows/wiki-check.yml`, `.github/workflows/wiki-publish.yml` |
 | Firmware debug launch | `.vscode/launch.json` |
 | Firmware IntelliSense include paths | `.vscode/c_cpp_properties.json` |
 
