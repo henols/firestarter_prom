@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 status: executing
-stopped_at: Completed 173-03-PLAN.md
-last_updated: "2026-09-02T14:30:00.000Z"
+stopped_at: Completed 173-05-PLAN.md
+last_updated: "2026-09-02T14:44:26.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 plan 03 complete — operator authorized the D-02 ruleset rejection probe, then pushed a true-fast-forward empty commit at protected main in all three repositories (firestarter_prom, firestarter, firestarter_app), each rejected with GitHub's own GH013 rule-violation text naming the pull-request requirement (verdict PASS ×3), paired with an accepted-then-deleted push to a throwaway ref proving the rulesets scope to the default branch only. Rulesets proven field-for-field unchanged before/after at their original ids; no ruleset-probe branch survives on any remote. Verdict record states plainly that no beta lockstep cut is claimed by this probe.
+last_activity_desc: Phase 173 plan 05 complete — operator authorized (evidence/173-05-operator-approval.txt) the D-09 wiki footer push; the six generated provenance footers (Programming-Protocols, Shield-Revisions, Install-Beta, Testing-Chips, Lockable-PROMs, Shell-Completion) were emitted into a working clone, the full four-checker suite ran green against it before pushing (honest02_truth.py leg 1 held at 5 matched/0 missing), then exactly one commit (d7073f6) was pushed to firestarter_prom.wiki.git touching exactly those six pages. An independent fresh clone taken after the push re-confirmed all four checkers green, HEAD matching the pushed SHA, 12 Markdown files, and both footer variants correctly distributed. ROADMAP.md and REQUIREMENTS.md provably untouched.
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 41
-  completed_plans: 36
-  percent: 88
+  completed_plans: 37
+  percent: 90
 ---
 
 # Project State
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
-Plan: 4 of 9 complete (01, 02, 03, 04 — plans 05-09 remaining)
-Status: Executing Phase 173 — plans 01, 02, 03, 04 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review), plans 05-09 remaining
-Last activity: 2026-09-02 — Completed 173-03-PLAN.md. Operator authorized (evidence/173-03-operator-approval.txt) the D-02 ruleset rejection probe; pushed a true-fast-forward empty commit at protected `main` in firestarter_prom, firestarter and firestarter_app, each rejected by GitHub's own GH013 rule-violation text naming the pull-request requirement (verdict PASS x3), each paired with an accepted-then-deleted push to a throwaway ref proving the rulesets are scoped to the default branch and not the whole repository. Rulesets proven field-for-field identical before/after at their original ids (22043478 / 4998759 / 22046179); no ruleset-probe branch survives on any of the three remotes. Verdict record (evidence/173-03-probe-verdict.md) states plainly that no beta lockstep cut is claimed by this probe and that the corroborating branch-rules read is context, not the discharge. ROADMAP.md and REQUIREMENTS.md provably untouched across the plan's three commits.
+Plan: 5 of 9 complete (01, 02, 03, 04, 05 — plans 06-09 remaining)
+Status: Executing Phase 173 — plans 01, 02, 03, 04, 05 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review; six generated provenance footers published to firestarter_prom.wiki.git and independently re-verified from a fresh clone), plans 06-09 remaining
+Last activity: 2026-09-02 — Completed 173-05-PLAN.md. Operator authorized (evidence/173-05-operator-approval.txt) the D-09 wiki footer push via menu selection `publish`, no added note. The six generated footers were emitted into a working clone (exactly six pages changed, neither _Sidebar.md nor Home.md), the full four-checker suite ran green against that clone before pushing (honest02_truth.py leg 1 held at 5 matched/0 missing, the RESEARCH.md baseline), then exactly one commit (d7073f64c81e5206372d81072623369499429377) was pushed to firestarter_prom.wiki.git's master branch touching exactly those six pages. A second, independent fresh clone taken after the push re-ran all four checkers (all green), confirmed HEAD matched the pushed SHA, 12 Markdown files (no page added), and both footer variants (2 moved-intact, 4 post-move-edited) verbatim and correctly distributed. Recorded that the guard is not yet running in CI (plan 173-06 registers the leg). ROADMAP.md and REQUIREMENTS.md provably untouched across the plan's four commits, checked against both HEAD~3 and the pre-session baseline aa7e665a.
 
 ## Roadmap Summary (v1.35)
 
@@ -3176,8 +3176,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-02T14:30:00.000Z
-**Stopped at:** Completed 173-03-PLAN.md
+**Last session:** 2026-09-02T14:44:26.000Z
+**Stopped at:** Completed 173-05-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-02-PLAN.md
 **Was (superseded, retained for continuity):** Phase 173 PLANNED — 9 plans, 26 tasks, 5 waves; plan-checker passed, requirements 2/2 and decisions 13/13 covered; NOT auto-advanced to execute (outward-facing operator gates)
