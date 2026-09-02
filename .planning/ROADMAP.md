@@ -5194,6 +5194,33 @@ Run id `33447867312`, workflow name `Catalog sync check`, conclusion `failure`, 
 
 ---
 
+### Phase 999.48: `wiki-check.yml` is registered on `firestarter_prom`'s `main` but `tools/wiki/` is not — every checker leg it runs is unresolvable there (BACKLOG — filed 2026-09-02 during v1.35 Phase 173)
+
+**Goal:** Put the four checker scripts `wiki-check.yml` invokes onto `firestarter_prom`'s `main`, so the registered workflow can actually execute rather than dying on a missing path.
+
+**Filed, not fixed, on purpose.** Phase 173's scope was the close: the probe, the config repoint, the upstream replies, the footers and the ledger. This finding surfaced during plan 173-06's pull-request work and is recorded in `.planning/v1.35/CLOSE-RECORD.md` ledger row **L21**. It originates in **Phase 172's `prom#54`**, which merged `wiki-check.yml` to `main` without the tree it depends on — it is carried by this milestone, not caused by this phase.
+
+**The measured mechanism.** `.github/workflows/wiki-check.yml` is on `main` and registered with Actions (workflow id `348256804`, name `Wiki check`, state `active`). Its steps invoke four scripts under `meta/tools/wiki/`, where `meta` is the checked-out meta repository:
+
+- `meta/tools/wiki/wiki.py links` — the WIKI-05 reachability leg.
+- `meta/tools/wiki/honest02_truth.py` with `meta/tools/wiki/claim-allowlist.json` — the HONEST-02 truth leg.
+- `meta/tools/wiki/dispatch_mirror.py` — the dispatch-mirror leg.
+- `meta/tools/wiki/provenance_footers.py` with `meta/tools/wiki/MIGRATION-TABLE.md` — the provenance-footer leg added by Phase 173 plan 173-06.
+
+`main` carries none of them. Re-confirmed 2026-09-02: `GET /repos/henols/firestarter_prom/contents/tools/wiki?ref=main` returns `404`, and `GET …/contents/tools?ref=main` lists `catalog` alone.
+
+**Consequence.** The workflow's first step (`LEGACY-01 dead tracker link check`) is pure shell and would run. The **second** (`WIKI-05 reachability check`) is the first to invoke a Python file that does not exist, so the job fails there and the two legs after it — plus Phase 173's new provenance-footer leg — never execute. This has never been observed because `gh run list --workflow 'Wiki check'` returns zero rows: the workflow has a weekly `schedule` trigger and has not yet fired. It is therefore not merely "registered but unproven" (Phase 172's NON-CLAIM 3) but **registered and unrunnable as it stands**.
+
+**Partial remedy already in flight.** `henols/firestarter_prom#55`, opened by plan 173-06 and left **open and unmerged** by operator decision, carries `provenance_footers.py` and `MIGRATION-TABLE.md`. Merging it fixes two of the six missing files and nothing else; the job would still fail earlier, at WIKI-05.
+
+**Chosen fix.** Land the whole of `tools/wiki/` on `main` — `wiki.py`, `honest02_truth.py`, `dispatch_mirror.py`, `claim-allowlist.json`, `claim-vocabulary.json` and `selftest.sh` alongside the two already in `prom#55` — as one pull request into the protected branch, then trigger the workflow once by `workflow_dispatch` rather than waiting a week for the cron to reveal whether it works. This is recommended over trimming `wiki-check.yml`'s legs down to what `main` carries: the legs are the guards HONEST-02 and WIKI-05 were built to be, and deleting them to make a red workflow green would retire the checks rather than fix the deployment.
+
+**Rejected candidate.** *Wait for the milestone merge to carry `tools/wiki/` to `main` on its own.* It would eventually work, but it leaves a registered workflow on the default branch that fails on every scheduled run in the meantime, and it makes the first green run an accident of merge timing rather than something anyone verified.
+
+**Test surface.** What would have to be proven: a `workflow_dispatch` run of `Wiki check` on `main` completing with conclusion `success`, with all four checker legs reporting their own `OK:` line — not a run that merely stops failing because a leg was removed. `gh run list --repo henols/firestarter_prom --workflow 'Wiki check'` must show that run against `main`.
+
+---
+
 ### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)
 
 > **PROMOTED.** The four items below (999.4–999.7) were promoted via `/gsd-new-milestone v1.14`
