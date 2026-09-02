@@ -22,6 +22,19 @@ observed count exactly (**13 predicted, 13 observed**). Its per-connect *cost*
 is unmeasured: `/dev/ttyACM0` was in use during the session, so the model reports
 counts only and no seconds are attributed to connection overhead anywhere below.
 
+**⚠ Correction, second data point, same day.** An `AM27C020` run (262144 B,
+protocol `0x08`, same Leonardo) read at **7.0 KB/s** — 37.24s and 37.22s across
+two runs — against the **8.7 KB/s** this model derives from the 64 KiB `0x07`
+part. **Read rate varies by protocol, not only by size**, and the model
+therefore *over-predicts* read speed by ~24% on `0x08`. Every read-derived
+figure below and in the companion script is a `0x07` figure. The direction of
+the error is safe for the argument the model is used to make — reads are even
+more dominant than stated — but no absolute second-count here should be quoted
+for a non-`0x07` part without re-measuring. The same run also invalidates its
+own total as a comparison point: it aborted after one cycle (see the write-init
+blank-check defect, Backlog 999.44), so its 114.0s is not the modelled 99.6s
+two-cycle run.
+
 ## Measured primitives (65536 B part)
 
 | Primitive | Time | Effective rate | Wire direction |
