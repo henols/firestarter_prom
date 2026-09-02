@@ -1333,3 +1333,108 @@ have measured — the 32-bit voltage reformulation (Phase 155) and the `flash_5v
 - Notable: the size work itself (Phases 155–158, four phases, 26 plans) was cheap and almost entirely
   mechanical, because the implementation already existed as a measured patch before the milestone opened.
   The expensive half was the bookkeeping the sweep created.
+
+---
+
+## Milestone: v1.35 — Documentation Consolidation & Wiki Migration
+
+**Shipped:** 2026-09-02
+**Phases:** 7 (167–173) | **Plans:** 41 | 29/32 v1 requirements | `override_closeout`
+
+### What Was Built
+
+The `firestarter_prom` wiki as the documentation home — 11 pages, indexed from `Home` and a
+hand-written `_Sidebar` — and `firestarter_prom`'s first README. All 12 migrating `doc/` files moved
+by copy-then-edit with a bounded edit set and proven claim-preserving; **both sub-repo `doc/`
+directories deleted** (fw 3 files, app 10). Both sub-repo READMEs cut to repo scope. Three root-level
+strays disposed. Policy made enforceable rather than merely stated: one tracker, three issue templates,
+byte-identical `.github/CONTRIBUTING.md` pointers, and `enforcement: active` rulesets on `main` in all
+three repositories. `git.base_branch` repointed to `beta` so the close procedure survives that
+protection.
+
+### What Worked
+
+- **Proving protection by rejection rather than by read-back.** Phase 173 pushed a true fast-forward
+  empty commit at protected `main` in all three repositories and captured GitHub's own GH013 refusal.
+  An API read of the ruleset would have proven only that a configuration exists. The pull-request route
+  was then demonstrated by actually merging four times.
+- **Finding the collection-time landmine before stepping on it.** `test_dispatch_mirror.py` called
+  `fw_path("doc", "PROTOCOLS.md")` at *module scope*, so deleting `firestarter/doc/` would have aborted
+  the entire app test suite at collection — every leg, not one. It was located and severed in 168-04,
+  ahead of the 168-07 deletion.
+- **Writing the closing sweep before flipping the boxes.** Phase 172's
+  `evidence/172-09-closing-sweep.txt` opens by saying it exists so the marks follow the evidence rather
+  than the reverse, because this project has previously seen executors tick a multi-plan requirement
+  ahead of its evidence. That ordering is why 172's marks survived scrutiny at close even though no
+  verifier ever ran over it.
+- **Fixing a procedure by construction before it broke.** POLICY-03 would have broken the next
+  `/gsd-complete-milestone`. POLICY-05 was discharged by *configuration with a distinguishing
+  read-back* — not by a document the tooling ignores — and incidentally corrected three fork-point
+  consumers that had been branching every new phase and quick task off the wrong ref.
+
+### What Was Inefficient
+
+- **Phase 167 built a complete publish pipeline that Phase 168 deleted a day later.** In-repo markdown
+  source, one-command publish, a working drift check, a CI workflow, six plans — all shipped and
+  proven, then retired on 2026-08-30 when the operator chose wiki-only authoring. The authoring model
+  was a decidable question that was left open while machinery was built on one answer.
+- **The guard was retired the day the milestone closed.** `wiki-check.yml` and every checker under
+  `tools/wiki/` — 2,558 lines — were deleted on 2026-09-02 as disproportionate to an 11-page wiki.
+  Two milestones' worth of checker-building produced one surviving file, `MIGRATION-TABLE.md`.
+- **Phases 169 and 170 were executed ad hoc, and the cleanup cost more than the machinery would have.**
+  Direct commits, no plans, no summaries, no phase directory, no verifier pass. The result is a
+  permanent record gap, a reconciliation note written to explain it, ROADMAP and REQUIREMENTS that
+  disagreed until someone noticed, and a paragraph in every close artifact since.
+- **Phase 172 finished its work and then sat unrecorded.** Nine plans, nine summaries, 26 evidence
+  files — and its ROADMAP checkboxes stayed unticked because the write was assigned to "the
+  orchestrator" by a plan that then ended. It was still outstanding at milestone close and had to be
+  done here.
+
+### Patterns Established
+
+- **Bidirectional provenance footers** (`tools/wiki/provenance_footers.py`, since retired): generate
+  and verify from one table, so a page and its source record cannot drift apart silently.
+- **Claim-token multiset comparison as a relocation oracle.** Compare the *multiset* of claim tokens
+  between `git show <sha>:<path>` and the published page, and demonstrate the check RED on a
+  deliberately weakened claim before trusting its GREEN.
+- **The distinguishing read-back.** When verifying a configuration flip, choose a probe whose value
+  *differs* before and after. `--is-protected main` read `true` both times and would have proven
+  nothing; `git.base-branch` moving `main` → `beta` and `--is-protected beta` moving `false` → `true`
+  are what actually demonstrated the change.
+- **Fresh-clone verification.** Every wiki claim was re-checked from an independent clone rather than
+  the working copy that made the edits.
+
+### Key Lessons
+
+- **Settle the authoring model before building the pipeline.** The reversal cost six plans of proven,
+  working machinery. Nothing about the reversal was unforeseeable — it was a simplicity preference
+  that could have been asked for at activation.
+- **Machinery must be proportionate to what it guards, and that judgement belongs at activation.**
+  2,558 lines of checkers over an 11-page hand-edited wiki was the wrong ratio, and it was the wrong
+  ratio on day one, not only in hindsight.
+- **Relocation is not verification, and the distinction has to be written down or it will be lost.**
+  Twelve documents moved intact and proven intact. Nothing about their accuracy was established. That
+  sentence is the single most important line in the close record.
+- **A record gap costs more than the paperwork it skipped.** Two ad-hoc phases produced more prose
+  explaining themselves than plans would have contained.
+- **Do not trust a close-procedure step because it is documented.** `audit-open acknowledge` — the step
+  `complete-milestone.md` instructs the operator to run — destroys the artifacts it annotates. It wiped
+  100 lines of YAML frontmatter from a quick-task summary, reflowed whole files including the inside of
+  a fenced code block, and refused five items it had manufactured itself from markdown table rows. It
+  was caught because the diff was read before committing. **Read the diff of any bulk writer before
+  committing it.** Filed as Backlog 999.49.
+- **Retiring a guard leaves claims behind.** Deleting `tools/wiki/` left `firestarter/PROTOCOLS.md`
+  asserting that a deleted checker machine-reads it, and left `scan_paths.py` declaring a firmware file
+  guarded by a file that no longer exists — declared guarded, actually unguarded, and failing open so
+  nothing announces it. Filed as Backlog 999.50.
+
+### Cost Observations
+
+- Meta 265 commits / 245 files / +43971−247, of which **227 files and +42822−42 are `.planning/`** —
+  the planning record is 97% of the diff, in a milestone whose product change was deleting 13 files.
+- Firmware 6 commits / +480−452; host app 18 commits / +858−4681. The app's net −3823 is documentation
+  leaving the repository.
+- Notable: the expensive phases were not the migration (168, 13 plans, largely mechanical copy-and-edit)
+  but the two that dealt with *external* systems — 172 (9 plans) negotiating GitHub rulesets, bypass
+  actors and pull requests, and 173 (9 plans) proving the close still works. Work whose oracle lives in
+  someone else's API costs multiples of work whose oracle is a local file.
