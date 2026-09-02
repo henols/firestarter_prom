@@ -5,8 +5,8 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 172
 current_phase_name: POLICY — One Tracker, Protected `main`
 status: executing
-stopped_at: Completed Phase 172 (all 9 plans)
-last_updated: "2026-09-02T09:52:00.000Z"
+stopped_at: Phase 173 context gathered
+last_updated: "2026-09-02T10:53:54.724Z"
 last_activity: 2026-09-02
 last_activity_desc: Phase 172 COMPLETE — all 9 plans, all 4 requirements marked against named evidence; one tracker stated and configured, three main branches protected
 progress:
@@ -3176,8 +3176,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-02T07:49:40.028Z
-**Stopped at:** Completed 172-07-PLAN.md
+**Last session:** 2026-09-02T10:53:53.854Z
+**Stopped at:** Phase 173 context gathered
 **Was (superseded, retained for continuity):** Completed 172-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
 **Was (superseded, retained for continuity):** Phase 171 context gathered
@@ -3219,7 +3219,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/173-close-beta-cut-under-protection-close-procedure-honesty-ledg/173-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
