@@ -166,6 +166,255 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 </details>
 
+## v1.36 — `dev test` Fidelity (PLANNING)
+
+**Milestone goal:** Make `dev test` fail only for reasons that are actually the chip's, run no operation
+whose result is empty by construction, and report only what the run already knows. Host-only —
+`firestarter_app` changes only; no firmware edit, so no dual-repo lockstep, no golden register traces,
+no size baseline.
+
+**Why now:** Six `dev test` issues are open in `henols/firestarter_prom`, and on three of them
+(gh#23, #28, #31) the reporter disputes the tool's own triage. Backlog 999.44 already root-caused two
+of them; the third — gh#23, "bot is mixing a pass with a fail" — is that same defect's misattribution
+consequence: a rig fault (a half-seated cable) is currently reported as a chip verdict.
+
+**The blast-radius claim was corrected at activation, not inherited.** PROJECT.md originally asserted
+`dedup_fingerprint` stays byte-identical because "not one field being added, filled or deleted is in
+that hash today." Research falsified that by execution against `firestarter_app @ 0a93999`: the hash
+reads **values and plan shape**, not schema keys, and four distinct code paths this milestone touches
+measurably re-key it (read-back gating, SDP-step pruning, canonical naming, the UV `run_count`
+collapse). The gate meant to catch a re-key **does not exist** — every dedup test in
+`tests/test_diagnostic_report.py` is relational (`fp(a) == fp(b)`, computed at runtime), so a change to
+the hash algorithm passes all of them, and `count_agreeing` reads the embedded hash and never re-hashes,
+making any re-key permanent. Phase 174 builds that gate before anything it is supposed to measure
+touches the tree.
+
+**The one hard ordering constraint.** The Blast-Radius Oracle category (GATE-01…06) is Phase 174,
+alone, first, and nothing else may land before it is green. Two further ordering constraints are
+measured, not stylistic: fault attribution (Phase 178) must precede or accompany the UV slot phase
+(Phase 179), because UV-02's criterion — `overall_verdict == "PASS"` — cannot be reached until the
+status/result axis exists to stop a non-blank UV part's standalone blank-check finding from aborting
+cycle 2; and RPT-C1's transport counters (Phase 176) must exist before anything reasons about transport
+faults (Phase 178), while MEAS-01's bench measurement has lead time and gates PRUNE-08 (Phase 180)'s
+go/no-go, so it is scheduled early even though its consumer is late.
+
+**Decisions settled at requirements definition (D-1…D-8, operator, 2026-09-02) — not re-litigated by any
+phase:** canonical naming is additive (`auto_capture.canonical_part_number`), never a `parts[0]` re-key
+(D-2); `schema_version` becomes **2.0**, not 1.8, because three keys are deleted and a major number is
+the honest label (D-3); `classify_fingerprint` gains a `match` bucket so an all-OK run becomes
+promotable, which re-keys history once, deliberately (D-4/D-6); `.claude/skills/devtest-triage/SKILL.md`
+is updated in the same commit as the `vpp_mv` deletion, because its fallback would mis-blame every
+AMD/SST flash part (D-5); `Plan.locked_destructive` deletability and whether the whole-DB sweep covers
+user-override entries are adjudicated inside the phases that touch them (D-7, D-8). Full text: `.planning/REQUIREMENTS.md` §Decisions.
+
+**Bench is mixed, and the mixing is explicit.** Native and unit tests carry everything except two named
+legs: the UV slot regression (UV-01/02, Phase 179) needs a real UV part on the bench, and MEAS-01's
+per-connect cost (Phase 176) must be measured on real Uno and Leonardo hardware, **per board class, not
+as one blended number** — the DTR auto-reset and bootloader wait are likely the dominant term on
+Uno-class boards and that has never been measured. Every other phase is provable without a board.
+
+**Success criteria are stated in operation counts, never in seconds.** Every timing figure available
+comes from one log, one Leonardo, one 64 KiB `0x07` part; the per-connect cost itself is unmeasured
+until Phase 176 runs. No phase below quotes a second-count as an acceptance criterion.
+
+**Phase numbering:** Continues from v1.35's Phase 173 → v1.36 starts at **Phase 174**. The vacated
+**150** slot and the v1.24–v1.29 version slots stay unreused.
+
+**Branch model:** Per standing policy (`.planning/config.json` `git.branching_strategy: milestone`,
+`git.base_branch: beta`) — forks off `beta`, closes back to `beta`, not `main`.
+
+**Key context:** Requirements `.planning/REQUIREMENTS.md` (46 v1 requirements, 7 categories, D-1…D-8);
+research `.planning/research/SUMMARY.md` (4 parallel researchers, HIGH confidence on everything measured
+against `firestarter_app @ 0a93999`; the one open number is per-connect cost in seconds, flagged
+UNMEASURED everywhere it appears).
+
+### Phases
+
+- [ ] **Phase 174: Blast-Radius Invariance Harness** - Build the frozen-hash oracle the milestone was scoped around before anything that could move the hash lands.
+- [ ] **Phase 175: Structural Sentinel over `derive_plan`** - Make a write with no verify, and a dropped unsupported step, structurally unrepresentable — RED before it licenses Phase 177.
+- [ ] **Phase 176: Transport Instrumentation + Connect-Cost Measurement** *(partially hardware-gated — MEAS-01)* - Wire the two dormant re-sync counters into the report and measure per-connect cost per board class.
+- [ ] **Phase 177: Evidence-Gated Read-Back** - Stop paying for a fingerprint read-back a passing run cannot use, without ever turning the diagnostic into an oracle on a failing one.
+- [ ] **Phase 178: Fault Attribution — the Two-Axis Vocabulary** - Give a transport or tool fault a status distinct from the chip's verdict, so a half-seated cable stops filing as `[dev test] <chip> — FAIL`.
+- [ ] **Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK`** *(hardware-gated)* - Make a UV part holding data outside the target slot actually reach `overall_verdict == "PASS"` with `run_count == 2`.
+- [ ] **Phase 180: Read-Step Sampling** *(conditional on Phase 176's measurement)* - Replace the read step's second full sweep with a bit-structured sample only if the measured connect cost says it is cheaper; closing the requirement as "measured, not worth doing" is a valid outcome.
+- [ ] **Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close** - Make the report describe only what the run knows, name chips the database recognizes, and close the milestone's dependency and re-key ledger.
+
+## Phase Details
+
+### Phase 174: Blast-Radius Invariance Harness
+
+**Goal**: A frozen, absolute-value oracle exists proving any later change to `dedup_fingerprint` or the promotion ladder is a declared decision, not a silent accident — built and green before any of this milestone's behaviour changes land.
+**Depends on**: Nothing (first phase)
+**Requirements**: GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06
+**Success Criteria** (what must be TRUE):
+
+  1. A frozen table pairing report shapes to expected 12-hex `dedup_fingerprint` values lives in `firestarter_app/tests/fixtures/` (a corpus that does not exist today) and covers at minimum the four measured re-key shapes — read-back gating, SDP-step pruning, canonical naming, and the UV `run_count` collapse — computed against HEAD before any subsequent phase's change lands.
+  2. Every assertion in that table is against an absolute expected hash string; none is a relational `fp(a) == fp(b)` comparison computed at runtime.
+  3. `build_db_diff`'s disposition and ladder output for the same frozen shapes is pinned and asserted the same way, so a promotion-ladder change cannot land silently.
+  4. The raw-CLI-token → `part_number` delta across the shipped database is a committed, measured artifact — a table or file — not an assumed number.
+  5. A `MILESTONES.md` re-key ledger section exists with the fields a declared re-key must carry (change, before-hash, after-hash, date) — the mechanism every later phase's deliberate re-key is recorded into.
+
+**Plans**: TBD
+
+### Phase 175: Structural Sentinel over `derive_plan`
+
+**Goal**: It becomes structurally impossible for a plan to emit a write with no verify behind it, or to silently drop an unsupported step's diagnostic record — proven RED against a planted counter-example before it is asked to license Phase 177's change.
+**Depends on**: Phase 174 (the oracle must be green before this phase's tests, which touch no report field but are still "a change," land)
+**Requirements**: PRUNE-05, PRUNE-06
+**Success Criteria** (what must be TRUE):
+
+  1. A structural test over `derive_plan` output fails when fed a deliberately planted counter-example plan containing a write step with no verify step behind it — proving the predicate is not vacuously true.
+  2. Sweeping the predicate across every `full`- and `partial`-scope plan the shipped database can produce reports zero write-without-verify violations.
+  3. The predicate is anchored to the module's own operation-type constants, so a future operation type omitted from the closure list cannot silently escape the check.
+  4. Unsupported steps remain present in `Plan.steps` with an NA verdict rather than being dropped — verified by a whole-database sweep counting `StepResult` entries before and after, with zero steps removed.
+
+**Plans**: TBD
+
+### Phase 176: Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
+
+**Goal**: The two re-sync events and the two failure paths beside them stop being invisible, and the milestone's one genuinely unmeasured number — per-connect cost — gets measured per board class instead of assumed.
+**Depends on**: Phase 174 (parallel with Phase 175 — this phase changes report-reachable counters, so the oracle must be green first)
+**Requirements**: RPT-C1, RPT-C2, MEAS-01, MEAS-02, MEAS-03
+**Hardware-gated**: partially. MEAS-01 requires bench measurement on real Uno and Leonardo boards. RPT-C1, RPT-C2, MEAS-02 and MEAS-03 are provable via unit tests against a mocked/simulated serial transport, no board required.
+**Success Criteria** (what must be TRUE):
+
+  1. Each of the two re-sync events, a decode-id-frame failure, and a response timeout increments its own dedicated counter, verified by a test that triggers each path independently and asserts that path's counter increases by exactly one while no other counter moves.
+  2. `transport_health` in the report surfaces the real count for every counter proven wired above, while any counter genuinely not wired — traced end to end and found unreachable — still reads `NOT_MEASURED` rather than a fabricated zero.
+  3. Per-connect cost is recorded as two distinct bench-measured artifacts, one for Uno-class (512 B buffer) and one for Leonardo-class (1024 B buffer) boards — never blended into a single number.
+  4. `_SUSPECT_THRESHOLD`'s value of 5 is either justified against the newly measured real counts or explicitly re-derived, with the basis recorded — not left as the untouched default chosen while the counters were dormant.
+
+**Plans**: TBD
+
+### Phase 177: Evidence-Gated Read-Back
+
+**Goal**: A passing run stops paying for a fingerprint read-back it cannot use, a failing run keeps the diagnostic that read-back exists to provide, and the seed artifact that contradicted itself on this exact point is corrected.
+**Depends on**: Phase 174 (the oracle), Phase 175 (the structural licence — must be green before this phase's change lands)
+**Requirements**: PRUNE-01, PRUNE-02, PRUNE-03, PRUNE-04, PRUNE-07
+**Success Criteria** (what must be TRUE):
+
+  1. A run in which every cycle passes performs zero fingerprint read-backs, verified by counting the actual read-back invocations made during the run.
+  2. A run whose cycle 1 fails and cycle 2 passes still performs its fingerprint read-back — proving the gate consults outcomes across all cycles rather than the final cycle alone.
+  3. A passing write/verify still yields a fingerprint in the report, synthesized from already-established values (`bad=0`, `total=region_length`) with zero additional device reads, and classified as a match rather than indeterminate.
+  4. Every call site that reads back a whole device solely to compare it against a buffer already held in memory — excluding the fingerprint diagnostic itself, which stays a read-back by design — is replaced by the existing on-device verify, reducing that call site's full-device read count to zero.
+  5. The seed file `.planning/seeds/dev-test-adaptive-sequencing.md` no longer instructs a planner to apply the read-back-elimination rule to the fingerprint diagnostic; a planner reading only the seed cannot regenerate the destructive interpretation.
+
+**Plans**: TBD
+
+### Phase 178: Fault Attribution — the Two-Axis Vocabulary
+
+**Goal**: A run that failed to execute validly — a half-seated cable, a transport fault — stops being reported as a verdict on the chip, and the tool never spends a chip's `BAD` on a fault that was never the chip's.
+**Depends on**: Phase 176 (the counters this phase's classification reads), Phase 177 (the fingerprint gate this phase's fault-mode reasoning consumes)
+**Requirements**: ATTR-01, ATTR-02, ATTR-03, ATTR-04, ATTR-05, ATTR-06
+**Success Criteria** (what must be TRUE):
+
+  1. A run whose transport failed to execute validly reports a status-axis value distinct from the chip-verdict axis, and that step does not carry a `BAD` chip verdict.
+  2. The overall verdict and the auto-generated issue title for such a run do not read `[dev test] <chip> — FAIL`; they reflect the status-axis outcome instead.
+  3. The status-axis value is an additive field excluded from the `dedup_fingerprint` input — confirmed by Phase 174's oracle reporting zero unexpected hash changes when the status axis is exercised — and no sixth `verdict` value is introduced.
+  4. A run with a genuine chip fault and a run with a transport-only fault both still offer the submit prompt; auto-classification changes the title and disposition only, and never suppresses the offer.
+  5. The report states in words that a rail-voltage reading does not prove socket continuity, and nothing this phase ships claims to detect a disconnected VPP jumper from that reading alone.
+
+**Plans**: TBD
+
+### Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
+
+**Goal**: A UV part holding data outside the target slot accepts a write to that slot and the run reaches `overall_verdict == "PASS"` with `run_count == 2` — not merely "the write step went OK," which is measured to fall short of the milestone's own headline claim.
+**Depends on**: Phase 178 (the status/result axis that stops a non-blank standalone blank-check finding from setting `error_code` and aborting cycle 2)
+**Requirements**: UV-01, UV-02, UV-03
+**Hardware-gated**: yes. This phase's regression test requires a real UV EPROM part holding data outside the target slot on the bench; it cannot be proven in native or unit tests alone.
+**Success Criteria** (what must be TRUE):
+
+  1. A physical UV part holding data outside the target slot accepts a write to that slot without being refused.
+  2. That same run's `overall_verdict` reads `PASS` and `run_count` reads 2.
+  3. The blank-check skip is derived from the monotonicity witness — target masked, current value known, sourced from a probe read — not from the `region_policy` string alone, proven by a test constructed so the two signals disagree and the witness wins.
+  4. The regression test proving criteria 1 and 2 is committed to the suite and passes against real UV hardware, closing the gap that no such test exists today.
+
+**Plans**: TBD
+
+### Phase 180: Read-Step Sampling (conditional on Phase 176)
+
+**Goal**: The read step's second full sweep is replaced by a cheaper bit-structured sample only where Phase 176's measurement proves it actually is cheaper — and closing this requirement without shipping a line of sampling code is treated as a legitimate, successful outcome, not a miss.
+**Depends on**: Phase 176 (the per-board-class connect-cost measurement that decides which branch below applies)
+**Requirements**: PRUNE-08
+**Success Criteria** (what must be TRUE):
+
+  1. If Phase 176's per-board-class measurement shows the bit-structured sample is cheaper on at least one board class: the read step's second full sweep is replaced by a sample that performs strictly fewer whole-device reads while still toggling every address line in both polarities.
+  2. If Phase 176's measurement does not support the sample being cheaper on either board class: PRUNE-08 is formally closed as "measured, not worth doing," citing the measurement as the closing evidence.
+  3. Whichever branch is taken, the read step's verdict source stays pinned to the full read by test — it never silently becomes the sample's verdict.
+  4. If sampling ships, block-wise `(offset, block)` comparison is used, never a whole-file compare, proven by a test using a hole-padded region fixture that a whole-file compare would misreport as a false divergence.
+
+**Plans**: TBD
+
+### Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
+
+**Goal**: The report's remaining fields are made to describe exactly what the run knows — nothing assumed, nothing dead — the schema bump is honest about the breaking change, chips are named the way the database names them, and the milestone's dependency and re-key discipline is closed out in one place.
+**Depends on**: Phase 177 (the fingerprint fields this phase exports), Phase 178 (the status-axis fields), Phase 179 (the `is_uv` disclosure), Phase 180 (sampling provenance, if it shipped)
+**Requirements**: RPT-A1, RPT-A2, RPT-A3, RPT-A4, RPT-A5, RPT-B1, RPT-B2, RPT-D1, RPT-D2, RPT-E1, RPT-E2, RPT-E3, RPT-F1, RPT-F2, HYG-01, HYG-02, HYG-03, HYG-04
+**Success Criteria** (what must be TRUE):
+
+  1. The report's fields carry only values a code path actually assigns: `chip_id_actual` populates on a passing id check (not only on a mismatch); `steps[].fingerprint` gains `total`/`bad`/`bad_pct`/`evidence` as additive siblings; `steps[].divergence` exports (`None` only when nothing was computed); `plan.is_uv` reaches the report as a top-level boolean read off the single `derive_plan` decision; and the detected chip ID becomes a structured `StepResult` field rather than being recovered by scraping prose.
+  2. `voltage.vpp_mv`, `voltage.vpe_mv` and `banner.locked_steps` are deleted from the dataclass, `_voltage_dict()`, and the schema — proven by a test that no code path assigns them, not merely asserted — and `.claude/skills/devtest-triage/SKILL.md` is updated in the same commit with the `vpp_before_mv`/`vpp_after_mv` replacement, stating plainly that they are rail readings, never socket readings.
+  3. `duration_s` reports a per-operation cost that does not vary with `run_count`, a real wall-clock `elapsed` is added for the whole command, and the render-only summed "steps total" row is removed.
+  4. `schema_version` reads `2.0`; the frozen schema-1.2 fixtures still parse unchanged under it; and `dedup_fingerprint` is byte-identical for every pre-existing report shape except the re-keys Phase 174's ledger declared, each shown to be exactly the declared change and nothing more.
+  5. The issue title and body use `auto_capture.canonical_part_number` (the matched database `part_number`) while `ac.chip` keeps the operator's raw token, with a stated rule for which alias a title shows when `part_number` is a comma-joined list; `syrupy` is bounded `>=5.0,<7`; no new runtime dependency is added; the decision against ever hashing `to_dict()` is recorded in `MILESTONES.md`; and any new `dev_test` helper introduced across this milestone is registered in `tools/check_devtest_orchestrator.py`.
+
+**Plans**: TBD
+
+### v1.36 Coverage
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| GATE-01 | Phase 174 | Pending |
+| GATE-02 | Phase 174 | Pending |
+| GATE-03 | Phase 174 | Pending |
+| GATE-04 | Phase 174 | Pending |
+| GATE-05 | Phase 174 | Pending |
+| GATE-06 | Phase 174 | Pending |
+| PRUNE-05 | Phase 175 | Pending |
+| PRUNE-06 | Phase 175 | Pending |
+| RPT-C1 | Phase 176 | Pending |
+| RPT-C2 | Phase 176 | Pending |
+| MEAS-01 | Phase 176 | Pending |
+| MEAS-02 | Phase 176 | Pending |
+| MEAS-03 | Phase 176 | Pending |
+| PRUNE-01 | Phase 177 | Pending |
+| PRUNE-02 | Phase 177 | Pending |
+| PRUNE-03 | Phase 177 | Pending |
+| PRUNE-04 | Phase 177 | Pending |
+| PRUNE-07 | Phase 177 | Pending |
+| ATTR-01 | Phase 178 | Pending |
+| ATTR-02 | Phase 178 | Pending |
+| ATTR-03 | Phase 178 | Pending |
+| ATTR-04 | Phase 178 | Pending |
+| ATTR-05 | Phase 178 | Pending |
+| ATTR-06 | Phase 178 | Pending |
+| UV-01 | Phase 179 | Pending |
+| UV-02 | Phase 179 | Pending |
+| UV-03 | Phase 179 | Pending |
+| PRUNE-08 | Phase 180 | Pending |
+| RPT-A1 | Phase 181 | Pending |
+| RPT-A2 | Phase 181 | Pending |
+| RPT-A3 | Phase 181 | Pending |
+| RPT-A4 | Phase 181 | Pending |
+| RPT-A5 | Phase 181 | Pending |
+| RPT-B1 | Phase 181 | Pending |
+| RPT-B2 | Phase 181 | Pending |
+| RPT-D1 | Phase 181 | Pending |
+| RPT-D2 | Phase 181 | Pending |
+| RPT-E1 | Phase 181 | Pending |
+| RPT-E2 | Phase 181 | Pending |
+| RPT-E3 | Phase 181 | Pending |
+| RPT-F1 | Phase 181 | Pending |
+| RPT-F2 | Phase 181 | Pending |
+| HYG-01 | Phase 181 | Pending |
+| HYG-02 | Phase 181 | Pending |
+| HYG-03 | Phase 181 | Pending |
+| HYG-04 | Phase 181 | Pending |
+
+**Mapped: 46/46 requirements ✓.** No orphans, no duplicates. Decisions D-1…D-8 are not separate
+requirements and carry no row; they are settled constraints each owning phase above must honour (see
+`.planning/REQUIREMENTS.md` §Decisions). PRUNE-08's row is `Phase 180` regardless of which lawful branch
+that phase closes on — "measured, not worth doing" is a completed requirement, not a deferral.
+
 ## v1.35 — Documentation Consolidation & Wiki Migration (SHIPPED 2026-09-02 — 29/32; WIKI-03/04 withdrawn, FRONT-02 declined)
 
 **Milestone goal:** Make `firestarter_prom` the single documented front door — one simple get-started README per repo, all project documentation in the `firestarter_prom` wiki authored in-repo and checked against reality — and enforce in repository configuration the centralization the documentation will claim.

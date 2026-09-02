@@ -141,16 +141,61 @@ Tracked, not in this roadmap.
 
 ## Traceability
 
-Populated during roadmap creation.
+Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (pending roadmap) | — | Pending |
+| GATE-01 | Phase 174 | Pending |
+| GATE-02 | Phase 174 | Pending |
+| GATE-03 | Phase 174 | Pending |
+| GATE-04 | Phase 174 | Pending |
+| GATE-05 | Phase 174 | Pending |
+| GATE-06 | Phase 174 | Pending |
+| PRUNE-05 | Phase 175 | Pending |
+| PRUNE-06 | Phase 175 | Pending |
+| RPT-C1 | Phase 176 | Pending |
+| RPT-C2 | Phase 176 | Pending |
+| MEAS-01 | Phase 176 | Pending |
+| MEAS-02 | Phase 176 | Pending |
+| MEAS-03 | Phase 176 | Pending |
+| PRUNE-01 | Phase 177 | Pending |
+| PRUNE-02 | Phase 177 | Pending |
+| PRUNE-03 | Phase 177 | Pending |
+| PRUNE-04 | Phase 177 | Pending |
+| PRUNE-07 | Phase 177 | Pending |
+| ATTR-01 | Phase 178 | Pending |
+| ATTR-02 | Phase 178 | Pending |
+| ATTR-03 | Phase 178 | Pending |
+| ATTR-04 | Phase 178 | Pending |
+| ATTR-05 | Phase 178 | Pending |
+| ATTR-06 | Phase 178 | Pending |
+| UV-01 | Phase 179 | Pending |
+| UV-02 | Phase 179 | Pending |
+| UV-03 | Phase 179 | Pending |
+| PRUNE-08 | Phase 180 | Pending |
+| RPT-A1 | Phase 181 | Pending |
+| RPT-A2 | Phase 181 | Pending |
+| RPT-A3 | Phase 181 | Pending |
+| RPT-A4 | Phase 181 | Pending |
+| RPT-A5 | Phase 181 | Pending |
+| RPT-B1 | Phase 181 | Pending |
+| RPT-B2 | Phase 181 | Pending |
+| RPT-D1 | Phase 181 | Pending |
+| RPT-D2 | Phase 181 | Pending |
+| RPT-E1 | Phase 181 | Pending |
+| RPT-E2 | Phase 181 | Pending |
+| RPT-E3 | Phase 181 | Pending |
+| RPT-F1 | Phase 181 | Pending |
+| RPT-F2 | Phase 181 | Pending |
+| HYG-01 | Phase 181 | Pending |
+| HYG-02 | Phase 181 | Pending |
+| HYG-03 | Phase 181 | Pending |
+| HYG-04 | Phase 181 | Pending |
 
 **Coverage:**
 - v1 requirements: 46 total
-- Mapped to phases: 0
-- Unmapped: 46 ⚠️
+- Mapped to phases: 46
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-09-02*

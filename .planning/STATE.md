@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.36
 milestone_name: dev test Fidelity — Only Run What Can Tell You Something, Report Only What You Know
 status: planning
-last_updated: "2026-09-02T19:59:00.085Z"
+last_updated: "2026-09-02T20:30:00.000Z"
 last_activity: 2026-09-02
 progress:
-  total_phases: 0
+  total_phases: 8
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -231,10 +231,63 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (roadmap created — Phase 174 next)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-02 — Milestone v1.36 started
+Status: Roadmap created, awaiting approval
+Last activity: 2026-09-02 — Roadmap created: 8 phases (174-181), 46/46 requirements mapped
+
+## Roadmap Summary (v1.36)
+
+**Created:** 2026-09-02, `/gsd-roadmapper` run against `.planning/REQUIREMENTS.md` (46 v1 requirements,
+7 categories, D-1…D-8) and `.planning/research/SUMMARY.md` (4 parallel researchers, HIGH confidence on
+everything measured against `firestarter_app @ 0a93999`). `ROADMAP.md` is a ~5,480-line hand-authored
+file whose tail carries the entire `999.x` Backlog and every archived milestone; the v1.36 section was
+inserted immediately after the `## Milestones` summary list and before the v1.35 archive, leaving every
+Backlog entry and archived-milestone section byte-for-byte intact (verified by diff after insertion).
+
+**Phases:** 8 (**174–181**). Numbering continues from v1.35's 173; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused.
+**Coverage:** 46 requirements, all mapped, 0 orphans, 0 duplicates.
+
+| # | Phase | Requirements | Depends on |
+|---|-------|--------------|------------|
+| 174 | Blast-Radius Invariance Harness | GATE-01…06 (6) | — (first phase, alone) |
+| 175 | Structural Sentinel over `derive_plan` | PRUNE-05, PRUNE-06 (2) | 174 |
+| 176 | Transport Instrumentation + Connect-Cost Measurement *(partially hardware-gated: MEAS-01)* | RPT-C1, RPT-C2, MEAS-01…03 (5) | 174 (∥ 175) |
+| 177 | Evidence-Gated Read-Back | PRUNE-01…04, PRUNE-07 (5) | 174, 175 |
+| 178 | Fault Attribution — the Two-Axis Vocabulary | ATTR-01…06 (6) | 176, 177 |
+| 179 | UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` *(hardware-gated)* | UV-01…03 (3) | 178 |
+| 180 | Read-Step Sampling *(conditional on 176's measurement)* | PRUNE-08 (1) | 176 |
+| 181 | Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close | RPT-A1…A5, RPT-B1/B2, RPT-D1/D2, RPT-E1…E3, RPT-F1/F2, HYG-01…04 (18) | 177, 178, 179, 180 |
+
+**The one hard ordering constraint, honoured exactly as given:** GATE-01…06 is Phase 174, alone, first —
+nothing else may land before it is green, because the milestone's own first substantive change would
+otherwise move `dedup_fingerprint` before anything could prove it. **Two measured constraints, also
+honoured:** Phase 178 (fault attribution) precedes Phase 179 (UV) because UV-02's
+`overall_verdict == "PASS"` criterion cannot be reached until the status/result axis stops a non-blank
+standalone blank-check finding from aborting cycle 2; and Phase 176 (RPT-C1's counters, MEAS-01's bench
+lead time) is scheduled early — parallel with 175 — even though its consumers (178, 180) land later.
+
+**Hardware gating, named exactly per PROJECT.md's scope boundary:** Phase 176 is *partially*
+hardware-gated (MEAS-01 only — real Uno + Leonardo, measured per board class, never blended); Phase 179
+is fully hardware-gated (a real UV part holding data outside the target slot). Every other phase is
+provable in native/unit tests without a board.
+
+**Phase 180 stays a standalone phase despite carrying only one requirement (PRUNE-08).** It is not
+folded into a neighbour: it is the direct, dependent consumer of Phase 176's measurement, and one of its
+two lawful outcomes is "ship nothing, cite the measurement" — a milestone deliverable in its own right
+under this milestone's "measured, not assumed" discipline, not a task that shrinks cleanly into Phase
+177 or 181's scope.
+
+**GATE-06 (the re-key ledger) is owned by Phase 174, not the closing phase**, per the literal instruction
+that the whole Blast-Radius Oracle category is Phase 174's alone. Phase 174 builds the ledger's location
+and required fields before any change exists to declare; Phases 177/178/179/181 each write their own
+entry into it as their declared re-key lands; Phase 181 is the last to touch the ledger and its own
+success criteria assert the ledger — not just the hash — is complete.
+
+**Success criteria throughout are stated in operation counts, never in seconds**, per this project's
+house rule for this milestone: every timing figure available comes from one log, one Leonardo, one 64
+KiB `0x07` part, and the per-connect cost itself does not exist as a number until Phase 176 measures it.
 
 ## Roadmap Summary (v1.35)
 
