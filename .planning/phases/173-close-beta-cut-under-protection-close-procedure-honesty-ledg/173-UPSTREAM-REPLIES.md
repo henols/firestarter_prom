@@ -4,7 +4,8 @@
 **Requirement / criterion:** POLICY-04's home phase is Phase 173; this record serves Phase 173's
 criterion 5 — "The upstream replies owed on GitHub sent, or explicitly deferred with a reason:
 gh#7, gh#5, gh#9" — widened per Context D-12 to include gh#6 as well.
-**D-13 review status:** APPROVED, AMENDMENT TO GH#6 APPLIED — AWAITING POST
+**D-13 review status:** APPROVED AND POSTED
+**Approved by:** Henrik Olsson, 2026-09-02 (see `evidence/173-07-operator-approval.txt`)
 
 Per D-13, exactly v1.22 D-02's precedent: these four bodies are drafted here for a blocking
 operator wording review before a word of them is public. Plan 173-07 is the only plan permitted
@@ -52,6 +53,7 @@ drafting, at the end of this plan's Task 2, and were still true.
 ## gh#5 — Move documentation
 
 **Body file:** `evidence/bodies/173-gh5.md`
+**Posted:** https://github.com/henols/firestarter_prom/issues/5#issuecomment-5511486703
 
 ```
 Following up on this issue with what the recent documentation-consolidation work actually delivered against it, and what it did not.
@@ -76,6 +78,7 @@ Also worth stating plainly: the documentation surface these pages will eventuall
 ## gh#6 — Protect main branches and centralize issue tracking
 
 **Body file:** `evidence/bodies/173-gh6.md`
+**Posted:** https://github.com/henols/firestarter_prom/issues/6#issuecomment-5511486995 (issue closed 2026-09-02T14:50:52Z)
 
 ```
 Closing this out with what shipped against it and what was deliberately left out.
@@ -101,6 +104,7 @@ Both are recorded internally as deferred rather than forgotten, and either can b
 ## gh#7 — Improve Firestarter discoverability with generated documentation
 
 **Body file:** `evidence/bodies/173-gh7.md`
+**Posted:** https://github.com/henols/firestarter_prom/issues/7#issuecomment-5511487257 (issue closed 2026-09-02T14:50:51Z)
 
 ```
 Closing this out with the decision that was made about it and where its surviving substance now lives.
@@ -117,6 +121,7 @@ Closing this out with the decision that was made about it and where its survivin
 ## gh#9 — Repository Structure and Contribution Guide
 
 **Body file:** `evidence/bodies/173-gh9.md`
+**Posted:** https://github.com/henols/firestarter_prom/issues/9#issuecomment-5511487546 (issue stays open, pinned — see `evidence/173-07-issue-state-after.json`)
 
 ```
 Following up here with the configured end state this issue's text became the source for.
@@ -143,9 +148,19 @@ and `evidence/173-04-draft-link-check.txt` for the mechanical link check run aga
 Posting, closing gh#6 and gh#7, and pinning gh#9 are plan 173-07's work, gated on this record's
 review status line changing away from the pending-review literal it started at.
 
+## Posting outcome (Plan 173-07)
+
+All four bodies above were posted by plan 173-07 on 2026-09-02, each from its
+`evidence/bodies/173-gh<n>.md` file via `gh issue comment --body-file`, after the operator
+approval recorded in `evidence/173-07-operator-approval.txt`. gh#7 and gh#6 are closed; gh#5 and
+gh#9 are open; gh#9 is pinned (`evidence/173-07-issue-state-after.json`). See
+`evidence/173-07-post-transcript.txt` for the full command-by-command record, including the
+collateral-comment sweep that corrects a defect in the plan's own verify script.
+
 ## Known cost accepted at activation
 
 Backlog 999.9 will rename all three repositories and invalidate every URL in the four bodies
-above. That is accepted at activation (see 173-CONTEXT.md); these four replies join the set of
-this phase's own outputs needing re-sweeping once 999.9 runs, alongside Phases 169, 170 and 172.
-The URLs above are kept in plain `https://github.com/henols/...` form, greppable by that sweep.
+above, including the four comment URLs recorded next to each body and in this section. That is
+accepted at activation (see 173-CONTEXT.md); these four replies join the set of this phase's own
+outputs needing re-sweeping once 999.9 runs, alongside Phases 169, 170 and 172. The URLs above are
+kept in plain `https://github.com/henols/...` form, greppable by that sweep.
