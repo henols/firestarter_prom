@@ -238,7 +238,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - [x] **Phase 170: REPO — Sub-Repo READMEs Cut to Repo Scope** — Cut both sub-repo READMEs to what is specific to their own repository, linking up for the rest, and fix the two defects they carry: a table of contents that advertises three sections that do not exist, and breaking-change walls standing above the install instructions. Bound the PyPI thinning that decision 1 accepted. (REPO-01, REPO-02, REPO-03, REPO-04, LEGACY-02, LEGACY-03) — **COMPLETE 2026-08-31, executed ad hoc.** Done as direct commits in the sub-repos (`firestarter_app` `767079a`, `firestarter` `c26562a`) rather than through the phase machinery: no plans, no summaries, no `gsd-verifier` pass, and no `phases/170-*/` directory exists or will. App README 779 → 118 lines, firmware README 151 → 91. LEGACY-02 verified mechanically (9 TOC entries, 0 unresolved anchors, 0 headings missing); LEGACY-03 verified on both READMEs with the version history reachable on the wiki's Breaking-Changes page; REPO-04 verified against a locally built sdist's `PKG-INFO`. See [`notes/v135-phases-169-170-executed-ad-hoc.md`](notes/v135-phases-169-170-executed-ad-hoc.md).
 - [x] **Phase 171: STRAY — The Root-Level Documentation Files** — Three files sitting loose at the app repo root: a six-line scratch note about finding avrtools on Windows, an autocompletion guide, and a `SECURITY.md` that is a GSD Phase 69 audit record occupying the path GitHub reads as the repository's security policy. Each becomes a real wiki page, a real policy, or nothing. (LEGACY-04, LEGACY-05, LEGACY-07) — **COMPLETE 2026-09-01.** All 4 plans executed through the phase machinery; closing sweep discharged V-01…V-19 (V-17/V-18 cited to plan 171-02's evidence, not re-run); both submodule gitlinks re-pinned, equality-asserted (V-19). Criterion 2's GitHub-surface property (empty Security tab) is observable only after the milestone merges to `main` — `SECURITY.md` never reached `main`, so this phase prevented a latent misrepresentation rather than remediating a live one.
 - [x] **Phase 172: POLICY — One Tracker, Protected `main`** — State the repository policy in the documentation and make the configuration match it: one issue tracker, issue templates that cover what people actually file, enforcing rulesets on all three `main` branches, and no surviving link to a disabled tracker. (POLICY-01, POLICY-02, POLICY-03, LEGACY-01)
-- [ ] **Phase 173 (close): CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger** — Demonstrate that the `beta` lockstep cut still works under the new rulesets rather than assuming it, update the GSD close procedure for PR-only `main`, and close with an honesty ledger pairing each claim with its non-claim — chiefly that relocation is not verification, and that the deferred wiki content is deferred, not delivered. (POLICY-04, POLICY-05)
+- [x] **Phase 173 (close): CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger** — Demonstrate that the `beta` lockstep cut still works under the new rulesets rather than assuming it, update the GSD close procedure for PR-only `main`, and close with an honesty ledger pairing each claim with its non-claim — chiefly that relocation is not verification, and that the deferred wiki content is deferred, not delivered. (POLICY-04, POLICY-05) (completed 2026-09-02)
 
 ## Phase Details
 
@@ -467,27 +467,27 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 173-01-PLAN.md — Tracer: `tools/wiki/provenance_footers.py`, the bidirectional footer guard, RED on the migration table as it stands then GREEN on the corrected one, plus five planted failures and the four-checker regression proof
-- [ ] 173-02-PLAN.md — POLICY-05 by construction: `git.base_branch: "beta"` and `git.protected_branches: ["main"]` with the distinguishing read-back, the close-procedure note, and the auto-loaded `CLAUDE.md` pointer
-- [ ] 173-03-PLAN.md — The D-02 ruleset rejection probe against all three protected `main` branches, from a true descendant of `origin/main`, accepted on the exact `remote:` rule-violation text and never on the exit code *(pushes to public repositories — not autonomous)*
-- [ ] 173-04-PLAN.md — Draft the four upstream replies into the phase record as the exact bytes that will be posted, with every link resolved and nothing public
+- [x] 173-01-PLAN.md — Tracer: `tools/wiki/provenance_footers.py`, the bidirectional footer guard, RED on the migration table as it stands then GREEN on the corrected one, plus five planted failures and the four-checker regression proof
+- [x] 173-02-PLAN.md — POLICY-05 by construction: `git.base_branch: "beta"` and `git.protected_branches: ["main"]` with the distinguishing read-back, the close-procedure note, and the auto-loaded `CLAUDE.md` pointer
+- [x] 173-03-PLAN.md — The D-02 ruleset rejection probe against all three protected `main` branches, from a true descendant of `origin/main`, accepted on the exact `remote:` rule-violation text and never on the exit code *(pushes to public repositories — not autonomous)*
+- [x] 173-04-PLAN.md — Draft the four upstream replies into the phase record as the exact bytes that will be posted, with every link resolved and nothing public
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 173-05-PLAN.md — Generate the six provenance footers, run the full suite before pushing, publish one wiki commit, and re-verify from an independent fresh clone *(writes to a public wiki — not autonomous)*
-- [ ] 173-07-PLAN.md — Post the four approved bodies byte for byte, close gh#7 and gh#6, pin gh#9, behind D-13's blocking wording review *(public comments and closures — not autonomous)*
+- [x] 173-05-PLAN.md — Generate the six provenance footers, run the full suite before pushing, publish one wiki commit, and re-verify from an independent fresh clone *(writes to a public wiki — not autonomous)*
+- [x] 173-07-PLAN.md — Post the four approved bodies byte for byte, close gh#7 and gh#6, pin gh#9, behind D-13's blocking wording review *(public comments and closures — not autonomous)*
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 173-06-PLAN.md — The fourth `wiki-check.yml` leg, comment-free, its body extracted and executed locally before trusting a workflow with zero runs, then a pull request into a protected `main` *(not autonomous)*
+- [x] 173-06-PLAN.md — The fourth `wiki-check.yml` leg, comment-free, its body extracted and executed locally before trusting a workflow with zero runs, then a pull request into a protected `main` *(not autonomous)*
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 173-08-PLAN.md — `.planning/v1.35/CLOSE-RECORD.md`: the comprehensive honesty ledger, the findings table, both backlog row bodies handed to the orchestrator, and the 999.9 rename-sweep record *(ROADMAP insertion is the orchestrator's — not autonomous)*
+- [x] 173-08-PLAN.md — `.planning/v1.35/CLOSE-RECORD.md`: the comprehensive honesty ledger, the findings table, both backlog row bodies handed to the orchestrator, and the 999.9 rename-sweep record *(ROADMAP insertion is the orchestrator's — not autonomous)*
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 173-09-PLAN.md — Closing sweep written before any checkbox moves, both gitlinks re-pinned and proven per submodule, and the operator-gated `beta` lockstep cut performed and channel-verified or recorded as not performed *(one-way outward-facing step — not autonomous)*
+- [x] 173-09-PLAN.md — Closing sweep written before any checkbox moves, both gitlinks re-pinned and proven per submodule, and the operator-gated `beta` lockstep cut performed and channel-verified or recorded as not performed *(one-way outward-facing step — not autonomous)*
 
 ## v1.34 — Pre-Merge Hardware Regression Validation (CLOSED 2026-08-29 — EARLY / SCOPE-REDUCED)
 

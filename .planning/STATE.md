@@ -4,17 +4,17 @@ milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
-status: executing
-stopped_at: Completed 173-08-PLAN.md
-last_updated: "2026-09-02T15:36:00.000Z"
+status: completed
+stopped_at: Phase 173 complete — all phases complete
+last_updated: "2026-09-02T18:13:07.172Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 plan 08 complete (continuation agent — Tasks 1, 2 and the orchestrator's Task 3a pre-completed). This continuation independently re-verified the orchestrator's Task 3a ROADMAP insertion (commit 6d0eae0a — both backlog rows 999.46/999.47 inserted verbatim, Phase 172's checklist box checked, the pending todo retired only after the row existed) rather than trusting it, confirming all 999.40-999.47 headings appear exactly once, the v1.14 divider intact, and ROADMAP.md/REQUIREMENTS.md untouched by this executor from 6d0eae0a forward. Then captured the Backlog 999.9 rename-sweep target list at evidence/173-08-rename-sweep-targets.txt (commit ac160756) — a mechanical, /usr/bin/grep-scoped-to-git-ls-files inventory across three tracked trees (meta, firestarter, firestarter_app), totalling 82,796 references across 3,533 files, with phases 169/170/172 and this phase's own outputs named explicitly, and the six wiki footers flagged as a fourth surface outside any tracked tree scanned. .planning/v1.35/CLOSE-RECORD.md's 21-row honesty ledger and the two filed backlog rows (999.46, 999.47) are now complete; ledger row L21 (tools/wiki/ absent from origin/main) recorded as a carried non-claim, not a third/fourth filing. Plan 08 SUMMARY.md written and committed (02747cba). Plan 09 remains — it owns flipping POLICY-04/POLICY-05 and Phase 173's own ROADMAP checklist box at close.
+last_activity_desc: Phase 173 COMPLETE — 9/9 plans, verification passed 5/5; beta lockstep cut performed and both channels verified; v1.35 tagged
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 7
   total_plans: 41
-  completed_plans: 40
-  percent: 98
+  completed_plans: 41
+  percent: 100
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
-Plan: 8 of 9 complete (01, 02, 03, 04, 05, 06, 07, 08 — plan 09 remaining)
-Status: Executing Phase 173 — plans 01, 02, 03, 04, 05, 06, 07, 08 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review; six generated provenance footers published to firestarter_prom.wiki.git and independently re-verified from a fresh clone; four upstream replies posted, gh#7/gh#6 closed, gh#9 pinned; provenance-footer CI leg wired into wiki-check.yml and opened, not merged, as henols/firestarter_prom#55 per the operator's narrowing; the v1.35 honesty ledger with 21 cited rows, both filed backlog rows 999.46/999.47 inserted into ROADMAP.md by the orchestrator, and the Backlog 999.9 rename-sweep target list capturing 82,796 references across 3,533 tracked files), plan 09 remaining
-Last activity: 2026-09-02 — Completed 173-08-PLAN.md (continuation agent; Tasks 1, 2 and the orchestrator's Task 3a pre-completed, commits 575f513d, ed96cee5, 6d0eae0a). This continuation independently re-verified the orchestrator's Task 3a ROADMAP insertion rather than trusting it — all 999.40 through 999.47 headings appear exactly once, the v1.14 divider is intact, Phase 172's checklist box is checked, the pending todo is gone, and ROADMAP.md/REQUIREMENTS.md are provably untouched by this executor's own commits from 6d0eae0a forward. Then captured evidence/173-08-rename-sweep-targets.txt (commit ac160756) — a mechanical inventory scoped with /usr/bin/grep over `git ls-files` across three tracked trees (meta, firestarter, firestarter_app), never the PATH ugrep which honours .gitignore, naming phases 169/170/172 and this phase's own outputs explicitly and flagging the six wiki footers as a fourth surface (a wiki clone) outside any tracked tree this scan could reach. Ledger row L21 (tools/wiki/ absent from origin/main) recorded as a carried non-claim, not filed as a numbered backlog row. Plan 08 SUMMARY.md written and committed (02747cba). Plan 09 remains — it owns flipping POLICY-04/POLICY-05 and Phase 173's own ROADMAP checklist box at phase close.
+Phase: 173
+Plan: Not started
+Status: All phases complete
+Last activity: 2026-09-02 — Phase 173 complete
 
 ## Roadmap Summary (v1.35)
 
@@ -3177,8 +3177,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-02T15:15:00.000Z
-**Stopped at:** Completed 173-06-PLAN.md
+**Last session:** 2026-09-02T17:55:00.000Z
+**Stopped at:** Phase 173 complete — all phases complete
+**Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-05-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-03-PLAN.md
