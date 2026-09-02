@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 status: executing
-stopped_at: Completed 173-07-PLAN.md
-last_updated: "2026-09-02T14:54:59.000Z"
+stopped_at: Completed 173-06-PLAN.md
+last_updated: "2026-09-02T15:15:00.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 plan 07 complete — the D-13 blocking wording review, already conducted by the orchestrator with the operator (approve, strengthen gh#6), was made mechanical on disk in evidence/173-07-operator-approval.txt, hash-bound to the four bodies as amended. gh#6's Delivered bullet was amended to cite the performed push rejected by GH013 across all three repositories (evidence/173-03-probe-verdict.md) rather than an API ruleset read-back, applied identically to the body file and the embedded copy in 173-UPSTREAM-REPLIES.md. All four bodies were then posted via gh issue comment --body-file (byte-identical to approved, confirmed by API read-back), gh#7 and gh#6 closed, gh#5 and gh#9 left open, gh#9 pinned via GraphQL pinIssue after re-resolving and cross-checking both node ids at run time. Before/after captures reconcile on every field. 173-UPSTREAM-REPLIES.md now reads APPROVED AND POSTED with a comment URL beside each body. One plan-authored verify-script defect found and corrected (Rule 1): the collateral-comment sweep assumed a zero-comment baseline across the whole repository, false for this centralized tracker; corrected via comment-creation-timestamp evidence. ROADMAP.md and REQUIREMENTS.md provably untouched across the plan's three commits.
+last_activity_desc: Phase 173 plan 06 complete (continuation agent — Task 1 pre-completed) — the fourth, comment-free `Provenance footer check` leg was wired into wiki-check.yml and proved green locally against a reproduced runner layout by the prior agent (commit da22a666). This continuation resolved Task 2's blocking-human checkpoint with the operator's narrowed answer ("just s PR", read as "just a PR" — open the pull request, do not merge it) and wrote evidence/173-06-operator-approval.txt recording the exact literal and the narrowing. Task 3 then opened henols/firestarter_prom#55 against main, built off origin/main via a disposable git commit-tree/write-tree ref (never checking out or switching this repo's own branch), carrying the workflow leg plus tools/wiki/provenance_footers.py and tools/wiki/MIGRATION-TABLE.md — both absent from origin/main, needed for the leg to resolve once merged. The PR was left OPEN, not merged, per the operator's narrowing; Task 3's verify was narrowed accordingly from asserting MERGED to asserting OPEN, documented in SUMMARY.md. Read back from the API: main does not yet carry the step and Wiki check has zero CI runs, so D-10's guard is delivered as code plus an open PR, not as a live check — recorded as an explicit non-claim for plan 173-08's ledger. Discovered but out of this plan's scope: the rest of tools/wiki/ (wiki.py, honest02_truth.py, dispatch_mirror.py, claim-allowlist.json) is also absent from origin/main, so wiki-check.yml's three pre-existing legs would also fail to resolve on first run — pre-existing from Phase 172's prom#54, not fixed here. ROADMAP.md and REQUIREMENTS.md provably untouched across this plan's four commits.
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 41
-  completed_plans: 38
-  percent: 93
+  completed_plans: 39
+  percent: 95
 ---
 
 # Project State
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
-Plan: 6 of 9 complete (01, 02, 03, 04, 05, 07 — plans 06, 08, 09 remaining)
-Status: Executing Phase 173 — plans 01, 02, 03, 04, 05, 07 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review; six generated provenance footers published to firestarter_prom.wiki.git and independently re-verified from a fresh clone; four upstream replies posted, gh#7/gh#6 closed, gh#9 pinned), plans 06, 08, 09 remaining
-Last activity: 2026-09-02 — Completed 173-07-PLAN.md. D-13's blocking wording review had already been conducted by the orchestrator with the operator (verdict: approve, strengthen gh#6) before this plan ran; this plan made that review mechanical by writing evidence/173-07-operator-approval.txt hash-bound to the four bodies as amended. gh#6's Delivered bullet was amended — in both evidence/bodies/173-gh6.md and the embedded copy in 173-UPSTREAM-REPLIES.md, byte-identically — to cite the performed push rejected by GH013 across all three repositories (evidence/173-03-probe-verdict.md, empty commit from a true descendant of origin/main, GitHub's own rule-violation message naming the pull-request requirement, a paired accepted-then-deleted push to a throwaway ref) rather than an API ruleset read-back; no other sentence in gh#6 and no byte of the other three bodies changed. All four bodies were then posted to henols/firestarter_prom via `gh issue comment --body-file`, confirmed byte-identical to the approved files by reading the posted comments back from the API; gh#7 and gh#6 were closed, gh#5 and gh#9 left open, and gh#9 was pinned via the GraphQL `pinIssue` mutation after re-resolving and cross-checking both node ids at run time against the RESEARCH.md-measured values. `evidence/173-07-issue-state-after.json` reconciles against plan 173-04's before-capture on every field (four comment counts 0→1, two closures, two left open, pinned count 0→1). `173-UPSTREAM-REPLIES.md` now reads APPROVED AND POSTED with a comment URL beside each body. One deviation: the plan's own collateral-comment verify script wrongly asserted a zero-comment baseline across the whole repository — false for this centralized issue tracker, which already had comments on 39 of 53 issues — corrected via a comment-creation-timestamp check proving only issues 5/6/7/9 gained a comment. ROADMAP.md and REQUIREMENTS.md provably untouched across the plan's three commits, checked against both HEAD~3 and HEAD~1.
+Plan: 7 of 9 complete (01, 02, 03, 04, 05, 06, 07 — plans 08, 09 remaining)
+Status: Executing Phase 173 — plans 01, 02, 03, 04, 05, 06, 07 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review; six generated provenance footers published to firestarter_prom.wiki.git and independently re-verified from a fresh clone; four upstream replies posted, gh#7/gh#6 closed, gh#9 pinned; provenance-footer CI leg wired into wiki-check.yml and opened, not merged, as henols/firestarter_prom#55 per the operator's narrowing), plans 08, 09 remaining
+Last activity: 2026-09-02 — Completed 173-06-PLAN.md (continuation agent; Task 1 pre-completed by a prior agent, commit da22a666). Task 2 resolved the blocking-human checkpoint with the operator's narrowed answer ("just s PR", read as "just a PR" — open the PR, do not merge it), recorded in evidence/173-06-operator-approval.txt. Task 3 opened henols/firestarter_prom#55 against main — built off origin/main via a disposable git commit-tree/write-tree ref so this repo's own branch was never switched — carrying the new leg plus tools/wiki/provenance_footers.py and tools/wiki/MIGRATION-TABLE.md, neither of which was on origin/main, needed for the leg's command to resolve once merged. The PR was left OPEN, not merged; Task 3's verify was narrowed accordingly from asserting MERGED to asserting OPEN and documented as such. Read back from the API: main does not yet carry the step and Wiki check has zero CI runs — D-10's guard is code plus an open PR, not a live check yet, an explicit non-claim carried forward for plan 173-08's ledger. Discovered but out of this plan's file scope and not fixed: the rest of tools/wiki/ (wiki.py, honest02_truth.py, dispatch_mirror.py, claim-allowlist.json) is also absent from origin/main, so wiki-check.yml's three pre-existing legs would also fail to resolve on first run — pre-existing from Phase 172's prom#54. ROADMAP.md and REQUIREMENTS.md provably untouched across this plan's four commits.
 
 ## Roadmap Summary (v1.35)
 
@@ -3173,11 +3173,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 172 P04 | 15min | 3 tasks | 7 files |
 | Phase 172 P06 | 62min | 3 tasks | 3 files |
 | Phase 172 P07 | 15min | 3 tasks | 3 files |
+| Phase 173 P06 | 25min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-09-02T14:54:59.000Z
-**Stopped at:** Completed 173-07-PLAN.md
+**Last session:** 2026-09-02T15:15:00.000Z
+**Stopped at:** Completed 173-06-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-05-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-04-PLAN.md
