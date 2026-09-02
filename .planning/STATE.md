@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.35
-milestone_name: Documentation Consolidation & Wiki Migration
-current_phase: 173
-current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
-status: archived
-stopped_at: v1.35 archived — milestone closed, awaiting /gsd-new-milestone
-last_updated: "2026-09-02T19:30:00.000Z"
+milestone: v1.36
+milestone_name: dev test Fidelity — Only Run What Can Tell You Something, Report Only What You Know
+status: planning
+last_updated: "2026-09-02T19:59:00.085Z"
 last_activity: 2026-09-02
-last_activity_desc: v1.35 CLOSED and archived — 29/32 requirements, override_closeout; ROADMAP + REQUIREMENTS archived to milestones/; 999.49 and 999.50 filed at close
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 41
-  completed_plans: 41
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -235,10 +231,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: None — between milestones
-Plan: Not started
-Status: v1.35 closed and archived; next milestone not yet defined
-Last activity: 2026-09-02 — v1.35 archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-09-02 — Milestone v1.36 started
 
 ## Roadmap Summary (v1.35)
 
@@ -1065,7 +1061,6 @@ eleven closes.
 
 **Nothing in this set blocks the v1.35 close, and only one item in it was created by v1.35.** Each is
 carried to the next milestone in the state it was disclosed here.
-
 
 ## Deferred Items — acknowledged at v1.33 milestone close (2026-08-24)
 
