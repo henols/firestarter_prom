@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 status: executing
-stopped_at: Completed 173-02-PLAN.md
-last_updated: "2026-09-02T14:45:00.000Z"
+stopped_at: Completed 173-04-PLAN.md
+last_updated: "2026-09-02T14:15:38.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 plan 02 complete — git.base_branch repointed to beta with a proven before/after read-back, close-procedure note written naming all seven consumer sites and the false REQUIREMENTS.md:119 premise, CLAUDE.md pointer added
+last_activity_desc: Phase 173 plan 04 complete — drafted all four upstream replies (gh#5, gh#6, gh#7, gh#9) into 173-UPSTREAM-REPLIES.md with byte-identical body files under evidence/bodies/, captured the pre-post issue state (all four open, zero comments, pinned set empty), and verified every link resolves. Nothing posted; review status PENDING OPERATOR REVIEW for plan 173-07.
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 41
-  completed_plans: 34
-  percent: 83
+  completed_plans: 35
+  percent: 85
 ---
 
 # Project State
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
-Plan: 2 of 9 complete
-Status: Executing Phase 173 — plans 01-02 done (provenance-footer checker; base-branch repoint + close-procedure note), plans 03-09 remaining
-Last activity: 2026-09-02 — Completed 173-02-PLAN.md. Repointed git.base_branch to beta and git.protected_branches to [main] in .planning/config.json with a proven before/after read-back (base-branch main->beta, --is-protected beta false->true, milestone branch stays false), wrote .planning/notes/v135-close-procedure-under-protection.md naming all seven GSD consumer sites and correcting REQUIREMENTS.md:119's false premise, and added a CLAUDE.md pointer section so the next close agent reads the procedure before it fails.
+Plan: 3 of 9 complete (01, 02, 04 — plan 03 not yet run)
+Status: Executing Phase 173 — plans 01, 02, 04 done (provenance-footer checker; base-branch repoint + close-procedure note; four upstream reply drafts behind a blocking operator review), plans 03, 05-09 remaining
+Last activity: 2026-09-02 — Completed 173-04-PLAN.md. Drafted the four upstream replies criterion 5 owes (gh#5 stays open as the FUT-W-01..05 tracker, gh#6 and gh#7 reply-and-close, gh#9 reply-stays-open-gets-pinned) into 173-UPSTREAM-REPLIES.md with each body also stored byte-identical under evidence/bodies/173-gh<n>.md for plan 173-07's --body-file post. Captured the pre-post state of all four issues (open, zero comments) and prom's pinned-issue count (0) from the live API, and mechanically verified every URL in every body resolves (evidence/173-04-draft-link-check.txt). Nothing posted, closed or pinned — 173-UPSTREAM-REPLIES.md's review status stays PENDING OPERATOR REVIEW and all four issues were re-confirmed at zero comments after drafting.
 
 ## Roadmap Summary (v1.35)
 
