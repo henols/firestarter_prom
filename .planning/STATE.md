@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 status: executing
-stopped_at: Completed 173-04-PLAN.md
-last_updated: "2026-09-02T14:15:38.000Z"
+stopped_at: Completed 173-03-PLAN.md
+last_updated: "2026-09-02T14:30:00.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 plan 04 complete — drafted all four upstream replies (gh#5, gh#6, gh#7, gh#9) into 173-UPSTREAM-REPLIES.md with byte-identical body files under evidence/bodies/, captured the pre-post issue state (all four open, zero comments, pinned set empty), and verified every link resolves. Nothing posted; review status PENDING OPERATOR REVIEW for plan 173-07.
+last_activity_desc: Phase 173 plan 03 complete — operator authorized the D-02 ruleset rejection probe, then pushed a true-fast-forward empty commit at protected main in all three repositories (firestarter_prom, firestarter, firestarter_app), each rejected with GitHub's own GH013 rule-violation text naming the pull-request requirement (verdict PASS ×3), paired with an accepted-then-deleted push to a throwaway ref proving the rulesets scope to the default branch only. Rulesets proven field-for-field unchanged before/after at their original ids; no ruleset-probe branch survives on any remote. Verdict record states plainly that no beta lockstep cut is claimed by this probe.
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 41
-  completed_plans: 35
-  percent: 85
+  completed_plans: 36
+  percent: 88
 ---
 
 # Project State
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
-Plan: 3 of 9 complete (01, 02, 04 — plan 03 not yet run)
-Status: Executing Phase 173 — plans 01, 02, 04 done (provenance-footer checker; base-branch repoint + close-procedure note; four upstream reply drafts behind a blocking operator review), plans 03, 05-09 remaining
-Last activity: 2026-09-02 — Completed 173-04-PLAN.md. Drafted the four upstream replies criterion 5 owes (gh#5 stays open as the FUT-W-01..05 tracker, gh#6 and gh#7 reply-and-close, gh#9 reply-stays-open-gets-pinned) into 173-UPSTREAM-REPLIES.md with each body also stored byte-identical under evidence/bodies/173-gh<n>.md for plan 173-07's --body-file post. Captured the pre-post state of all four issues (open, zero comments) and prom's pinned-issue count (0) from the live API, and mechanically verified every URL in every body resolves (evidence/173-04-draft-link-check.txt). Nothing posted, closed or pinned — 173-UPSTREAM-REPLIES.md's review status stays PENDING OPERATOR REVIEW and all four issues were re-confirmed at zero comments after drafting.
+Plan: 4 of 9 complete (01, 02, 03, 04 — plans 05-09 remaining)
+Status: Executing Phase 173 — plans 01, 02, 03, 04 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review), plans 05-09 remaining
+Last activity: 2026-09-02 — Completed 173-03-PLAN.md. Operator authorized (evidence/173-03-operator-approval.txt) the D-02 ruleset rejection probe; pushed a true-fast-forward empty commit at protected `main` in firestarter_prom, firestarter and firestarter_app, each rejected by GitHub's own GH013 rule-violation text naming the pull-request requirement (verdict PASS x3), each paired with an accepted-then-deleted push to a throwaway ref proving the rulesets are scoped to the default branch and not the whole repository. Rulesets proven field-for-field identical before/after at their original ids (22043478 / 4998759 / 22046179); no ruleset-probe branch survives on any of the three remotes. Verdict record (evidence/173-03-probe-verdict.md) states plainly that no beta lockstep cut is claimed by this probe and that the corroborating branch-rules read is context, not the discharge. ROADMAP.md and REQUIREMENTS.md provably untouched across the plan's three commits.
 
 ## Roadmap Summary (v1.35)
 
@@ -3176,8 +3176,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-02T14:45:00.000Z
-**Stopped at:** Completed 173-02-PLAN.md
+**Last session:** 2026-09-02T14:30:00.000Z
+**Stopped at:** Completed 173-03-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-04-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-02-PLAN.md
 **Was (superseded, retained for continuity):** Phase 173 PLANNED — 9 plans, 26 tasks, 5 waves; plan-checker passed, requirements 2/2 and decisions 13/13 covered; NOT auto-advanced to execute (outward-facing operator gates)
 **Was (superseded, retained for continuity):** Phase 173 context gathered
 **Was (superseded, retained for continuity):** Completed 172-04-PLAN.md
