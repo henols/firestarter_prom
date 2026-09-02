@@ -123,3 +123,10 @@ jobs:
             --app-dir firestarter_app \
             --fw-dir firestarter
           echo "OK: the wiki's dispatch table still mirrors the host tool and the firmware test"
+
+      - name: Provenance footer check
+        run: |
+          python3 meta/tools/wiki/provenance_footers.py \
+            --table meta/tools/wiki/MIGRATION-TABLE.md \
+            --wiki-dir wiki-clone
+          echo "OK: every migrated wiki page still carries the provenance footer its migration-table row states, and every live page is accounted for by that table"
