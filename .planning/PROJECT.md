@@ -79,24 +79,57 @@ faults is the worst defect it can have.
   `FLAG_SKIP_BLANK_CHECK` on `uv-slot` writes. Today run 1 leaves a UV part non-blank and run 2 is
   refused even though it targets a different, provably blank slot — so a UV part is testable at most
   once, and only if it arrives blank. The masked slot write is monotone (it only clears 1→0) with a
-  verify immediately behind it, so the skip cannot corrupt. **The regression test that does not exist
-  today:** a UV part holding data outside the target slot must accept a slot write.
+  verify immediately behind it, so the skip cannot corrupt. **Correction from research:** `FLAG_SKIP_BLANK_CHECK` fixes the *firmware
+  write-init pre-flight* only — it does not touch the plan's own **standalone `blank-check` step**,
+  which `derive_plan` puts in every UV plan and which still returns `VERDICT_BAD`, still trips
+  `hardware_refused`, still aborts cycle 2, and still yields `[dev test] AM27C020 — FAIL` through
+  `overall_verdict`'s FAIL-dominance. **The success criterion is `overall_verdict == "PASS"` with
+  `run_count == 2`, not "the write step went OK".** The regression test that does not exist today:
+  a UV part holding data outside the target slot must accept a slot write and the run must PASS.
 - **A tool or rig fault is never filed as a chip verdict.** One tool defect currently produces three
   BAD steps and a submit prompt offering `[dev test] AM27C020 — FAIL` against the chip.
 - **The report states what the run knows** (Backlog 999.36, 13 requirements already drafted as
   RPT-A1…E3). Populate `chip_id_actual` on a *passing* id check; export the fingerprint's `total`/`bad`/
   `bad_pct`/`evidence` as additive siblings, the read-step `divergence` metric, and `plan.is_uv`;
   delete `voltage.vpp_mv`/`vpe_mv` and `banner.locked_steps`, which no code path assigns; wire the two
-  real re-sync events at `serial_comm.py:520-526` and `:536-541` into `transport_health`; make
+  real re-sync events at `serial_comm.py:485-490` and `:500-505` into `transport_health`; make
   `duration_s` a per-operation cost and add a real wall-clock `elapsed`; bump the schema to **1.8**.
 - **Canonical chip naming** — report the matched database `part_number`, not the operator's raw CLI
   token, so an issue title names a string that exists in the database.
 
-**The blast-radius gate.** `dedup_fingerprint` must stay **byte-identical** for every pre-existing
-report shape, asserted against the frozen schema-1.2 fixtures. Not one field being added, filled or
-deleted is in that hash today — provided `classification` keeps its own key and the new byte counts are
-added *beside* it rather than replacing it. Replacing it re-keys every `count_agreeing` group in the
-project's history and would disturb Phase 114's GRAD-01 no-auto-graduate lock.
+**The blast-radius gate — CORRECTED 2026-09-02 after research falsified the original claim.** This
+section previously read *"`dedup_fingerprint` must stay byte-identical … Not one field being added,
+filled or deleted is in that hash today."* **That sentence was wrong, and the gate it named does not
+exist.** Three of four researchers falsified it independently **by execution** against `firestarter_app`
+at `0a93999`. It is true of *report fields* and irrelevant to what this milestone actually changes: the
+hash reads **values and plan shape**, not schema keys. Four re-key paths were measured:
+
+| # | Change | Measured effect on `dedup_fingerprint` |
+|---|---|---|
+| 1 | Gating the fingerprint read-back on failure | A *passing* write/verify carries `classification="indeterminate"` (a perfect match falls through `classify_fingerprint`'s four buckets), and the hash contains `f"{op}={verdict}:{cls}"`. **`4dc282a5d596` → `60a031573aab`.** |
+| 2 | Pruning unsupported SDP steps from `Plan.steps` | **`a00791f1c2b4` → `7d1cd4157cfa`** for m27c512/full. Affects **637 of 677** chips carrying six `supported=False` SDP steps. |
+| 3 | Canonical `part_number` naming | `ac.chip` is `parts[0]`. **`a00791f1c2b4` → `a6f6c6354047`.** 732 of 746 part numbers differ from their own lowercase form and every open issue title is lowercase — this re-keys essentially all project history. |
+| 4 | UV blank-check abort (second-order) | A BAD standalone blank-check → `hardware_refused` → cycle 2 never runs → `run_count` collapses to 1 → `repeat_policy_tag` emits the degraded `fast`-shaped discriminator on a run nobody asked to be fast. |
+
+The same read-back change also **flips the promotion ladder**: `disposition='inconclusive' ladder=''` →
+`'suggests: candidate for community-reported' ladder='community-reported'`, because `build_db_diff`
+routes on `has_indeterminate_fingerprint`. A performance change moves chips onto the Phase 114 GRAD-01
+ladder as a side effect.
+
+**And the gate itself is absent.** Every dedup test in `tests/test_diagnostic_report.py` is *relational*
+(`fp(a) == fp(b)`, computed at runtime), so a change to the hash algorithm passes all of them. There is
+exactly **one** frozen expected-hash literal in the suite (`tests/test_diagnostic_report.py:1377`,
+`"a0a50436ae3d"`), and the frozen schema-1.2 fixtures this was supposed to be "asserted against" carry
+hand-written placeholder tokens (`"deadnu11id00"`), not real hashes. `count_agreeing` reads the
+**embedded** hash and never re-hashes, so any re-key is permanent and unrecoverable except by publishing
+an old→new mapping.
+
+**Therefore: build the oracle first, change nothing the oracle has not measured.** The first phase is a
+blast-radius invariance harness — a frozen `(report shape → 12-hex)` table computed against HEAD before
+any change lands, plus a pinned `build_db_diff` ladder output and the measured raw-token→`part_number`
+delta. Each of the four re-keys then becomes a **declared, dated, one-time decision recorded in
+`MILESTONES.md`**, not a silent history fork.
+
 
 **Scope boundaries, decided at activation (operator, 2026-09-02):**
 - **Host app only.** `firestarter_app` changes only; no firmware edit, so no dual-repo lockstep, no
