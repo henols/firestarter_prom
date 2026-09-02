@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 status: executing
-stopped_at: Completed 173-05-PLAN.md
-last_updated: "2026-09-02T14:44:26.000Z"
+stopped_at: Completed 173-07-PLAN.md
+last_updated: "2026-09-02T14:54:59.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 plan 05 complete — operator authorized (evidence/173-05-operator-approval.txt) the D-09 wiki footer push; the six generated provenance footers (Programming-Protocols, Shield-Revisions, Install-Beta, Testing-Chips, Lockable-PROMs, Shell-Completion) were emitted into a working clone, the full four-checker suite ran green against it before pushing (honest02_truth.py leg 1 held at 5 matched/0 missing), then exactly one commit (d7073f6) was pushed to firestarter_prom.wiki.git touching exactly those six pages. An independent fresh clone taken after the push re-confirmed all four checkers green, HEAD matching the pushed SHA, 12 Markdown files, and both footer variants correctly distributed. ROADMAP.md and REQUIREMENTS.md provably untouched.
+last_activity_desc: Phase 173 plan 07 complete — the D-13 blocking wording review, already conducted by the orchestrator with the operator (approve, strengthen gh#6), was made mechanical on disk in evidence/173-07-operator-approval.txt, hash-bound to the four bodies as amended. gh#6's Delivered bullet was amended to cite the performed push rejected by GH013 across all three repositories (evidence/173-03-probe-verdict.md) rather than an API ruleset read-back, applied identically to the body file and the embedded copy in 173-UPSTREAM-REPLIES.md. All four bodies were then posted via gh issue comment --body-file (byte-identical to approved, confirmed by API read-back), gh#7 and gh#6 closed, gh#5 and gh#9 left open, gh#9 pinned via GraphQL pinIssue after re-resolving and cross-checking both node ids at run time. Before/after captures reconcile on every field. 173-UPSTREAM-REPLIES.md now reads APPROVED AND POSTED with a comment URL beside each body. One plan-authored verify-script defect found and corrected (Rule 1): the collateral-comment sweep assumed a zero-comment baseline across the whole repository, false for this centralized tracker; corrected via comment-creation-timestamp evidence. ROADMAP.md and REQUIREMENTS.md provably untouched across the plan's three commits.
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 41
-  completed_plans: 37
-  percent: 90
+  completed_plans: 38
+  percent: 93
 ---
 
 # Project State
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
-Plan: 5 of 9 complete (01, 02, 03, 04, 05 — plans 06-09 remaining)
-Status: Executing Phase 173 — plans 01, 02, 03, 04, 05 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review; six generated provenance footers published to firestarter_prom.wiki.git and independently re-verified from a fresh clone), plans 06-09 remaining
-Last activity: 2026-09-02 — Completed 173-05-PLAN.md. Operator authorized (evidence/173-05-operator-approval.txt) the D-09 wiki footer push via menu selection `publish`, no added note. The six generated footers were emitted into a working clone (exactly six pages changed, neither _Sidebar.md nor Home.md), the full four-checker suite ran green against that clone before pushing (honest02_truth.py leg 1 held at 5 matched/0 missing, the RESEARCH.md baseline), then exactly one commit (d7073f64c81e5206372d81072623369499429377) was pushed to firestarter_prom.wiki.git's master branch touching exactly those six pages. A second, independent fresh clone taken after the push re-ran all four checkers (all green), confirmed HEAD matched the pushed SHA, 12 Markdown files (no page added), and both footer variants (2 moved-intact, 4 post-move-edited) verbatim and correctly distributed. Recorded that the guard is not yet running in CI (plan 173-06 registers the leg). ROADMAP.md and REQUIREMENTS.md provably untouched across the plan's four commits, checked against both HEAD~3 and the pre-session baseline aa7e665a.
+Plan: 6 of 9 complete (01, 02, 03, 04, 05, 07 — plans 06, 08, 09 remaining)
+Status: Executing Phase 173 — plans 01, 02, 03, 04, 05, 07 done (provenance-footer checker; base-branch repoint + close-procedure note; ruleset rejection probe against all three repos; four upstream reply drafts behind a blocking operator review; six generated provenance footers published to firestarter_prom.wiki.git and independently re-verified from a fresh clone; four upstream replies posted, gh#7/gh#6 closed, gh#9 pinned), plans 06, 08, 09 remaining
+Last activity: 2026-09-02 — Completed 173-07-PLAN.md. D-13's blocking wording review had already been conducted by the orchestrator with the operator (verdict: approve, strengthen gh#6) before this plan ran; this plan made that review mechanical by writing evidence/173-07-operator-approval.txt hash-bound to the four bodies as amended. gh#6's Delivered bullet was amended — in both evidence/bodies/173-gh6.md and the embedded copy in 173-UPSTREAM-REPLIES.md, byte-identically — to cite the performed push rejected by GH013 across all three repositories (evidence/173-03-probe-verdict.md, empty commit from a true descendant of origin/main, GitHub's own rule-violation message naming the pull-request requirement, a paired accepted-then-deleted push to a throwaway ref) rather than an API ruleset read-back; no other sentence in gh#6 and no byte of the other three bodies changed. All four bodies were then posted to henols/firestarter_prom via `gh issue comment --body-file`, confirmed byte-identical to the approved files by reading the posted comments back from the API; gh#7 and gh#6 were closed, gh#5 and gh#9 left open, and gh#9 was pinned via the GraphQL `pinIssue` mutation after re-resolving and cross-checking both node ids at run time against the RESEARCH.md-measured values. `evidence/173-07-issue-state-after.json` reconciles against plan 173-04's before-capture on every field (four comment counts 0→1, two closures, two left open, pinned count 0→1). `173-UPSTREAM-REPLIES.md` now reads APPROVED AND POSTED with a comment URL beside each body. One deviation: the plan's own collateral-comment verify script wrongly asserted a zero-comment baseline across the whole repository — false for this centralized issue tracker, which already had comments on 39 of 53 issues — corrected via a comment-creation-timestamp check proving only issues 5/6/7/9 gained a comment. ROADMAP.md and REQUIREMENTS.md provably untouched across the plan's three commits, checked against both HEAD~3 and HEAD~1.
 
 ## Roadmap Summary (v1.35)
 
@@ -3176,8 +3176,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-02T14:44:26.000Z
-**Stopped at:** Completed 173-05-PLAN.md
+**Last session:** 2026-09-02T14:54:59.000Z
+**Stopped at:** Completed 173-07-PLAN.md
+**Was (superseded, retained for continuity):** Completed 173-05-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-02-PLAN.md
