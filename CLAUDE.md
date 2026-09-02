@@ -46,3 +46,10 @@ pio test                          # run unit tests
 - **Constants/flag bits** are duplicated between `firestarter_app/firestarter/constants.py` (Python) and `firestarter/include/firestarter.h` (C++). Change both together.
 - **Board differences**: Uno has a 512-byte data buffer; Leonardo has 1024 bytes. Buffer size affects chunked transfer in `eprom_operations.py`.
 - Hardware calibration (R1/R2 resistor values, board revision) is persisted in Arduino EEPROM via `rurp_configuration_t`.
+
+## Milestone close and branch protection
+
+- **`main` is protected in all three repositories** — pull request required, no direct push, no force-push, no deletion. `current_user_can_bypass` is `never`, so no person can bypass.
+- **This project's close targets `beta`, not `main`.** `.planning/config.json` sets `git.base_branch` to `beta`, so `/gsd-complete-milestone` and `/gsd-ship` both point there.
+- **Before running `/gsd-ship`, recreate local `beta` from `origin/beta`** — `ship.md:316` anchors its audit range on `merge-base beta HEAD` and local `beta` goes stale.
+- **The mechanics, the blocked stable-release route and the consumer sites are in `.planning/notes/v135-close-procedure-under-protection.md`.**
