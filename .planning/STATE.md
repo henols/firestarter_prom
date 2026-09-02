@@ -5,16 +5,16 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 status: executing
-stopped_at: Completed 173-01-PLAN.md
-last_updated: "2026-09-02T14:01:18.000Z"
+stopped_at: Completed 173-02-PLAN.md
+last_updated: "2026-09-02T14:45:00.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 plan 01 complete — provenance-footer checker built, demonstrated RED then GREEN, five failures planted and restored, six footers proven safe against all three prior checkers
+last_activity_desc: Phase 173 plan 02 complete — git.base_branch repointed to beta with a proven before/after read-back, close-procedure note written naming all seven consumer sites and the false REQUIREMENTS.md:119 premise, CLAUDE.md pointer added
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 41
-  completed_plans: 33
-  percent: 80
+  completed_plans: 34
+  percent: 83
 ---
 
 # Project State
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — EXECUTING
-Plan: 1 of 9 complete
-Status: Executing Phase 173 — plan 01 done (provenance-footer checker), plans 02-09 remaining
-Last activity: 2026-09-02 — Completed 173-01-PLAN.md. Built tools/wiki/provenance_footers.py (bidirectional table/wiki checker + generator), corrected MIGRATION-TABLE.md (Post-move edits column, Protocol-Flags/Protocol-ID relocated to retired table, 3 unrecorded live pages added), and committed three evidence files proving RED-before-trusted on real inputs then GREEN, five planted failures each restored, and all three prior tools/wiki checkers staying green with the six footers present.
+Plan: 2 of 9 complete
+Status: Executing Phase 173 — plans 01-02 done (provenance-footer checker; base-branch repoint + close-procedure note), plans 03-09 remaining
+Last activity: 2026-09-02 — Completed 173-02-PLAN.md. Repointed git.base_branch to beta and git.protected_branches to [main] in .planning/config.json with a proven before/after read-back (base-branch main->beta, --is-protected beta false->true, milestone branch stays false), wrote .planning/notes/v135-close-procedure-under-protection.md naming all seven GSD consumer sites and correcting REQUIREMENTS.md:119's false premise, and added a CLAUDE.md pointer section so the next close agent reads the procedure before it fails.
 
 ## Roadmap Summary (v1.35)
 
@@ -3176,8 +3176,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-02T10:53:53.854Z
-**Stopped at:** Phase 173 PLANNED — 9 plans, 26 tasks, 5 waves; plan-checker passed, requirements 2/2 and decisions 13/13 covered; NOT auto-advanced to execute (outward-facing operator gates)
+**Last session:** 2026-09-02T14:45:00.000Z
+**Stopped at:** Completed 173-02-PLAN.md
+**Was (superseded, retained for continuity):** Phase 173 PLANNED — 9 plans, 26 tasks, 5 waves; plan-checker passed, requirements 2/2 and decisions 13/13 covered; NOT auto-advanced to execute (outward-facing operator gates)
 **Was (superseded, retained for continuity):** Phase 173 context gathered
 **Was (superseded, retained for continuity):** Completed 172-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
