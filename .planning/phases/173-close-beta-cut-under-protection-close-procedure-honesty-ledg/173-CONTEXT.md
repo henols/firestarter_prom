@@ -48,8 +48,7 @@ wording review; and — only on explicit operator authorization — the full bet
 
 ### POLICY-04 — demonstrating the beta cut
 
-- **D-01: a rejection probe runs inside the phase; the real cut waits for explicit operator
-  authorization.** Two separate deliverables. The probe is evidence that costs nothing
+- **D-01: a rejection probe runs inside the phase; the real cut waits for explicit operator authorization.** Two separate deliverables. The probe is evidence that costs nothing
   outward-facing and can execute unattended; the cut is the close's terminal step and is
   outward-facing, so it stays gated as every outward-facing step has since v1.21.
   Rejected: the real cut unconditionally (v1.34's CLOSE-04 shows the operator may well
@@ -72,8 +71,7 @@ wording review; and — only on explicit operator authorization — the full bet
   GitHub's receive-stage ruleset evaluation never fires; it would report success and prove
   nothing. That is precisely the "reading of the ruleset configuration" criterion 1 rejects.
 
-- **D-03: if the cut is not authorized before the close, POLICY-04 is marked complete on the
-  probe, with the missing half stated as a ledger non-claim.** Criterion 1's own words allow
+- **D-03: if the cut is not authorized before the close, POLICY-04 is marked complete on the probe, with the missing half stated as a ledger non-claim.** Criterion 1's own words allow
   it — "an actual cut **or** an equivalent dry run that exercises the same paths". The ledger
   row then reads: v1.35 claims the rulesets do not block a push to an unprotected ref and do
   block a direct push to `main`; it does **not** claim a beta lockstep cut was performed under
@@ -82,8 +80,7 @@ wording review; and — only on explicit operator authorization — the full bet
   NOT-RUN phases, but heavier than a criterion that already permits the dry run needs);
   recording it as a deviation like v1.34's CLOSE-04 (same objection).
 
-- **D-04: when authorized, the cut is the FULL lockstep — v1.22's recipe with v1.30's PR
-  posture.** Pull requests to `beta` in all three repositories, CI cuts the matched pair, then
+- **D-04: when authorized, the cut is the FULL lockstep — v1.22's recipe with v1.30's PR posture.** Pull requests to `beta` in all three repositories, CI cuts the matched pair, then
   **manually dispatch `publish.yml`** so the app beta actually reaches PyPI, verify both
   channels from a clean venv, and tag meta `v1.35`. The PyPI dispatch is not optional detail:
   it is manual, and 6 of 13 historical app betas never reached PyPI, so skipping it leaves
@@ -97,8 +94,7 @@ wording review; and — only on explicit operator authorization — the full bet
   the v1.30 squash-ancestry trap, but leaves no PR record and diverges from the flow POLICY-05
   is simultaneously documenting).
 
-- **D-05: the rulesets' breakage of the STABLE release path is filed as Backlog 999.46 with a
-  recommended remedy named, not as a menu.** Both sub-repos auto-commit a version bump onto
+- **D-05: the rulesets' breakage of the STABLE release path is filed as Backlog 999.46 with a recommended remedy named, not as a menu.** Both sub-repos auto-commit a version bump onto
   `main` from CI using the default `GITHUB_TOKEN`, and a `DeployKey` bypass does not cover a
   `GITHUB_TOKEN`-authenticated push. The recommended remedy is the todo's **option 2** — move
   the version bump off `main` (bump on `beta`, or a tag-triggered release with no push back) —
@@ -131,8 +127,7 @@ wording review; and — only on explicit operator authorization — the full bet
   whole tree, so the fix silently disappears — and it is third-party tooling, not this
   project's code).
 
-- **D-07: a few lines in meta's `CLAUDE.md`, pointing at
-  `.planning/notes/v135-close-procedure-under-protection.md` for the mechanics.** POLICY-05's
+- **D-07: a few lines in meta's `CLAUDE.md`, pointing at `.planning/notes/v135-close-procedure-under-protection.md` for the mechanics.** POLICY-05's
   stated purpose is that the next `/gsd-complete-milestone` "does not discover the change by
   failing", so being *read* is the requirement. `CLAUDE.md` is auto-loaded into every session
   in this repo, so the agent running the next close reads it whether or not it goes looking.
@@ -144,16 +139,14 @@ wording review; and — only on explicit operator authorization — the full bet
   would be the one wiki page with no human reader, and it fails the read-by-the-tooling
   purpose entirely).
 
-- **D-08: the note covers the stable-release route to `main` and states plainly that it is
-  currently blocked end to end.** A pull request is the only route — `current_user_can_bypass`
+- **D-08: the note covers the stable-release route to `main` and states plainly that it is currently blocked end to end.** A pull request is the only route — `current_user_can_bypass`
   is `never` on all three, so no person including the operator can bypass — and the
   version-bump step then fails per 999.46. Decided from the milestone's established pattern of
   choosing the literally-true statement over the technically-defensible one, not asked.
 
 ### The honesty ledger
 
-- **D-09: the full ledger is internal, at `.planning/v1.35/CLOSE-RECORD.md`, and each migrated
-  wiki page carries a generated per-page provenance footer.** One line at the foot of each
+- **D-09: the full ledger is internal, at `.planning/v1.35/CLOSE-RECORD.md`, and each migrated wiki page carries a generated per-page provenance footer.** One line at the foot of each
   page: relocated from `<repo>/<source path>`, content unchanged, not re-verified.
   `tools/wiki/MIGRATION-TABLE.md` already holds every field needed — source repo, source path,
   wiki page, rendered title, pre-deletion SHA, phase — so the footer is **generated from that
@@ -169,8 +162,7 @@ wording review; and — only on explicit operator authorization — the full bet
   chip page never sees it); a line on `Home.md` alone (`Home` is the page people leave first —
   the disclosure would sit furthest from the pages it qualifies).
 
-- **D-10: the footers get a mechanical guard — a new `tools/wiki/` checker and a
-  `wiki-check.yml` leg, demonstrated RED before it is trusted.** The checker asserts every
+- **D-10: the footers get a mechanical guard — a new `tools/wiki/` checker and a `wiki-check.yml` leg, demonstrated RED before it is trusted.** The checker asserts every
   `MIGRATION-TABLE.md` row resolves to a live wiki page whose footer matches its source path
   and pre-deletion SHA. Planted-failure-first, per Phase 172 D-14's bar and REQUIREMENTS.md's
   bar for HONEST-02. `wiki-check.yml` is registered with Actions as of Phase 172 and already
@@ -195,8 +187,7 @@ wording review; and — only on explicit operator authorization — the full bet
 
 ### Upstream replies
 
-- **D-12: reply on all four issues; close gh#7 and gh#6; keep gh#5 open; keep gh#9 open and
-  PIN it.** Per issue:
+- **D-12: reply on all four issues; close gh#7 and gh#6; keep gh#5 open; keep gh#9 open and PIN it.** Per issue:
   - **gh#7** — reply and close. Its generated-site premise was rejected at the 2026-07-27
     backlog review, the Wiki was chosen, and its content requirements live on in gh#5. Leaving
     it open presents a rejected premise as a live feature request.
@@ -213,8 +204,7 @@ wording review; and — only on explicit operator authorization — the full bet
     D-11's two declines — required status checks, required review-thread resolution — must be
     named in the reply rather than left as silent gaps, or they read as quietly skipped.
 
-- **D-13: all four replies are drafted into the phase record, reviewed by the operator, and
-  only then posted.** Exactly v1.22 D-02's precedent — that close recorded a "blocking wording
+- **D-13: all four replies are drafted into the phase record, reviewed by the operator, and only then posted.** Exactly v1.22 D-02's precedent — that close recorded a "blocking wording
   review" before its outward-facing step, and it is the only pattern this project has for text
   going out under the operator's name. Criterion 5's "sent" is then met with a record of what
   was approved.

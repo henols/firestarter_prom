@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
-current_phase: 172
-current_phase_name: POLICY — One Tracker, Protected `main`
+current_phase: 173
+current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
 status: executing
 stopped_at: Phase 173 context gathered
-last_updated: "2026-09-02T10:53:54.724Z"
+last_updated: "2026-09-02T13:26:43.999Z"
 last_activity: 2026-09-02
 last_activity_desc: Phase 172 COMPLETE — all 9 plans, all 4 requirements marked against named evidence; one tracker stated and configured, three main branches protected
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 32
+  total_plans: 41
   completed_plans: 32
-  percent: 57
+  percent: 43
 ---
 
 # Project State
@@ -235,7 +235,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 172 (POLICY — One Tracker, Protected `main`) — COMPLETE · next is Phase 173 (CLOSE)
+Phase: 173 (CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger) — READY TO EXECUTE
 Plan: 9 of 9 complete
 Status: Phase 172 closed; ready to plan Phase 173
 Last activity: 2026-09-02 — Completed Phase 172, all 9 plans. Plan 09 closed it: three wiki checkers green against fresh clones with all 11 pages, LEGACY-01 green on the merits across four surfaces (after correcting a ugrep-vs-GNU-grep hazard that measured 0 against 38 and would have passed the gate vacuously), both gitlinks re-pinned and proven equal per submodule, and POLICY-01/02/03 + LEGACY-01 marked complete against named evidence with ROADMAP.md provably untouched. Four non-claims and three findings carried to Phase 173; the release-path breakage filed as a pending todo.
@@ -3177,7 +3177,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-02T10:53:53.854Z
-**Stopped at:** Phase 173 context gathered
+**Stopped at:** Phase 173 PLANNED — 9 plans, 26 tasks, 5 waves; plan-checker passed, requirements 2/2 and decisions 13/13 covered; NOT auto-advanced to execute (outward-facing operator gates)
+**Was (superseded, retained for continuity):** Phase 173 context gathered
 **Was (superseded, retained for continuity):** Completed 172-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 171-01-PLAN.md — Shell-Completion published to the live wiki, operator waived Task 3 visual check
 **Was (superseded, retained for continuity):** Phase 171 context gathered
