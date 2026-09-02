@@ -178,3 +178,11 @@ git diff HEAD~1..HEAD   -- .planning/REQUIREMENTS.md   → (empty)
 ---
 *Phase: 173-close-beta-cut-under-protection-close-procedure-honesty-ledg*
 *Completed: 2026-09-02*
+
+## Self-Check: PASSED
+
+- All 8 files (7 evidence files + this SUMMARY) verified present on disk with `[ -f ]`.
+- All 4 commit hashes (`edbda5d0`, `af32bbfc`, `09a7f6e0`, `e88bd55b`) verified present in `git log --oneline --all`.
+- All plan-level `<verification>` and per-task `<acceptance_criteria>` re-run and passing (see Task 1/2/3 verify blocks above).
+- No `ruleset-probe`-prefixed branch remains on any of the three remotes, re-checked after the SUMMARY commit.
+- `.planning/ROADMAP.md` and `.planning/REQUIREMENTS.md` confirmed byte-identical across the full plan commit range and the final commit step.
