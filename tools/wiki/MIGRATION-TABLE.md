@@ -7,18 +7,19 @@ and pushing (D-19). This table exists for two consumers: a reviewer checking tha
 file kept its content and its claims, and the Backlog 999.9 repository-rename sweep that
 greps it for a source path before renaming anything.
 
-| Source repo | Source path | Wiki page | Rendered title | Pre-deletion SHA | Moved in |
-|---|---|---|---|---|---|
-| firestarter_prom | — | Home | Home | — | 167 |
-| firestarter | firestarter/doc/PROTOCOLS.md | Programming-Protocols | Programming Protocols | a218b4f5273d14f0abd796b21ac104792de01603 | 168 |
-| firestarter | firestarter/doc/SHIELD-REVISIONS.md | Shield-Revisions | Shield Revisions | a218b4f5273d14f0abd796b21ac104792de01603 | 168 |
-| firestarter_app | firestarter_app/doc/beta-testing-install.md | Install-Beta | Install Beta | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/community-validation.md | Testing-Chips | Testing Chips | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/lockable-proms.md | Lockable-PROMs | Lockable PROMs | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/protocol-flags.md | Protocol-Flags | Protocol Flags | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/doc/protocol-id.md | Protocol-ID | Protocol ID | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 |
-| firestarter_app | firestarter_app/autocomplete.md | Shell-Completion | Shell Completion | d56424e1979edf7245cffb9ec3111c0469f5b23f | 171 |
-| firestarter_prom | — | Contributing | Contributing | — | 172 |
+| Source repo | Source path | Wiki page | Rendered title | Pre-deletion SHA | Moved in | Post-move edits |
+|---|---|---|---|---|---|---|
+| firestarter_prom | — | Home | Home | — | 167 | — |
+| firestarter | firestarter/doc/PROTOCOLS.md | Programming-Protocols | Programming Protocols | a218b4f5273d14f0abd796b21ac104792de01603 | 168 | — |
+| firestarter | firestarter/doc/SHIELD-REVISIONS.md | Shield-Revisions | Shield Revisions | a218b4f5273d14f0abd796b21ac104792de01603 | 168 | trimmed 2026-08-31 |
+| firestarter_app | firestarter_app/doc/beta-testing-install.md | Install-Beta | Install Beta | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 | rewritten 2026-08-31 |
+| firestarter_app | firestarter_app/doc/community-validation.md | Testing-Chips | Testing Chips | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 | rewritten 2026-08-31 |
+| firestarter_app | firestarter_app/doc/lockable-proms.md | Lockable-PROMs | Lockable PROMs | d56424e1979edf7245cffb9ec3111c0469f5b23f | 168 | trimmed 2026-08-31 |
+| firestarter_app | firestarter_app/autocomplete.md | Shell-Completion | Shell Completion | d56424e1979edf7245cffb9ec3111c0469f5b23f | 171 | — |
+| firestarter_prom | — | Contributing | Contributing | — | 172 | — |
+| firestarter_prom | — | Breaking-Changes | Breaking Changes | — | — | — |
+| firestarter_prom | — | Chip-Database-Fields | Chip Database Fields | — | — | — |
+| firestarter_prom | — | Pin-Maps | Pin Maps | — | — | — |
 
 The Pre-deletion SHA is the sub-repo commit that created the
 `gsd/v1.35-documentation-consolidation-wiki-migration` branch (Task 1 of Plan 168-01) —
@@ -49,6 +50,31 @@ therefore no pre-deletion SHA: its text is the operator's own words from issue 9
 relocated to a wiki page rather than pulled from a deleted file. It was added in
 Phase 172 under POLICY-01.
 
+Five rows above carry `—` for `Source path` and `Pre-deletion SHA`: `Home`, `Contributing`,
+`Breaking-Changes`, `Chip-Database-Fields` and `Pin-Maps`. All five were authored on the wiki
+rather than migrated from a deleted `doc/` file, so none has a pre-migration source for a
+footer to state. `Breaking-Changes`, `Chip-Database-Fields` and `Pin-Maps` were added on
+2026-08-31 — the same day as the rewrite and trim passes the honesty note below records —
+`Chip-Database-Fields` superseding the retired `Infoic-Field-Dictionary` and `Pin-Maps`
+superseding both retired `Pinout-Safety-Review` and the retired `AT28C04-Adapter`'s pin map.
+`git log --follow` against the wiki clone puts the earliest commit for all three at
+`3cf74c0` (2026-08-31, "docs: cut the reference pages down to what a user needs"). No
+`.planning/` artifact names a phase for that commit or for the two later commits that
+introduced `Breaking-Changes` (`7ec9988`) and restored `Pin-Maps`'s chip pin maps
+(`ff2668f`): Phase 170's own commits, recorded in
+`.planning/notes/v135-phases-169-170-executed-ad-hoc.md`, touch only the three README files
+and `REQUIREMENTS.md`, never a wiki page. The `Moved in` cell for these three therefore
+carries `—` rather than a guessed phase number, and this gap is carried forward as its own
+row in Phase 173's honesty ledger rather than silently defaulted to 170.
+
+The seventh column, `Post-move edits`, is sourced from this file's own closing honesty note
+(below): a row carries `rewritten <date>` or `trimmed <date>` when that note records an
+editorial pass on the page after it reached the wiki, and `—` when the page has had none.
+It exists because a footer that stated every page's content was unchanged would be false on
+four of the six footer-eligible pages — `Install-Beta`, `Testing-Chips`, `Shield-Revisions`
+and `Lockable-PROMs` were each edited after their migration closed, and the generated footer
+must say so rather than repeat a blanket claim the honesty note itself contradicts.
+
 ## Retired from the wiki after the migration closed
 
 These pages were migrated in Phase 168 and then removed on 2026-08-31 at the operator's
@@ -63,6 +89,8 @@ because "what happened to this document" is the question this table exists to an
 | `firestarter_app/doc/infoic-field-dictionary.md` | `Infoic-Field-Dictionary` | Superseded by `Chip-Database-Fields`, which describes the Firestarter chip database directly instead of the upstream format it was derived from. Not a migration of the old text — the new page was written from the live database. |
 | `firestarter_app/doc/package-details.md` | `Package-Details` | Removed. Its `flags` tables duplicated `Protocol-Flags`; its own half documented the DIP filter, which is machinery for excluding non-DIP parts on a programmer that only supports DIP. Nothing was worth relocating. |
 | `firestarter_app/doc/sram-nvram-behavior.md` | `SRAM-and-NVRAM-Behavior` | Removed. |
+| `firestarter_app/doc/protocol-flags.md` | `Protocol-Flags` | Trimmed in the 2026-08-31 editorial pass and no longer published, but the main table above still carried it as a current page from Phase 168 through Phase 172 — a defect noticed and deferred in both phases. Corrected here by moving the row rather than by restoring the page, per activation decision 4's relocate-and-correct-only posture. |
+| `firestarter_app/doc/protocol-id.md` | `Protocol-ID` | Trimmed in the 2026-08-31 editorial pass and no longer published, but the main table above still carried it as a current page from Phase 168 through Phase 172 — a defect noticed and deferred in both phases. Corrected here by moving the row rather than by restoring the page, per activation decision 4's relocate-and-correct-only posture. |
 
 `How-To-Edit-This-Wiki` was also removed — see the note above.
 
