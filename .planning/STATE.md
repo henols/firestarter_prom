@@ -5,15 +5,15 @@ milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 172
 current_phase_name: POLICY — One Tracker, Protected `main`
 status: executing
-stopped_at: Completed 172-07-PLAN.md
-last_updated: "2026-09-02T07:50:32.056Z"
-last_activity: 2026-09-01
-last_activity_desc: Phase 172 execution started
+stopped_at: Completed 172-08-PLAN.md
+last_updated: "2026-09-02T09:14:00.000Z"
+last_activity: 2026-09-02
+last_activity_desc: Phase 172 plan 08 complete — three .github-only PRs merged under active rulesets, surfaces live on all three default branches
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 32
-  completed_plans: 30
+  completed_plans: 31
   percent: 43
 ---
 
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 172 (POLICY — One Tracker, Protected `main`) — EXECUTING
-Plan: 8 of 9
+Plan: 9 of 9
 Status: Ready to execute
-Last activity: 2026-09-01 — Completed 172-05-PLAN.md (prom canary ruleset live; D-09 revised to DeployKey bypass after Integration was rejected by the API)
+Last activity: 2026-09-02 — Completed 172-08-PLAN.md (prom#54, firestarter#58, firestarter_app#57 all MERGED through the PR route; four issue templates, three CONTRIBUTING.md files and wiki-check.yml live at ?ref=main; Wiki check registered with Actions; three rulesets still active and never bypassed; no firmware release cut; dev test --submit browser tier confirmed PREFILLED). Body line repaired: it had still read 172-05 after plan 07's state write touched frontmatter only.
 
 ## Roadmap Summary (v1.35)
 
