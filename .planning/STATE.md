@@ -4,11 +4,11 @@ milestone: v1.35
 milestone_name: Documentation Consolidation & Wiki Migration
 current_phase: 173
 current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
-status: completed
-stopped_at: Phase 173 complete — all phases complete
-last_updated: "2026-09-02T18:13:07.172Z"
+status: archived
+stopped_at: v1.35 archived — milestone closed, awaiting /gsd-new-milestone
+last_updated: "2026-09-02T19:30:00.000Z"
 last_activity: 2026-09-02
-last_activity_desc: Phase 173 COMPLETE — 9/9 plans, verification passed 5/5; beta lockstep cut performed and both channels verified; v1.35 tagged
+last_activity_desc: v1.35 CLOSED and archived — 29/32 requirements, override_closeout; ROADMAP + REQUIREMENTS archived to milestones/; 999.49 and 999.50 filed at close
 progress:
   total_phases: 7
   completed_phases: 7
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 173 — CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
+**Current focus:** Planning the next milestone — v1.35 closed and archived 2026-09-02. Run `/gsd-new-milestone`.
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 173
+Phase: None — between milestones
 Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-02 — Phase 173 complete
+Status: v1.35 closed and archived; next milestone not yet defined
+Last activity: 2026-09-02 — v1.35 archived
 
 ## Roadmap Summary (v1.35)
 
@@ -1015,6 +1015,57 @@ not hold (the v1.22 C-5 overclaim class).
 gate-hardening v1.23 left OPEN (fail-open `tools/check_mypy_watermark.py` + 69 hidden inherited
 errors → `firestarter_app`'s primary `ci` job is RED), and 999.15 / gh#8 dev-tools channel gating.
 Plus the owed gh#12 outward follow-up, behind operator wording review.
+
+## Deferred Items — acknowledged at v1.35 milestone close (2026-09-02)
+
+Closeout type: `override_closeout`. **The override is not about this list.** It is driven by three
+record gaps in the milestone's own paperwork — phases **169** and **170** ran ad hoc with no plans,
+summaries, phase directory or verifier pass, and phase **172** has no `172-VERIFICATION.md` despite
+9 plans, 9 summaries and 26 evidence files. See `MILESTONES.md` §v1.35 Known Gaps.
+
+**How these were acknowledged, and why it differs from the documented procedure.**
+`complete-milestone.md` says to acknowledge every item through
+`gsd_run query audit-open acknowledge`. That was attempted at this close on gsd-core **1.12.0** and
+**abandoned after it was found to destroy the artifacts it annotates** — it replaced 100 lines of YAML
+frontmatter in a quick-task summary with a four-line marker, reflowed whole files including the inside
+of a fenced code block, and refused 5 items it had itself manufactured from markdown table rows. The
+entire pass was reverted with `git checkout -- .planning/` and **nothing was committed**. Filed as
+Backlog **999.49**. This section is therefore a **disclosure record only** — no suppression marker was
+written, so all 72 items will resurface at the next `audit-open` scan. That is honest: they are still
+open. It is also what every close from v1.23 onward actually did, which is why `acknowledged.total`
+read `0` going into this one.
+
+**Known verification overrides: 72 newly acknowledged, 0 carried forward from a prior close.**
+
+**Only one of the 72 originates in v1.35** (the Phase 168 fixture-orphan item). The rest are carried
+debt, and the UAT/verification set is substantially the same one acknowledged at each of the last
+eleven closes.
+
+| Category | Item | Status | Deferred At | Milestone |
+|----------|------|--------|-------------|-----------|
+| debug_sessions | `w27c512-devtest-all-bad` | investigating — recorded **NOT REPRODUCIBLE**; the reported gh#41 failure did not reproduce and the session's own one-line status says so | 2026-09-02 | v1.35 |
+| quick_tasks | `260820-a7w-make-the-flash-limit-guards-to-be-the-ac` | unknown to the scanner; the summary's own frontmatter reads `status: complete` — the scanner cannot see it | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 08 — `08-HUMAN-UAT.md` | partial (0 pending scenarios). Residual is the **Uno** leg | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 43 (archived v1.8) — `43-HUMAN-UAT.md` | partial — 2 pending scenarios | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 31 (archived v1.7) — `31-HUMAN-UAT.md` | partial — 4 pending scenarios | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 34 (archived v1.7) — `34-HUMAN-UAT.md` | partial — 3 pending scenarios | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 28 (archived v1.6) — `28-HUMAN-UAT.md` | partial — 1 pending scenario | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 30 (archived v1.6) — `30-HUMAN-UAT.md` | passed — 2 pending scenarios | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 20 (archived v1.4) — `20-HUMAN-UAT.md` | passed — 0 pending scenarios | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 08 — `08-VERIFICATION.md` | human_needed, scope reduced — Leonardo leg superseded by Phase 91's W27C512 PASS; Uno leg genuinely open | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 09 — `09-VERIFICATION.md` | human_needed, scope reduced — item 1 expects a version string that no longer ships | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 84 — `84-VERIFICATION.md` | human_needed, sign-off supported — 3/3 on automated checks; both items ask the operator to accept a deferral as correct | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 31 (archived v1.7) — `31-VERIFICATION.md` | human_needed | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 34 (archived v1.7) — `34-VERIFICATION.md` | human_needed | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 28 (archived v1.6) — `28-VERIFICATION.md` | human_needed | 2026-09-02 | v1.35 |
+| todos | 36 pending (scanner lists 5, reports 31 more) — named: `2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads`, `2026-08-27-safe-state-outputs-on-powerup-and-fault`, `2026-08-27-strip-gsd-provenance-comments-from-source`, `2026-08-30-dev-test-flag-to-auto-file-issue`, `2026-08-30-gate-fingerprint-readback-on-step-failure` | (presence-only) | 2026-09-02 | v1.35 |
+| deferred_items | Phase 79 (1), 98 (2), 102 (1), 106 (1), 111 (2), 121 (1), 133 (1), 153 (1) — 10 items | Nearly all one class: **pre-existing `ruff` I001/UP031 and `mypy` findings in `tools/` files outside the touching plan's scope**, each proven pre-existing by `git stash` and each outside CI's own ruff scope (`firestarter/ tests/`) | 2026-09-02 | v1.35 |
+| deferred_items | Phase 154 — 10 items | The genuine ones are D5/D8 (152 mid-comment and 335 non-`#`-line provenance tokens left unswept, measured), D6 (a mis-classified line-pinned gate) and D9 (the same pre-existing ruff set). **D7 is already marked RESOLVED.** **5 of the 10 are scanner artifacts, not items at all** — four markdown table rows and one `###` sub-heading, which the writer then refuses as unmatched. See Backlog 999.49 defect 3 | 2026-09-02 | v1.35 |
+| deferred_items | Phase 168 — 1 item | **The only item originating in v1.35.** Two orphaned C++ fixtures (`planted_dispatch_missing_hex.cpp`, `planted_dispatch_comment_only_hex.cpp`) left unreferenced when `test_dispatch_mirror.py` was deleted. Tidiness, not a defect; nothing scans for unused fixtures. Now folded into Backlog **999.50** | 2026-09-02 | v1.35 |
+
+**Nothing in this set blocks the v1.35 close, and only one item in it was created by v1.35.** Each is
+carried to the next milestone in the state it was disclosed here.
+
 
 ## Deferred Items — acknowledged at v1.33 milestone close (2026-08-24)
 

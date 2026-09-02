@@ -1,5 +1,89 @@
 # Milestones
 
+## v1.35 Documentation Consolidation & Wiki Migration (Shipped: 2026-09-02)
+
+**Phases completed:** 7 phases authored (167–173), 7 delivered. **41 plans** across the five that ran the machinery (167: 6 · 168: 13 · 171: 4 · 172: 9 · 173: 9). **Phases 169 and 170 have no plans at all** — they were executed ad hoc; see Known Gaps.
+**Timeline:** 2026-08-30 → 2026-09-02 (4 days)
+**Requirements:** **29/32 Complete** — 2 WITHDRAWN (WIKI-03, WIKI-04), 1 NOT MET by operator decision (FRONT-02). All 32 mapped to exactly one phase, 0 orphans.
+**Closeout type:** `override_closeout` — **not** for any gap in the work's outcome. Three record gaps drive it: phases 169/170 ran outside the machinery, and phase 172 has no `172-VERIFICATION.md`. See Known Gaps.
+**Code:** meta 265 commits, 245 files, +43971/−247 (227 of those files, +42822/−42, are `.planning/`) · firmware **6 commits, 9 files, +480/−452** (`a218b4f` → `4f73c80`) · host app **18 commits, 76 files, +858/−4681** (`cb189a9` → `0a93999`) — the app's net −3823 is the documentation coming out.
+**Close posture:** **MERGED AND PUSHED.** Meta tagged `v1.35` at `6e84030b`; the `beta` lockstep cut performed and channel-verified under the new rulesets; three `.github`-only pull requests merged through the ordinary route into three protected `main` branches (`firestarter_prom#54`, `firestarter#58`, `firestarter_app#57`) between 08:56:58Z and 08:57:06Z on 2026-09-02. No stable release in any repository.
+**Known verification overrides:** **72 newly acknowledged, 0 carried forward from a prior close.** Recorded by disclosure in `STATE.md` §Deferred Items rather than through the `audit-open acknowledge` writer, which was found at this close to destroy the artifacts it annotates — see Backlog **999.49**.
+
+**Delivered:** A single documented front door. `firestarter_prom` had **no README at all**; it now has one,
+and its GitHub wiki is the home for project documentation — 11 pages live, indexed from `Home` and a
+hand-written `_Sidebar`. All 12 migrating `doc/` files moved and **both sub-repo `doc/` directories are
+gone** (fw 3 files, app 10). The two sub-repo READMEs were cut to repo scope, the app's from 779 lines,
+its table of contents corrected from advertising three sections that did not exist. Three root-level
+strays disposed: `things.md` and `SECURITY.md` deleted, `autocomplete.md` published as `Shell-Completion`.
+Policy is now **configured, not merely stated** — one tracker, three issue templates live on the chooser,
+`.github/CONTRIBUTING.md` pointers byte-identical by sha256 across all three repos, and `main` behind an
+`enforcement: active` ruleset in all three requiring a pull request and forbidding direct push, force-push
+and deletion, with `current_user_can_bypass: never`.
+
+**The milestone-level non-claim, stated once here in this milestone's own canonical wording:
+relocation is not verification.** HONEST-01 compared a claim-token multiset between each pre-deletion
+`doc/` source (read via `git show <sha>:<path>`) and its published wiki page, proving **no claim was
+upgraded in the move** — no `support_status` softened, no `PROTOCOL-LEDGER` `UNVERIFIED` bucket quietly
+promoted. That is the whole of what was proven. **Nothing on the wiki was confirmed accurate.** A wrong
+sentence that moved unchanged is still wrong, and is now wrong somewhere more discoverable.
+
+**Key accomplishments:**
+
+1. **The wiki is real and the `doc/` directories are gone** — 12 files migrated by copy-then-edit with a
+   bounded edit set, stamped with provenance footers, re-verified from independent fresh clones rather
+   than the working copy that made the edits. `firestarter/doc/` and `firestarter_app/doc/` both deleted.
+2. **The move was proven claim-preserving, not assumed to be** — HONEST-01's multiset comparison, plus a
+   deliberately weakened-claim RED before the live GREEN, so a passing result meant something.
+3. **Protected `main` proven by rejection, not by configuration read-back** — Phase 173 pushed a true
+   fast-forward empty commit at `main` in all three repositories and captured GitHub's own GH013
+   rule-violation refusal. The pull-request route was then demonstrated four times by actually merging.
+4. **The close procedure was fixed by construction before it could break** — POLICY-03 would have broken
+   the next `/gsd-complete-milestone`, so `git.base_branch` was repointed to `beta` and verified by a
+   *distinguishing* before/after read-back. This incidentally corrected three fork-point consumers that
+   had been branching every new phase and quick task off the wrong ref.
+5. **The authoring model was reversed mid-milestone, and the record says so** — Phase 167 built and
+   shipped in-repo markdown source, one-command publish, and a working drift check; the operator then
+   chose wiki-only authoring for simplicity, and Phase 168 deleted the machinery Phase 167 had just
+   proven. WIKI-03/04 are withdrawn, not failed.
+6. **A test suite that could no longer collect was severed cleanly** — `test_dispatch_mirror.py`'s
+   module-scope `fw_path("doc", "PROTOCOLS.md")` would have aborted the entire app suite at collection
+   the moment `firestarter/doc/` vanished. Found and severed before the deletion, not after.
+
+### Known Gaps
+
+- **FRONT-02 — NOT MET, declined outright by the operator (2026-08-31).** It cannot hold at the same time
+  as FRONT-03; the wiki `Home` page owns the getting-started path instead. Struck through and recorded in
+  `REQUIREMENTS.md`, not silently dropped.
+- **WIKI-03 and WIKI-04 — WITHDRAWN (2026-08-30).** Retired by the authoring reversal after being built
+  and shown working.
+- **Phases 169 (FRONT) and 170 (REPO) were executed ad hoc** — direct commits, no plans, no summaries, no
+  phase directory, no `gsd-verifier` pass. Their requirement marks rest on an after-the-fact, same-agent
+  criterion re-check (`.planning/notes/v135-phases-169-170-executed-ad-hoc.md`), not on the machinery
+  every other phase went through.
+- **Phase 172 has no `172-VERIFICATION.md`.** It ran 9 plans with summaries and 26 evidence files, and its
+  own `evidence/172-09-closing-sweep.txt` was written before any requirement box was flipped — but no
+  independent verifier pass exists, so `init.manager` reads it `phase_complete: false`. Its nine ROADMAP
+  checkboxes were flipped at this close, the write `CLOSE-RECORD.md` §1 had assigned to the orchestrator
+  and never performed.
+- **The automated guard this milestone built was retired the day it closed.** `wiki-check.yml` and every
+  checker under `tools/wiki/` were deleted on 2026-09-02 (`5426d7ef`); `MIGRATION-TABLE.md` is the only
+  survivor. **There is now no automated wiki guard of any kind.** HONEST-02 is a disjunction — a check
+  **or** a stamp — and only the stamp half remains, on six pages. See `CLOSE-RECORD.md` §8.
+- **Two findings filed at close, not fixed:** **999.49** — `gsd-tools query audit-open acknowledge`
+  destroys artifact content it is asked only to annotate (it wiped 100 lines of YAML frontmatter from a
+  quick-task summary; the pass was reverted uncommitted). **999.50** — the retirement left two live
+  references to the deleted `tools/wiki/dispatch_mirror.py`, one of which leaves a firmware file declared
+  guarded in `scan_paths.py` and actually unguarded.
+- **Carried from earlier milestones:** 999.46 (the new rulesets block the stable-release version bump in
+  both sub-repos), 999.47 (`firestarter_prom`'s `Catalog sync check` was already red on `main` before this
+  milestone's merges), 999.9 (the repository rename that will invalidate every link written here —
+  phases 169, 170 and 172 are the recorded re-sweep set).
+
+**Archives:** [`milestones/v1.35-ROADMAP.md`](milestones/v1.35-ROADMAP.md) ·
+[`milestones/v1.35-REQUIREMENTS.md`](milestones/v1.35-REQUIREMENTS.md) ·
+[`v1.35/CLOSE-RECORD.md`](v1.35/CLOSE-RECORD.md) (21-row honesty ledger)
+
 ## v1.34 Pre-Merge Hardware Regression Validation (Closed: 2026-08-29 — EARLY / SCOPE-REDUCED)
 
 **Phases completed:** 7 phases authored (160–166); **4 complete** (160, 161, 165, 166), **1 partial** (162, at 5 of 11 chips), **2 not run** (163 SHIELD, 164 REV0). 28 plans authored, **24 completed** — 160 at 13/13, 161 at 5/5, 162 at 6 summarised of 10 (plan 162-07 executed but never summarised; the sweep stopped mid-plan on operator direction).
