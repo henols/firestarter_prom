@@ -4,14 +4,33 @@
 **Requirement / criterion:** POLICY-04's home phase is Phase 173; this record serves Phase 173's
 criterion 5 — "The upstream replies owed on GitHub sent, or explicitly deferred with a reason:
 gh#7, gh#5, gh#9" — widened per Context D-12 to include gh#6 as well.
-**D-13 review status:** PENDING OPERATOR REVIEW
+**D-13 review status:** APPROVED, AMENDMENT TO GH#6 APPLIED — AWAITING POST
 
 Per D-13, exactly v1.22 D-02's precedent: these four bodies are drafted here for a blocking
 operator wording review before a word of them is public. Plan 173-07 is the only plan permitted
-to post them, and only after this status line reads something other than `PENDING OPERATOR
-REVIEW`. Each body below is stored a second time, byte-identical, as its own file under
-`evidence/bodies/173-gh<n>.md` — that is the file plan 173-07 passes to `gh issue comment
+to post them, and only after this status line reads something other than the pending-review
+literal it started at. Each body below is stored a second time, byte-identical, as its own file
+under `evidence/bodies/173-gh<n>.md` — that is the file plan 173-07 passes to `gh issue comment
 --body-file` unmodified, so what the operator approves here is exactly what gets posted.
+
+## Operator Review (D-13 blocking wording review)
+
+The orchestrator presented all four bodies below to the operator in full and verbatim, together
+with the disposition each implies (comment on all four; close gh#7 and gh#6; pin gh#9; leave gh#5
+open). This section describes the operator's response; it is the orchestrator's rendering of a
+menu selection plus its option description, not a verbatim operator quotation.
+
+**Verdict: approved with one amendment.** The operator chose the option "Approve, strengthen
+gh#6" — post all four bodies, but first amend gh#6's third "Delivered" bullet, which had claimed
+the branch-protection verification came from reading the ruleset configuration back from the API.
+The amendment replaces that claim with the stronger evidence plan 173-03 actually measured: an
+empty commit pushed at each protected `main`, from a true descendant of `origin/main`, rejected by
+GitHub's own `GH013: Repository rule violations found` message naming the pull-request
+requirement, paired with an accepted-then-deleted push to an unprotected throwaway ref showing the
+rule is scoped to the default branch rather than the whole repository (see
+`evidence/173-03-probe-verdict.md`). No other sentence in gh#6, and no byte of the other three
+bodies, changed. The amendment has been applied to both `evidence/bodies/173-gh6.md` and the gh#6
+body copy below, so the two stay byte-identical as this record requires.
 
 ## Dispositions
 
@@ -65,7 +84,7 @@ Closing this out with what shipped against it and what was deliberately left out
 
 - One issue tracker, stated plainly in the documentation: `firestarter_prom` is where issues are filed; `firestarter` and `firestarter_app` have Issues disabled; pull requests go to whichever repository holds the changed code.
 - `firestarter_prom` offers issue templates covering a bug report, a feature request, and a `dev test` chip-validation report, plus the chooser config that surfaces them.
-- `main` is behind an enforcing branch-protection ruleset in all three repositories: pull request required, no direct push, no force-push, no deletion. This was verified by reading the ruleset configuration back from the API, not from the settings page, in all three repositories.
+- `main` is behind an enforcing branch-protection ruleset in all three repositories: pull request required, no direct push, no force-push, no deletion. This was verified by pushing an empty commit from a true descendant of `origin/main` directly at each protected `main`; all three rejected it with GitHub's own `GH013: Repository rule violations found` message naming the pull-request requirement, while a paired push to an unprotected throwaway ref on each repository was accepted and then deleted, showing the rule is scoped to the default branch rather than to the whole repository.
 
 **Declined, deliberately, and named here rather than left implicit:**
 
@@ -121,8 +140,8 @@ Following up here with the configured end state this issue's text became the sou
 Nothing above was posted, commented, closed or pinned by this plan. All four issues were
 re-confirmed at zero comments after these bodies were written (see the Task 2 verification gate
 and `evidence/173-04-draft-link-check.txt` for the mechanical link check run against them).
-Posting, closing gh#6 and gh#7, and pinning gh#9 are plan 173-07's work, gated on this status
-line changing away from `PENDING OPERATOR REVIEW`.
+Posting, closing gh#6 and gh#7, and pinning gh#9 are plan 173-07's work, gated on this record's
+review status line changing away from the pending-review literal it started at.
 
 ## Known cost accepted at activation
 
