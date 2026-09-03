@@ -268,7 +268,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 174-03-PLAN.md — Seven element-wise `to_dict()` key-list pins (D-07), the four-way `shape_id` closure against a committed sorted anchor plus three reserved later-phase names (D-10, D-04), and all six pre-seeded ledger rows narrated in `MILESTONES.md` with the four falsified priors recorded (D-12)
+- [x] 174-03-PLAN.md — Seven element-wise `to_dict()` key-list pins (D-07), the four-way `shape_id` closure against a committed sorted anchor plus three reserved later-phase names (D-10, D-04), and all six pre-seeded ledger rows narrated in `MILESTONES.md` with the four falsified priors recorded (D-12)
 
 **Wave 4**
 
