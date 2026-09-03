@@ -263,7 +263,7 @@ Plans:
 
 **Wave 2**
 
-- [ ] 174-02-PLAN.md — The two frozen tables: eight hand-specified shapes (including builder reproduction of the four filed community hashes D-06 names) plus eight real-path `derive_plan` shapes with a stateful SDP-aware operator double, and all four `build_db_diff` arms pinned including the non-SDP all-OK arm
+- [x] 174-02-PLAN.md — The two frozen tables: eight hand-specified shapes (including builder reproduction of the four filed community hashes D-06 names) plus eight real-path `derive_plan` shapes with a stateful SDP-aware operator double, and all four `build_db_diff` arms pinned including the non-SDP all-OK arm
 - [ ] 174-04-PLAN.md — GATE-04: the 26-row filed-issue corpus (26 of 26 reproduce through the real `dedup_fingerprint`) and the raw-CLI-token → `part_number` delta measured through `resolve_chip`, script-generated, committed and drift-tested
 
 **Wave 3**
