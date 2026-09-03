@@ -88,6 +88,17 @@ ordering constraint.
   / gh#32 (at28c256, N=3), and `334c3fa198bf` spans gh#39 / gh#40 (at28c256, N=2). A re-key does
   not merely change a string — it resets `count_agreeing`'s promotion count for these groups.
 
+  **Superseded in part — operator ratification, 2026-09-03.** The four-chip reproduction reduction
+  no longer stands: plan 174-04 reproduces every filed hash, **26 of 26** (**26 filed issues, not
+  27** — the count was measured by title rather than inherited). The reduction's stated cause is
+  gone, because the corpus commits each row's `steps`, `run_counts` and `coverage_tag` as data
+  rather than parsing issue bodies at test time; the enabling discovery was that a step's
+  `fingerprint` serialises as a bare classification string rather than an object (read as an object,
+  0 of 26 reproduce; read as a string, 26 of 26 do). The widening applies to the corpus reproduction
+  assertion only — the four named chips keep their dedicated builder shapes and the `SHAPE_IDS` set
+  is unchanged. Everything else in this decision stands, and no decision id is added, renumbered or
+  split by this amendment.
+
 - **D-07:** The **sorted `to_dict()` key-list pin lands in this phase**, not Phase 181. The
   committed JSON snapshots are being written here anyway, so an element-wise sorted key-list
   assertion on top of them is a few lines. It also means Phase 181's three key deletions
@@ -344,9 +355,12 @@ about this phase's work. Three todos already carry `resolves_phase` for this mil
 <deferred>
 ## Deferred Ideas
 
-- **Reproducing all 27 filed hashes from builders** — considered and scoped down to four (D-06).
-  If Phase 181's canonical-naming work wants broader historical proof, the remaining 23 are a
-  natural extension; the `(issue, chip, hash)` artifact this phase commits is the input for it.
+- **Reproducing all 27 filed hashes from builders** — **CLOSED — delivered in this phase by
+  operator ratification 2026-09-03.** Reason: the corpus commits each row's step vector as data, so
+  no issue-body parsing and no deserializer is needed and every filed hash reproduces through the
+  real `dedup_fingerprint`. Corrected count: **26 filed issues, not 27**. The `(issue, chip, hash)`
+  artifact remains the input for any broader historical work, and the supersession is noted in prose
+  at the D-06 bullet rather than as a new decision.
 - **A general report deserializer (`from_dict`)** — deliberately not built (D-01). If Phase 181's
   RPT-E2 forward-compatibility work turns out to need one, it should be introduced there with its
   own drift gate against `cli_handlers.py:2388`, not smuggled in here.
