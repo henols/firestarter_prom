@@ -4,15 +4,15 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity — Only Run What Can Tell You Something, Report Only What You Know"
 current_phase: 174
 current_phase_name: Blast-Radius Invariance Harness
-status: verifying
-stopped_at: Phase 174 verified gaps_found (4/5) — GATE-06 checker fails open; gap plan needed
-last_updated: "2026-09-03T14:47:11.628Z"
+status: planned
+stopped_at: "Phase 174 gap-closure plan 174-06 written; ready for /gsd-execute-phase 174 --gaps-only"
+last_updated: "2026-09-03T17:33:31.578Z"
 last_activity: 2026-09-03
-last_activity_desc: "Phase 174 executed 5/5 plans; verification gaps_found 4/5 — the MILESTONES.md ledger section exists but check_rekey_ledger.py does not detect a duplicate or corrupted row"
+last_activity_desc: "Phase 174 gap-closure planning: 174-06-PLAN.md written and checker-passed; closes GATE-06 binding mechanism plus CR-01"
 progress:
   total_phases: 8
   completed_phases: 0
-  total_plans: 5
+  total_plans: 6
   completed_plans: 0
   percent: 0
 ---
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 174 (Blast-Radius Invariance Harness) — EXECUTED 5/5, VERIFICATION gaps_found (4/5)
-Plan: 5 of 5 complete — phase NOT marked complete; blocked on one GATE-06 gap
-Status: Executing Phase 174 — Phase 174 planned: 5 plans in 4 waves. Gates all green: plan-checker VERIFICATION PASSED (plus a scoped delta re-check after the D-06 amendment), requirements 6/6 (GATE-01…06), decision coverage 16/16 (D-01…D-16), verify-command-paths 20/20 and verify-failure-directions 20/20 with 0 blockers and 0 warnings each. **Wave 1 is `autonomous: false`** — 174-01 Task 1 opens with a `checkpoint:decision gate="blocking-human"` on the one-way `shape_id` set (D-04), so `--auto` cannot approve it. **The phase research falsified three of the four re-key hash pairs CONTEXT.md D-12 inherited**: only the SST27SF512 read-back pair (`4dc282a5d596`) reproduces; `a00791f1c2b4`, `7d1cd4157cfa` and `a6f6c6354047` do not reproduce from any m27c512 report shape across ~2.1e8 candidate canonical strings, so they are frozen nowhere and are recorded only as falsified priors in the `MILESTONES.md` corrections table (measured substitutes `6d3afbc52315` → `776846bf2dc8`); the UV `run_count` collapse does not fire `repeat_policy_tag` at all (collapsed steps carry `run_count == 0`, not `1`) and the re-key actually rides the `blank-check` verdict triple. **All 26 filed `[dev test]` hashes DO reproduce byte-exactly** — the earlier miss was reading `steps[].fingerprint` as an object when it serialises as a bare classification string — so D-06's four-chip reproduction reduction was **widened to 26-of-26 by operator ratification 2026-09-03**, recorded at all three sites (174-04 objective + Task 2, CONTEXT.md D-06 + Deferred Ideas, and 174-03's corrections row as a SCOPE correction carrying no `ledger_id`). There are **26** filed issues, not 27, and the `dev-test` label covers only 15 — enumerate by title; gh#45 is `W27E040`, so titles are not all lowercase. **The app suite is RED at the branch base** for 3 pre-existing `test_skip_census.py` `subprocess.TimeoutExpired` failures (it caps a child full-suite run at 180 s while the suite takes 740.92 s), which is NOT this phase's to fix and makes "whole suite green" unusable as an acceptance criterion — every verify leg is scoped to this phase's own node-ids. A py3.11.16 CI-replica venv is left at `firestarter_app/.venv311` (self-ignoring); the `derive_plan` whole-DB sweep costs 4.26 s = 0.58 % of the suite so it runs unmarked; GATE-04 measures through `chip_resolver.resolve_chip` + `get_eprom_config` (942 of 953 aliases differ, 514 resolve to a comma-joined `part_number`); D-08's non-SDP all-OK arm is reached by `sst27sf512` and `w27e257`, not AT28C256, which lands in arm 2; and D-13's meta-side checker runs primarily as a local gate with `.github/workflows/rekey-ledger-check.yml` on `beta` + `gsd/**` as the additional leg — never `main`-scoped, or it would never fire during this milestone.
-Last activity: 2026-09-03 — Phase 174 execution complete (5/5 plans, 110 phase tests green, 16/16 frozen hashes reproduce independently). Verifier scored 4/5: SC5/GATE-06 falsified because check_rekey_ledger.py exits 0 on a fabricated duplicate ledger_id row and on a corrupted shape_id/before_hash. CR-01 (three m27c512 shapes alias one mutable results list) carried forward as a WARNING to fix before Phase 181.
+Phase: 174 (Blast-Radius Invariance Harness) — EXECUTED 5/5, VERIFICATION gaps_found (4/5); gap-closure plan 174-06 PLANNED
+Plan: 5 of 6 complete — 174-06 is the gap-closure plan, not yet executed
+Status: Ready to execute 174-06 (gap closure). Planned 2026-09-03 via `/gsd-plan-phase 174 --gaps`: plan-checker VERIFICATION PASSED (0 blockers, 1 warning — a wave-number label mismatch, resolved by rewording the ROADMAP entry), requirements 6/6 (GATE-01…06), decision coverage 16/16, verify-command-paths 26/26 and verify-failure-directions 26/26 all severity none. Next: `/gsd-execute-phase 174 --gaps-only`
+Last activity: 2026-09-03 — `/gsd-plan-phase 174 --gaps`. One gap-closure plan written (`174-06-PLAN.md`, `gap_closure: true`, 3 tasks, requirements GATE-01/02/06) closing the single recorded gap: `check_rekey_ledger.py` exits 0 on a duplicated or corrupted `MILESTONES.md` row (CR-02 legs a+b, which also closes WR-01), plus the separately-committable CR-01 fix for the three frozen shapes sharing one mutable `results` list. Every RED leg is anchored to pinned pre-fix blobs `5c0c7c9` (checker) / `dc7e40a` (report_shapes) so the anti-vacuity pairs stay reproducible after the fix commits, rather than going vacuous against HEAD.
 
 ## Roadmap Summary (v1.36)
 

@@ -274,7 +274,7 @@ Plans:
 
 - [x] 174-05-PLAN.md — D-13's runner decided concretely: local gate primary, plus a registered workflow triggered on `beta` and the milestone branch glob (never `main`-only), proven to fire by invocation; then the phase's own cost, comment-hygiene, scope-boundary and pre-existing-RED audits
 
-**Wave 5 — gap closure (verification scored 4/5; roadmap SC5 / GATE-06 failed)**
+**Gap closure** — planned after verification scored 4/5 (roadmap SC5 / GATE-06 failed). `174-06-PLAN.md` carries `gap_closure: true` and `depends_on: []`, so it runs standalone under `/gsd-execute-phase 174 --gaps-only`; its own `wave: 1` is that run's first and only wave, not a fifth wave of the original execution.
 
 - [ ] 174-06-PLAN.md — GATE-06's binding mechanism made fail-closed: a duplicated `ledger_id` row exits 2 by name instead of the last row silently winning, the undeclared branch validates `shape_id`/`before_hash`/the exact `(undeclared)` literal (CR-02 and WR-01 together), an emptied ledger table exits 1, and every leg is seen RED against a pinned pre-fix blob first; plus CR-01, the three frozen shapes sharing one mutable `results` list
 
