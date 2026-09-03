@@ -1,5 +1,29 @@
 # Milestones
 
+### v1.36 Re-Key Ledger (2026-09-03)
+
+**Measured by Phase 174, the milestone's own blast-radius invariance harness, before any behaviour change lands.**
+
+**The ledger, not the ad hoc claim.** Every deliberate re-key of `dedup_fingerprint`'s output for a frozen report shape in v1.36 is recorded here as a declared, dated, one-time decision with its before/after hashes (GATE-06) — before this phase, no such ledger existed, and a re-key could land inside an ordinary behaviour-change commit with no separate record of what it moved.
+
+`.planning/phases/174-blast-radius-invariance-harness/174-CONTEXT.md` D-12 inherited four before/after hash pairs from an earlier research session against `firestarter_app @ 0a93999`. Phase 174 re-measured every one of them this session, in the py3.11 CI-replica venv, against the actual branch base `firestarter_app @ 49bac1a` — proven content-identical to `0a93999` (one line differs, in `firestarter/__init__.py`, a field `dedup_fingerprint` deliberately excludes). An exhaustive pre-image sweep over the documented 12-step `m27c512/full` plan shape — every verdict × classification assignment, both step layouts, four protocol spellings, roughly 2.1e8 candidate canonical strings — found **zero** report shape that produces either `a00791f1c2b4`, `7d1cd4157cfa` or `a6f6c6354047`.
+
+| Measurement | Old claim (D-12, unreproduced) | Corrected (measured this session) |
+|---|---|---|
+| Read-back gating, `sst27sf512-six-step` | `4dc282a5d596` → `60a031573aab` | reproduces byte-exactly; canonical pre-image recovered |
+| SDP-step pruning, `m27c512/full` | `a00791f1c2b4` → `7d1cd4157cfa` | not reproducible from any m27c512 report shape |
+| Canonical `part_number` naming, `m27c512/full` | `a00791f1c2b4` → `a6f6c6354047` | not reproducible; `6d3afbc52315` → `776846bf2dc8` (`m27c512` → `M27C512`) measured instead |
+
+**Three of the four inherited pairs measured something that cannot be reproduced from any m27c512 report shape expressible in the hash's own input grammar.** The most likely explanation is a transcription or bookkeeping error in the original research session; what matters for this ledger is that no builder committed in this phase can be made to emit the two unreproduced values, so they are recorded here as an unverified prior rather than carried forward as a frozen row. This discrepancy is itself the blast-radius finding this ledger exists to surface, and it belongs in the record on the day the ledger is created.
+
+**What was done about it.** The ledger below seeds `before_hash` from this phase's OWN measurement run, never from an inherited number. Row `RK-174-01-p177-readback-gating` (`sst27sf512-six-step`, owner Phase 177) is the one pair that reproduced exactly, and is the only row this phase pins with a projected `after_hash` — stated in prose only, below the table. The SDP-step-pruning and canonical-naming re-keys the milestone considered are both OUT OF SCOPE per `.planning/REQUIREMENTS.md` (pruning unsupported steps is rejected; canonical naming is additive per D-2), so neither gets a ledger row here — there is nothing reproducible to seed one with.
+
+| ledger_id | shape_id | change | owner | before | after | declared |
+|---|---|---|---|---|---|---|
+| RK-174-01-p177-readback-gating | sst27sf512-six-step | gate the fingerprint read-back on step failure | Phase 177 | 4dc282a5d596 | (undeclared) | (pending) |
+
+Projected (not declared) `after_hash` for `RK-174-01-p177-readback-gating`: **`60a031573aab`** — measured this session by emptying the `write`/`verify` steps' `indeterminate` fingerprint classification on the frozen `sst27sf512-six-step` shape. A projected value is not a declared one; the `after` column above stays `(undeclared)` until Phase 177 lands its own commit touching only this row and `firestarter_app/tests/fixtures/rekey_ledger.py`'s `after_hash` (D-11).
+
 ## v1.35 Documentation Consolidation & Wiki Migration (Shipped: 2026-09-02)
 
 **Phases completed:** 7 phases authored (167–173), 7 delivered. **41 plans** across the five that ran the machinery (167: 6 · 168: 13 · 171: 4 · 172: 9 · 173: 9). **Phases 169 and 170 have no plans at all** — they were executed ad hoc; see Known Gaps.
