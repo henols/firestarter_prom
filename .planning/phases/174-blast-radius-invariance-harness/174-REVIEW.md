@@ -1,6 +1,6 @@
 ---
 phase: 174-blast-radius-invariance-harness
-reviewed: 2026-09-03T16:45:38Z
+reviewed: 2026-09-03T00:00:00Z
 depth: standard
 files_reviewed: 15
 files_reviewed_list:
@@ -8,6 +8,8 @@ files_reviewed_list:
   - firestarter_app/tests/fixtures/rekey_ledger.py
   - firestarter_app/tests/fixtures/planted_rekey_mutation.py
   - firestarter_app/tests/fixtures/shape_ids.json
+  - firestarter_app/tests/fixtures/devtest_issue_corpus.json
+  - firestarter_app/tests/fixtures/part_number_delta.json
   - firestarter_app/tests/test_blast_radius_invariance.py
   - firestarter_app/tests/test_rekey_ledger.py
   - firestarter_app/tests/test_devtest_issue_corpus.py
@@ -15,287 +17,169 @@ files_reviewed_list:
   - firestarter_app/tools/snapshot_report_shapes.py
   - firestarter_app/tools/build_devtest_issue_corpus.py
   - firestarter_app/tools/measure_part_number_delta.py
-  - firestarter_app/tests/fixtures/devtest_issue_corpus.json
-  - firestarter_app/tests/fixtures/part_number_delta.json
   - tools/rekey/check_rekey_ledger.py
   - .github/workflows/rekey-ledger-check.yml
 findings:
-  critical: 2
-  warning: 2
+  critical: 1
+  warning: 4
   info: 2
-  total: 6
+  total: 7
 status: issues_found
 ---
 
 # Phase 174: Code Review Report
 
-**Reviewed:** 2026-09-03T16:45:38Z
+**Reviewed:** 2026-09-03T00:00:00Z
 **Depth:** standard
 **Files Reviewed:** 15
 **Status:** issues_found
 
 ## Summary
 
-All 110 tests in the four phase test modules pass, and both fail-closed/fail-open
-paths documented in `useful_context` were independently re-verified (`snapshot_report_shapes.py
---check` clean, `check_rekey_ledger.py` exits 0 on the real pair and 1 on the shipped
-planted-mismatch fixture). The frozen-hash idiom itself (comparing a computed
-`dedup_fingerprint` against an absolute literal, never against a second computed value)
-is applied correctly everywhere it matters, and the module's own anti-vacuity legs
-(planted mutations on the tracer shape, key-list-pin mutation legs, D-10 closure legs)
-are real and were confirmed to redden by direct experiment.
+Reviewed the blast-radius invariance harness at standard depth: the frozen report-shape corpus and its builders, the append-only re-key ledger and its meta-side checker, the 26-row filed-issue corpus gate, and the part-number-delta drift gate. All 122 pytest tests across the four test modules pass on the current tree (`pytest tests/test_blast_radius_invariance.py tests/test_rekey_ledger.py tests/test_devtest_issue_corpus.py tests/test_part_number_delta_drift.py -o addopts="" -q` → `122 passed`), and `tools/snapshot_report_shapes.py --check` currently reports no drift across all 16 committed snapshots. The engineering in this phase is unusually rigorous — every absolute-value gate documents its own anti-vacuity leg and most of them were independently verified here by reproducing the RED/GREEN transitions.
 
-However, two concrete defects were found that let the harness lie in exactly the way
-this review was asked to prioritize:
-
-1. Three of the sixteen frozen shapes (`m27c512-full-all-ok`,
-   `m27c512-full-canonical-name`, `m27c512-full-comma-joined-name`) share a single
-   mutable `results` list by construction. A planted in-place mutation performed
-   through any ONE of the three shape objects silently corrupts the frozen-hash
-   assertion of the OTHER two — proven by direct reproduction below. This is exactly
-   the "harness fails for a reason unrelated to the guarded behaviour" failure mode,
-   and it is trivially reachable: it is the same "mutate a field, assert the hash
-   moves" idiom this very module already uses on the tracer shape.
-2. The meta-side checker `tools/rekey/check_rekey_ledger.py` parses `MILESTONES.md`'s
-   `RK-174-` rows into a plain `dict` keyed by `ledger_id` with no duplicate
-   detection. A second, bogus `RK-174-*` row reusing an existing `ledger_id` silently
-   overwrites the legitimate one in that dict, and the checker exits 0 even though the
-   file on disk contains a fabricated declared re-key or a corrupted `shape_id`/
-   `before_hash` pairing — proven by direct reproduction below.
-
-Both are reported as Critical per the severity calibration given ("the harness can
-pass while the guarded behaviour has moved" / "the checker can exit 0 on a broken
-ledger"). Two bounded-blast-radius Warnings and two Info items follow.
+Despite that rigor, one genuine aliasing bug was found and reproduced live: two of the module's own helper functions mutate a `functools.cache`-memoized `DiagnosticReport` object's `db_diff` field in place, silently violating the module's own documented invariant that `db_diff` is `None` on a bare `build_shape()` result — for 6 of the 16 shape ids. This is exactly the class of bug CR-01 fixed once already (for `.results`/`.plan` sharing) but the fix did not cover this second aliasing path. Additional gaps were found in the completeness of GATE-05's drift protection, a duplicate-detection asymmetry in the meta-side ledger checker, and an unvalidated ambiguity risk in the corpus generator's coverage-tag "solve by trial" logic.
 
 ## Critical Issues
 
-### CR-01: Three frozen shapes silently alias the same mutable `results` list — a mutation through one corrupts the frozen hash of the others
+### CR-01: `render_shape()` and `_to_dict_with_db_diff()` mutate a cached `DiagnosticReport`'s `db_diff` in place, leaking state across all future `build_shape()` calls for 6 of 16 shape ids
 
-**File:** `firestarter_app/tests/fixtures/report_shapes.py:478-543`
+**File:** `firestarter_app/tools/snapshot_report_shapes.py:92`, `firestarter_app/tests/test_blast_radius_invariance.py:404`
 
-**Issue:** `_build_m27c512_full_all_ok()` is `functools.cache`d (line 497-505), so
-every call to `build_shape("m27c512-full-all-ok")` in a process returns the exact
-same `DiagnosticReport` instance. `_build_m27c512_full_canonical_name()` and
-`_build_m27c512_full_comma_joined_name()` (lines 526-543, both UNCACHED) each call
-`_clone_with_chip_override(_build_m27c512_full_all_ok(), ...)`, which builds a new
-`DiagnosticReport` wrapping a NEW `AutoCapture` but reuses `report.plan` and
-`report.results` BY REFERENCE (line 486-494: `plan=report.plan, results=report.results`).
-The result: `m27c512-full-all-ok`, `m27c512-full-canonical-name`, and
-`m27c512-full-comma-joined-name` are three different `shape_id`s whose
-`DiagnosticReport.results` is the identical list object.
+**Issue:** Six of the sixteen `report_shapes.py` builders are decorated with `@functools.cache` (`m27c512-full-all-ok`, `m27c512-full-blank-check-bad`, `m27c512-full-runs-1`, `at28c256-full-all-ok-sdp`, `sst27sf512-full-all-ok`, `w27e257-full-all-ok`), so every call to `build_shape(shape_id)` for one of these ids returns the *same* `DiagnosticReport` instance. `render_shape()` (the snapshot tool) and `_to_dict_with_db_diff()` (the test-module helper) both do:
 
-The module's own safety argument (docstring lines 59-63) claims caching real-path
-shapes is "safe here because nothing in this plan mutates a real-path shape's
-`results` after construction" — but that argument does not survive contact with
-`_clone_with_chip_override`'s aliasing: a mutation performed through ANY of the
-three shape_ids' `.results` reaches all three, because it is the same list.
-
-This is not hypothetical — it is precisely the "mutate an in-memory field, assert
-the hash moves" anti-vacuity idiom this same module already applies to the tracer
-shape (`test_planted_mutation_clearing_write_fingerprint_reddens_the_gate`,
-line 561-572). `m27c512-full-canonical-name`'s row is the one Phase 181 explicitly
-plans to declare NO re-key against (`RK-174-03-p181-canonical-naming-avoided`), the
-kind of row a future anti-vacuity leg is likely to poke to prove the "avoided" pin
-is non-vacuous — and doing so through that shape_id would silently break the
-`m27c512-full-all-ok` frozen-hash assertion (GATE-01) for a reason that has nothing
-to do with any real behaviour change.
-
-**Reproduction (confirmed by direct execution):**
-```
->>> base  = build_shape('m27c512-full-all-ok')
->>> clone = build_shape('m27c512-full-canonical-name')
->>> base.results is clone.results
-True
->>> dedup_fingerprint(base)                     # before
-'6d3afbc52315'   # == FROZEN_HASHES['m27c512-full-all-ok']
->>> clone.results[0].verdict = 'BAD'            # mutate via the OTHER shape_id
->>> dedup_fingerprint(base)                     # after
-'e9df6ca4627c'   # no longer matches the frozen literal -- and nothing about
-                 # m27c512-full-all-ok itself was ever touched directly
-```
-
-**Fix:** Give each real-path derivative its own independent `results` (and `plan`,
-for symmetry) rather than aliasing the cached base's list, e.g.:
 ```python
-import copy
-
-def _clone_with_chip_override(
-    report: DiagnosticReport, chip_override: str
-) -> DiagnosticReport:
-    auto_capture = _dataclass_replace(report.auto_capture, chip=chip_override)
-    return DiagnosticReport(
-        auto_capture=auto_capture,
-        transport=report.transport,
-        plan=report.plan,
-        results=copy.deepcopy(report.results),
-    )
-```
-or, more generally, stop caching the real-path builders that are used as a base for
-a clone (drop `@functools.cache` from `_build_m27c512_full_all_ok`) so `build_shape`
-never hands out the same instance twice at all — matching the tracer's own
-uncached-because-it-can-be-mutated precedent.
-
-### CR-02: `check_rekey_ledger.py` silently drops duplicate `RK-174-` rows in `MILESTONES.md`, letting a bogus declared re-key or a corrupted row exit 0
-
-**File:** `tools/rekey/check_rekey_ledger.py:94-107` (`parse_milestones_rows`) and
-`:110-147` (`check`)
-
-**Issue:** `parse_milestones_rows` builds `rows: dict[str, tuple[str, str, str]]`
-keyed by `ledger_id`, and for every matching table line does `rows[ledger_id] = (...)`
-unconditionally — the last line in the file for a given `ledger_id` silently
-overwrites any earlier one. `check()` then only ever sees the surviving (last) row
-for that key. There is no detection of, or line-count check for, duplicate
-`ledger_id` rows anywhere in the module.
-
-Concretely, this defeats GATE-06's stated purpose ("every declared ... row must have
-a matching MILESTONES.md row ... both directions, so a row cannot be declared on one
-side and silently never appear on the other") whenever `MILESTONES.md` accidentally
-(or maliciously) carries two rows for the same `ledger_id`:
-
-- If a fabricated, fully-declared row for `RK-174-01-p177-readback-gating` (bogus
-  `after` hash `ffffffffffff`) is inserted BEFORE the real, still-undeclared row for
-  the same id, the real row shadows it in the dict and `check()` returns **zero
-  errors** — even though the file on disk contains a completely fabricated declared
-  re-key that the ledger (`after_hash=None`) never authorized.
-- If the real row's `shape_id`/`before_hash` cells are corrupted (e.g. `shape_id`
-  changed to a nonexistent name, `before_hash` changed to `000000000000`) while the
-  `after` cell is left reading `(undeclared)`, `check()` again returns **zero
-  errors**, because the undeclared branch (line 133-139) only ever inspects the
-  `after` cell, never `shape_id`/`before_hash`, and there is nothing to detect a
-  second row overwriting a first either way.
-
-**Reproduction (both confirmed by direct execution against the real ledger + a
-mutated copy of the real `MILESTONES.md`):**
-```
-# (a) bogus declared row shadowed by the following legitimate undeclared row
-milestones_rows['RK-174-01-p177-readback-gating']
-  == ('sst27sf512-six-step', '4dc282a5d596', '(undeclared)')   # the REAL row "wins"
-check(ledger_rows, milestones_rows) == []                      # 0 errors -- the
-  # bogus row with after=ffffffffffff, before=4dc282a5d596 that appeared EARLIER
-  # in the file is invisible
-
-# (b) corrupted shape_id/before_hash on the surviving undeclared row
-milestones_rows['RK-174-01-p177-readback-gating']
-  == ('totally-wrong-shape-id', '000000000000', '(undeclared)')
-check(ledger_rows, milestones_rows) == []                      # 0 errors
+report = build_shape(shape_id)
+report.db_diff = build_db_diff(report.auto_capture.chip, db, report.results)
 ```
 
-**Fix:** Detect duplicate `ledger_id` rows and fail closed, and validate
-`shape_id`/`before_hash` for undeclared rows too, e.g.:
+This assigns directly onto whatever object `build_shape()` returned. For the 6 cached shape ids, that mutates the shared singleton, so every subsequent `build_shape(shape_id)` call in the same process returns an object whose `db_diff` is no longer `None` — contradicting the explicit invariant documented in both files: *"`db_diff` is `None` on a bare `build_shape()` result"* (`report_shapes.py`'s `_build_at28c256_full_all_ok_sdp` docstring area; `test_blast_radius_invariance.py:394`).
+
+Reproduced live:
 ```python
-def parse_milestones_rows(path: Path) -> dict[str, tuple[str, str, str]]:
-    if not path.is_file():
-        raise LedgerParseError(f"milestones file not found: {path}")
-    rows: dict[str, tuple[str, str, str]] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        m = _ROW_RE.match(line.strip())
-        if m:
-            ledger_id, shape_id, _change, _owner, before, after, _declared = m.groups()
-            if ledger_id in rows:
-                raise LedgerParseError(
-                    f"duplicate MILESTONES.md row for ledger_id {ledger_id!r}"
-                )
-            rows[ledger_id] = (shape_id, before, after)
-    return rows
+from tests.fixtures.report_shapes import build_shape
+r1 = build_shape('m27c512-full-all-ok')
+print(r1.db_diff)               # None
+from tools.snapshot_report_shapes import render_shape
+render_shape('m27c512-full-all-ok')
+r2 = build_shape('m27c512-full-all-ok')
+print(r2.db_diff, r1 is r2)     # DbDiff(...), True
 ```
-and, in `check()`'s undeclared branch, also compare `m_row[0]`/`m_row[1]` against
-`shape_id`/`before_hash` (not only the `after` cell) whenever a row exists at all.
+
+No test in the current suite happens to assert `db_diff is None` for one of these 6 cached ids after a `render_shape`/`_to_dict_with_db_diff` call has already run in-process, so the bug is currently masked by test ordering rather than fixed. This is precisely the shared-mutable-state hazard CR-01 (`_clone_with_chip_override`'s `copy.deepcopy` fix, `report_shapes.py:484-504`) was written to eliminate for `.results`/`.plan` — the fix did not extend to this second, independently-discovered aliasing path through `.db_diff`. Any later phase (177+) that calls `render_shape()` for a cached shape before running an assertion that depends on a fresh `build_shape()` result (e.g. a future `db_diff is None` regression test, or two snapshot generations back-to-back for the same shape with different `EpromDatabase` instances) will get silently stale data.
+
+**Fix:** Never assign onto the object `build_shape()` returns for a cached shape id. Either (a) have both call sites build off a copy, mirroring the `_clone_with_chip_override` pattern already used elsewhere in this file:
+
+```python
+import dataclasses
+
+def render_shape(shape_id: str) -> str:
+    report = dataclasses.replace(build_shape(shape_id), results=copy.deepcopy(build_shape(shape_id).results))
+    report.db_diff = build_db_diff(report.auto_capture.chip, _DB, report.results)
+    ...
+```
+
+or, cleaner, (b) stop mutating the report at all — thread `db_diff` through `to_dict()` as a parameter/composition step instead of an attribute assignment, so `build_shape()`'s output is never touched by a caller. Whichever fix is chosen, add a regression test asserting `build_shape(<a cached shape id>).db_diff is None` both before and after a `render_shape()` call for that same id in the same process.
 
 ## Warnings
 
-### WR-01: Undeclared-row check in `check_rekey_ledger.py` never validates `shape_id`/`before_hash`
+### WR-01: GATE-05's snapshot-drift protection covers only 1 of 16 committed report shapes in the automated test suite
 
-**File:** `tools/rekey/check_rekey_ledger.py:133-139`
+**File:** `firestarter_app/tests/test_blast_radius_invariance.py:561-569`
 
-**Issue:** In the `after_hash is None` branch, the only check performed is
-`_HASH_RE.match(m_row[2])` against the `after` cell. `m_row[0]` (`shape_id`) and
-`m_row[1]` (`before_hash`) are never compared against the ledger row's own
-`shape_id`/`before_hash`. This is documented as intentional in the module docstring
-("if one exists for that `ledger_id` its `after` cell must still read as undeclared,
-never a filled-in hash"), but it means a `MILESTONES.md` row can misname the
-`shape_id` or carry a wrong `before_hash` for an undeclared ledger row and the
-checker will never notice (see CR-02's reproduction (b), which is really two bugs in
-one: the duplicate-shadowing defect, and this narrower validation gap that would
-still exist even without any duplicate row involved — a single corrupted undeclared
-row, with no duplicate at all, also produces 0 errors).
+**Issue:** `174-CONTEXT.md` scopes GATE-05 to "a frozen ... table plus its committed report corpus" (plural, the whole corpus). `tools/snapshot_report_shapes.py --check` can drift-check all 16 committed snapshots under `tests/fixtures/reports/`, but nothing in the reviewed test suite or CI configuration invokes it. The only pytest coverage is `test_committed_snapshot_matches_a_fresh_regeneration`, which calls `render_shape()` for exactly one shape id — the uncached tracer `sst27sf512-six-step`. The other 15 committed JSON files are checked only for *existence* (via `test_shape_ids_frozen_hashes_ladder_pins_and_snapshots_agree`'s filename-stem comparison), never for byte-identical content against a fresh regeneration. A change to a builder or to `to_dict()`/`build_db_diff()` that alters a non-`dedup_fingerprint` field (banner counts, transport counters, a `write_target` field, `db_diff.current_support_status`, etc.) for any of the other 15 shapes would go completely undetected by `pytest`.
 
-**Fix:** For a row with `after_hash is None`, additionally assert
-`m_row[0] == shape_id and m_row[1] == before_hash` whenever `m_row is not None`,
-emitting an `ERROR:` line naming the mismatch.
+**Fix:** Parametrize the snapshot-drift assertion over all of `SHAPE_IDS`, not just the tracer:
 
-### WR-02: `functools.cache`d real-path shapes are mutated in place by `db_diff` attribute assignment, contradicting the module's own stated safety invariant
+```python
+@pytest.mark.parametrize("shape_id", sorted(SHAPE_IDS))
+def test_committed_snapshot_matches_a_fresh_regeneration(shape_id: str) -> None:
+    from tools.snapshot_report_shapes import render_shape
+    target = Path(__file__).parent / "fixtures" / "reports" / f"{shape_id}.json"
+    committed = json.loads(target.read_text(encoding="utf-8"))
+    fresh = json.loads(render_shape(shape_id))
+    assert committed == fresh
+```
+(Given CR-01 above, fix the aliasing bug first, since parametrizing this over the 6 cached shape ids would otherwise make the fresh-vs-committed comparison order-dependent.)
 
-**File:** `firestarter_app/tools/snapshot_report_shapes.py:87-94`,
-`firestarter_app/tests/fixtures/report_shapes.py:497-587`
+### WR-02: `check_rekey_ledger.py` silently collapses a duplicate `ledger_id` in the app-side ledger, asymmetric with its own MILESTONES.md-side duplicate guard
 
-**Issue:** `render_shape()` does `report = build_shape(shape_id); report.db_diff =
-build_db_diff(...)`. For the eight `functools.cache`-decorated real-path builders
-(`m27c512-full-all-ok`, `m27c512-full-blank-check-bad`, `m27c512-full-runs-1`,
-`at28c256-full-all-ok-sdp`, `sst27sf512-full-all-ok`, `w27e257-full-all-ok`, plus the
-two derivatives via CR-01), `build_shape(shape_id)` returns the same cached instance
-every call within a process (confirmed: `build_shape('m27c512-full-all-ok') is
-build_shape('m27c512-full-all-ok')` is `True`, and setting `.db_diff` on one call's
-return value is visible on the next call's return value). `report_shapes.py`'s
-module docstring claims caching is "safe here because nothing in this plan mutates a
-real-path shape's `results` after construction" — true for `results`, but silent on
-`db_diff` (and any other attribute), and `render_shape` already violates the spirit
-of that claim today.
+**File:** `tools/rekey/check_rekey_ledger.py:129`
 
-`dedup_fingerprint` itself does not read `db_diff`, so this does not currently
-threaten GATE-01/02 the way CR-01 does. It does threaten GATE-05 (byte-identical
-snapshots) and any future D-07-style key-list pin extended to a real-path shape:
-whichever test or tool runs first in a given process determines whether a
-subsequent `build_shape()` caller sees a bare (`db_diff=None`) or already-populated
-report, which is exactly the kind of process-order dependence a frozen-snapshot
-harness should not have.
+**Issue:** `parse_milestones_rows()` explicitly raises `LedgerParseError` (exit 2) when two `MILESTONES.md` rows share a `ledger_id` (`check_rekey_ledger.py:115-118`), and this is covered by a dedicated test (`test_duplicate_milestones_row_for_one_ledger_id_fails_closed`). But the app-side ledger has no equivalent guard: `check()` builds `ledger_by_id = {row[3]: row for row in ledger_rows}` (line 129), a plain dict comprehension that silently keeps only the *last* row for a duplicated `ledger_id` and drops the earlier one from every subsequent lookup. The app-side pytest suite (`tests/test_rekey_ledger.py:test_ledger_id_values_are_unique`) does catch this today, but the meta-side checker — which is documented as the authoritative cross-tree binding check (D-13) and is designed to run even when the app-side test suite hasn't — would pass a ledger with a duplicated `ledger_id` without complaint, silently checking only one of the two colliding rows against `MILESTONES.md`.
 
-**Fix:** Either drop `@functools.cache` from the real-path builders (matching the
-tracer's uncached precedent) or have `render_shape`/any other composer operate on a
-shallow copy (`dataclasses.replace(report, db_diff=...)`) rather than mutating the
-shared instance in place.
+**Fix:** Add the same fail-closed duplicate check to `check()` (or `parse_ledger()`) that `parse_milestones_rows()` already has:
+```python
+seen: dict[str, LedgerRow] = {}
+for row in ledger_rows:
+    if row[3] in seen:
+        raise LedgerParseError(f"duplicate ledger_id in app-side ledger: {row[3]!r}")
+    seen[row[3]] = row
+```
+
+### WR-03: `_solve_row`'s coverage-tag "solve by trial" picks the first matching candidate without checking for ambiguity
+
+**File:** `firestarter_app/tools/build_devtest_issue_corpus.py:169-187`
+
+**Issue:** `_solve_row()` tries `(None, "")` then `(REGION_POLICY_FULL_DEVICE, COVERAGE_TAG_FULL_DEVICE)` and returns on the *first* candidate whose recomputed hash matches `filed_hash`. If a row's step vector happened to produce the same `dedup_fingerprint` under both candidates (e.g. no `write` step present, so the coverage discriminator never gets appended either way), the function would silently record `coverage_tag=""` even when `"cov=full-device"` also reproduces — an ambiguous case resolved arbitrarily by iteration order rather than detected and reported. `validate_rows()` only checks that the recorded `recomputed_hash` equals `filed_hash`; it never checks that exactly one of the two candidates matched.
+
+**Fix:** Collect all matching candidates before returning, and raise `CorpusValidationError` naming the issue if more than one candidate reproduces the filed hash, so ambiguity surfaces as a build failure rather than a silently-arbitrary choice:
+```python
+matches = []
+for coverage_policy, coverage_tag_value in (...):
+    ...
+    if recomputed == filed_hash:
+        matches.append((real_repeat_policy_tag(report.results), coverage_tag_value, recomputed))
+if len(matches) > 1:
+    raise CorpusValidationError(f"issue #{issue_number}: coverage_tag is ambiguous — both candidates reproduce {filed_hash!r}")
+if not matches:
+    raise CorpusValidationError(...)
+return matches[0]
+```
+
+### WR-04: Module-level `assert` in `report_shapes.py` guards a real invariant but is stripped under `python -O`
+
+**File:** `firestarter_app/tests/fixtures/report_shapes.py:647-650`
+
+**Issue:**
+```python
+assert not (set(SHAPE_IDS) & RESERVED_SHAPE_IDS), (
+    "a shape_id was frozen under a name D-04 reserved for a later phase; "
+    f"collision: {set(SHAPE_IDS) & RESERVED_SHAPE_IDS}"
+)
+```
+runs at *import* time, not inside a pytest test — it's the mechanism D-04 relies on to keep a future `shape_id` from silently colliding with one of `RESERVED_SHAPE_IDS`. A bare `assert` at module scope is removed entirely when Python runs with `-O`/`-OO` (`PYTHONOPTIMIZE`), so this specific safety net — unlike the pytest-based gates elsewhere in this phase — degrades silently under an optimized interpreter, contrary to this phase's own "fail closed, never silently pass" design principle applied everywhere else in the harness.
+
+**Fix:** Replace the bare `assert` with an explicit check that cannot be optimized away:
+```python
+_collision = set(SHAPE_IDS) & RESERVED_SHAPE_IDS
+if _collision:
+    raise RuntimeError(
+        f"a shape_id was frozen under a name D-04 reserved for a later phase; "
+        f"collision: {_collision}"
+    )
+```
 
 ## Info
 
-### IN-01: Stale docstring claim about how the D-08 blind-spot shape is verified
+### IN-01: `_fetch_issues` hardcodes `gh issue list --limit 300` with no check that the result count stayed under the limit
 
-**File:** `firestarter_app/tests/fixtures/report_shapes.py:340-354`
+**File:** `firestarter_app/tools/build_devtest_issue_corpus.py:78-102`
 
-**Issue:** `_build_synthetic_arm4_empty_results`'s docstring states "the acceptance
-check below calls `build_db_diff` with the chip name `m27c512`... while keeping
-these synthetic (empty) results." The actual test that exercises this shape
-(`test_build_db_diff_ladder_pin_for_all_shapes` in `test_blast_radius_invariance.py:318-357`)
-calls `build_db_diff(report.auto_capture.chip, db, report.results)` with
-`report.auto_capture.chip` unmodified, i.e. `"M8720"`, not `"m27c512"`. This happens
-to be harmless — `build_db_diff`'s `proposed_disposition`/`ladder_state` outputs
-depend only on `results`, never on the chip-name argument — but the docstring
-describes verification mechanics that do not match the code as written, which could
-mislead a future maintainer investigating this shape.
+**Issue:** If `henols/firestarter_prom` accumulates more than 300 total issues (open + closed) in the future, `gh issue list --limit 300` would silently truncate the result set, and `derive_rows()` has no way to detect that truncation — it would simply see fewer `[dev test]`-titled issues than actually exist, and `validate_rows()`'s `len(rows) != 26` check would only catch this once the corpus size legitimately needs to grow past 26 anyway (a coincidental catch, not a deliberate one).
 
-**Fix:** Update the docstring to describe what the test actually does (uses
-`report.auto_capture.chip` = `"M8720"` directly), or remove the specific claim if it
-was describing ad hoc manual verification from the research session rather than the
-committed test.
+**Fix:** After fetching, assert `len(issues) < 300` (or whatever limit is passed) and raise `CorpusError` naming the truncation risk if the fetch returned exactly the limit, prompting a deliberate `--limit` bump rather than a silent drop.
 
-### IN-02: `measure_part_number_delta.py`'s `differs` field conflates "resolves to a different part number" with "does not resolve at all"
+### IN-02: `_extract_report` picks the *last* fenced JSON block carrying a `dedup_fingerprint` key, with no documented rationale
 
-**File:** `firestarter_app/tools/measure_part_number_delta.py:101-132`
+**File:** `firestarter_app/tools/build_devtest_issue_corpus.py:116-130`
 
-**Issue:** `differs = token != resolved` (and the analogous `filed_issue_rows` computation
-at line 146) is computed the same way whether `resolved` is a genuinely different
-`part_number` string or `None` (alias resolves to no chip at all). Both cases set
-`differs = True`, so `aliases_token_differs_from_part_number` silently folds in any
-future `aliases_chip_not_found` aliases as "differs" rather than surfacing them
-distinctly. Currently masked because the committed artifact measures
-`aliases_chip_not_found: 0`, so no row is affected today, but a future database
-change introducing an unresolvable alias would inflate the "differs" count rather
-than being visible as a resolution failure in that specific field.
+**Issue:** `_extract_report()` iterates every fenced-JSON block in an issue body and keeps overwriting `found = obj` for each one that parses as a dict with a `dedup_fingerprint` key, so the function returns whichever qualifying block appears *last* in the body. For the 26 filed issues this currently works (all rows reproduce), but the choice of "last wins" rather than "first wins" or "reject on more than one" is undocumented, and an issue body that legitimately contains two reports (e.g., an initial run followed by a corrected re-run pasted below it) would silently take the second one with no signal that a choice was made.
 
-**Fix:** Exclude `resolve_status != "ok"` rows from the differs/match counters, or
-add a distinct `resolves_to_nothing` bucket, so `aliases_token_differs_from_part_number`
-stays a measurement of genuine spelling drift only.
+**Fix:** Either document why "last" is the intended selection (e.g., "later comments/edits supersede"), or raise `CorpusError` when more than one qualifying block is found, forcing a human to pick explicitly.
 
 ---
 
-_Reviewed: 2026-09-03T16:45:38Z_
+_Reviewed: 2026-09-03T00:00:00Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
