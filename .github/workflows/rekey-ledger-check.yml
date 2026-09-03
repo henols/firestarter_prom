@@ -1,0 +1,46 @@
+name: Re-key ledger check (additional CI leg -- the local gate against the populated submodule is the primary runner, D-13)
+on:
+  push:
+    branches:
+      - beta
+      - 'gsd/**'
+    paths:
+      - '.planning/MILESTONES.md'
+      - 'tools/rekey/**'
+      - 'firestarter_app'
+      - '.github/workflows/rekey-ledger-check.yml'
+  pull_request:
+    branches:
+      - beta
+      - 'gsd/**'
+    paths:
+      - '.planning/MILESTONES.md'
+      - 'tools/rekey/**'
+      - 'firestarter_app'
+      - '.github/workflows/rekey-ledger-check.yml'
+  workflow_dispatch:
+
+jobs:
+  rekey-ledger-check:
+    name: Bind the app-side ledger to MILESTONES.md both directions -- job conclusion is the gate verdict
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out meta repo to the meta subdirectory -- the gitlink itself is left unfetched here
+        uses: actions/checkout@v4
+        with:
+          path: meta
+
+      - name: Resolve the firestarter_app gitlink commit the checked-out meta tree records
+        id: gitlink
+        working-directory: meta
+        run: echo "sha=$(git rev-parse HEAD:firestarter_app)" >> "$GITHUB_OUTPUT"
+
+      - name: Check out firestarter_app explicitly at the resolved gitlink commit, as a sibling of meta
+        uses: actions/checkout@v4
+        with:
+          repository: henols/firestarter_app
+          ref: ${{ steps.gitlink.outputs.sha }}
+          path: firestarter_app
+
+      - name: Run check_rekey_ledger.py with an explicit repo root and the sub-repo-resolved ledger path
+        run: python3 meta/tools/rekey/check_rekey_ledger.py --repo-root meta --milestones meta/.planning/MILESTONES.md --ledger firestarter_app/tests/fixtures/rekey_ledger.py
