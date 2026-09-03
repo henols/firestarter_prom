@@ -259,7 +259,7 @@ UNMEASURED everywhere it appears).
 Plans:
 **Wave 1**
 
-- [ ] 174-01-PLAN.md — Tracer: one `shape_id` (`sst27sf512-six-step`) through all eight layers — builder, absolute hash `4dc282a5d596`, ladder pin, committed `to_dict()` snapshot, ledger row, `MILESTONES.md` row, meta-side cross-tree checker — with the three-leg anti-vacuity contract SEEN red. Opens with a `checkpoint:decision` on the one-way `shape_id` name set (D-04).
+- [x] 174-01-PLAN.md — Tracer: one `shape_id` (`sst27sf512-six-step`) through all eight layers — builder, absolute hash `4dc282a5d596`, ladder pin, committed `to_dict()` snapshot, ledger row, `MILESTONES.md` row, meta-side cross-tree checker — with the three-leg anti-vacuity contract SEEN red. Opens with a `checkpoint:decision` on the one-way `shape_id` name set (D-04).
 
 **Wave 2**
 

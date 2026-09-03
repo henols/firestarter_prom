@@ -5,10 +5,10 @@ milestone_name: "`dev test` Fidelity — Only Run What Can Tell You Something, R
 current_phase: 174
 current_phase_name: Blast-Radius Invariance Harness
 status: executing
-stopped_at: Phase 174 executing — wave 1 of 4, 174-01 at its blocking-human shape_id decision
+stopped_at: 174-01 complete — wave 1 of 4 done, wave 2 next (174-02, 174-04)
 last_updated: "2026-09-03T14:47:11.628Z"
 last_activity: 2026-09-03
-last_activity_desc: "Phase 174 execution started — 5 plans in 4 waves; 174-01 opens on a blocking-human `shape_id` decision (D-04)"
+last_activity_desc: "174-01 complete — one shape_id through all eight layers; 4dc282a5d596 reproduced independently, 18/18 phase tests green, checker fail-closed on 4 bad-input legs"
 progress:
   total_phases: 8
   completed_phases: 0
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 174 (Blast-Radius Invariance Harness) — EXECUTING
-Plan: 1 of 5 — 174-01 (wave 1 of 4); waves: 1=[174-01], 2=[174-02, 174-04], 3=[174-03], 4=[174-05]
+Plan: 2 of 5 — wave 1 complete (174-01); wave 2 next = [174-02, 174-04], then 3=[174-03], 4=[174-05]
 Status: Executing Phase 174 — Phase 174 planned: 5 plans in 4 waves. Gates all green: plan-checker VERIFICATION PASSED (plus a scoped delta re-check after the D-06 amendment), requirements 6/6 (GATE-01…06), decision coverage 16/16 (D-01…D-16), verify-command-paths 20/20 and verify-failure-directions 20/20 with 0 blockers and 0 warnings each. **Wave 1 is `autonomous: false`** — 174-01 Task 1 opens with a `checkpoint:decision gate="blocking-human"` on the one-way `shape_id` set (D-04), so `--auto` cannot approve it. **The phase research falsified three of the four re-key hash pairs CONTEXT.md D-12 inherited**: only the SST27SF512 read-back pair (`4dc282a5d596`) reproduces; `a00791f1c2b4`, `7d1cd4157cfa` and `a6f6c6354047` do not reproduce from any m27c512 report shape across ~2.1e8 candidate canonical strings, so they are frozen nowhere and are recorded only as falsified priors in the `MILESTONES.md` corrections table (measured substitutes `6d3afbc52315` → `776846bf2dc8`); the UV `run_count` collapse does not fire `repeat_policy_tag` at all (collapsed steps carry `run_count == 0`, not `1`) and the re-key actually rides the `blank-check` verdict triple. **All 26 filed `[dev test]` hashes DO reproduce byte-exactly** — the earlier miss was reading `steps[].fingerprint` as an object when it serialises as a bare classification string — so D-06's four-chip reproduction reduction was **widened to 26-of-26 by operator ratification 2026-09-03**, recorded at all three sites (174-04 objective + Task 2, CONTEXT.md D-06 + Deferred Ideas, and 174-03's corrections row as a SCOPE correction carrying no `ledger_id`). There are **26** filed issues, not 27, and the `dev-test` label covers only 15 — enumerate by title; gh#45 is `W27E040`, so titles are not all lowercase. **The app suite is RED at the branch base** for 3 pre-existing `test_skip_census.py` `subprocess.TimeoutExpired` failures (it caps a child full-suite run at 180 s while the suite takes 740.92 s), which is NOT this phase's to fix and makes "whole suite green" unusable as an acceptance criterion — every verify leg is scoped to this phase's own node-ids. A py3.11.16 CI-replica venv is left at `firestarter_app/.venv311` (self-ignoring); the `derive_plan` whole-DB sweep costs 4.26 s = 0.58 % of the suite so it runs unmarked; GATE-04 measures through `chip_resolver.resolve_chip` + `get_eprom_config` (942 of 953 aliases differ, 514 resolve to a comma-joined `part_number`); D-08's non-SDP all-OK arm is reached by `sst27sf512` and `w27e257`, not AT28C256, which lands in arm 2; and D-13's meta-side checker runs primarily as a local gate with `.github/workflows/rekey-ledger-check.yml` on `beta` + `gsd/**` as the additional leg — never `main`-scoped, or it would never fire during this milestone.
-Last activity: 2026-09-03 — Phase 174 execution started; 5 plans in 4 waves, worktrees off (sequential, submodule-touching plans)
+Last activity: 2026-09-03 — 174-01 complete: tracer shape through builder, hash, ladder, snapshot, ledger, MILESTONES row and meta checker; six anti-vacuity legs seen RED then GREEN
 
 ## Roadmap Summary (v1.36)
 
