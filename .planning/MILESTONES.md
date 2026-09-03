@@ -16,13 +16,28 @@
 
 **Three of the four inherited pairs measured something that cannot be reproduced from any m27c512 report shape expressible in the hash's own input grammar.** The most likely explanation is a transcription or bookkeeping error in the original research session; what matters for this ledger is that no builder committed in this phase can be made to emit the two unreproduced values, so they are recorded here as an unverified prior rather than carried forward as a frozen row. This discrepancy is itself the blast-radius finding this ledger exists to surface, and it belongs in the record on the day the ledger is created.
 
-**What was done about it.** The ledger below seeds `before_hash` from this phase's OWN measurement run, never from an inherited number. Row `RK-174-01-p177-readback-gating` (`sst27sf512-six-step`, owner Phase 177) is the one pair that reproduced exactly, and is the only row this phase pins with a projected `after_hash` — stated in prose only, below the table. The SDP-step-pruning and canonical-naming re-keys the milestone considered are both OUT OF SCOPE per `.planning/REQUIREMENTS.md` (pruning unsupported steps is rejected; canonical naming is additive per D-2), so neither gets a ledger row here — there is nothing reproducible to seed one with.
+**Corrections measured by plan 174-03, beyond the three D-12 hash pairs above.** Pre-seeding all six ledger rows surfaced four further corrections to inherited claims, plus one ratified scope widening — recorded here rather than dropped, per this project's standing rule against silently absorbing a measured disagreement:
+
+| Claim | As inherited | As measured |
+|---|---|---|
+| Count of filed `[dev test]` issues | 27 | **26** — measured by title (the `[dev test]` prefix); the `dev-test` *label* covers only 15 of 26 and is not a usable enumerator |
+| m27c512 canonical-naming pair | `a00791f1c2b4` → `a6f6c6354047` (not reproducible) | `6d3afbc52315` → `776846bf2dc8` (`m27c512` → `M27C512`), both measured this session |
+| UV `run_count` collapse mechanism | fires via `repeat_policy_tag` | fires via the `blank-check` verdict triple (OK → BAD); the collapsed `write`/`verify` steps carry `run_count == 0`, not `1`, so `repeat_policy_tag` never fires |
+| Every filed issue title is lowercase | true | **falsified** — gh#45's raw token is `W27E040`; five of the 26 filed titles (gh#45, #46, #48, #51, #52) are not lowercase |
+| D-06 corpus reproduction boundary (SCOPE correction, not a hash correction — carries no `ledger_id`) | four of the filed hashes reproduce (sst27sf512, m27c512, at28c256, w27e257 named explicitly) | **26 of 26** reproduce — widened by operator ratification (2026-09-03) once the corpus committed each row's step vector as data and a step's `fingerprint` proved to serialise as a bare classification string rather than an object. `SHAPE_IDS` and the four D-06-named builder shapes are unchanged by this widening. |
+
+**What was done about it.** No inherited hash is frozen anywhere in this ledger or in `firestarter_app/tests/fixtures/report_shapes.py` — every one of the six `before_hash` values in the table below is produced by a committed builder, and every one was recomputed in the session that seeded it, never transcribed from a prior document. The ledger's append-only rule (D-09) plus D-11's separate-commit rule for a declared re-key are what make RPT-E3's "exactly the change it declared and nothing more" a machine check rather than a sentence — `tools/rekey/check_rekey_ledger.py` enforces the same binding from the meta side, in both directions, against a planted orphan row as well as a planted undeclared one.
 
 | ledger_id | shape_id | change | owner | before | after | declared |
 |---|---|---|---|---|---|---|
 | RK-174-01-p177-readback-gating | sst27sf512-six-step | gate the fingerprint read-back on step failure | Phase 177 | 4dc282a5d596 | (undeclared) | (pending) |
+| RK-174-02-rejected-sdp-step-pruning | m27c512-full-all-ok | prune unsupported SDP steps from `Plan.steps` | rejected | 6d3afbc52315 | (undeclared) | (pending) |
+| RK-174-03-p181-canonical-naming-avoided | m27c512-full-canonical-name | normalise the raw CLI token to the database `part_number` spelling | Phase 181 | 776846bf2dc8 | (undeclared) | (pending) |
+| RK-174-04-p179-uv-blank-check-abort | m27c512-full-blank-check-bad | UV `run_count` collapse via the `blank-check` verdict triple (OK → BAD) | Phase 179 | 077a32d1a5c4 | (undeclared) | (pending) |
+| RK-174-05-p177-match-bucket-d4d6 | at28c256-full-all-ok-sdp | add a `match` bucket to the fingerprint classifier (D-4/D-6) | Phase 177 | 52fb759dc48c | (undeclared) | (pending) |
+| RK-174-06-p178-status-axis-must-not-rekey | sst27sf512-full-all-ok | status axis must stay additive and excluded from the hash (ATTR-04) — this row asserts NO re-key | Phase 178 | 4b3e52cab987 | (undeclared) | (pending) |
 
-Projected (not declared) `after_hash` for `RK-174-01-p177-readback-gating`: **`60a031573aab`** — measured this session by emptying the `write`/`verify` steps' `indeterminate` fingerprint classification on the frozen `sst27sf512-six-step` shape. A projected value is not a declared one; the `after` column above stays `(undeclared)` until Phase 177 lands its own commit touching only this row and `firestarter_app/tests/fixtures/rekey_ledger.py`'s `after_hash` (D-11).
+Projected (not declared) `after_hash` for the read-back-gating row (`sst27sf512-six-step`, owner Phase 177): **`60a031573aab`** — measured this session by emptying the `write`/`verify` steps' `indeterminate` fingerprint classification on the frozen shape. A projected value is not a declared one; the `after` column above stays `(undeclared)` until Phase 177 lands its own commit touching only this row and `firestarter_app/tests/fixtures/rekey_ledger.py`'s `after_hash` (D-11).
 
 ## v1.35 Documentation Consolidation & Wiki Migration (Shipped: 2026-09-02)
 
