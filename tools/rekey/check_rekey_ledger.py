@@ -11,8 +11,11 @@ row must have a matching `MILESTONES.md` row, and every `RK-174-`
 `MILESTONES.md` row must have a matching ledger row -- both directions, so a
 row cannot be declared on one side and silently never appear on the other.
 An undeclared ledger row (`after_hash is None`) may have no `MILESTONES.md`
-row at all, but if one exists for that `ledger_id` its `after` cell must
-still read as undeclared, never a filled-in hash.
+row at all, but if one exists for that `ledger_id` a duplicated
+`MILESTONES.md` row for the same `ledger_id` is rejected rather than
+merged, and the existing row's `shape_id` and `before` cell must match the
+ledger's own values while its `after` cell must read as undeclared, never
+a filled-in hash.
 
 The ledger is parsed with `ast.parse` plus `ast.literal_eval` on the
 `LEDGER` assignment's value -- NEVER imported. A cross-tree import would
@@ -28,8 +31,10 @@ nothing and exit 0.
 Exit codes:
   0 -- every declared row has a matching MILESTONES.md row and vice versa
   1 -- a mismatch was found (printed as one ERROR: line per mismatch)
-  2 -- an input path is missing, or the LEDGER assignment could not be
-       found or evaluated
+  2 -- an input path is missing, the LEDGER assignment could not be found
+       or evaluated, or MILESTONES.md could not be parsed (including a
+       duplicated ledger_id row, which is a parse failure rather than a
+       mismatch)
 """
 
 from __future__ import annotations
@@ -103,6 +108,10 @@ def parse_milestones_rows(path: Path) -> dict[str, tuple[str, str, str]]:
         m = _ROW_RE.match(line.strip())
         if m:
             ledger_id, shape_id, _change, _owner, before, after, _declared = m.groups()
+            if ledger_id in rows:
+                raise LedgerParseError(
+                    f"duplicate MILESTONES.md row for ledger_id {ledger_id!r}"
+                )
             rows[ledger_id] = (shape_id, before, after)
     return rows
 
