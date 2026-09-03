@@ -1,144 +1,128 @@
 ---
 phase: 174-blast-radius-invariance-harness
-verified: 2026-09-03T16:53:28Z
-status: gaps_found
-score: 4/5 must-haves verified
+verified: 2026-09-03T18:44:55Z
+status: human_needed
+score: 5/5 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
-gaps:
-  - truth: "A MILESTONES.md re-key ledger section exists with the fields a declared re-key must carry (change, before-hash, after-hash, date) — the mechanism every later phase's deliberate re-key is recorded into (roadmap SC5 / GATE-06)"
-    status: failed
-    reason: "The section and its seven-column table (ledger_id | shape_id | change | owner | before | after | declared) exist with the right fields, but the meta-side checker that binds it (tools/rekey/check_rekey_ledger.py, D-13) — the mechanism GATE-06's own coverage evidence and the checker's own docstring rely on to make this a machine check rather than a sentence — does not detect a corrupted or fabricated MILESTONES.md row. Independently reproduced both of code review's CR-02 legs by direct execution against the real ledger plus a mutated copy of the real MILESTONES.md: (a) inserting a fabricated, fully-declared row for RK-174-01-p177-readback-gating (bogus after_hash=ffffffffffff) immediately before the real, still-undeclared row for the same ledger_id — the checker exits 0, 'OK: 6 ledger row(s), 6 MILESTONES.md row(s) bound', the fabricated declared re-key is entirely invisible; (b) corrupting the surviving row's shape_id to TOTALLY-WRONG-SHAPE and before_hash to 000000000000 while leaving after as '(undeclared)' — the checker again exits 0. Root cause: parse_milestones_rows keys rows by ledger_id in a plain dict with no duplicate-row detection (last line wins, silently), and check()'s undeclared branch only ever inspects the after cell, never shape_id/before_hash. This directly falsifies the checker's own documented guarantee ('a row cannot be declared on one side and silently never appear on the other') and GATE-06's REQUIREMENTS.md text ('recorded ... as a declared, dated, ONE-TIME decision') — a duplicate or corrupted row is exactly the silent accident this phase's whole goal exists to make impossible, and the mechanism named to prevent it does not."
-    artifacts:
-      - path: tools/rekey/check_rekey_ledger.py
-        issue: "parse_milestones_rows (~lines 94-107) has no duplicate-ledger_id detection — a second RK-174- row for an existing ledger_id silently overwrites the first in the rows dict. check()'s undeclared branch (~lines 133-139) validates only the after cell, never shape_id/before_hash, against the ledger row."
-    missing:
-      - "Detect duplicate ledger_id rows while parsing MILESTONES.md and fail closed (raise LedgerParseError / print an ERROR line, non-zero exit) instead of silently keeping only the last-seen row for that ledger_id."
-      - "In check()'s undeclared branch, additionally assert the MILESTONES.md row's shape_id and before_hash equal the ledger row's shape_id/before_hash whenever a row exists at all (not only that the after cell reads as undeclared) — this closes WR-01 at the same time."
-      - "Extend evidence/174-01-anti-vacuity-red-green.txt (or a new evidence file) with these two legs, both currently RED (exit 0 when a non-zero exit is required) and neither previously exercised by any of the phase's anti-vacuity transcripts."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 4/5
+  gaps_closed:
+    - "A MILESTONES.md re-key ledger section exists with the fields a declared re-key must carry (change, before-hash, after-hash, date) — the mechanism every later phase's deliberate re-key is recorded into (roadmap SC5 / GATE-06)"
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 174: Blast-Radius Invariance Harness Verification Report
 
 **Phase Goal:** A frozen, absolute-value oracle exists proving any later change to `dedup_fingerprint` or the promotion ladder is a declared decision, not a silent accident — built and green before any of this milestone's behaviour changes land.
-**Verified:** 2026-09-03T16:53:28Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-09-03T18:44:55Z
+**Status:** human_needed
+**Re-verification:** Yes — after gap closure (174-06-PLAN.md / 174-06-SUMMARY.md)
 
 ## Goal Achievement
 
-### Observable Truths
+### Observable Truths (roadmap Success Criteria)
 
-| # | Truth (roadmap Success Criterion) | Status | Evidence |
+| # | Truth | Status | Evidence |
 |---|---|---|---|
-| 1 | A frozen table pairing report shapes to expected 12-hex `dedup_fingerprint` values lives in `firestarter_app/tests/fixtures/` and covers at minimum the four measured re-key shapes (read-back gating, SDP-step pruning, canonical naming, UV `run_count` collapse), computed against HEAD before any subsequent phase's change lands | ✓ VERIFIED | `tests/fixtures/report_shapes.py` defines 16 `SHAPE_IDS`/`FROZEN_HASHES` entries including `sst27sf512-six-step` (read-back gating), `m27c512-full-all-ok` (SDP-step pruning), `m27c512-full-canonical-name` (canonical naming), `m27c512-full-blank-check-bad` (UV run_count collapse). Independently reproduced two of the sixteen literals against the real `dedup_fingerprint` (`6d3afbc52315`, `776846bf2dc8`) — matched exactly. `test_dedup_fingerprint_is_frozen` (16 parametrized cases) passes; full 110-test phase suite passes (`110 passed in 7.15s`, reproduced independently). |
-| 2 | Every assertion in that table is against an absolute expected hash string; none is a relational `fp(a) == fp(b)` comparison computed at runtime | ✓ VERIFIED | Read `test_blast_radius_invariance.py` in full: every hash assertion compares a computed `dedup_fingerprint(...)` return value against a literal string in `FROZEN_HASHES`/`LADDER_PINS`, never against a second computed fingerprint. Anti-vacuity legs assert *inequality* against the same frozen literal after a planted mutation, which is the correct converse of the same absolute-comparison idiom. |
-| 3 | `build_db_diff`'s disposition and ladder output for the same frozen shapes is pinned and asserted the same way, so a promotion-ladder change cannot land silently | ✓ VERIFIED | `LADDER_PINS` (16 entries) pins `(proposed_disposition, ladder_state)` per shape; `test_build_db_diff_ladder_pin_for_all_shapes` and `test_ladder_pins_cover_all_four_build_db_diff_arms` pass, confirming all four `build_db_diff` dispositions are reached (including the AT28C256 SDP blind spot and the non-SDP all-OK arm). |
-| 4 | The raw-CLI-token → `part_number` delta across the shipped database is a committed, measured artifact — a table or file — not an assumed number | ✓ VERIFIED | `firestarter_app/tests/fixtures/part_number_delta.json` exists; independently loaded and confirmed its `aggregate` block (746 rows / 59 vendors / 677 distinct part numbers / 953 aliases / 942 token-differs / 11 token-matches / 514 comma-joined / 16 not-implemented / 0 not-found / 732 lowercase-proxy) matches the SUMMARY's claimed numbers exactly. `tools/measure_part_number_delta.py --check` re-run independently: `OK: ... matches a fresh regeneration`. |
-| 5 | A `MILESTONES.md` re-key ledger section exists with the fields a declared re-key must carry (change, before-hash, after-hash, date) — the mechanism every later phase's deliberate re-key is recorded into | ✗ FAILED | Section and 7-column table exist with the right fields (confirmed by reading `.planning/MILESTONES.md`), but the binding mechanism (`tools/rekey/check_rekey_ledger.py`) that is supposed to make a declared/fabricated re-key impossible to hide does not do so — see Gaps below. Both of code review's CR-02 legs independently reproduced by direct execution: exit 0 on a fabricated declared row shadowed by the real row, and exit 0 on a corrupted `shape_id`/`before_hash` on the surviving undeclared row. |
+| 1 | A frozen table pairing report shapes to expected 12-hex `dedup_fingerprint` values lives in `firestarter_app/tests/fixtures/`, covering the four measured re-key shapes, computed against HEAD | ✓ VERIFIED (regression) | `tests/fixtures/report_shapes.py`'s 16-entry `FROZEN_HASHES` unchanged since prior verification (`git diff 0c709fd..HEAD` on `report_shapes.py` shows no `FROZEN_HASHES`/`LADDER_PINS` hunks). `snapshot_report_shapes.py --check`: `OK: 16 snapshot(s) ... match a fresh regeneration`, independently re-run. |
+| 2 | Every assertion in that table is against an absolute expected hash string; none is relational | ✓ VERIFIED (regression) | Code path unchanged by 174-06 (only `check()` and `_clone_with_chip_override` were touched); `test_blast_radius_invariance.py`'s absolute-literal idiom re-confirmed unchanged by diff. |
+| 3 | `build_db_diff`'s disposition and ladder output for the same frozen shapes is pinned and asserted the same way | ✓ VERIFIED (regression) | `LADDER_PINS` (16 entries) unchanged by diff; `test_build_db_diff_ladder_pin_for_all_shapes` and `test_ladder_pins_cover_all_four_build_db_diff_arms` both pass in the fresh 122-test run below. |
+| 4 | The raw-CLI-token → `part_number` delta across the shipped database is a committed, measured artifact | ✓ VERIFIED (regression) | `part_number_delta.json` unchanged (`git diff` empty); `measure_part_number_delta.py --check` independently re-run: `OK: ... matches a fresh regeneration`. |
+| 5 | A `MILESTONES.md` re-key ledger section exists with the fields a declared re-key must carry, and **the mechanism actually binds** | ✓ VERIFIED | Gap closed. Full adversarial re-test below — 9 independent attack legs against `.planning/MILESTONES.md` copies, all fail closed on the fixed checker and all confirmed RED (silently exit 0) against the pinned pre-fix blob `5c0c7c97097f8148182d8df87c75b250c4c3d3d8`. |
 
-**Score:** 4/5 truths verified (0 present, behavior-unverified)
+**Score:** 5/5 truths verified (0 present, behavior-unverified)
 
-### Confirmed Critical Defect Not Rising to a Gap: CR-01 (results-list aliasing)
+### Adversarial Re-Test of GATE-06 (independent execution, not the SUMMARY's transcripts)
 
-Independently reproduced code review's CR-01 by direct execution:
+Per the verification brief, the checker was exercised directly against deliberately corrupted **copies** of `.planning/MILESTONES.md` in a scratch directory (real file never touched). Fixed checker = current `tools/rekey/check_rekey_ledger.py` on HEAD (`b954d7cd`). Pre-fix blob = `git cat-file blob 5c0c7c97097f8148182d8df87c75b250c4c3d3d8` (the blob the plan itself pins as the RED baseline).
+
+| # | Attack | Fixed checker | Pre-fix blob (must be RED) | Verdict |
+|---|---|---|---|---|
+| 1 | Baseline: real, unmutated `.planning/MILESTONES.md` | `OK: 6 ledger row(s), 6 MILESTONES.md row(s) bound`, exit 0 | — (not tested; this is the control) | ✓ PASS |
+| 2 | **CR-02 leg (a), reproduced verbatim from the prior gap report:** fabricated, fully-declared duplicate row (`after=ffffffffffff`) inserted immediately before the real `RK-174-01-...` row | `ERROR: duplicate MILESTONES.md row for ledger_id 'RK-174-01-p177-readback-gating'`, exit 2 | `OK: ...`, exit 0 (confirmed RED) | ✓ PASS — gap closed |
+| 3 | **CR-02 leg (b), reproduced verbatim:** surviving undeclared row's `shape_id`→`TOTALLY-WRONG-SHAPE`, `before`→`000000000000` | `ERROR: '...' MILESTONES.md row (shape_id, before)=('TOTALLY-WRONG-SHAPE', '000000000000') does not match ledger row ...`, exit 1 | `OK: ...`, exit 0 (confirmed RED) | ✓ PASS — gap closed |
+| 4 | Uppercased `before` cell (`4DC282A5D596`) | `ERROR: ... does not match ...`, exit 1 | `OK: ...`, exit 0 (confirmed RED) | ✓ PASS |
+| 5 | Wide `after` cell on undeclared row (14-char `ffffffffffffff`) | `ERROR: ... after cell 'ffffffffffffff' is not the exact literal '(undeclared)'`, exit 1 | `OK: ...`, exit 0 (confirmed RED) | ✓ PASS |
+| 6 | Short `after` cell on undeclared row (11-char truncation) | `ERROR: ... after cell '4dc282a5d59' is not the exact literal '(undeclared)'`, exit 1 | `OK: ...`, exit 0 (confirmed RED) | ✓ PASS |
+| 7 | Zero-row table (every `RK-174-` line stripped) | `ERROR: MILESTONES.md carries 0 RK-174- row(s) while the ledger declares 6 row(s)`, exit 1 | `OK: 6 ledger row(s), 0 MILESTONES.md row(s) bound`, exit 0 (confirmed RED) | ✓ PASS |
+| 8 | Order-stability: two consecutive runs of the fixed checker over the identical (leg-5) corrupted input | `cmp` of the two stdout captures: identical | n/a | ✓ PASS |
+| 9 | New attack not in the SUMMARY's own legs: orphan row (`RK-174-99-p999-fabricated`, no corresponding ledger row at all) inserted into an otherwise-clean copy | `ERROR: MILESTONES.md row 'RK-174-99-p999-fabricated' has no matching ledger row`, exit 1 | (not run against prefix; orthogonal check of the already-existing reverse-direction guard) | ✓ PASS |
+
+All error text is verbatim-identical to what 174-06-SUMMARY.md transcribed. Independently confirmed both the GREEN behavior and the RED baseline for every leg the prior gap named plus one additional attack the verifier constructed (leg 9). **The binding mechanism now genuinely binds** — no combination of duplicated, fabricated, corrupted, or deleted `MILESTONES.md` rows tested produces a silent exit 0.
+
+### CR-01 (results/plan aliasing) fix independently re-verified
 
 ```
-same results list: True
-before: 6d3afbc52315 True    # == FROZEN_HASHES['m27c512-full-all-ok']
-after:  e9df6ca4627c False   # moved, without m27c512-full-all-ok itself ever being touched directly
+same results object: False
+same plan object: False
+before: 6d3afbc52315 True   (== FROZEN_HASHES['m27c512-full-all-ok'])
+after (mutation through clone, base unaffected): 6d3afbc52315 True
 ```
+Reproduced in-process against `build_shape('m27c512-full-all-ok')` vs `build_shape('m27c512-full-canonical-name')`: the two shapes no longer share `results`/`plan`, and mutating the clone's `results[0].verdict` no longer moves the base's frozen hash. This matches 174-06-SUMMARY.md's transcript and independently confirms the fix, not just its RED/GREEN narration.
 
-`_build_m27c512_full_all_ok` (`functools.cache`d) and its two derivatives
-`m27c512-full-canonical-name` / `m27c512-full-comma-joined-name`
-(`_clone_with_chip_override`) alias the identical `results` list object. A mutation
-performed through any one of the three `shape_id`s reaches all three.
+### Newly Surfaced Findings (post-gap-closure code review, not yet actioned by any plan)
 
-**Assessed against the roadmap criteria, not just the code-review severity scale:** this
-defect does **not** falsify criterion 1, 2 or 3 as written. Today, as committed, all
-sixteen frozen hashes — including the three aliased shapes — recompute correctly and
-independently (16/16, orchestrator-verified and spot-confirmed above), because nothing
-in the current, committed test suite mutates any of the three aliased shapes'
-`results` in place. `_build_sst27sf512_six_step` (the shape the module's own
-mutation-based anti-vacuity legs target) is deliberately uncached for exactly this
-reason and is unaffected. The failure mode this bug creates is **collateral false
-RED**, not a silent false GREEN: a future test that mutates only ONE of the three
-aliased shapes to prove an anti-vacuity leg would unexpectedly also redden the other
-two, for a reason unrelated to the guarded behaviour. That is a real, confirmed defect
-in the harness's internal correctness — and, per the review, a live hazard specifically
-for Phase 181's `RK-174-03-p181-canonical-naming-avoided` row, which is exactly the kind
-of "mutate one shape, prove the pin moves" leg this milestone's later phases are
-expected to write — but it does not let a real behaviour change pass silently today,
-so it is recorded here as a **carried-forward risk (WARNING)**, not a gap against this
-phase's own stated success criteria. It must be fixed (per the review's suggested fix:
-stop caching a real-path builder that is later cloned, or deep-copy `results`/`plan` in
-`_clone_with_chip_override`) before Phase 181 writes that anti-vacuity leg — and ideally
-before any later phase adds a second mutation-based leg touching any of the three
-aliased shapes.
+`174-REVIEW.md` was regenerated at `b954d7cd` (2026-09-03T18:42:16Z), **after** 174-06's gap-closure commits and after the "update tracking after gap-closure wave" commit. This is a second, more recent review than the one the original gaps_found verification used, and it surfaced 1 new critical + 4 warnings + 2 info findings that no plan has yet addressed. Each was assessed against the phase's actual roadmap success criteria (not the code-review severity label alone), following the same standard the first verification applied to the original CR-01:
+
+- **New CR-01 (renumbered): `render_shape()`/`_to_dict_with_db_diff()` mutate a cached, `functools.cache`-memoized `DiagnosticReport.db_diff` in place, for 6 of 16 shape ids.** Independently reproduced live: `build_shape('m27c512-full-all-ok').db_diff` is `None`, then becomes a populated `DbDiff(...)` after `render_shape('m27c512-full-all-ok')` runs once in-process, with `r1 is r2 == True`. Confirmed `dedup_fingerprint` never reads `db_diff` (`grep` over its full body: no match), so this does not threaten SC1/SC2. `LADDER_PINS`' ladder-disposition pins (SC3) are still confirmed byte-identical and passing in the fresh 122-test run — the bug is real but, exactly as the review states, currently masked by test ordering rather than defeating any committed truth today. **Carried forward as a WARNING**, same treatment the first verification gave the original (now-fixed) CR-01 — it is a collateral-false-state risk for a future phase, not a silent-pass-of-a-real-change risk today.
+- **WR-02: `check()`'s app-side `ledger_by_id` dict silently keeps only the last row for a duplicated `ledger_id`, asymmetric with the MILESTONES.md-side duplicate guard 174-06 just added.** Independently probed with three constructed adversarial `ledger_rows` lists (two declared rows with conflicting `after_hash`, undeclared+declared pairs in both orders) — in every case tested, `check()`'s first loop (which iterates the raw `ledger_rows` list, not the deduplicated dict) still produced at least one `ERROR:` and a non-zero-implying result, because the loop checks each row against the shared `milestones_rows.get(ledger_id)` independently rather than through `ledger_by_id`. Could not construct a case where the app-side duplicate lets a corrupted or fabricated `MILESTONES.md` row pass silently — the `ledger_by_id` dict is used only for the reverse-direction "orphan MILESTONES.md row" check, not for validating declared/undeclared correctness. This is a real robustness/error-message-quality gap (no dedicated "duplicate ledger_id" diagnostic on the app side, unlike the MILESTONES side) and a legitimate defense-in-depth improvement, but adversarial testing did not find it capable of defeating GATE-06's actual "cannot silently pass a corrupted or fabricated row" guarantee. Also independently backstopped today by `test_ledger_id_values_are_unique` in the app-side pytest suite (confirmed passing). **Carried forward as a WARNING**, not a gap.
+- **WR-01 (renumbered): GATE-05 snapshot-drift coverage is 1-of-16 shapes in automated `pytest`, not all 16.** `snapshot_report_shapes.py --check` (a separate script, independently re-run and confirmed clean) does cover all 16; only the `pytest`-native leg is narrow. Does not defeat SC1 as measured today (all 16 confirmed drift-free via the script). WARNING, not a gap.
+- **WR-03, WR-04, IN-01, IN-02** — all pre-existing, all assessed by the review itself as not currently defeating any committed truth (ambiguity-detection gap in the corpus generator, an `assert` strippable under `-O`, an unbounded `gh issue list --limit 300`, undocumented "last wins" JSON-block selection). Consistent with the review's own classification; no independent evidence found that any of them defeats a roadmap success criterion today.
+
+**None of these four post-gap-closure findings falsify any of the five roadmap success criteria as directly, adversarially re-tested above.** They are real, independently-reproduced defects worth fixing before the phases they threaten (177+, and any future mutation-based anti-vacuity leg), but under the same goal-backward standard this phase's own first verification applied, they do not block this phase's goal today.
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |---|---|---|---|
-| `firestarter_app/tests/fixtures/report_shapes.py` | 16 shape builders, `SHAPE_IDS`/`FROZEN_HASHES`/`RESERVED_SHAPE_IDS`/`LADDER_PINS` | ✓ VERIFIED | Present, imported and exercised by 4 test modules; `functools.cache`d aliasing hazard noted above (CR-01, WARNING, not a gap). |
-| `firestarter_app/tests/fixtures/reports/*.json` (16 files) | Committed `to_dict()` snapshots | ✓ VERIFIED | 16 files present; `snapshot_report_shapes.py --check` independently re-run: `OK: 16 snapshot(s) ... match a fresh regeneration`. |
-| `firestarter_app/tests/fixtures/shape_ids.json` | Committed sorted 16-entry `shape_id` anchor (D-10) | ✓ VERIFIED | Present; four-way closure tests pass. |
-| `firestarter_app/tests/fixtures/rekey_ledger.py` | Append-only `LEDGER`, 6 rows | ✓ VERIFIED | Present; 6 rows, all `after_hash is None`, `ledger_id`s unique and ascending. |
-| `firestarter_app/tests/fixtures/devtest_issue_corpus.json` | 26-row filed `[dev test]` issue corpus (GATE-05) | ✓ VERIFIED | Present; `build_devtest_issue_corpus.py --check` independently re-run: `OK: ... matches a fresh regeneration`. |
-| `firestarter_app/tests/fixtures/part_number_delta.json` | Whole-database delta artifact (GATE-04) | ✓ VERIFIED | Present; aggregate numbers independently confirmed (see Truth 4). |
-| `tools/rekey/check_rekey_ledger.py` | Meta-side cross-tree checker (D-13) | ⚠️ WIRED BUT DEFECTIVE | Present, wired into `.github/workflows/rekey-ledger-check.yml` and callable locally; exits correctly on the basic clean/missing-path/undeclared-row legs the phase's own evidence exercises, but fails to detect a duplicate or corrupted `MILESTONES.md` row (CR-02 — see Gaps). |
-| `.planning/MILESTONES.md` (v1.36 Re-Key Ledger section) | 6 narrated rows, declared-re-key protocol, corrections table | ✓ VERIFIED (section content) | Present and narrated; the section's *binding mechanism* is the gap, not the section's own content. |
-| `.github/workflows/rekey-ledger-check.yml` | Registered CI leg, `beta`/`gsd/**` triggers, gitlink-resolved checkout | ✓ VERIFIED | Present; triggers confirmed by reading the file (branches: `beta`, `gsd/**`; push+pull_request+workflow_dispatch); on-GitHub firing is explicitly declared unproven by the phase itself (see Human Verification). |
+| `firestarter_app/tests/fixtures/report_shapes.py` | 16 shape builders, frozen tables, non-aliasing clone | ✓ VERIFIED | `_clone_with_chip_override` now uses `copy.deepcopy` on `results`/`plan` (confirmed by reading lines 484-504 and by live reproduction above). |
+| `tools/rekey/check_rekey_ledger.py` | Fail-closed cross-tree binding checker | ✓ VERIFIED | Duplicate-`ledger_id` guard in `parse_milestones_rows` (exit 2), undeclared-branch `shape_id`/`before_hash`/exact-literal validation, zero-row guard — all read directly and all adversarially re-exercised above. |
+| `firestarter_app/tests/test_rekey_ledger.py` | 7 new subprocess-level legs | ✓ VERIFIED | All 7 named tests collected and pass (`10 passed` selecting the parametrized family, matching the 4-case `after_cell` parametrization + 6 others). |
+| `firestarter_app/tests/test_blast_radius_invariance.py` | 2 new non-aliasing regression legs | ✓ VERIFIED | Both collected and pass; independently re-confirmed via direct in-process reproduction. |
+| Evidence transcripts (3 new files) | RED-then-GREEN pairs against pinned pre-fix blobs | ✓ VERIFIED | All 3 present, non-trivial (10/18/43 lines), and every `rc`/error-text pair independently reproduced by the verifier rather than trusted from the file. |
+| `.planning/MILESTONES.md` (v1.36 Re-Key Ledger section) | 6 narrated rows, correct fields | ✓ VERIFIED | Unchanged since prior verification; still present and narrated. |
 
-### Key Link Verification
-
-| From | To | Via | Status | Details |
-|---|---|---|---|---|
-| `report_shapes.py` | `firestarter/diagnostic_report.py` | `dedup_fingerprint` called on a real `DiagnosticReport` | ✓ WIRED | Confirmed by direct import and execution; no reimplementation of the hash found anywhere in the fixture module. |
-| `report_shapes.py` | `firestarter/chip_test.py` | `derive_plan`/`run_plan` build the 8 real-path shapes | ✓ WIRED | Confirmed present (`_build_real_path_report`) and exercised (0.376s cold build per SUMMARY, corroborated by the 7.15s full-module run observed here). |
-| `rekey_ledger.py` | `report_shapes.py` | every ledger row's `shape_id` resolves to a builder | ✓ WIRED | `test_rekey_ledger.py`'s row-shape/resolution sweep passes; all 6 rows' `shape_id`s are members of `SHAPE_IDS`. |
-| `check_rekey_ledger.py` | `rekey_ledger.py` | `ast.literal_eval`, never import | ✓ WIRED | Confirmed by reading the checker: uses `ast.parse` + `ast.literal_eval` exclusively, no `import` of the fixture module. |
-| `check_rekey_ledger.py` | `.planning/MILESTONES.md` | every `RK-174-` row bound both directions | ⚠️ WIRED BUT UNSOUND | Binds correctly against the real, well-formed file (`OK: 6 ledger row(s), 6 MILESTONES.md row(s) bound`, independently re-run), but the binding is not sound against a duplicated or corrupted row — see Gaps (GATE-06). |
-| `.github/workflows/rekey-ledger-check.yml` | `check_rekey_ledger.py` | `run:` step invokes it with resolved paths | ✓ WIRED | Confirmed by reading the workflow file; the `python3 meta/tools/rekey/check_rekey_ledger.py --repo-root meta ...` invocation matches the script's actual CLI. |
-
-### Behavioral Spot-Checks
+### Behavioral Spot-Checks / Regression
 
 | Behavior | Command | Result | Status |
 |---|---|---|---|
-| Full phase test suite (110 tests) actually passes | `pytest tests/test_blast_radius_invariance.py tests/test_rekey_ledger.py tests/test_devtest_issue_corpus.py tests/test_part_number_delta_drift.py` | `110 passed in 7.15s` | ✓ PASS |
-| Frozen hash reproduces from a real `DiagnosticReport` for two independently-chosen shapes | in-process `dedup_fingerprint(build_shape(...))` | `6d3afbc52315`, `776846bf2dc8` — both match `FROZEN_HASHES` | ✓ PASS |
-| Snapshot, corpus and delta artifacts regenerate byte-identically | `snapshot_report_shapes.py --check`, `build_devtest_issue_corpus.py --check`, `measure_part_number_delta.py --check` | all three `OK: ... matches a fresh regeneration` | ✓ PASS |
-| `check_rekey_ledger.py` binds the real pair | `python3 tools/rekey/check_rekey_ledger.py --repo-root /workspaces` | `OK: 6 ledger row(s), 6 MILESTONES.md row(s) bound`, rc=0 | ✓ PASS |
-| CR-01 reproduction: mutation through one aliased shape corrupts another's frozen hash | in-process, described above | reproduced exactly as review reported | ✓ PASS (confirms defect; not a phase-blocking gap — see analysis above) |
-| CR-02 reproduction, leg (a): fabricated declared row shadowed by real row | `check_rekey_ledger.py` against a mutated `MILESTONES.md` copy with a duplicate `RK-174-01-...` row inserted before the real one | `OK: 6 ledger row(s), 6 MILESTONES.md row(s) bound`, rc=0 (should be non-zero) | ✗ FAIL (confirms GATE-06 gap) |
-| CR-02 reproduction, leg (b): corrupted `shape_id`/`before_hash` on the surviving undeclared row | `check_rekey_ledger.py` against a mutated `MILESTONES.md` copy | `OK: 6 ledger row(s), 6 MILESTONES.md row(s) bound`, rc=0 (should be non-zero) | ✗ FAIL (confirms GATE-06 gap) |
+| Four-module phase suite | `pytest tests/test_blast_radius_invariance.py tests/test_rekey_ledger.py tests/test_devtest_issue_corpus.py tests/test_part_number_delta_drift.py -o addopts="" -q` | `122 passed in 11.10s` | ✓ PASS |
+| Full app suite (excluding known pre-existing `test_skip_census.py` timeouts) | `pytest -o addopts="" -q --ignore=tests/test_skip_census.py` | `2072 passed, 1 warning in 210.40s` — zero failures | ✓ PASS (no regressions) |
+| Snapshot drift | `snapshot_report_shapes.py --check` | `OK: 16 snapshot(s) ... match a fresh regeneration` | ✓ PASS |
+| Part-number-delta drift | `measure_part_number_delta.py --check` | `OK: ... matches a fresh regeneration` | ✓ PASS |
+| Devtest issue corpus drift | `build_devtest_issue_corpus.py --check` | `OK: ... matches a fresh regeneration` | ✓ PASS |
+| Frozen artifacts byte-identical to pre-174-06 state | `git diff 0c709fd..HEAD --stat` over `reports/`, `shape_ids.json`, `devtest_issue_corpus.json`, `part_number_delta.json`, `rekey_ledger.py`; and a targeted diff of `FROZEN_HASHES`/`LADDER_PINS` in `report_shapes.py` | empty in all cases | ✓ PASS — no accidental re-key |
+| Working tree clean (meta + submodule) | `git status --porcelain` (both repos) | empty in both | ✓ PASS |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan(s) | Description | Status | Evidence |
 |---|---|---|---|---|
-| GATE-01 | 174-01, 174-02, 174-03 | Frozen `(shape → 12-hex hash)` table exists, covers the four measured re-key shapes | ✓ SATISFIED | 16-shape `FROZEN_HASHES` table, 16/16 recompute byte-exactly. |
-| GATE-02 | 174-01, 174-02, 174-03 | Suite fails on any frozen-shape hash change; assertion is absolute, never relational | ✓ SATISFIED | Confirmed by full read of `test_blast_radius_invariance.py`; anti-vacuity legs pass. |
-| GATE-03 | 174-01, 174-02 | `build_db_diff` ladder output pinned for the same shapes | ✓ SATISFIED | `LADDER_PINS`, all 4 disposition arms measured and pinned. |
-| GATE-04 | 174-04 | Raw-token → `part_number` delta measured and recorded, not assumed | ✓ SATISFIED | `part_number_delta.json`, aggregate independently confirmed. |
-| GATE-05 | 174-01, 174-02, 174-03, 174-04 | Report corpus lives in `firestarter_app/tests/fixtures/` | ✓ SATISFIED | 16 shape snapshots + 26-row filed-issue corpus, both under `firestarter_app/tests/fixtures/`, both drift-tested. |
-| GATE-06 | 174-01, 174-03, 174-05 | Every deliberate re-key recorded in `MILESTONES.md` as a declared, dated, one-time decision, bound to the app-side ledger | ✗ BLOCKED | Section/fields exist and the CI leg is registered, but the binding mechanism (`check_rekey_ledger.py`) does not reliably enforce "one-time" / non-duplicated / non-corrupted rows — see Gaps. |
+| GATE-01 | 174-01, 174-02, 174-03, 174-06 (CR-01 fix) | Frozen `(shape → 12-hex hash)` table exists | ✓ SATISFIED | 16-shape `FROZEN_HASHES`, unchanged and passing; aliasing hazard that could have collaterally reddened it (old CR-01) is fixed and independently re-verified. |
+| GATE-02 | 174-01, 174-02, 174-03 | Absolute-value assertion discipline | ✓ SATISFIED | Unchanged, re-confirmed by diff. |
+| GATE-03 | 174-01, 174-02 | `build_db_diff` ladder output pinned | ✓ SATISFIED | `LADDER_PINS` unchanged, 122-test run passing. |
+| GATE-04 | 174-04 | Part-number delta measured artifact | ✓ SATISFIED | Unchanged, `--check` clean. |
+| GATE-05 | 174-01 through 174-04 | Report corpus lives in `firestarter_app/tests/fixtures/` | ✓ SATISFIED | Unchanged; note WR-01 (new review) flags automated-`pytest` coverage breadth as a WARNING, not a blocker — the standalone `--check` script covers all 16. |
+| GATE-06 | 174-01, 174-03, 174-05, **174-06** | Every deliberate re-key recorded in `MILESTONES.md`, bound to the app-side ledger | ✓ SATISFIED | **Gap closed.** Binding mechanism adversarially re-tested with 9 independent attack legs (2 reproduced verbatim from the prior gap, 4 from the SUMMARY's own claimed fixes, 1 order-stability check, 1 novel orphan-row attack, 1 clean-baseline control) — all fail closed on the fixed checker and all confirmed RED against the pinned pre-fix blob. |
 
-No orphaned requirements found: `GATE-01` through `GATE-06` are the complete set REQUIREMENTS.md maps to Phase 174, and every one is claimed by at least one plan's `requirements:` frontmatter.
+No orphaned requirements: `GATE-01` through `GATE-06` remain the complete set REQUIREMENTS.md maps to Phase 174, and 174-06's frontmatter claims `[GATE-01, GATE-02, GATE-06]` in addition to the plans that already claimed the others.
 
-**Bookkeeping note (not a gap):** `.planning/REQUIREMENTS.md`'s checkboxes for GATE-01 through GATE-06 (lines 40-45) and its Traceability table (lines 148-153) both still read unchecked / "Pending" as of this verification, despite five of the six being satisfied in the codebase. This is a documentation-sync gap in REQUIREMENTS.md itself, not a phase-goal gap — flagged here so it is not lost, but not counted against the phase's score.
+**Bookkeeping note (not a gap, carried forward unchanged):** `.planning/REQUIREMENTS.md`'s checkboxes for GATE-01 through GATE-06 (lines 40-45) and its Traceability table (lines 148-153) still read unchecked / "Pending" despite all six being satisfied in the codebase. Documentation-sync gap in REQUIREMENTS.md itself, not counted against the phase's score, per the same treatment the first verification gave it.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 |---|---|---|---|---|
-| `firestarter_app/tests/fixtures/report_shapes.py` | 478-543 | Shared mutable `results` list across 3 `shape_id`s (CR-01) | ⚠️ Warning | Collateral false-RED risk for future mutation-based anti-vacuity legs (esp. Phase 181's `RK-174-03` row); does not currently defeat any frozen-hash assertion. |
-| `tools/rekey/check_rekey_ledger.py` | 94-147 | No duplicate-row detection; undeclared branch skips `shape_id`/`before_hash` validation (CR-02) | 🛑 Blocker | Defeats GATE-06's core "cannot be declared on one side and silently never appear on the other" guarantee — see Gaps. |
-| `firestarter_app/tools/snapshot_report_shapes.py` / `report_shapes.py` | 87-94 / 497-587 | `render_shape` mutates a cached real-path shape's `.db_diff` in place (WR-02) | ℹ️ Info | Does not currently threaten GATE-01/02 (`dedup_fingerprint` never reads `db_diff`); a process-order hazard for any future GATE-05-style pin on a real-path shape's `db_diff`. |
-| `firestarter_app/tests/fixtures/report_shapes.py` | 340-354 | Stale docstring describing verification mechanics that don't match the actual test (IN-01) | ℹ️ Info | Cosmetic; no behavioural effect. |
-| `firestarter_app/tools/measure_part_number_delta.py` | 101-132 | `differs` conflates "resolves differently" with "does not resolve at all" (IN-02) | ℹ️ Info | Currently masked (`aliases_chip_not_found: 0`); would misclassify a future unresolvable alias. |
+| `firestarter_app/tools/snapshot_report_shapes.py` / `test_blast_radius_invariance.py` | 92 / 404 | New-review CR-01: in-place `db_diff` mutation on 6 cached shapes | ⚠️ Warning (carried forward) | Collateral stale-state risk for a future `db_diff is None` assertion or repeated snapshot generation; does not currently defeat any of the 5 success criteria (confirmed `dedup_fingerprint` never reads `db_diff`). |
+| `tools/rekey/check_rekey_ledger.py` | 129 | New-review WR-02: app-side `ledger_by_id` dict silently keeps only the last duplicate row | ⚠️ Warning (carried forward) | Adversarial re-testing found no scenario where this lets a corrupted/fabricated MILESTONES.md row pass silently; a real diagnostic-quality gap, backstopped today by `test_ledger_id_values_are_unique`. |
+| `firestarter_app/tests/test_blast_radius_invariance.py` | 561-569 | New-review WR-01: automated `pytest` snapshot-drift coverage is 1/16 shapes | ⚠️ Warning (carried forward) | The standalone `snapshot_report_shapes.py --check` script (not `pytest`) already covers all 16 and is clean; GATE-05 holds today via that script. |
+| `firestarter_app/tools/build_devtest_issue_corpus.py` | 169-187 / 78-102 / 116-130 | New-review WR-03, IN-01, IN-02 | ℹ️ Info / Warning (carried forward) | No independent evidence any currently defeats a committed truth; flagged for future hardening. |
+| `firestarter_app/tests/fixtures/report_shapes.py` | 647-650 | New-review WR-04: bare `assert` for D-04 reservation check strippable under `-O` | ⚠️ Warning (carried forward) | Not exercised under `-O` in this project's CI as far as verified; a defense-in-depth gap, not a currently-observed failure. |
 
-No `TBD`/`FIXME`/`XXX` debt markers found in any of the 15 files this phase touched. All generator/checker scripts carry exactly one `#` line (the shebang); every fixture/test/JSON file carries zero.
+No `TBD`/`FIXME`/`XXX` debt markers found in any of the four files 174-06 modified. Comment-line count matches the plan's own prohibition exactly: `tools/rekey/check_rekey_ledger.py` carries exactly 1 `#` line (its shebang); `test_rekey_ledger.py`, `report_shapes.py`, `test_blast_radius_invariance.py` carry 0.
 
 ### Human Verification Required
 
@@ -146,31 +130,21 @@ No `TBD`/`FIXME`/`XXX` debt markers found in any of the 15 files this phase touc
 
 **Test:** After this phase's commits reach a remote branch matching the workflow's triggers (`beta` or any `gsd/**` branch push, or a PR targeting `beta`), run `gh run list --workflow=rekey-ledger-check.yml --limit 5`.
 **Expected:** At least one run appears, with a conclusion (success/failure) rather than no runs at all.
-**Why human:** No network path exists in this sandbox to make GitHub Actions schedule a run; the phase's own evidence (`174-05-checker-fires.txt`) declares this explicitly unproven rather than claiming it observed. Local invocation and a simulated cross-tree checkout both pass, which is the strongest evidence obtainable without the operator's confirmation.
+**Why human:** No network path exists in this sandbox to make GitHub Actions schedule a run. Carried forward unchanged from the prior (initial) verification — still unproven on GitHub itself, though the workflow file, its trigger branches (`beta`, `gsd/**`), and its invocation of the now-fixed checker were all re-confirmed by direct reading.
+
+### 2. Post-gap-closure code review findings (4 warnings, 1 renumbered critical) are unactioned — human call on whether to schedule a follow-up plan now or defer
+
+**Test:** Review the four carried-forward findings above (`db_diff` cache aliasing, app-side duplicate-`ledger_id` diagnostic asymmetry, 1/16 `pytest` snapshot-drift coverage, and the three lower-severity items) and decide whether any should be closed before Phase 177 (the first consumer phase) lands, versus tracked as backlog.
+**Expected:** A decision — fix now via a 174-07 gap-closure-style plan, or explicitly accept and track for a later phase.
+**Why human:** These are judgment calls about acceptable risk versus scope creep for a phase whose gap gate (GATE-06) is now genuinely closed; the verifier's adversarial testing found none of them defeats a roadmap success criterion today, but that is a statement about the present state, not about acceptable risk for Phase 177+.
 
 ### Gaps Summary
 
-Four of five roadmap success criteria hold up under direct, independent re-execution — the
-sixteen-shape frozen-hash table, the absolute-assertion discipline, the `build_db_diff` ladder
-pins, and the measured part-number delta artifact are all real, wired, and behaviorally
-confirmed, not merely present. The fifth (the `MILESTONES.md` re-key ledger as "the mechanism
-every later phase's deliberate re-key is recorded into") fails on the mechanism half of that
-claim: `tools/rekey/check_rekey_ledger.py` — the component this phase's own plans, SUMMARYs and
-the checker's own docstring all cite as the thing that makes GATE-06 "a machine check rather
-than a sentence" — can be defeated by a duplicated or corrupted `MILESTONES.md` row and will
-exit 0 regardless, independently reproduced twice. Given this milestone's explicit purpose is to
-make later re-keys undeniable declared decisions rather than silent accidents, a binding
-mechanism that itself accepts a silent, undeclared row is a direct hit on the phase's own goal,
-not a peripheral nit — it is classified as a blocking gap rather than a carried-forward risk.
+**The single recorded gap is closed.** Re-verification independently, adversarially re-exercised the exact two `CR-02` legs the prior verification used to fail this phase (fabricated duplicate declared row; corrupted `shape_id`/`before_hash` on the surviving undeclared row) plus seven additional legs (uppercase hash, wide/short `after` cell, zero-row table, order-stability, and a novel orphan-row attack not in any prior transcript) — every one fails closed on the fixed `tools/rekey/check_rekey_ledger.py`, and every one is confirmed RED (silently exits 0) against the pinned pre-fix blob `5c0c7c97097f8148182d8df87c75b250c4c3d3d8`, ruling out an unreachable-gate false pass. The companion CR-01 (results/plan aliasing) fix was also independently reproduced live. All five roadmap success criteria now verify directly against the codebase, not merely against SUMMARY.md's narration, and the full 2072-test app suite (excluding the pre-existing, unrelated `test_skip_census.py` timeouts) shows zero regressions.
 
-CR-01 (results-list aliasing across three frozen shapes) is a second, independently confirmed
-Critical-severity defect from code review, but — assessed against what the roadmap actually
-requires today — it does not currently falsify any of the five success criteria: it creates a
-risk of unrelated collateral test failures in future anti-vacuity work, not a silent pass of a
-real change today. It is recorded as a carried-forward risk (WARNING) that should be fixed
-before Phase 181 exercises `RK-174-03-p181-canonical-naming-avoided`.
+Status is `human_needed` rather than `passed` for two reasons, neither of which is a gap: (1) the GitHub Actions on-remote firing check carried forward from the first verification remains genuinely unprovable in this sandbox, and (2) a second, more recent code review (`174-REVIEW.md` at `b954d7cd`, committed after 174-06's own completion) surfaced four new-or-renumbered findings that no plan has yet addressed. Independent adversarial testing of all four found none capable of defeating any of the five roadmap success criteria today — they are legitimate carried-forward risk for Phase 177+, assessed and classified using the exact same goal-backward standard the first verification applied to the original CR-01 — but a decision on whether to close them now or track them forward belongs to a human, not the verifier.
 
 ---
 
-_Verified: 2026-09-03T16:53:28Z_
+_Verified: 2026-09-03T18:44:55Z_
 _Verifier: Claude (gsd-verifier)_
