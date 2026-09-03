@@ -14,8 +14,12 @@ An undeclared ledger row (`after_hash is None`) may have no `MILESTONES.md`
 row at all, but if one exists for that `ledger_id` a duplicated
 `MILESTONES.md` row for the same `ledger_id` is rejected rather than
 merged, and the existing row's `shape_id` and `before` cell must match the
-ledger's own values while its `after` cell must read as undeclared, never
-a filled-in hash.
+ledger's own values while its `after` cell must be the exact literal
+`(undeclared)` -- not merely fail a loose hash-shaped regex, so an
+off-by-one-character truncation or an uppercase hash is rejected too. A
+`MILESTONES.md` carrying zero `RK-174-` rows while the ledger declares any
+is also rejected, closing the route of deleting the whole table to escape
+every per-row comparison at once.
 
 The ledger is parsed with `ast.parse` plus `ast.literal_eval` on the
 `LEDGER` assignment's value -- NEVER imported. A cross-tree import would
@@ -53,7 +57,7 @@ _ROW_RE = re.compile(
     r"\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*$"
 )
 
-_HASH_RE = re.compile(r"^[0-9a-f]{12}$")
+_UNDECLARED = "(undeclared)"
 
 LedgerRow = tuple[str, str, "str | None", str]
 
@@ -124,6 +128,12 @@ def check(
     errors: list[str] = []
     ledger_by_id = {row[3]: row for row in ledger_rows}
 
+    if ledger_rows and not milestones_rows:
+        errors.append(
+            f"ERROR: MILESTONES.md carries 0 RK-174- row(s) while the "
+            f"ledger declares {len(ledger_rows)} row(s)"
+        )
+
     for row in ledger_rows:
         shape_id, before_hash, after_hash, ledger_id = row
         m_row = milestones_rows.get(ledger_id)
@@ -140,12 +150,20 @@ def check(
                     f"not match ledger row {(shape_id, before_hash, after_hash)!r}"
                 )
         else:
-            if m_row is not None and _HASH_RE.match(m_row[2]):
-                errors.append(
-                    f"ERROR: {ledger_id!r} is undeclared in the ledger but "
-                    f"MILESTONES.md's after cell {m_row[2]!r} reads as a "
-                    "declared hash"
-                )
+            if m_row is not None:
+                if (m_row[0], m_row[1]) != (shape_id, before_hash):
+                    errors.append(
+                        f"ERROR: {ledger_id!r} MILESTONES.md row "
+                        f"(shape_id, before)={(m_row[0], m_row[1])!r} does not "
+                        f"match ledger row (shape_id, before_hash)="
+                        f"{(shape_id, before_hash)!r}"
+                    )
+                if m_row[2] != _UNDECLARED:
+                    errors.append(
+                        f"ERROR: {ledger_id!r} is undeclared in the ledger "
+                        f"but MILESTONES.md's after cell {m_row[2]!r} is "
+                        f"not the exact literal {_UNDECLARED!r}"
+                    )
 
     for ledger_id in milestones_rows:
         if ledger_id not in ledger_by_id:
