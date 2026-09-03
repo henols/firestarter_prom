@@ -2,9 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.36
 milestone_name: dev test Fidelity — Only Run What Can Tell You Something, Report Only What You Know
+current_phase_name: roadmap created — Phase 174 next
 status: planning
-last_updated: "2026-09-02T20:30:00.000Z"
+stopped_at: Phase 174 context gathered
+last_updated: "2026-09-03T08:08:11.001Z"
 last_activity: 2026-09-02
+last_activity_desc: "Roadmap created: 8 phases (174-181), 46/46 requirements mapped"
 progress:
   total_phases: 8
   completed_phases: 0
@@ -3276,8 +3279,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-02T17:55:00.000Z
-**Stopped at:** Phase 173 complete — all phases complete
+**Last session:** 2026-09-03T08:08:10.569Z
+**Stopped at:** Phase 174 context gathered
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
@@ -3328,7 +3331,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/173-close-beta-cut-under-protection-close-procedure-honesty-ledg/173-CONTEXT.md
+**Resume file:** .planning/phases/174-blast-radius-invariance-harness/174-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
