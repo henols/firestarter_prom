@@ -254,7 +254,7 @@ UNMEASURED everywhere it appears).
   4. The raw-CLI-token → `part_number` delta across the shipped database is a committed, measured artifact — a table or file — not an assumed number.
   5. A `MILESTONES.md` re-key ledger section exists with the fields a declared re-key must carry (change, before-hash, after-hash, date) — the mechanism every later phase's deliberate re-key is recorded into.
 
-**Plans**: 5 plans
+**Plans**: 6 plans
 
 Plans:
 **Wave 1**
@@ -273,6 +273,10 @@ Plans:
 **Wave 4**
 
 - [x] 174-05-PLAN.md — D-13's runner decided concretely: local gate primary, plus a registered workflow triggered on `beta` and the milestone branch glob (never `main`-only), proven to fire by invocation; then the phase's own cost, comment-hygiene, scope-boundary and pre-existing-RED audits
+
+**Wave 5 — gap closure (verification scored 4/5; roadmap SC5 / GATE-06 failed)**
+
+- [ ] 174-06-PLAN.md — GATE-06's binding mechanism made fail-closed: a duplicated `ledger_id` row exits 2 by name instead of the last row silently winning, the undeclared branch validates `shape_id`/`before_hash`/the exact `(undeclared)` literal (CR-02 and WR-01 together), an emptied ledger table exits 1, and every leg is seen RED against a pinned pre-fix blob first; plus CR-01, the three frozen shapes sharing one mutable `results` list
 
 ### Phase 175: Structural Sentinel over `derive_plan`
 
