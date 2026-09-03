@@ -272,7 +272,7 @@ Plans:
 
 **Wave 4**
 
-- [ ] 174-05-PLAN.md — D-13's runner decided concretely: local gate primary, plus a registered workflow triggered on `beta` and the milestone branch glob (never `main`-only), proven to fire by invocation; then the phase's own cost, comment-hygiene, scope-boundary and pre-existing-RED audits
+- [x] 174-05-PLAN.md — D-13's runner decided concretely: local gate primary, plus a registered workflow triggered on `beta` and the milestone branch glob (never `main`-only), proven to fire by invocation; then the phase's own cost, comment-hygiene, scope-boundary and pre-existing-RED audits
 
 ### Phase 175: Structural Sentinel over `derive_plan`
 
