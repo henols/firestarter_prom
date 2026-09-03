@@ -254,7 +254,25 @@ UNMEASURED everywhere it appears).
   4. The raw-CLI-token → `part_number` delta across the shipped database is a committed, measured artifact — a table or file — not an assumed number.
   5. A `MILESTONES.md` re-key ledger section exists with the fields a declared re-key must carry (change, before-hash, after-hash, date) — the mechanism every later phase's deliberate re-key is recorded into.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 174-01-PLAN.md — Tracer: one `shape_id` (`sst27sf512-six-step`) through all eight layers — builder, absolute hash `4dc282a5d596`, ladder pin, committed `to_dict()` snapshot, ledger row, `MILESTONES.md` row, meta-side cross-tree checker — with the three-leg anti-vacuity contract SEEN red. Opens with a `checkpoint:decision` on the one-way `shape_id` name set (D-04).
+
+**Wave 2**
+
+- [ ] 174-02-PLAN.md — The two frozen tables: eight hand-specified shapes (including builder reproduction of the four filed community hashes D-06 names) plus eight real-path `derive_plan` shapes with a stateful SDP-aware operator double, and all four `build_db_diff` arms pinned including the non-SDP all-OK arm
+- [ ] 174-04-PLAN.md — GATE-04: the 26-row filed-issue corpus (26 of 26 reproduce through the real `dedup_fingerprint`) and the raw-CLI-token → `part_number` delta measured through `resolve_chip`, script-generated, committed and drift-tested
+
+**Wave 3**
+
+- [ ] 174-03-PLAN.md — Seven element-wise `to_dict()` key-list pins (D-07), the four-way `shape_id` closure against a committed sorted anchor plus three reserved later-phase names (D-10, D-04), and all six pre-seeded ledger rows narrated in `MILESTONES.md` with the four falsified priors recorded (D-12)
+
+**Wave 4**
+
+- [ ] 174-05-PLAN.md — D-13's runner decided concretely: local gate primary, plus a registered workflow triggered on `beta` and the milestone branch glob (never `main`-only), proven to fire by invocation; then the phase's own cost, comment-hygiene, scope-boundary and pre-existing-RED audits
 
 ### Phase 175: Structural Sentinel over `derive_plan`
 
