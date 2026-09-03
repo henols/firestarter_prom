@@ -4,16 +4,16 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity — Only Run What Can Tell You Something, Report Only What You Know"
 current_phase: 174
 current_phase_name: Blast-Radius Invariance Harness
-status: planned
-stopped_at: "Phase 174 gap-closure plan 174-06 written; ready for /gsd-execute-phase 174 --gaps-only"
-last_updated: "2026-09-03T17:33:31.578Z"
+status: executing
+stopped_at: "Phase 174 gap-closure plan 174-06 executed; post-merge and regression gates clean; awaiting re-verification"
+last_updated: "2026-09-03T18:31:58.000Z"
 last_activity: 2026-09-03
-last_activity_desc: "Phase 174 gap-closure planning: 174-06-PLAN.md written and checker-passed; closes GATE-06 binding mechanism plus CR-01"
+last_activity_desc: "Phase 174 gap closure executed: 174-06 made check_rekey_ledger.py fail-closed (duplicate ledger_id exits 2 by name, undeclared-row shape_id/before_hash/exact-(undeclared)-literal validation, zero-row guard) and fixed CR-01 shape aliasing via copy.deepcopy in _clone_with_chip_override; 8 new legs all seen RED against pinned pre-fix blobs 5c0c7c9 and dc7e40a before GREEN; four-module suite 122 passed, full app suite 2074 passed with the 3 pre-existing test_skip_census TimeoutExpired failures unchanged"
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 6
-  completed_plans: 0
+  completed_plans: 6
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 174 — Blast-Radius Invariance Harness (executing, wave 1 of 4; `shape_id` set is a one-way contract for Phases 175–181)
+**Current focus:** Phase 174 — Blast-Radius Invariance Harness (gap closure 174-06 executed, awaiting re-verification; `shape_id` set is a one-way contract for Phases 175–181)
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 174 (Blast-Radius Invariance Harness) — EXECUTED 5/5, VERIFICATION gaps_found (4/5); gap-closure plan 174-06 PLANNED
-Plan: 5 of 6 complete — 174-06 is the gap-closure plan, not yet executed
-Status: Ready to execute 174-06 (gap closure). Planned 2026-09-03 via `/gsd-plan-phase 174 --gaps`: plan-checker VERIFICATION PASSED (0 blockers, 1 warning — a wave-number label mismatch, resolved by rewording the ROADMAP entry), requirements 6/6 (GATE-01…06), decision coverage 16/16, verify-command-paths 26/26 and verify-failure-directions 26/26 all severity none. Next: `/gsd-execute-phase 174 --gaps-only`
-Last activity: 2026-09-03 — `/gsd-plan-phase 174 --gaps`. One gap-closure plan written (`174-06-PLAN.md`, `gap_closure: true`, 3 tasks, requirements GATE-01/02/06) closing the single recorded gap: `check_rekey_ledger.py` exits 0 on a duplicated or corrupted `MILESTONES.md` row (CR-02 legs a+b, which also closes WR-01), plus the separately-committable CR-01 fix for the three frozen shapes sharing one mutable `results` list. Every RED leg is anchored to pinned pre-fix blobs `5c0c7c9` (checker) / `dc7e40a` (report_shapes) so the anti-vacuity pairs stay reproducible after the fix commits, rather than going vacuous against HEAD.
+Phase: 174 (Blast-Radius Invariance Harness) — EXECUTED 6/6 including gap-closure plan 174-06; re-verification pending
+Plan: 6 of 6 complete — 174-06 (gap closure) executed 2026-09-03
+Status: Gap closure complete, awaiting re-verification. 174-06 closed the single recorded gap (GATE-06 binding mechanism) and code-review CR-01. `tools/rekey/check_rekey_ledger.py` now fails closed on a duplicated `ledger_id` (exit 2, named), on an undeclared row whose `shape_id`/`before_hash` disagree with the ledger or whose `after` cell is not the exact `(undeclared)` literal (exit 1), and on a zero-row `MILESTONES.md` against a non-empty ledger (exit 1); output is order-stable. `_clone_with_chip_override` deep-copies `results`/`plan`, so three frozen shapes no longer share one mutable list. All 8 new legs seen RED against pinned pre-fix blobs `5c0c7c9` (checker) and `dc7e40a` (report_shapes) before GREEN. Four-module suite 122 passed; full app suite 2074 passed / 3 failed, those 3 being the pre-existing `test_skip_census.py` `TimeoutExpired` set 174-05 already recorded unchanged. All 16 FROZEN_HASHES and 16 LADDER_PINS byte-identical. Next: verifier re-run, then phase close.
+Last activity: 2026-09-03 — `/gsd-execute-phase 174 --gaps-only`. One plan (174-06) executed sequentially on the main tree (worktrees disabled project-wide and the plan writes into the `firestarter_app` submodule): 4 meta commits `12eb9cf7`/`4a1bfe35`/`3a4dc611`/`f6fc9883` and 5 app commits `2db07df`/`7367cc5`/`64669b1`/`c4e16c6`/`e907e6d`, RED commit preceding GREEN on the TDD task. Three evidence transcripts written. Both `execute:wave:post` drift gates returned block=false.
 
 ## Roadmap Summary (v1.36)
 
