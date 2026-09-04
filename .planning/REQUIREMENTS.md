@@ -54,8 +54,8 @@ buffer is unmodelled.
 - [ ] **PRUNE-02**: The read-back gate consults the step's outcomes **across all cycles**, not the final cycle alone. A cycle-1-fail / cycle-2-pass run keeps its fingerprint. (`not all(outcomes)` at `chip_test.py:3100` is insufficient at HEAD — under the cycle block `outcomes` is a one-element list for the final cycle only.)
 - [ ] **PRUNE-03**: A passing write/verify still reports a fingerprint, **synthesized** from what the operation already established (`bad=0`, `total=region_length`, `ff_ratio: None`) and classified `match` per D-4/D-6. The read-back is what costs; the classification is free.
 - [ ] **PRUNE-04**: Where the engine reads a whole device back only to compare it against a buffer it already holds, it uses the on-device verify instead. **The fingerprint read-back is explicitly excluded from this rule** (D-1).
-- [ ] **PRUNE-05**: Unsupported steps keep their `StepResult` with an NA verdict; only the work is skipped. They are **not** dropped from `Plan.steps` — 637 of 677 chips carry six `supported=False` SDP steps and they are hash ballast, not waste.
-- [ ] **PRUNE-06**: A structural test over `derive_plan` output fails when a plan emits a write with no verify behind it. Expressed as a relational predicate over `Plan.steps`, not a self-declared per-step annotation, and carrying anti-vacuity legs including a planted counter-example.
+- [x] **PRUNE-05**: Unsupported steps keep their `StepResult` with an NA verdict; only the work is skipped. They are **not** dropped from `Plan.steps` — 637 of 677 chips carry six `supported=False` SDP steps and they are hash ballast, not waste.
+- [x] **PRUNE-06**: A structural test over `derive_plan` output fails when a plan emits a write with no verify behind it. Expressed as a relational predicate over `Plan.steps`, not a self-declared per-step annotation, and carrying anti-vacuity legs including a planted counter-example.
 - [ ] **PRUNE-07**: The seed `.planning/seeds/dev-test-adaptive-sequencing.md` is amended so R1 no longer instructs a planner to destroy the diagnostic R2 preserves (D-1).
 - [ ] **PRUNE-08**: The read step's second full sweep is replaced by a bit-structured sample **only if** MEAS-01 shows the sample is cheaper on the measured board class. If it is not, this requirement closes as *measured, not worth doing*, with the measurement recorded — that is a success, not a miss.
 
@@ -151,8 +151,8 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | GATE-04 | Phase 174 | Complete |
 | GATE-05 | Phase 174 | Complete |
 | GATE-06 | Phase 174 | Complete |
-| PRUNE-05 | Phase 175 | Pending |
-| PRUNE-06 | Phase 175 | Pending |
+| PRUNE-05 | Phase 175 | Complete |
+| PRUNE-06 | Phase 175 | Complete |
 | RPT-C1 | Phase 176 | Pending |
 | RPT-C2 | Phase 176 | Pending |
 | MEAS-01 | Phase 176 | Pending |

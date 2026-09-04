@@ -53,3 +53,7 @@ rc_full_suite=0
 32 snapshots passed.
 2151 passed, 1 warning in 344.75s (0:05:44)
 full_suite_passed=2151
+== 8 paperwork
+todo_filed=yes
+coverage_declared=yes
+requirements_complete=2
