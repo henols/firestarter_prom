@@ -100,7 +100,7 @@ Reuses 999.36's drafted IDs. **RPT-E1 is changed** by D-3.
 
 ### Measurement
 
-- [ ] **MEAS-01**: Per-connect cost is measured **per board class** (Uno 512 B, Leonardo 1024 B), not as one number. On Uno-class boards the DTR auto-reset and bootloader wait are likely the dominant term. This gates PRUNE-08 and the R4 deferral.
+- [x] **MEAS-01**: Per-connect cost is measured **per board class** (Uno 512 B, Leonardo 1024 B), not as one number. On Uno-class boards the DTR auto-reset and bootloader wait are likely the dominant term. This gates PRUNE-08 and the R4 deferral.
 - [x] **MEAS-02**: `_SUSPECT_THRESHOLD = 5` is either justified against real counts or re-derived once RPT-C1's counters exist — it was chosen while the counters were dormant and has never been exercised.
 - [x] **MEAS-03**: Which of `retries` / `timeouts` are genuinely wireable is traced end to end. Anything not actually wired keeps `NOT_MEASURED`.
 
@@ -155,7 +155,7 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | PRUNE-06 | Phase 175 | Complete |
 | RPT-C1 | Phase 176 | Complete |
 | RPT-C2 | Phase 176 | Complete |
-| MEAS-01 | Phase 176 | Pending |
+| MEAS-01 | Phase 176 | Complete |
 | MEAS-02 | Phase 176 | Complete |
 | MEAS-03 | Phase 176 | Complete |
 | PRUNE-01 | Phase 177 | Pending |
