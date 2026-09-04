@@ -5,8 +5,8 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 175
 current_phase_name: Structural Sentinel over `derive_plan`
 status: planning
-stopped_at: Phase 174 complete, ready to plan Phase 175
-last_updated: "2026-09-04T07:33:04.556Z"
+stopped_at: Phase 175 context gathered
+last_updated: "2026-09-04T09:37:12.589Z"
 last_activity: 2026-09-04
 last_activity_desc: Phase 174 complete, transitioned to Phase 175
 progress:
@@ -3280,8 +3280,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-03T08:08:10.569Z
-**Stopped at:** Phase 174 complete, ready to plan Phase 175
+**Last session:** 2026-09-04T09:37:12.288Z
+**Stopped at:** Phase 175 context gathered
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
@@ -3332,7 +3332,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/174-blast-radius-invariance-harness/174-CONTEXT.md
+**Resume file:** .planning/phases/175-structural-sentinel-over-derive-plan/175-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
