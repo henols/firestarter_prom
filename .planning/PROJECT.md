@@ -92,7 +92,7 @@ faults is the worst defect it can have.
   RPT-A1…E3). Populate `chip_id_actual` on a *passing* id check; export the fingerprint's `total`/`bad`/
   `bad_pct`/`evidence` as additive siblings, the read-step `divergence` metric, and `plan.is_uv`;
   delete `voltage.vpp_mv`/`vpe_mv` and `banner.locked_steps`, which no code path assigns; wire the two
-  real re-sync events at `serial_comm.py:485-490` and `:500-505` into `transport_health`; make
+  real re-sync events at `serial_comm.py:488-494` and `:504-510` into `transport_health`; make
   `duration_s` a per-operation cost and add a real wall-clock `elapsed`; bump the schema to **1.8**.
 - **Canonical chip naming** — report the matched database `part_number`, not the operator's raw CLI
   token, so an issue title names a string that exists in the database.

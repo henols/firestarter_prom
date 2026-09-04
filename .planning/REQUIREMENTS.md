@@ -88,7 +88,7 @@ Reuses 999.36's drafted IDs. **RPT-E1 is changed** by D-3.
 - [ ] **RPT-A5**: The detected chip ID becomes a `StepResult` field rather than being recovered by scraping prose (`cli_handlers.py:2172-2179`).
 - [ ] **RPT-B1**: `voltage.vpp_mv` and `voltage.vpe_mv` are deleted from the dataclass, `_voltage_dict()` and the schema. That no code path assigns them is proven by **test**, not asserted.
 - [ ] **RPT-B2**: `banner.locked_steps` is deleted; the N-of-M banner itself is kept. `Plan.locked_destructive` is adjudicated separately per D-7.
-- [x] **RPT-C1**: The two re-sync events at `serial_comm.py:485-490` and `:500-505`, `_decode_id_frame` returning `None`, and `get_response`'s timeout each increment a real counter reachable by the report.
+- [x] **RPT-C1**: The two re-sync events at `serial_comm.py:488-494` and `:504-510`, `_decode_id_frame` returning `None`, and `get_response`'s timeout each increment a real counter reachable by the report.
 - [x] **RPT-C2**: `transport_health` reports those real counts. `NOT_MEASURED` remains **only** for a counter genuinely not wired, and `_is_transport_suspect`'s present-AND-elevated rule is unchanged — absent data still cannot fabricate suspicion.
 - [ ] **RPT-D1**: `duration_s` is the **per-operation** cost — `_aggregate_cycle_results` (`chip_test.py:1280`) stops summing across cycles. Its meaning must not vary with `run_count`, so a `--fast` value is directly comparable to a default run's.
 - [ ] **RPT-D2**: A real wall-clock `elapsed` for the whole command is added to `to_dict()`, and the render-only `steps total` sum-of-sums row is removed.

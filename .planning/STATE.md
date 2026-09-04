@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
-current_phase: 176
-current_phase_name: Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
-status: executing
-stopped_at: Completed 176-05-PLAN.md - all 5 waves complete
-last_updated: "2026-09-04T19:53:05.455Z"
+current_phase: 177
+current_phase_name: Evidence-Gated Read-Back
+status: planning
+stopped_at: Phase 176 complete, ready to plan Phase 177
+last_updated: "2026-09-04T23:23:55.745Z"
 last_activity: 2026-09-04
-last_activity_desc: "Phase 176 EXECUTING - wave 1 of 5 dispatching. Prior: Phase 176 PLANNED - transport instrumentation + connect-cost measurement, 5 plans in 5 waves, strictly sequential. Research (1,556 lines) traced all four RPT-C1 sites at HEAD and found the two re-sync sites sit inside the v1.9 GATE-1.8d ring fence, SHA-pinned by test_serial_comm.py:430-460; operator ruled RESEARCH section 7 Option 1 - instrument and re-pin deliberately, behind a blocking-human checkpoint (176-03). MEAS-03's real finding: cobs_errors and retries are genuinely unwireable and crc_failures is not reachable by the Site-C counter, so all three keep NOT_MEASURED with the reason test-pinned. MEAS-02 keeps 5 with a recorded basis - timeouts scoped to established connections so the port-discovery walk cannot trip transport_suspect on a healthy rig. MEAS-01 is hardware-gated and deferred to 176-05 behind a board-attach gate; no board attached this session. Phase 174 oracle needs no dedup re-key but its _TRANSPORT_HEALTH_KEYS pin and 16 report snapshots re-baseline three times (6 to 7 to 9 keys), each same-commit. Plan-checker VERIFICATION PASSED; its one warning (176-02 Task 1's nothing-else-moved leg narrower than the 176-01/176-03 whole-snapshot shape) was fixed in ecb988fc."
+last_activity_desc: "Phase 176 COMPLETE and VERIFIED (4/4 criteria, 5/5 requirements), transitioned to Phase 177. All four RPT-C1 sites wired; transport_health at 9 keys; cobs_errors/crc_failures/retries keep NOT_MEASURED with each reason traced and test-pinned (MEAS-03). v1.9 GATE-1.8d fence deliberately re-pinned to 8b778000 under blocking-human approval, fence proven still live. MEAS-01 measured on both board classes, never blended: Uno-class 2.518s median (0.018s over the 2.500s structural floor), Leonardo-class 2.607s (0.107s over), probe_timeouts 0 on both. Data CONTRADICTS MEAS-01's Uno-dominant hypothesis and says so; the 2.5s host-side floor is ~96-99% of connect cost, which is what PRUNE-08 (Phase 180) must consume. App suite 2198 passed."
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 16
   completed_plans: 16
-  percent: 25
+  percent: 38
 ---
 
 # Project State
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 176 — Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated — MEAS-01)
+**Current focus:** Phase 177 — Evidence-Gated Read-Back
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 176 — Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated) — EXECUTING
-Plan: 5 of 5 — all complete
-Status: Phase 176 execution complete — all 5 plans, all 5 requirements; awaiting verification
-Last activity: 2026-09-04 — 176-05 complete: per-connect cost measured on both board classes, never blended. Uno-class 2.518s median (0.018s over the 2.500s floor), Leonardo-class 2.607s (0.107s over). Data CONTRADICTS MEAS-01 hypothesis of Uno-dominant remainder; recorded as such. MEAS-01 Complete; all 5 phase requirements now Complete
+Phase: 177 — Evidence-Gated Read-Back
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-04 — Phase 176 complete, transitioned to Phase 177
 
 ## Roadmap Summary (v1.36)
 
@@ -3281,7 +3281,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-04T14:32:59.000Z
-**Stopped at:** Phase 175 complete, ready to plan Phase 176
+**Stopped at:** Phase 176 complete, ready to plan Phase 177
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
