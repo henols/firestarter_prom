@@ -4,11 +4,11 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 176
 current_phase_name: Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
-status: planned
+status: executing
 stopped_at: Phase 176 planned - 5 plans, 5 waves, 2 blocking-human gates
-last_updated: "2026-09-04T19:20:29.946Z"
+last_updated: "2026-09-04T19:53:05.455Z"
 last_activity: 2026-09-04
-last_activity_desc: "Phase 176 PLANNED - transport instrumentation + connect-cost measurement, 5 plans in 5 waves, strictly sequential. Research (1,556 lines) traced all four RPT-C1 sites at HEAD and found the two re-sync sites sit inside the v1.9 GATE-1.8d ring fence, SHA-pinned by test_serial_comm.py:430-460; operator ruled RESEARCH section 7 Option 1 - instrument and re-pin deliberately, behind a blocking-human checkpoint (176-03). MEAS-03's real finding: cobs_errors and retries are genuinely unwireable and crc_failures is not reachable by the Site-C counter, so all three keep NOT_MEASURED with the reason test-pinned. MEAS-02 keeps 5 with a recorded basis - timeouts scoped to established connections so the port-discovery walk cannot trip transport_suspect on a healthy rig. MEAS-01 is hardware-gated and deferred to 176-05 behind a board-attach gate; no board attached this session. Phase 174 oracle needs no dedup re-key but its _TRANSPORT_HEALTH_KEYS pin and 16 report snapshots re-baseline three times (6 to 7 to 9 keys), each same-commit. Plan-checker VERIFICATION PASSED; its one warning (176-02 Task 1's nothing-else-moved leg narrower than the 176-01/176-03 whole-snapshot shape) was fixed in ecb988fc."
+last_activity_desc: "Phase 176 EXECUTING - wave 1 of 5 dispatching. Prior: Phase 176 PLANNED - transport instrumentation + connect-cost measurement, 5 plans in 5 waves, strictly sequential. Research (1,556 lines) traced all four RPT-C1 sites at HEAD and found the two re-sync sites sit inside the v1.9 GATE-1.8d ring fence, SHA-pinned by test_serial_comm.py:430-460; operator ruled RESEARCH section 7 Option 1 - instrument and re-pin deliberately, behind a blocking-human checkpoint (176-03). MEAS-03's real finding: cobs_errors and retries are genuinely unwireable and crc_failures is not reachable by the Site-C counter, so all three keep NOT_MEASURED with the reason test-pinned. MEAS-02 keeps 5 with a recorded basis - timeouts scoped to established connections so the port-discovery walk cannot trip transport_suspect on a healthy rig. MEAS-01 is hardware-gated and deferred to 176-05 behind a board-attach gate; no board attached this session. Phase 174 oracle needs no dedup re-key but its _TRANSPORT_HEALTH_KEYS pin and 16 report snapshots re-baseline three times (6 to 7 to 9 keys), each same-commit. Plan-checker VERIFICATION PASSED; its one warning (176-02 Task 1's nothing-else-moved leg narrower than the 176-01/176-03 whole-snapshot shape) was fixed in ecb988fc."
 progress:
   total_phases: 8
   completed_phases: 2
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 176 — Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-04 — Phase 176 planned (5 plans, 5 waves); research + pattern map + plan-checker all complete
+Phase: 176 — Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 176
+Last activity: 2026-09-04 — Phase 176 execution started; 5 plans in 5 sequential waves, 3 checkpoint plans (176-01, 176-03, 176-05)
 
 ## Roadmap Summary (v1.36)
 
