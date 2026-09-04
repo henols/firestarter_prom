@@ -305,7 +305,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 175-05-PLAN.md — The phase seal, by measurement rather than assertion: zero diff in `firestarter_app/firestarter/`, in the firmware repo and in the generated database; the Phase 174 oracle still at `114 passed` with byte-level ledger checks and no new `MILESTONES.md` row (174's D-11 satisfied vacuously); zero comments, zero skip markers, ruff clean, mypy watermark unmoved at 35/35, whole app suite green at or above 2,108; plus the deferred `cli_handlers.py:2295-2303` stale-comment defect FILED not fixed, and PRUNE-05/PRUNE-06 marked Complete
+- [x] 175-05-PLAN.md — The phase seal, by measurement rather than assertion: zero diff in `firestarter_app/firestarter/`, in the firmware repo and in the generated database; the Phase 174 oracle still at `114 passed` with byte-level ledger checks and no new `MILESTONES.md` row (174's D-11 satisfied vacuously); zero comments, zero skip markers, ruff clean, mypy watermark unmoved at 35/35, whole app suite green at or above 2,108; plus the deferred `cli_handlers.py:2295-2303` stale-comment defect FILED not fixed, and PRUNE-05/PRUNE-06 marked Complete
 
 ### Phase 176: Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
 

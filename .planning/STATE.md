@@ -5,7 +5,7 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 175
 current_phase_name: Structural Sentinel over `derive_plan`
 status: executing
-stopped_at: 175-02/03/04 complete — wave 2 of 3 done, wave 3 next (175-05, the phase seal)
+stopped_at: All 5 plans complete — phase seal landed, running the phase-close gates
 last_updated: "2026-09-04T11:51:09.683Z"
 last_activity: 2026-09-04
 last_activity_desc: "Wave 2 complete — 175-02 erase/UV pins (608 live erase steps, 28C carve-out 81 chips/162 plans, 540 UV plans, handler-level _resolve_write_scope over all 677 names), 175-03 the frozen plan-shape pin (8 families over 16 (op,supported) sequences, 5 fail-closed paths seen non-zero), 175-04 the execution half (16,248 results for 16,248 steps, 9,304 NA, child-suite cap 180s -> 420s). Orchestrator post-merge gate: 2151 passed, 0 failed in 372s"
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 175 (Structural Sentinel over `derive_plan`) — EXECUTING
-Plan: 5 of 5 — waves 1-2 complete (175-01, 175-02, 175-03, 175-04); wave 3 next = [175-05, the phase seal]
+Plan: 5 of 5 complete — all three waves done; phase-close gates in progress
 Status: Executing Phase 175
 Last activity: 2026-09-04 — wave 2 complete: erase/UV pins, the frozen plan-shape artifact and the 1,354-plan run_plan sweep all landed; 2151 passed, zero production diff across all four plans
 
