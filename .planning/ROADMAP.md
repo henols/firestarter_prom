@@ -320,7 +320,28 @@ Plans:
   3. Per-connect cost is recorded as two distinct bench-measured artifacts, one for Uno-class (512 B buffer) and one for Leonardo-class (1024 B buffer) boards — never blended into a single number.
   4. `_SUSPECT_THRESHOLD`'s value of 5 is either justified against the newly measured real counts or explicitly re-derived, with the basis recorded — not left as the untouched default chosen while the counters were dormant.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 176-01-PLAN.md — Tracer: one decode failure end to end — a new process-lifetime `transport_counters` sink, the increment at the fence-free `_decode_id_frame` seam, the reset and read in `cli_handlers`, the honest `int | None` field, the Phase 174 key pin and all 16 report snapshots moved deliberately in the same commit. Opens with a `checkpoint:decision` on the one-way counter key-name set
+
+**Wave 2**
+
+- [ ] 176-02-PLAN.md — Site D wired and SCOPED: `timeouts` for established connections, a new `probe_timeouts` for the discovery walk that is deliberately outside the suspicion domain; RPT-C2's present-AND-elevated rule proven unchanged in all four senses with the 4/5/6 boundary; MEAS-02's basis and MEAS-03's three unwireable-counter reasons recorded in docstrings and pinned by tests
+
+**Wave 3**
+
+- [ ] 176-03-PLAN.md — The v1.9 ring fence, behind a `blocking-human` checkpoint: both re-sync branches instrumented and the GATE-1.8d SHA re-pinned deliberately in the same commit with the argument recorded in the test docstring the Phase 65-01 way, plus the fence itself SEEN red to prove the new pin still discriminates
+
+**Wave 4**
+
+- [ ] 176-04-PLAN.md — The MEAS-01 instrument built and unit-tested with no board: `measure_connect_cost` on the `measure_command_nak_latency` pattern, its observed-values-only numeric contract (three decimals, lower-median, no blended mean, structural floor reported separately), reached by a third `--mode` value rather than a new `dev` subcommand; then the software half sealed by measurement and RPT-C1/RPT-C2/MEAS-02/MEAS-03 marked Complete
+
+**Wave 5 (hardware-gated)**
+
+- [ ] 176-05-PLAN.md — The bench run, behind a `blocking-human` board-attach checkpoint: per-connect cost measured on one Uno-class and one Leonardo-class board with per-port `controller:` provenance verified by command, written to `176-MEASUREMENT.md` as two never-blended sections, and the cost-model note's stale gap list corrected
 
 ### Phase 177: Evidence-Gated Read-Back
 
