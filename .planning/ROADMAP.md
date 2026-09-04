@@ -290,7 +290,22 @@ Plans:
   3. The predicate is anchored to the module's own operation-type constants, so a future operation type omitted from the closure list cannot silently escape the check.
   4. Unsupported steps remain present in `Plan.steps` with an NA verdict rather than being dropped — verified by a whole-database sweep counting `StepResult` entries before and after, with zero steps removed.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 175-01-PLAN.md — Tracer: the predicate spine end to end — a shared `tests/plan_corpus.py` building 1,354 real plans, a total fail-closed partition of the 13 `OP_*` constants into 2 requires-verify and 11 exempt-with-a-reason (D-01, D-06), a write→verify predicate anchored to the production `cycle_block_bounds` (D-02) demanding a supported (D-03) field-matching (D-04) verify, zero violations across the whole database, and anti-vacuity in both shapes D-09 requires with four predicate weakenings SEEN red
+
+**Wave 2**
+
+- [ ] 175-02-PLAN.md — D-05's separately-named erase→blank-check leg, green on all 608 live-erase plans and sensitive at 608/608, with the 28C-family NA population pinned by BOTH its absolute count (81 chips / 162 plans) and its single reason string; plus D-12's UV write-scope ceiling pinned in both directions at the plan level and, decisively, at the handler level — `_resolve_write_scope` returning `"partial"` for all 270 UV names and `"full"` for all 407 non-UV, for both `interactive` values
+- [ ] 175-03-PLAN.md — D-10's frozen half as a committed artifact, generator and drift test (the D-16 route, on D-11's grounds): `tests/fixtures/plan_shapes.json` pinning 8 shape families over the 16 `(op, supported)` sequences and all 677 chips, six absolutely-asserted aggregates, deterministic sorted render, and five fail-closed paths each proven to exit non-zero while leaving the artifact byte-unchanged
+- [ ] 175-04-PLAN.md — D-10's execution half in its own deselectable module: all 1,354 plans through the real `run_plan` yielding 16,248 results for 16,248 steps with zero misalignments and `NA` on all 9,304 unsupported steps, the `runs=1` plan-guard as a tested fact, and the planner-discovered blocker closed — `tests/test_skip_census.py`'s 180 s child-suite cap raised in the same commit, because the child run measures 139 s and this phase adds ~42 s
+
+**Wave 3**
+
+- [ ] 175-05-PLAN.md — The phase seal, by measurement rather than assertion: zero diff in `firestarter_app/firestarter/`, in the firmware repo and in the generated database; the Phase 174 oracle still at `114 passed` with byte-level ledger checks and no new `MILESTONES.md` row (174's D-11 satisfied vacuously); zero comments, zero skip markers, ruff clean, mypy watermark unmoved at 35/35, whole app suite green at or above 2,108; plus the deferred `cli_handlers.py:2295-2303` stale-comment defect FILED not fixed, and PRUNE-05/PRUNE-06 marked Complete
 
 ### Phase 176: Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
 
