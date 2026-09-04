@@ -88,8 +88,8 @@ Reuses 999.36's drafted IDs. **RPT-E1 is changed** by D-3.
 - [ ] **RPT-A5**: The detected chip ID becomes a `StepResult` field rather than being recovered by scraping prose (`cli_handlers.py:2172-2179`).
 - [ ] **RPT-B1**: `voltage.vpp_mv` and `voltage.vpe_mv` are deleted from the dataclass, `_voltage_dict()` and the schema. That no code path assigns them is proven by **test**, not asserted.
 - [ ] **RPT-B2**: `banner.locked_steps` is deleted; the N-of-M banner itself is kept. `Plan.locked_destructive` is adjudicated separately per D-7.
-- [ ] **RPT-C1**: The two re-sync events at `serial_comm.py:485-490` and `:500-505`, `_decode_id_frame` returning `None`, and `get_response`'s timeout each increment a real counter reachable by the report.
-- [ ] **RPT-C2**: `transport_health` reports those real counts. `NOT_MEASURED` remains **only** for a counter genuinely not wired, and `_is_transport_suspect`'s present-AND-elevated rule is unchanged — absent data still cannot fabricate suspicion.
+- [x] **RPT-C1**: The two re-sync events at `serial_comm.py:485-490` and `:500-505`, `_decode_id_frame` returning `None`, and `get_response`'s timeout each increment a real counter reachable by the report.
+- [x] **RPT-C2**: `transport_health` reports those real counts. `NOT_MEASURED` remains **only** for a counter genuinely not wired, and `_is_transport_suspect`'s present-AND-elevated rule is unchanged — absent data still cannot fabricate suspicion.
 - [ ] **RPT-D1**: `duration_s` is the **per-operation** cost — `_aggregate_cycle_results` (`chip_test.py:1280`) stops summing across cycles. Its meaning must not vary with `run_count`, so a `--fast` value is directly comparable to a default run's.
 - [ ] **RPT-D2**: A real wall-clock `elapsed` for the whole command is added to `to_dict()`, and the render-only `steps total` sum-of-sums row is removed.
 - [ ] **RPT-E1**: `schema_version` becomes **`2.0`** (D-3).
@@ -101,8 +101,8 @@ Reuses 999.36's drafted IDs. **RPT-E1 is changed** by D-3.
 ### Measurement
 
 - [ ] **MEAS-01**: Per-connect cost is measured **per board class** (Uno 512 B, Leonardo 1024 B), not as one number. On Uno-class boards the DTR auto-reset and bootloader wait are likely the dominant term. This gates PRUNE-08 and the R4 deferral.
-- [ ] **MEAS-02**: `_SUSPECT_THRESHOLD = 5` is either justified against real counts or re-derived once RPT-C1's counters exist — it was chosen while the counters were dormant and has never been exercised.
-- [ ] **MEAS-03**: Which of `retries` / `timeouts` are genuinely wireable is traced end to end. Anything not actually wired keeps `NOT_MEASURED`.
+- [x] **MEAS-02**: `_SUSPECT_THRESHOLD = 5` is either justified against real counts or re-derived once RPT-C1's counters exist — it was chosen while the counters were dormant and has never been exercised.
+- [x] **MEAS-03**: Which of `retries` / `timeouts` are genuinely wireable is traced end to end. Anything not actually wired keeps `NOT_MEASURED`.
 
 ### Hygiene
 
@@ -153,11 +153,11 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | GATE-06 | Phase 174 | Complete |
 | PRUNE-05 | Phase 175 | Complete |
 | PRUNE-06 | Phase 175 | Complete |
-| RPT-C1 | Phase 176 | Pending |
-| RPT-C2 | Phase 176 | Pending |
+| RPT-C1 | Phase 176 | Complete |
+| RPT-C2 | Phase 176 | Complete |
 | MEAS-01 | Phase 176 | Pending |
-| MEAS-02 | Phase 176 | Pending |
-| MEAS-03 | Phase 176 | Pending |
+| MEAS-02 | Phase 176 | Complete |
+| MEAS-03 | Phase 176 | Complete |
 | PRUNE-01 | Phase 177 | Pending |
 | PRUNE-02 | Phase 177 | Pending |
 | PRUNE-03 | Phase 177 | Pending |

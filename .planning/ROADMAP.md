@@ -337,7 +337,7 @@ Plans:
 
 **Wave 4**
 
-- [ ] 176-04-PLAN.md — The MEAS-01 instrument built and unit-tested with no board: `measure_connect_cost` on the `measure_command_nak_latency` pattern, its observed-values-only numeric contract (three decimals, lower-median, no blended mean, structural floor reported separately), reached by a third `--mode` value rather than a new `dev` subcommand; then the software half sealed by measurement and RPT-C1/RPT-C2/MEAS-02/MEAS-03 marked Complete
+- [x] 176-04-PLAN.md — The MEAS-01 instrument built and unit-tested with no board: `measure_connect_cost` on the `measure_command_nak_latency` pattern, its observed-values-only numeric contract (three decimals, lower-median, no blended mean, structural floor reported separately), reached by a third `--mode` value rather than a new `dev` subcommand; then the software half sealed by measurement and RPT-C1/RPT-C2/MEAS-02/MEAS-03 marked Complete
 
 **Wave 5 (hardware-gated)**
 
