@@ -199,8 +199,8 @@ as a deliverable — PITFALLS suggests 175 for it and the roadmap overrides that
 
 Decided without asking, on standing precedent — the planner should treat these as locked:
 
-- **D-04's field-matching set** is the one thing the operator explicitly delegated ("you decide"):
-  region, policy and payload, all three.
+- The field-matching set in D-04 above is the one thing the operator explicitly delegated
+  ("you decide"): region, policy and payload, all three.
 - **No re-key.** This phase is test-only and must leave every Phase 174 frozen hash untouched. If any
   frozen hash moves, that is a defect in this phase, not a re-key to declare. Phase 174's **D-11**
   (a declared re-key lands in its own commit, separate from the behaviour change) binds Phases
