@@ -329,7 +329,7 @@ Plans:
 
 **Wave 2**
 
-- [ ] 176-02-PLAN.md — Site D wired and SCOPED: `timeouts` for established connections, a new `probe_timeouts` for the discovery walk that is deliberately outside the suspicion domain; RPT-C2's present-AND-elevated rule proven unchanged in all four senses with the 4/5/6 boundary; MEAS-02's basis and MEAS-03's three unwireable-counter reasons recorded in docstrings and pinned by tests
+- [x] 176-02-PLAN.md — Site D wired and SCOPED: `timeouts` for established connections, a new `probe_timeouts` for the discovery walk that is deliberately outside the suspicion domain; RPT-C2's present-AND-elevated rule proven unchanged in all four senses with the 4/5/6 boundary; MEAS-02's basis and MEAS-03's three unwireable-counter reasons recorded in docstrings and pinned by tests
 
 **Wave 3**
 

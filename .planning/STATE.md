@@ -5,7 +5,7 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 176
 current_phase_name: Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
 status: executing
-stopped_at: Completed 176-01-PLAN.md - wave 1 of 5
+stopped_at: Completed 176-02-PLAN.md - wave 2 of 5
 last_updated: "2026-09-04T19:53:05.455Z"
 last_activity: 2026-09-04
 last_activity_desc: "Phase 176 EXECUTING - wave 1 of 5 dispatching. Prior: Phase 176 PLANNED - transport instrumentation + connect-cost measurement, 5 plans in 5 waves, strictly sequential. Research (1,556 lines) traced all four RPT-C1 sites at HEAD and found the two re-sync sites sit inside the v1.9 GATE-1.8d ring fence, SHA-pinned by test_serial_comm.py:430-460; operator ruled RESEARCH section 7 Option 1 - instrument and re-pin deliberately, behind a blocking-human checkpoint (176-03). MEAS-03's real finding: cobs_errors and retries are genuinely unwireable and crc_failures is not reachable by the Site-C counter, so all three keep NOT_MEASURED with the reason test-pinned. MEAS-02 keeps 5 with a recorded basis - timeouts scoped to established connections so the port-discovery walk cannot trip transport_suspect on a healthy rig. MEAS-01 is hardware-gated and deferred to 176-05 behind a board-attach gate; no board attached this session. Phase 174 oracle needs no dedup re-key but its _TRANSPORT_HEALTH_KEYS pin and 16 report snapshots re-baseline three times (6 to 7 to 9 keys), each same-commit. Plan-checker VERIFICATION PASSED; its one warning (176-02 Task 1's nothing-else-moved leg narrower than the 176-01/176-03 whole-snapshot shape) was fixed in ecb988fc."
@@ -13,7 +13,7 @@ progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 16
-  completed_plans: 12
+  completed_plans: 13
   percent: 25
 ---
 
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 176 — Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated) — EXECUTING
-Plan: 2 of 5
-Status: Executing Phase 176 — wave 1 of 5 complete (176-01)
-Last activity: 2026-09-04 — 176-01 complete: decode_failures wired end to end, Phase 174 pin moved 5→6 keys, all 16 report snapshots re-baselined; app suite 2158 passed
+Plan: 3 of 5
+Status: Executing Phase 176 — waves 1-2 of 5 complete (176-01, 176-02)
+Last activity: 2026-09-04 — 176-02 complete: timeouts wired and scoped, probe_timeouts excluded from the suspicion domain, MEAS-03 reasons traced and test-pinned; pin at 7 keys; app suite 2183 passed
 
 ## Roadmap Summary (v1.36)
 
