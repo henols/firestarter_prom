@@ -341,7 +341,7 @@ Plans:
 
 **Wave 5 (hardware-gated)**
 
-- [ ] 176-05-PLAN.md — The bench run, behind a `blocking-human` board-attach checkpoint: per-connect cost measured on one Uno-class and one Leonardo-class board with per-port `controller:` provenance verified by command, written to `176-MEASUREMENT.md` as two never-blended sections, and the cost-model note's stale gap list corrected
+- [x] 176-05-PLAN.md — The bench run, behind a `blocking-human` board-attach checkpoint: per-connect cost measured on one Uno-class and one Leonardo-class board with per-port `controller:` provenance verified by command, written to `176-MEASUREMENT.md` as two never-blended sections, and the cost-model note's stale gap list corrected
 
 ### Phase 177: Evidence-Gated Read-Back
 
