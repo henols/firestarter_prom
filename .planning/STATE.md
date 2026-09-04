@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
-current_phase: 175
-current_phase_name: Structural Sentinel over `derive_plan`
-status: executing
-stopped_at: All 5 plans complete — phase seal landed, running the phase-close gates
-last_updated: "2026-09-04T11:51:09.683Z"
+current_phase: 176
+current_phase_name: Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
+status: planning
+stopped_at: Phase 175 complete, ready to plan Phase 176
+last_updated: "2026-09-04T14:30:50.341Z"
 last_activity: 2026-09-04
-last_activity_desc: "Wave 2 complete — 175-02 erase/UV pins (608 live erase steps, 28C carve-out 81 chips/162 plans, 540 UV plans, handler-level _resolve_write_scope over all 677 names), 175-03 the frozen plan-shape pin (8 families over 16 (op,supported) sequences, 5 fail-closed paths seen non-zero), 175-04 the execution half (16,248 results for 16,248 steps, 9,304 NA, child-suite cap 180s -> 420s). Orchestrator post-merge gate: 2151 passed, 0 failed in 372s"
+last_activity_desc: "Phase 175 CLOSED — structural sentinel over derive_plan, 5/5 plans, verification 4/4 passed. 43 new tests over 4 modules: write->verify predicate + fail-closed OP_* partition (31), frozen (op,supported) plan-shape pin (6), 1,354-plan run_plan no-drop sweep (6). Zero production diff — firestarter/, the firmware repo and chip_database.json all byte-unchanged; 174 oracle still 114 passed with no new MILESTONES row. App suite 2151 passed, 174 regression set 307 passed. PRUNE-05/06 Complete. Code review 0 critical / 3 warning (WR-01 ruff-format gap in tools/, WR-02 subprocess without timeout, WR-03 bare next() outside try/except) — all advisory, none CI-reddening, none fixed: /gsd-code-review 175 --fix is the follow-up. cli_handlers.py:2295-2303 stale-comment defect FILED not fixed."
 progress:
   total_phases: 8
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 11
-  completed_plans: 6
-  percent: 13
+  completed_plans: 11
+  percent: 25
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 175 (Structural Sentinel over `derive_plan`) — EXECUTING
-Plan: 5 of 5 complete — all three waves done; phase-close gates in progress
-Status: Executing Phase 175
-Last activity: 2026-09-04 — wave 2 complete: erase/UV pins, the frozen plan-shape artifact and the 1,354-plan run_plan sweep all landed; 2151 passed, zero production diff across all four plans
+Phase: 176 — Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-04 — Phase 175 complete, transitioned to Phase 176
 
 ## Roadmap Summary (v1.36)
 
@@ -3281,7 +3281,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-04T09:37:12.288Z
-**Stopped at:** Phase 175 context gathered
+**Stopped at:** Phase 175 complete, ready to plan Phase 176
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
