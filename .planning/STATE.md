@@ -5,10 +5,10 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 175
 current_phase_name: Structural Sentinel over `derive_plan`
 status: executing
-stopped_at: Phase 175 context gathered
-last_updated: "2026-09-04T11:13:34.506Z"
+stopped_at: 175-01 complete — wave 1 of 3 done, wave 2 next (175-02, 175-03, 175-04)
+last_updated: "2026-09-04T11:51:09.683Z"
 last_activity: 2026-09-04
-last_activity_desc: Phase 174 complete, transitioned to Phase 175
+last_activity_desc: "175-01 complete — shared plan corpus and the write-to-verify predicate spine; 0 violations across all 1,354 shipped plans, census pinned at 746/677/1354/16248/9304, 4 predicate weakenings seen RED then GREEN, app suite 2127 passed"
 progress:
   total_phases: 8
   completed_phases: 1
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 174 — Blast-Radius Invariance Harness (re-verified 5/5, awaiting UAT on 2 human items; `shape_id` set is a one-way contract for Phases 175–181)
+**Current focus:** Phase 175 — Structural Sentinel over `derive_plan`
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 175 (Structural Sentinel over `derive_plan`) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-04 — Phase 174 complete, transitioned to Phase 175
+Phase: 175 (Structural Sentinel over `derive_plan`) — EXECUTING
+Plan: 2 of 5 — wave 1 complete (175-01); wave 2 next = [175-02, 175-03, 175-04], then 3=[175-05]
+Status: Executing Phase 175
+Last activity: 2026-09-04 — 175-01 complete: predicate spine end to end, zero production diff, 19 new tests green
 
 ## Roadmap Summary (v1.36)
 

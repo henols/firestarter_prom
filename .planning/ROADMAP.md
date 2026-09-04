@@ -295,7 +295,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 175-01-PLAN.md — Tracer: the predicate spine end to end — a shared `tests/plan_corpus.py` building 1,354 real plans, a total fail-closed partition of the 13 `OP_*` constants into 2 requires-verify and 11 exempt-with-a-reason (D-01, D-06), a write→verify predicate anchored to the production `cycle_block_bounds` (D-02) demanding a supported (D-03) field-matching (D-04) verify, zero violations across the whole database, and anti-vacuity in both shapes D-09 requires with four predicate weakenings SEEN red
+- [x] 175-01-PLAN.md — Tracer: the predicate spine end to end — a shared `tests/plan_corpus.py` building 1,354 real plans, a total fail-closed partition of the 13 `OP_*` constants into 2 requires-verify and 11 exempt-with-a-reason (D-01, D-06), a write→verify predicate anchored to the production `cycle_block_bounds` (D-02) demanding a supported (D-03) field-matching (D-04) verify, zero violations across the whole database, and anti-vacuity in both shapes D-09 requires with four predicate weakenings SEEN red
 
 **Wave 2**
 
