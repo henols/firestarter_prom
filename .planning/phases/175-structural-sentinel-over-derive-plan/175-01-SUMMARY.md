@@ -165,6 +165,10 @@ None - no external service configuration required.
 - `plan_corpus()`'s cached corpus and `mock_operator()` are ready for the next sentinel module to import via `from tests.plan_corpus import ...` without rebuilding the database or the operator double.
 - The 540/270 UV-block-width measurement (vs. the plan's stated 373) should be carried forward as ground truth by any later plan in this phase that cites the UV cycle-block shape.
 
+## Self-Check: PASSED
+
+All key files confirmed present on disk (`plan_corpus.py`, `test_derive_plan_structural_sentinel.py`, both evidence transcripts). All five commit hashes (`8fa6a90`, `d386e78`, `49c136d` in `firestarter_app`; `7dabacef`, `3fb60cfd` in the meta repo) confirmed present in their respective repos' `git log`. All plan-level `<verification>` commands re-run clean: 19/19 sentinel tests pass, 114/114 Phase 174 frozen-hash tests pass, `ruff check`/`ruff format --check` exit 0, mypy watermark reports 35 (watermark: 35), both `git status --porcelain` checks against production code report empty.
+
 ---
 *Phase: 175-structural-sentinel-over-derive-plan*
 *Completed: 2026-09-04*
