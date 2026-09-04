@@ -4,15 +4,15 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 176
 current_phase_name: Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
-status: planning
-stopped_at: Phase 175 complete, ready to plan Phase 176
-last_updated: "2026-09-04T14:30:50.341Z"
+status: planned
+stopped_at: Phase 176 planned - 5 plans, 5 waves, 2 blocking-human gates
+last_updated: "2026-09-04T19:20:29.946Z"
 last_activity: 2026-09-04
-last_activity_desc: "Phase 175 CLOSED — structural sentinel over derive_plan, 5/5 plans, verification 4/4 passed. 43 new tests over 4 modules: write->verify predicate + fail-closed OP_* partition (31), frozen (op,supported) plan-shape pin (6), 1,354-plan run_plan no-drop sweep (6). Zero production diff — firestarter/, the firmware repo and chip_database.json all byte-unchanged; 174 oracle still 114 passed with no new MILESTONES row. App suite 2151 passed, 174 regression set 307 passed. PRUNE-05/06 Complete. Code review 0 critical / 3 warning (WR-01 ruff-format gap in tools/, WR-02 subprocess without timeout, WR-03 bare next() outside try/except) — all advisory, none CI-reddening, none fixed: /gsd-code-review 175 --fix is the follow-up. cli_handlers.py:2295-2303 stale-comment defect FILED not fixed."
+last_activity_desc: "Phase 176 PLANNED - transport instrumentation + connect-cost measurement, 5 plans in 5 waves, strictly sequential. Research (1,556 lines) traced all four RPT-C1 sites at HEAD and found the two re-sync sites sit inside the v1.9 GATE-1.8d ring fence, SHA-pinned by test_serial_comm.py:430-460; operator ruled RESEARCH section 7 Option 1 - instrument and re-pin deliberately, behind a blocking-human checkpoint (176-03). MEAS-03's real finding: cobs_errors and retries are genuinely unwireable and crc_failures is not reachable by the Site-C counter, so all three keep NOT_MEASURED with the reason test-pinned. MEAS-02 keeps 5 with a recorded basis - timeouts scoped to established connections so the port-discovery walk cannot trip transport_suspect on a healthy rig. MEAS-01 is hardware-gated and deferred to 176-05 behind a board-attach gate; no board attached this session. Phase 174 oracle needs no dedup re-key but its _TRANSPORT_HEALTH_KEYS pin and 16 report snapshots re-baseline three times (6 to 7 to 9 keys), each same-commit. Plan-checker VERIFICATION PASSED; its one warning (176-02 Task 1's nothing-else-moved leg narrower than the 176-01/176-03 whole-snapshot shape) was fixed in ecb988fc."
 progress:
   total_phases: 8
   completed_phases: 2
-  total_plans: 11
+  total_plans: 16
   completed_plans: 11
   percent: 25
 ---
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 176 — Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated)
+Phase: 176 — Transport Instrumentation + Connect-Cost Measurement (partially hardware-gated) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-04 — Phase 175 complete, transitioned to Phase 176
+Status: Ready to execute
+Last activity: 2026-09-04 — Phase 176 planned (5 plans, 5 waves); research + pattern map + plan-checker all complete
 
 ## Roadmap Summary (v1.36)
 
