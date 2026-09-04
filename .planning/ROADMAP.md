@@ -333,7 +333,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 176-03-PLAN.md — The v1.9 ring fence, behind a `blocking-human` checkpoint: both re-sync branches instrumented and the GATE-1.8d SHA re-pinned deliberately in the same commit with the argument recorded in the test docstring the Phase 65-01 way, plus the fence itself SEEN red to prove the new pin still discriminates
+- [x] 176-03-PLAN.md — The v1.9 ring fence, behind a `blocking-human` checkpoint: both re-sync branches instrumented and the GATE-1.8d SHA re-pinned deliberately in the same commit with the argument recorded in the test docstring the Phase 65-01 way, plus the fence itself SEEN red to prove the new pin still discriminates
 
 **Wave 4**
 
