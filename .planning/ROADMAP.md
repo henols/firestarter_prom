@@ -325,7 +325,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 176-01-PLAN.md — Tracer: one decode failure end to end — a new process-lifetime `transport_counters` sink, the increment at the fence-free `_decode_id_frame` seam, the reset and read in `cli_handlers`, the honest `int | None` field, the Phase 174 key pin and all 16 report snapshots moved deliberately in the same commit. Opens with a `checkpoint:decision` on the one-way counter key-name set
+- [x] 176-01-PLAN.md — Tracer: one decode failure end to end — a new process-lifetime `transport_counters` sink, the increment at the fence-free `_decode_id_frame` seam, the reset and read in `cli_handlers`, the honest `int | None` field, the Phase 174 key pin and all 16 report snapshots moved deliberately in the same commit. Opens with a `checkpoint:decision` on the one-way counter key-name set
 
 **Wave 2**
 
