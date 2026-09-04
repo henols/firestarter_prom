@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.36
-milestone_name: "`dev test` Fidelity — Only Run What Can Tell You Something, Report Only What You Know"
-current_phase: 174
-current_phase_name: Blast-Radius Invariance Harness
-status: verifying
-stopped_at: "Phase 174 re-verified 5/5, status human_needed; 2 UAT items pending in 174-UAT.md"
-last_updated: "2026-09-03T18:47:58.000Z"
-last_activity: 2026-09-03
-last_activity_desc: "Phase 174 re-verification after gap closure: 5/5 must-haves, GATE-06 gap CLOSED (verifier independently re-ran both original CR-02 legs plus 7 more against corrupted MILESTONES.md copies, each RED on pinned pre-fix blob 5c0c7c9 and closed on HEAD). Status human_needed, not passed: the GitHub Actions on-remote firing check stays unprovable in-sandbox, and a post-gap-closure code review (174-REVIEW.md at b954d7cd) surfaced 1 critical + 4 warnings no plan has actioned — db_diff cache aliasing, app-side duplicate-ledger_id asymmetry, 1-of-16 snapshot-drift coverage. None defeats a roadmap success criterion today; fix-now vs track-forward is a human call before Phase 177."
+milestone_name: "`dev test` Fidelity (PLANNING)"
+current_phase: 175
+current_phase_name: Structural Sentinel over `derive_plan`
+status: planning
+stopped_at: Phase 174 complete, ready to plan Phase 175
+last_updated: "2026-09-04T07:33:04.556Z"
+last_activity: 2026-09-04
+last_activity_desc: Phase 174 complete, transitioned to Phase 175
 progress:
   total_phases: 8
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
   completed_plans: 6
-  percent: 0
+  percent: 13
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 174 (Blast-Radius Invariance Harness) — EXECUTED 6/6 including gap-closure plan 174-06; re-verification pending
-Plan: 6 of 6 complete — 174-06 (gap closure) executed 2026-09-03
-Status: Re-verification PASSED 5/5 must-haves, status human_needed — phase NOT marked complete. The single recorded gap (GATE-06 binding mechanism) is closed and independently re-exercised. Two items await a human in `174-UAT.md`: (1) confirm GitHub Actions actually schedules `rekey-ledger-check.yml` once commits reach `beta` or a `gsd/**` branch — no network path exists in this sandbox; (2) decide fix-now vs track-forward on the 1 critical + 4 warnings the post-gap-closure code review (`174-REVIEW.md`, `b954d7cd`) raised, none of which defeats a roadmap success criterion today. Security enforcement is on and no `174-SECURITY.md` exists yet. Next: `/gsd-verify-work 174`.
-Last activity: 2026-09-03 — `/gsd-execute-phase 174 --gaps-only` ran to completion: 174-06 executed, post-merge and regression gates clean (122 phase tests, 2074 app tests passing, the 3 pre-existing test_skip_census TimeoutExpired failures unchanged), code review re-run (`b954d7cd`), phase re-verified (`518ed0a7`). Phase left at `verifying` pending UAT.
+Phase: 175 — Structural Sentinel over `derive_plan`
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-04 — Phase 174 complete, transitioned to Phase 175
 
 ## Roadmap Summary (v1.36)
 
@@ -3281,7 +3281,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-03T08:08:10.569Z
-**Stopped at:** Phase 174 context gathered
+**Stopped at:** Phase 174 complete, ready to plan Phase 175
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md

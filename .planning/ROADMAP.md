@@ -230,7 +230,7 @@ UNMEASURED everywhere it appears).
 
 ### Phases
 
-- [ ] **Phase 174: Blast-Radius Invariance Harness** - Build the frozen-hash oracle the milestone was scoped around before anything that could move the hash lands.
+- [x] **Phase 174: Blast-Radius Invariance Harness** - Build the frozen-hash oracle the milestone was scoped around before anything that could move the hash lands. (completed 2026-09-04)
 - [ ] **Phase 175: Structural Sentinel over `derive_plan`** - Make a write with no verify, and a dropped unsupported step, structurally unrepresentable — RED before it licenses Phase 177.
 - [ ] **Phase 176: Transport Instrumentation + Connect-Cost Measurement** *(partially hardware-gated — MEAS-01)* - Wire the two dormant re-sync counters into the report and measure per-connect cost per board class.
 - [ ] **Phase 177: Evidence-Gated Read-Back** - Stop paying for a fingerprint read-back a passing run cannot use, without ever turning the diagnostic into an oracle on a failing one.

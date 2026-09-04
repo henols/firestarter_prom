@@ -1,7 +1,7 @@
 ---
 phase: 174-blast-radius-invariance-harness
 verified: 2026-09-03T18:44:55Z
-status: human_needed
+status: passed
 score: 5/5 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -61,6 +61,7 @@ same plan object: False
 before: 6d3afbc52315 True   (== FROZEN_HASHES['m27c512-full-all-ok'])
 after (mutation through clone, base unaffected): 6d3afbc52315 True
 ```
+
 Reproduced in-process against `build_shape('m27c512-full-all-ok')` vs `build_shape('m27c512-full-canonical-name')`: the two shapes no longer share `results`/`plan`, and mutating the clone's `results[0].verdict` no longer moves the base's frozen hash. This matches 174-06-SUMMARY.md's transcript and independently confirms the fix, not just its RED/GREEN narration.
 
 ### Newly Surfaced Findings (post-gap-closure code review, not yet actioned by any plan)

@@ -37,12 +37,12 @@ and the frozen schema-1.2 fixtures carry hand-written placeholder tokens (`"dead
 hashes. `count_agreeing` reads the **embedded** hash and never re-hashes, so any re-key is permanent.
 **Nothing else in this milestone may land before this category is green.**
 
-- [ ] **GATE-01**: A frozen `(report shape → 12-hex `dedup_fingerprint`)` table exists, computed against HEAD **before** any behaviour change lands, covering at minimum the four measured re-key shapes (read-back gating, SDP-step pruning, canonical naming, UV `run_count` collapse).
-- [ ] **GATE-02**: The suite fails when `dedup_fingerprint` output changes for any frozen shape. The assertion is against an absolute expected value, never `fp(a) == fp(b)`.
-- [ ] **GATE-03**: `build_db_diff`'s ladder output is pinned for the same shapes, so a promotion-ladder change cannot land silently.
-- [ ] **GATE-04**: The raw-CLI-token → `part_number` delta across the shipped database is measured and recorded as an artifact, not assumed.
-- [ ] **GATE-05**: A report corpus lives in `firestarter_app/tests/fixtures/`. There is none today — the frozen fixtures are in the meta repo and cannot prove hash continuity.
-- [ ] **GATE-06**: Every deliberate re-key in this milestone is recorded in `MILESTONES.md` as a declared, dated, one-time decision with its before/after hashes.
+- [x] **GATE-01**: A frozen `(report shape → 12-hex `dedup_fingerprint`)` table exists, computed against HEAD **before** any behaviour change lands, covering at minimum the four measured re-key shapes (read-back gating, SDP-step pruning, canonical naming, UV `run_count` collapse).
+- [x] **GATE-02**: The suite fails when `dedup_fingerprint` output changes for any frozen shape. The assertion is against an absolute expected value, never `fp(a) == fp(b)`.
+- [x] **GATE-03**: `build_db_diff`'s ladder output is pinned for the same shapes, so a promotion-ladder change cannot land silently.
+- [x] **GATE-04**: The raw-CLI-token → `part_number` delta across the shipped database is measured and recorded as an artifact, not assumed.
+- [x] **GATE-05**: A report corpus lives in `firestarter_app/tests/fixtures/`. There is none today — the frozen fixtures are in the meta repo and cannot prove hash continuity.
+- [x] **GATE-06**: Every deliberate re-key in this milestone is recorded in `MILESTONES.md` as a declared, dated, one-time decision with its before/after hashes.
 
 ### No-Information Operations
 
@@ -145,12 +145,12 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GATE-01 | Phase 174 | Pending |
-| GATE-02 | Phase 174 | Pending |
-| GATE-03 | Phase 174 | Pending |
-| GATE-04 | Phase 174 | Pending |
-| GATE-05 | Phase 174 | Pending |
-| GATE-06 | Phase 174 | Pending |
+| GATE-01 | Phase 174 | Complete |
+| GATE-02 | Phase 174 | Complete |
+| GATE-03 | Phase 174 | Complete |
+| GATE-04 | Phase 174 | Complete |
+| GATE-05 | Phase 174 | Complete |
+| GATE-06 | Phase 174 | Complete |
 | PRUNE-05 | Phase 175 | Pending |
 | PRUNE-06 | Phase 175 | Pending |
 | RPT-C1 | Phase 176 | Pending |
@@ -193,6 +193,7 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | HYG-04 | Phase 181 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 46 total
 - Mapped to phases: 46
 - Unmapped: 0 ✓
