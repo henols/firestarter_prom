@@ -50,13 +50,13 @@ Success is stated in **operation counts, never in seconds**. Every timing figure
 one log, one Leonardo, one 64 KiB `0x07` part; read rate varies ~24% by protocol and the Uno's 512 B
 buffer is unmodelled.
 
-- [ ] **PRUNE-01**: A passing run performs **zero** fingerprint read-backs.
-- [ ] **PRUNE-02**: The read-back gate consults the step's outcomes **across all cycles**, not the final cycle alone. A cycle-1-fail / cycle-2-pass run keeps its fingerprint. (`not all(outcomes)` at `chip_test.py:3100` is insufficient at HEAD — under the cycle block `outcomes` is a one-element list for the final cycle only.)
-- [ ] **PRUNE-03**: A passing write/verify still reports a fingerprint, **synthesized** from what the operation already established (`bad=0`, `total=region_length`, `ff_ratio: None`) and classified `match` per D-4/D-6. The read-back is what costs; the classification is free.
-- [ ] **PRUNE-04**: Where the engine reads a whole device back only to compare it against a buffer it already holds, it uses the on-device verify instead. **The fingerprint read-back is explicitly excluded from this rule** (D-1).
+- [x] **PRUNE-01**: A passing run performs **zero** fingerprint read-backs.
+- [x] **PRUNE-02**: The read-back gate consults the step's outcomes **across all cycles**, not the final cycle alone. A cycle-1-fail / cycle-2-pass run keeps its fingerprint. (`not all(outcomes)` at `chip_test.py:3100` is insufficient at HEAD — under the cycle block `outcomes` is a one-element list for the final cycle only.)
+- [x] **PRUNE-03**: A passing write/verify still reports a fingerprint, **synthesized** from what the operation already established (`bad=0`, `total=region_length`, `ff_ratio: None`) and classified `match` per D-4/D-6. The read-back is what costs; the classification is free.
+- [x] **PRUNE-04**: Where the engine reads a whole device back only to compare it against a buffer it already holds, it uses the on-device verify instead. **The fingerprint read-back is explicitly excluded from this rule** (D-1). Closed as measured-empty within the engine: exactly two `operator.read_eprom` sites exist in `chip_test.py`, both excluded (the fingerprint read-back by D-1, the SDP leg by the seed's own carve-out); `eprom_operations.write_cycle_eprom` is named and excluded as the one genuine match in the package, outside the engine, the uno328pb read-repeatability oracle. Evidenced by `177-READBACK-INVENTORY.md`.
 - [x] **PRUNE-05**: Unsupported steps keep their `StepResult` with an NA verdict; only the work is skipped. They are **not** dropped from `Plan.steps` — 637 of 677 chips carry six `supported=False` SDP steps and they are hash ballast, not waste.
 - [x] **PRUNE-06**: A structural test over `derive_plan` output fails when a plan emits a write with no verify behind it. Expressed as a relational predicate over `Plan.steps`, not a self-declared per-step annotation, and carrying anti-vacuity legs including a planted counter-example.
-- [ ] **PRUNE-07**: The seed `.planning/seeds/dev-test-adaptive-sequencing.md` is amended so R1 no longer instructs a planner to destroy the diagnostic R2 preserves (D-1).
+- [x] **PRUNE-07**: The seed `.planning/seeds/dev-test-adaptive-sequencing.md` is amended so R1 no longer instructs a planner to destroy the diagnostic R2 preserves (D-1).
 - [ ] **PRUNE-08**: The read step's second full sweep is replaced by a bit-structured sample **only if** MEAS-01 shows the sample is cheaper on the measured board class. If it is not, this requirement closes as *measured, not worth doing*, with the measurement recorded — that is a success, not a miss.
 
 ### Fault Attribution
@@ -158,11 +158,11 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | MEAS-01 | Phase 176 | Complete |
 | MEAS-02 | Phase 176 | Complete |
 | MEAS-03 | Phase 176 | Complete |
-| PRUNE-01 | Phase 177 | Pending |
-| PRUNE-02 | Phase 177 | Pending |
-| PRUNE-03 | Phase 177 | Pending |
-| PRUNE-04 | Phase 177 | Pending |
-| PRUNE-07 | Phase 177 | Pending |
+| PRUNE-01 | Phase 177 | Complete |
+| PRUNE-02 | Phase 177 | Complete |
+| PRUNE-03 | Phase 177 | Complete |
+| PRUNE-04 | Phase 177 | Complete |
+| PRUNE-07 | Phase 177 | Complete |
 | ATTR-01 | Phase 178 | Pending |
 | ATTR-02 | Phase 178 | Pending |
 | ATTR-03 | Phase 178 | Pending |
