@@ -765,29 +765,39 @@ No new attack surface: this phase adds no I/O, no parsing, no network call, and 
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All five are resolved by the Phase 177 plan set. Questions 1-4 are routed to explicit
+`checkpoint:decision` tasks that the operator answers at execution time; Question 5 was
+answered during pattern mapping and needs no decision. Each question below carries its
+resolution inline.
 
 1. **PRUNE-04 / roadmap criterion 4: what is "the engine", and is `write_cycle_eprom` in scope?**
    - *What we know:* after D-1's exclusion and the seed's SDP carve-out, `chip_test.py` has **zero** whole-device-read-to-compare-a-held-buffer sites. The only such site in the whole package is `eprom_operations.write_cycle_eprom` (`:1195-1250` read, `:1246-1247` SHA compare against `source_sha` from `:1171`), reached from `dev write-cycle` (`cli_handlers.py:1546`) and `dev validate-family` (`cli_handlers.py:2017`).
    - *What's unclear:* whether the requirement's "the engine" means the `dev test` engine (`chip_test.py`) or the app's operator layer.
    - *Recommendation:* **open the phase with a `checkpoint:decision`.** Present both readings and the argument against converting `write_cycle_eprom`: its read-back is itself a *read-repeatability* diagnostic (it is the uno328pb read-bug oracle, and its docstring says *"Reuses `_operation_context` + `_run_state_machine` + `_main_phase_read_data` verbatim from `consistency_check_eprom`. Do NOT refactor the read-back block into a parallel read implementation."* `[VERIFIED: firestarter_app/firestarter/eprom_operations.py:1166-1168]`). Replacing it with a verify would repeat exactly the D-1 error one layer down. My recommendation is to close PRUNE-04 as **measured-empty within the engine**, with the inventory above as the evidence and `write_cycle_eprom` explicitly named-and-excluded with its reason — mirroring how PRUNE-08 is permitted to close as *measured, not worth doing*.
+   - *RESOLVED:* owned by **D-177-1** (`177-01-PLAN.md`, blocking `checkpoint:decision`). Option A (close measured-empty, the recommendation above) is the default; Option B's alternate action is written out concretely inside `177-03-PLAN.md` Task 1, so the plan executes under either answer.
 
 2. **Does `classify_fingerprint` itself gain the `match` bucket, or only the synthesized cheap path?**
    - *What we know:* the SDP leg (`_dispatch_sdp_leg`) calls `classify_fingerprint` on every arm and is **not** gated by this phase; an all-OK AT28C256 run's four SDP-leg steps carry `indeterminate` today. `RK-174-05`'s stated mechanism is *"add a `match` bucket to the fingerprint classifier"* and names `at28c256-full-all-ok-sdp` — which only moves if the classifier itself changes. So the ledger's own framing says **yes, inside the classifier.**
    - *What's unclear:* the placement relative to the `ff_ratio` test (Pitfall 2) and whether `repeat_divergent is True` should still win over `bad == 0`.
    - *Recommendation:* place it **after** the `ff_ratio` test and **after** the address-line test, before the `repeat_transport` test; then measure `gh23-w27e257-fail` (the only frozen `blank/contact` shape) and assert it does **not** move.
+   - *RESOLVED:* owned by **D-177-2** (`177-01-PLAN.md`). The plan adds the `match` bucket inside the classifier, placed per the recommendation above, and pins the non-regression by asserting `gh23-w27e257-fail` does not move.
 
 3. **What happens to `sst27sf512-six-step-readback-gated`?**
    - *What we know:* it is frozen at `60a031573aab`, models the naive R2 reading, and under PRUNE-03 collapses onto the same value as `sst27sf512-six-step` (`7fb88e0b07d6`).
    - *Recommendation:* keep the shape (deleting it fails `test_shape_ids_closure_is_sensitive_to_removed_and_added_entries` and destroys evidence), re-point its `step_specs` to a *genuinely distinct* post-177 shape — the natural one is a **failing** write/verify that keeps a real read-back classification — and record the collapse as a falsified projection in `MILESTONES.md`. Then register the reserved `prune03-synthesized-fingerprint-match` for the new passing shape.
+   - *RESOLVED:* owned by **D-177-3** (`177-01-PLAN.md`). The plan keeps the shape and re-points it to the gate's failing branch with verdict `marginal` — which both replaces the falsified projection and re-populates `LADDER_PINS`' inconclusive arm, gated on `distinct_arms=4`.
 
 4. **Is the 18-row filed-corpus re-key published, or only declared?**
    - *What we know:* GATE-06 requires declaration with before/after hashes. D-4/D-6 says the re-key is *"stated publicly because it changes what a report implies to the triage skill and to every human reader."* The "Out of Scope" table says this milestone *"does not work the tracker."*
    - *Recommendation:* declare in `MILESTONES.md` with the full 18-row mapping as a committed artifact; do **not** edit the issues (out of scope). Flag to the operator as a `checkpoint:decision` if the plan wants to go further.
+   - *RESOLVED:* owned by **D-177-4** (`177-01-PLAN.md`). The 18-row figure is a projection to be measured and published as a new committed artifact, not a fixture edit; `tests/test_devtest_issue_corpus.py` rebuilds from each row's recorded classification strings and does not redden on its own.
 
 5. **Does `.claude/skills/devtest-triage/SKILL.md` read `fingerprint` or `ladder_state`?**
    - *What's unclear:* I did not audit the skill's prose for those keys. D-5/RPT-F2 bind it to Phase 181's `vpp_mv` deletion; nothing binds it here.
    - *Recommendation:* a one-line grep at plan time. If it reads either key, the meaning-change (all-OK becomes ladder-promotable) is a consumer impact worth a sentence in the plan, even if no edit is needed.
+   - *RESOLVED:* no decision needed. The pattern-mapping pass audited the skill: it reads `dedup_fingerprint` only as a dedup key (`:55-56`, `:80`, `:162`, `:193`, `:436`) and never reads the `fingerprint` classification string or `ladder_state`. No skill edit is forced. Recorded as flagged assumption PA-19 in `177-03-PLAN.md`.
 
 ---
 
