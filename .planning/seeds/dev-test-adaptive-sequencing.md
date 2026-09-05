@@ -2,7 +2,7 @@
 title: dev test — adaptive, evidence-gated test sequencing
 trigger_condition: Next milestone that touches `dev test` / chip_test.py. Explicitly NOT v1.35 (documentation-only). Natural carriers, whichever activates first: a `dev test` throughput milestone in its own right, or folded into the next chip-validation milestone that already has the engine open.
 planted_date: 2026-08-30
-status: dormant
+status: R1 and R2 realized by Phase 177 (2026-09-05, PRUNE-01/02/03/04); R3 remains for Phase 180 (PRUNE-08); R4 deferred to Future Requirements (R4-01/R4-02)
 ---
 
 # `dev test` — adaptive, evidence-gated sequencing
@@ -31,9 +31,14 @@ Same byte coverage as a read-back, **24% cheaper**, no host file I/O, and it
 early-returns on the first mismatch — so failing runs get *faster*, not slower.
 
 Any place the engine reads the whole device back to compare it against a buffer
-it already holds is a verify. This applies to the fingerprint read-backs; it does
-**not** apply to the SDP leg, whose `_read_region` read-back *is* the verdict and
-must stay a real read.
+it already holds is a verify. Two read-backs are excluded by design and
+**must stay real reads**: the **fingerprint** read-back, which R2 governs — a
+verify returns a bool and one mismatch address, while `classify_fingerprint`
+needs the whole mismatch distribution (`ff_ratio` across the buffer,
+bit-clustering across every offset), so converting it deletes the diagnostic
+R2 exists to preserve — and the **SDP leg**, whose `_read_region` read-back
+*is* the verdict. The seam is: verify decides; a read-back diagnoses; the
+read-back only needs to run when verify says something is wrong.
 
 ### R2 — Diagnose on failure only
 
@@ -46,12 +51,21 @@ Gate the fingerprint read-back at
 
 The `ff_ratio` false-PASS check that motivated the unconditional form is
 preserved for free — a write that reports OK without driving the bus is caught by
-the verify step immediately following it in the same cycle. **This dependency
-must be asserted structurally**, not assumed: if a future plan ever emits a write
-without a verify behind it, that plan needs the unconditional read-back back.
+the verify step immediately following it in the same cycle. **This dependency is
+now asserted structurally**, not merely assumed, by Phase 175's sentinel
+(`tests/test_derive_plan_structural_sentinel.py`): if a future plan ever emits a
+write without a verify behind it, that sentinel fails first.
 
 Note the pleasing asymmetry: because verify early-returns on first mismatch, the
 runs that now pay for a read-back are exactly the runs whose verify was cheapest.
+
+The predicate must consult the step's outcomes **across all cycles**, not
+`not all(outcomes)` alone: under `_run_cycle_block` each cycle calls
+`_dispatch_multi_run` with `runs=1`, so `outcomes` is a one-element list
+describing the final cycle only. A cycle-1-fail / cycle-2-pass run must keep its
+fingerprint. And a passing step still **reports** a fingerprint — synthesized
+from `bad=0`, `total=region_length`, `ff_ratio: None` and classified `match`.
+The read-back is what costs; the classification is free.
 
 ### R3 — Sample for a rate, sweep for a map
 
@@ -144,3 +158,20 @@ currently unquantified.
 The write path's 2.2 KB/s — 65% of a full-device run — is the per-byte VPE settle
 behaviour and is a firmware concern. No rule here touches it, and no figure above
 claims it improves.
+
+## Status: Phase 177 amendment
+
+**Phase 177, 2026-09-05.** R1's final paragraph swept the fingerprint
+read-back into the same rule that legitimately excludes the SDP leg, which
+directly contradicted R2's own promise of byte-identical fidelity on a
+failing run: `verify_eprom` returns a bool and one mismatch address, while
+`classify_fingerprint` needs the whole mismatch distribution. Decision `D-1`
+(`.planning/REQUIREMENTS.md`) settled the contradiction in R2's favour, and
+this amendment replaces R1's paragraph **in place** rather than merely
+annotating it, so the destructive reading is not outvoted but absent — a
+planner reading only this seed can no longer regenerate it. R2 is corrected
+so its own gate predicate consults outcomes across all cycles, not the final
+cycle alone, and states that a passing step still reports a synthesized
+`match` fingerprint. **Not touched by this amendment:** R3, R4, the
+projected-effect table, the per-class characteristics section and the
+out-of-scope section above.
