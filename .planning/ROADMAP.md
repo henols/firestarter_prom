@@ -363,7 +363,7 @@ Plans:
 
 **Wave 2**
 
-- [ ] 177-02-PLAN.md — The declaration: confirm the measured hashes at a checkpoint, re-baseline every moved `FROZEN_HASHES` value from a run rather than from a document, register the reserved `prune03-synthesized-fingerprint-match` across all four registries, re-point the two hand-specified sst27sf512 builders so the INCONCLUSIVE ladder arm stays populated, fill and append the `rekey_ledger.py` rows (including Phase 178's re-anchor), and land the meta half in `MILESTONES.md` with the published old-to-new mapping
+- [x] 177-02-PLAN.md — The declaration: confirm the measured hashes at a checkpoint, re-baseline every moved `FROZEN_HASHES` value from a run rather than from a document, register the reserved `prune03-synthesized-fingerprint-match` across all four registries, re-point the two hand-specified sst27sf512 builders so the INCONCLUSIVE ladder arm stays populated, fill and append the `rekey_ledger.py` rows (including Phase 178's re-anchor), and land the meta half in `MILESTONES.md` with the published old-to-new mapping
 
 **Wave 3**
 

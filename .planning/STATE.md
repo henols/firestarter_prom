@@ -5,7 +5,7 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 177
 current_phase_name: Evidence-Gated Read-Back
 status: executing
-stopped_at: "Phase 177 wave 1 complete (177-01); wave 2 dispatching"
+stopped_at: "Phase 177 wave 2 complete (177-01, 177-02); wave 3 dispatching"
 last_updated: "2026-09-05T14:19:32.535Z"
 last_activity: 2026-09-05
 last_activity_desc: "Phase 177 EXECUTING: 3 plans in 3 waves, dispatched sequentially (use_worktrees=false, parallelization=false). Planning lineage: research + pattern-map + plan-check, checker 0 blockers / 2 warnings, both addressed; requirements coverage 5/5. 177-01 leads with a blocking checkpoint:decision (D-177-1..4) then the tracer behaviour commit that leaves the Phase 174 blast-radius gate deliberately RED; 177-02 is the D-11 ledger declaration in separate commits; 177-03 closes PRUNE-04 (measured-empty, operator-gated) and PRUNE-07 (seed R1 in-place replacement) and seals the phase."
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 177 (Evidence-Gated Read-Back) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Executing Phase 177
-Last activity: 2026-09-05 — 177-01 landed the evidence-gated read-back tracer; the Phase 174 frozen-hash gate is deliberately RED (9 declared failures, 2197 passed) pending 177-02's declaration
+Last activity: 2026-09-05 — 177-02 declared the PRUNE-03 re-key across both trees (8 ledger rows bound in both directions) and the suite is green again at 2210 passed / 0 failed
 
 ## Roadmap Summary (v1.36)
 
