@@ -233,7 +233,7 @@ UNMEASURED everywhere it appears).
 - [x] **Phase 174: Blast-Radius Invariance Harness** - Build the frozen-hash oracle the milestone was scoped around before anything that could move the hash lands. (completed 2026-09-04)
 - [x] **Phase 175: Structural Sentinel over `derive_plan`** - Make a write with no verify, and a dropped unsupported step, structurally unrepresentable — RED before it licenses Phase 177. (completed 2026-09-04)
 - [x] **Phase 176: Transport Instrumentation + Connect-Cost Measurement** *(partially hardware-gated — MEAS-01)* - Wire the two dormant re-sync counters into the report and measure per-connect cost per board class. (completed 2026-09-04)
-- [ ] **Phase 177: Evidence-Gated Read-Back** - Stop paying for a fingerprint read-back a passing run cannot use, without ever turning the diagnostic into an oracle on a failing one.
+- [x] **Phase 177: Evidence-Gated Read-Back** - Stop paying for a fingerprint read-back a passing run cannot use, without ever turning the diagnostic into an oracle on a failing one. (completed 2026-09-05)
 - [ ] **Phase 178: Fault Attribution — the Two-Axis Vocabulary** - Give a transport or tool fault a status distinct from the chip's verdict, so a half-seated cable stops filing as `[dev test] <chip> — FAIL`.
 - [ ] **Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK`** *(hardware-gated)* - Make a UV part holding data outside the target slot actually reach `overall_verdict == "PASS"` with `run_count == 2`.
 - [ ] **Phase 180: Read-Step Sampling** *(conditional on Phase 176's measurement)* - Replace the read step's second full sweep with a bit-structured sample only if the measured connect cost says it is cheaper; closing the requirement as "measured, not worth doing" is a valid outcome.
@@ -367,7 +367,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 177-03-PLAN.md — PRUNE-04 closed by an `ast` census that names both engine read sites and reddens on a planted third, with the eight-row inventory committed; PRUNE-07's in-place replacement of the seed sentence that told a planner to delete the diagnostic R2 preserves; then the phase sealed by measurement across both repos and the five requirement rows marked
+- [x] 177-03-PLAN.md — PRUNE-04 closed by an `ast` census that names both engine read sites and reddens on a planted third, with the eight-row inventory committed; PRUNE-07's in-place replacement of the seed sentence that told a planner to delete the diagnostic R2 preserves; then the phase sealed by measurement across both repos and the five requirement rows marked
 
 ### Phase 178: Fault Attribution — the Two-Axis Vocabulary
 
