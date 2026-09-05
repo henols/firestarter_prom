@@ -356,7 +356,18 @@ Plans:
   4. Every call site that reads back a whole device solely to compare it against a buffer already held in memory — excluding the fingerprint diagnostic itself, which stays a read-back by design — is replaced by the existing on-device verify, reducing that call site's full-device read count to zero.
   5. The seed file `.planning/seeds/dev-test-adaptive-sequencing.md` no longer instructs a planner to apply the read-back-elimination rule to the fingerprint diagnostic; a planner reading only the seed cannot regenerate the destructive interpretation.
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 177-01-PLAN.md — The four scope calls the operator owns (PRUNE-04's measured-empty closure, the classifier's `match` bucket, the falsified `readback-gated` shape, publishing the filed-corpus mapping), then the tracer: `FP_MATCH`, a zero-I/O synthesizing constructor, `prior_cycles_failed` threaded down the four `collect_fingerprint` hops, the rewritten gate, the analog counting test inverted from 2 to 0, the cycle-1-fail/cycle-2-pass leg — one behaviour commit that leaves the Phase 174 gate deliberately RED, with the exact moved set measured and written down
+
+**Wave 2**
+
+- [ ] 177-02-PLAN.md — The declaration: confirm the measured hashes at a checkpoint, re-baseline every moved `FROZEN_HASHES` value from a run rather than from a document, register the reserved `prune03-synthesized-fingerprint-match` across all four registries, re-point the two hand-specified sst27sf512 builders so the INCONCLUSIVE ladder arm stays populated, fill and append the `rekey_ledger.py` rows (including Phase 178's re-anchor), and land the meta half in `MILESTONES.md` with the published old-to-new mapping
+
+**Wave 3**
+
+- [ ] 177-03-PLAN.md — PRUNE-04 closed by an `ast` census that names both engine read sites and reddens on a planted third, with the eight-row inventory committed; PRUNE-07's in-place replacement of the seed sentence that told a planner to delete the diagnostic R2 preserves; then the phase sealed by measurement across both repos and the five requirement rows marked
 
 ### Phase 178: Fault Attribution — the Two-Axis Vocabulary
 
