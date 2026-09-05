@@ -51,3 +51,46 @@ the actual re-key count from the committed 26-row corpus, and if it disagrees wi
 disagreement is itself a finding to record in `MILESTONES.md`'s corrections table (plan `177-02`
 Task 3), not an error to reconcile away. Editing or closing no GitHub issue is in scope for this
 milestone.
+
+## D-177-5
+
+**Option A** — Proceed with the measured values as declared, re-measured independently in
+`firestarter_app/.venv311` (not transcribed from `evidence/177-01-red-capture.txt`) before this
+line was written. Measured moved set: `at28c256-full-all-ok-sdp` `52fb759dc48c` → `050ad3830704`,
+`sst27sf512-full-all-ok` `4b3e52cab987` → `14d306256076`, `w27e257-full-all-ok` `22908e2954c3` →
+`3a9f95aba65e` — all three agree exactly with `177-RESEARCH.md`'s projections and with
+`evidence/177-01-red-capture.txt`. `unmoved_count=13` confirmed, `gh23-w27e257-fail` stays frozen
+at exactly `7a89fcea856a`, and `distinct_arms` measures `4` (not the projected 3 — disagreement
+named below). The measured filed-corpus re-key count is `18`, agreeing exactly with the inherited
+projection of 18 and with the same issue list (`22,24,25,26,27,29,31,39,40,42,45,46,47,48,49,50,51,52`).
+None of the plan's Option-B halt conditions hold: the moved set matches the expected list exactly,
+`gh23-w27e257-fail` did not move, the four-arm invariant is restorable (per D-177-3), and the
+corpus count matches the projection exactly (not merely "close"). Disagreements found and recorded
+for `MILESTONES.md`'s corrections table (Task 4): (1) `distinct_arms` measured `4`, not the
+`177-RESEARCH.md`-projected `3` — two of the three INCONCLUSIVE-arm members
+(`gh47-sst27sf512-pass`, `sst27sf512-six-step`) are hand-specified fixtures whose literal
+classification strings `classify_fingerprint` never recomputes, so only `at28c256-full-all-ok-sdp`
+(the one real-path builder in that arm) moved automatically; (2) `sst27sf512-six-step-readback-gated`'s
+inherited projection `60a031573aab` is falsified — applying the PRUNE-03 rule to both that shape's
+fingerprint-dropped `step_specs` and `sst27sf512-six-step`'s `indeterminate` `step_specs` converges
+on the SAME value `7fb88e0b07d6`, collapsing the gated shape onto the tracer rather than producing
+a distinct one (D-177-3 Option A's re-point to a `marginal`/failed branch is the remedy, executed in
+Task 2); (3) `gh47-sst27sf512-pass` projects to `1f812aae49ca` under the corpus-level PRUNE-03
+transform, but per D-177-6 below its `report_shapes.py` builder is not edited and its `FROZEN_HASHES`
+entry does not move.
+
+## D-177-6
+
+**`gh47-sst27sf512-pass` is NOT re-pointed.** Confirmed by fresh measurement: `FROZEN_HASHES['gh47-sst27sf512-pass']`
+stays `f9dbc31dcd27` (its hand-specified `step_specs` in `_build_gh47_sst27sf512_pass` are untouched;
+`178-6` deliberately does not edit them). `D-177-3` named only the two `sst27sf512-six-step*`
+builders in scope for re-pointing; the operator has ruled `gh47-sst27sf512-pass` stays inside that
+stated scope for the same hand-specified-fixture reason as those two shapes. Reason: this keeps the
+number of undeclared movements at zero (no shape moves that D-177-3 did not name), and the
+four-arm `LADDER_PINS` invariant is satisfied without moving it — `gh47-sst27sf512-pass` keeping its
+`indeterminate` literal (unchanged `('inconclusive -- needs N>=2 agreement (advisory)', '')` ladder
+pin) leaves the INCONCLUSIVE arm populated regardless, once `sst27sf512-six-step-readback-gated`
+re-populates the other slot per D-177-3. The falsified `1f812aae49ca` projection (both the
+`177-RESEARCH.md` shape-level projection and the corpus-level projection for filed issue gh#47) is
+written into `MILESTONES.md`'s corrections table (Task 4) as a superseded claim, not silently
+absorbed.
