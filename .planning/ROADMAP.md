@@ -382,7 +382,21 @@ Plans:
   4. A run with a genuine chip fault and a run with a transport-only fault both still offer the submit prompt; auto-classification changes the title and disposition only, and never suppresses the offer.
   5. The report states in words that a rail-voltage reading does not prove socket continuity, and nothing this phase ships claims to detect a disconnected VPP jumper from that reading alone.
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 178-01-PLAN.md — Tracer: one transport-faulted run through every layer in one commit — the `STATUS_*` vocabulary, `StepResult.status`, the re-pointed `(SerialError, HardwareOperationError)` arm, the `run_status` fold, schema 1.8, the three consumer widenings (title / ladder / exit code), the two pinned key lists, all 17 snapshots, and the three BAD-pinning tests repaired forward
+
+**Wave 2**
+
+- [ ] 178-02-PLAN.md — ATTR-04's non-vacuous Leg B plus its anti-vacuity sibling and the adjacency / empty / ordering edges; ATTR-05's non-suppression with `is_submittable` measured byte-unchanged (T3 void); and the measured non-changes — the destructive-gate predicate, the `_skip_result` bypass, and `FP_TRANSPORT`
+- [ ] 178-03-PLAN.md — Register the reserved shape `attr01-status-axis-transport-fault` across all eight gate-enforced edit sites with a measured hash, then seal ATTR-04's Leg A with `RK-174-09` left `after_hash=None`. Opens with a `checkpoint:decision` on the one-way shape-construction route (D-178-1)
+
+**Wave 3**
+
+- [ ] 178-04-PLAN.md — ATTR-06's disclosure rendered and exported (`rail_reading_disclosure`), ATTR-06's own parenthetical repaired to name both VPP bits, the stale `chip_test.py:2461` citations repaired, and the phase close: the measured ATTR-04 record, the T3 / T4 / `FP_TRANSPORT` deferrals, ATTR-01..06 marked Complete, and every gate in both repos
 
 ### Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
 
