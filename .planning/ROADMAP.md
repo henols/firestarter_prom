@@ -396,7 +396,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 178-04-PLAN.md — ATTR-06's disclosure rendered and exported (`rail_reading_disclosure`), ATTR-06's own parenthetical repaired to name both VPP bits, the stale `chip_test.py:2461` citations repaired, and the phase close: the measured ATTR-04 record, the T3 / T4 / `FP_TRANSPORT` deferrals, ATTR-01..06 marked Complete, and every gate in both repos
+- [x] 178-04-PLAN.md — ATTR-06's disclosure rendered and exported (`rail_reading_disclosure`), ATTR-06's own parenthetical repaired to name both VPP bits, the stale `chip_test.py:2461` citations repaired, and the phase close: the measured ATTR-04 record, the T3 / T4 / `FP_TRANSPORT` deferrals, ATTR-01..06 marked Complete, and every gate in both repos
 
 ### Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
 
