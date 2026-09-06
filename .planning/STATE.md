@@ -5,10 +5,10 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 179
 current_phase_name: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
 status: executing
-stopped_at: "Completed 179-01-PLAN.md"
-last_updated: "2026-09-06T20:25:43.138Z"
+stopped_at: "Completed 179-02-PLAN.md"
+last_updated: "2026-09-06T21:03:26.000Z"
 last_activity: 2026-09-06
-last_activity_desc: "Phase 179 EXECUTION STARTED 2026-09-06 -- 4 plans, 4 serial waves, ISOLATION=none (workflow.use_worktrees=false; both sub-repos are submodules so executors commit inside them on the milestone branch). PRIOR PLANNING RECORD: Phase 179 PLANNED -- 4 plans, 9 tasks, 4 waves, deliberately fully serial (each plan depends_on its predecessor). Research measured TWO independent defects, not one: chip_test.py:3189-3193 calls write_eprom with no operation_flags so the firmware write-init pre-flight refuses a non-blank UV write, AND the standalone blank-check returns VERDICT_BAD into a FAIL-dominant submit.overall_verdict -- so the flag alone still ships a FAIL, which is exactly what UV-02 warns about. Both are closed. Research also FALSIFIED two prior planning claims: PITFALLS.md:186-188's cycle-2-abort mechanism (the blank-check sits outside cycle_block_bounds) and SUMMARY.md:89's prescribed witness form current_source == 'probe read', which never matches because staged tranche targets carry 'probe read (tranche 1/2)' -- a witness written that way would have shipped green and inert. The witness is structural instead (_is_monotonic_masked_target) with an anti-vacuity leg. 179-01 is the tracer; 179-02 opens checkpoint:decision D-179-1/D-179-2 on the two one-way doors (how criterion 4 is satisfied; the frozen-shape construction route) and repairs the gate 179-01 leaves deliberately RED under the D-11 two-commit re-key protocol; 179-03 commits the 12-leg regression module; 179-04 is a blocking-human bench wave (chip handling is operator-only) machine-defended against --auto. RESEARCH Q1-Q8 all disposed, none silently; Q8 recorded BLOCKED because removing the stale UV-prompt comment would require rewriting retained comment lines, which the no-comments rule forbids. No CONTEXT.md by operator choice, so the spec-less probe fallback ran: 4 edge rows surfaced == 1 authored + 3 flagged. Plan-checker PASSED with 0 blockers and 0 warnings; both deterministic probes clean across 17 automated commands. NOT auto-advanced to execute."
+last_activity_desc: "179-02 COMPLETE 2026-09-06 -- Task 1 checkpoint:decision resolved by operator (D-179-1/D-179-2, both Option A recorded in 179-DECISIONS.md); Task 2 registered uv-slot-write-pass across all eight gate-enforced sites and re-baselined m27c512-full-blank-check-bad in one commit (measured, not transcribed: new_hash=927571e5110f, rebaselined_hash=e42f1567967a); Task 3 declared RK-174-04-p179-uv-blank-check-abort in a SEPARATE commit, bound in .planning/MILESTONES.md, checker prints OK: 8 ledger row(s), 8 MILESTONES.md row(s) bound. Full suite green again: 2253 passed, 0 failed, 32 snapshots passed (was 5 failed at 179-01's deliberate red). RESERVED_SHAPE_IDS now empty, both read sites repaired non-vacuous. Ready for 179-03 (committed regression module) and 179-04 (blocking-human bench wave)."
 progress:
   total_phases: 8
   completed_phases: 5
@@ -2884,6 +2884,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 172]: 172-07 Pitfall 5 verdict: the firmware .github-only merge will NOT fire build.yml or cut a release. — Measured from origin/main's own tree: build.yml already excludes .github/** in paths-ignore, and py32f071.yml does not exist on main at all -- both independently sufficient, confirmed via zero check-runs read twice and zero workflow_runs for the branch.
 - [Phase 179]: 179-01: the UV blank-check verdict adjudicated to SKIPPED (never NA, which suppresses the Reason cell; never OK, which collides with m27c512-full-all-ok's frozen hash), keyed on an additive Step.uv_prewrite field set once by derive_plan. — Matches 179-RESEARCH.md's Q1/Q1a recommendation and keeps plan_shapes.json byte-unchanged (execution-time adjudication, not a Step.supported flip).
 - [Phase 179]: 179-01: FLAG_SKIP_BLANK_CHECK is derived from a new structural WriteTarget.current_is_probe_read witness, never from region_policy or a current_source string compare. — Measured: the staged tranche's current_source reads 'probe read (tranche 1/2)', so a string-equality witness would ship green and inert; the structural bool is proven to disagree with region_policy in both directions.
+- [Phase 179]: D-179-1 (Task 1 checkpoint:decision, operator-answered): criterion 4 is satisfied by a SPLIT — a committed firmware-faithful-double regression test (plan 179-03, no skip marker) plus a blocking-human bench wave producing a committed 179-MEASUREMENT.md (plan 179-04), per the Phase 176-05 precedent. — 179-RESEARCH.md Q4 found zero hardware-gated pytest tests anywhere in the repo and no precedent for a fifth ALLOWED_SKIP_REASONS entry; the committed test proves HOST logic, the bench artifact proves HARDWARE, neither alone is criterion 4.
+- [Phase 179]: D-179-2 (Task 1 checkpoint:decision, operator-answered): uv-slot-write-pass is built real-path — _build_real_path_report(chip="m27c512", write_scope="full", operator=<WriteInitPreflightChip seeded outside the top slot>, runs=2) — accepting the coupling to derive_plan/chip_database.json regeneration every other real-path shape already has. — Proves the actual witness, positional flag and adjudicated verdict, which is why UV-01/UV-02 wanted this shape; the hand-specified alternative would prove nothing about them.
+- [Phase 179]: 179-02: uv-slot-write-pass registered across all eight gate-enforced sites in one commit (measured hash 927571e5110f); m27c512-full-blank-check-bad re-baselined to its measured post-179-01 value (e42f1567967a) in the SAME commit, with its LADDER_PINS pair moving community-fail -> community-reported (forced, verified against a live build_db_diff). RESERVED_SHAPE_IDS drawn down to empty, its two read sites repaired so neither goes silently vacuous.
+- [Phase 179]: 179-02: RK-174-04-p179-uv-blank-check-abort declared in a SEPARATE commit (per the D-11 protocol) — after_hash e42f1567967a, before_hash 077a32d1a5c4 untouched, bound in .planning/MILESTONES.md in the same logical step; tools/rekey/check_rekey_ledger.py: OK: 8 ledger row(s), 8 MILESTONES.md row(s) bound. The provenance note is corrected: the triple moves BAD -> SKIPPED, not OK -> BAD as originally seeded, and PITFALLS.md:186-188's cycle-2-abort mechanism is recorded FALSIFIED (the abort measured came from the write step's own firmware refusal, not the blank-check step, which sits outside cycle_block_bounds).
 
 ## Performance Metrics
 
@@ -3280,11 +3284,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 172 P07 | 15min | 3 tasks | 3 files |
 | Phase 173 P06 | 25min | 3 tasks | 4 files |
 | Phase 179 P01 | 95min | 2 tasks | 5 files |
+| Phase 179 P02 | 40min | 3 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-09-06T20:25:42.683Z
-**Stopped at:** Completed 179-01-PLAN.md
+**Last session:** 2026-09-06T21:03:26.000Z
+**Stopped at:** Completed 179-02-PLAN.md
+**Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 178 complete, ready to plan Phase 179
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
