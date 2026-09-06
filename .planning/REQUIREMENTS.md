@@ -64,12 +64,12 @@ buffer is unmodelled.
 `chip_test.py:2567-2574` currently spends `VERDICT_BAD` — a chip verdict — on "a half-seated cable", and its
 own comment says so. This is the gh#23 gap.
 
-- [ ] **ATTR-01**: A run carries a **status** axis (did the run execute validly) separate from the **result** axis (the verdict on the part), following the OCP Test & Validation two-axis model.
-- [ ] **ATTR-02**: A step that failed for a tool or transport reason is not reported as a chip verdict.
-- [ ] **ATTR-03**: The overall verdict and the filed issue title reflect the status axis — a run that did not execute validly does not file as `[dev test] <chip> — FAIL`.
-- [ ] **ATTR-04**: **No sixth `verdict` value is introduced.** The status axis is a separate additive field kept out of the dedup hash — a cardinality change inside `op=verdict:cls` would re-key every group that hits it.
-- [ ] **ATTR-05**: Auto-classification never suppresses the submit prompt. It changes the title and disposition only; the offer to file always stands.
-- [ ] **ATTR-06**: The report states what a rail reading does **not** prove. `sample_vpp_mv` → `hw_read_voltage`'s `CMD_READ_VPP` branch sets `CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE` (the regulator drop divider — part of the HV rail composition, not a socket route) and no socket-routing bits, so a rig with VPP unhooked still reads a healthy `vpp_before_mv: 11800`. No requirement here may claim to detect that fault.
+- [x] **ATTR-01**: A run carries a **status** axis (did the run execute validly) separate from the **result** axis (the verdict on the part), following the OCP Test & Validation two-axis model.
+- [x] **ATTR-02**: A step that failed for a tool or transport reason is not reported as a chip verdict.
+- [x] **ATTR-03**: The overall verdict and the filed issue title reflect the status axis — a run that did not execute validly does not file as `[dev test] <chip> — FAIL`.
+- [x] **ATTR-04**: **No sixth `verdict` value is introduced.** The status axis is a separate additive field kept out of the dedup hash — a cardinality change inside `op=verdict:cls` would re-key every group that hits it.
+- [x] **ATTR-05**: Auto-classification never suppresses the submit prompt. It changes the title and disposition only; the offer to file always stands.
+- [x] **ATTR-06**: The report states what a rail reading does **not** prove. `sample_vpp_mv` → `hw_read_voltage`'s `CMD_READ_VPP` branch sets `CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE` (the regulator drop divider — part of the HV rail composition, not a socket route) and no socket-routing bits, so a rig with VPP unhooked still reads a healthy `vpp_before_mv: 11800`. No requirement here may claim to detect that fault.
 
 ### UV Slot Writes
 
@@ -163,12 +163,12 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | PRUNE-03 | Phase 177 | Complete |
 | PRUNE-04 | Phase 177 | Complete |
 | PRUNE-07 | Phase 177 | Complete |
-| ATTR-01 | Phase 178 | Pending |
-| ATTR-02 | Phase 178 | Pending |
-| ATTR-03 | Phase 178 | Pending |
-| ATTR-04 | Phase 178 | Pending |
-| ATTR-05 | Phase 178 | Pending |
-| ATTR-06 | Phase 178 | Pending |
+| ATTR-01 | Phase 178 | Complete |
+| ATTR-02 | Phase 178 | Complete |
+| ATTR-03 | Phase 178 | Complete |
+| ATTR-04 | Phase 178 | Complete |
+| ATTR-05 | Phase 178 | Complete |
+| ATTR-06 | Phase 178 | Complete |
 | UV-01 | Phase 179 | Pending |
 | UV-02 | Phase 179 | Pending |
 | UV-03 | Phase 179 | Pending |
