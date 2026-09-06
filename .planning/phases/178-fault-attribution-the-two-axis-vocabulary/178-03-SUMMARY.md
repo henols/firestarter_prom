@@ -151,3 +151,11 @@ None - no external service configuration required.
 ---
 *Phase: 178-fault-attribution-the-two-axis-vocabulary*
 *Completed: 2026-09-06*
+
+## Self-Check: PASSED
+- FOUND: .planning/phases/178-fault-attribution-the-two-axis-vocabulary/178-DECISIONS.md
+- FOUND: firestarter_app/tests/fixtures/report_shapes.py, shape_ids.json, reports/attr01-status-axis-transport-fault.json, test_blast_radius_invariance.py
+- FOUND: evidence/178-03-shape-registration.txt, evidence/178-03-attr04-seal.txt
+- FOUND: commit bf9d4774 (Task 1, meta-repo)
+- FOUND: commit c753b47 (Task 2, firestarter_app)
+- FOUND: commit ede78e6b (Task 3 + SUMMARY.md, meta-repo)
