@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
-current_phase: 178
-current_phase_name: Fault Attribution — the Two-Axis Vocabulary
-status: executing
-stopped_at: Phase 178 execution started — 4 plans, 3 waves
-last_updated: "2026-09-06T11:38:52.447Z"
+current_phase: 179
+current_phase_name: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
+status: planning
+stopped_at: Phase 178 complete, ready to plan Phase 179
+last_updated: "2026-09-06T13:26:28.360Z"
 last_activity: 2026-09-06
-last_activity_desc: "Phase 178 EXECUTING: 4 plans across 3 waves (W1 178-01 tracer; W2 178-02 + 178-03 checkpoint:decision D-178-1; W3 178-04 close). Requirements ATTR-01..ATTR-06. Phase 177's completion record is preserved in .planning/phases/177-*/ and in git."
+last_activity_desc: "Phase 178 COMPLETE: 4/4 plans, verifier 5/5 must-haves, ATTR-01..ATTR-06 all Complete. A transport fault now reports status=ERROR beside verdict=SKIPPED instead of spending the chip's BAD -- it titles `INCONCLUSIVE (harness)`, lands the ladder on inconclusive, exits 2, and still offers the filing prompt. The status axis is measured OUT of `dedup_fingerprint` by a positive Leg B plus an anti-vacuity sibling, not merely by a green frozen gate; the corpus now carries an 18th shape `attr01-status-axis-transport-fault` (hash 93cef8030c40, real-path construction per operator decision D-178-1) with the inherited 17 measured unmoved. `is_submittable` byte-unchanged (research T3 void); destructive-gate predicate, `_skip_result` bypass and `FP_TRANSPORT` measured non-changed. ATTR-06 ships the first rendered sentence saying a rail reading does not prove socket continuity. Code review: 0 critical, 1 warning + 1 info, both fixed in firestarter_app@835baba. Suite 2241 green on py3.11 and py3.12."
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 23
-  completed_plans: 19
-  percent: 50
+  completed_plans: 23
+  percent: 63
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 178 (Fault Attribution — the Two-Axis Vocabulary) — EXECUTING
-Plan: 4 of 4 complete — awaiting phase gates
-Status: Executing Phase 178
-Last activity: 2026-09-06 — Phase 178 execution started
+Phase: 179 — UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-06 — Phase 178 complete, transitioned to Phase 179
 
 ## Roadmap Summary (v1.36)
 
@@ -3281,7 +3281,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-04T14:32:59.000Z
-**Stopped at:** Phase 177 complete, ready to plan Phase 178
+**Stopped at:** Phase 178 complete, ready to plan Phase 179
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
