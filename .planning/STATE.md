@@ -5,15 +5,15 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 179
 current_phase_name: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
 status: executing
-stopped_at: "Phase 179 executing -- wave 1 dispatch"
-last_updated: "2026-09-06T19:50:49.525Z"
+stopped_at: "Completed 179-01-PLAN.md"
+last_updated: "2026-09-06T20:25:43.138Z"
 last_activity: 2026-09-06
 last_activity_desc: "Phase 179 EXECUTION STARTED 2026-09-06 -- 4 plans, 4 serial waves, ISOLATION=none (workflow.use_worktrees=false; both sub-repos are submodules so executors commit inside them on the milestone branch). PRIOR PLANNING RECORD: Phase 179 PLANNED -- 4 plans, 9 tasks, 4 waves, deliberately fully serial (each plan depends_on its predecessor). Research measured TWO independent defects, not one: chip_test.py:3189-3193 calls write_eprom with no operation_flags so the firmware write-init pre-flight refuses a non-blank UV write, AND the standalone blank-check returns VERDICT_BAD into a FAIL-dominant submit.overall_verdict -- so the flag alone still ships a FAIL, which is exactly what UV-02 warns about. Both are closed. Research also FALSIFIED two prior planning claims: PITFALLS.md:186-188's cycle-2-abort mechanism (the blank-check sits outside cycle_block_bounds) and SUMMARY.md:89's prescribed witness form current_source == 'probe read', which never matches because staged tranche targets carry 'probe read (tranche 1/2)' -- a witness written that way would have shipped green and inert. The witness is structural instead (_is_monotonic_masked_target) with an anti-vacuity leg. 179-01 is the tracer; 179-02 opens checkpoint:decision D-179-1/D-179-2 on the two one-way doors (how criterion 4 is satisfied; the frozen-shape construction route) and repairs the gate 179-01 leaves deliberately RED under the D-11 two-commit re-key protocol; 179-03 commits the 12-leg regression module; 179-04 is a blocking-human bench wave (chip handling is operator-only) machine-defended against --auto. RESEARCH Q1-Q8 all disposed, none silently; Q8 recorded BLOCKED because removing the stale UV-prompt comment would require rewriting retained comment lines, which the no-comments rule forbids. No CONTEXT.md by operator choice, so the spec-less probe fallback ran: 4 edge rows surfaced == 1 authored + 3 flagged. Plan-checker PASSED with 0 blockers and 0 warnings; both deterministic probes clean across 17 automated commands. NOT auto-advanced to execute."
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 27
-  completed_plans: 23
+  completed_plans: 24
   percent: 63
 ---
 
@@ -236,8 +236,8 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 179 (UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 179
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-09-06 — Phase 179 execution started: 4 serial waves dispatched sequentially on the main working tree (use_worktrees=false); plan-checker had passed 0 blockers / 0 warnings; requirements 3/3 covered
 
 ## Roadmap Summary (v1.36)
@@ -2882,6 +2882,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 172]: D-10 REVERSED at the Task 1 checkpoint:decision gate: amended henols/firestarter's ruleset 4998759 in place (PUT) instead of deleting and recreating it, after measurement showed it already matched the prom canary on every field except enforcement. Its id and 2025-04-22 creation date are preserved. — Deleting and recreating would have destroyed 4998759's identity permanently for zero functional gain, since the incumbent was already equal to the canary apart from enforcement; D-10's own rationale (shedding a dead DeployKey bypass) was voided by D-09's mid-phase revision making DeployKey canonical.
 - [Phase 172]: 172-07: three policy/contributor-policy branches pushed and opened as PRs (firestarter_prom#54, firestarter#58, firestarter_app#57), scope proven server-side .github/-only. No merge (172-08 owns it). — Branches cut from each repo's own fetched origin/main in throwaway worktrees, never the milestone branch, avoiding a 733/531/781-commit drag into a default branch.
 - [Phase 172]: 172-07 Pitfall 5 verdict: the firmware .github-only merge will NOT fire build.yml or cut a release. — Measured from origin/main's own tree: build.yml already excludes .github/** in paths-ignore, and py32f071.yml does not exist on main at all -- both independently sufficient, confirmed via zero check-runs read twice and zero workflow_runs for the branch.
+- [Phase 179]: 179-01: the UV blank-check verdict adjudicated to SKIPPED (never NA, which suppresses the Reason cell; never OK, which collides with m27c512-full-all-ok's frozen hash), keyed on an additive Step.uv_prewrite field set once by derive_plan. — Matches 179-RESEARCH.md's Q1/Q1a recommendation and keeps plan_shapes.json byte-unchanged (execution-time adjudication, not a Step.supported flip).
+- [Phase 179]: 179-01: FLAG_SKIP_BLANK_CHECK is derived from a new structural WriteTarget.current_is_probe_read witness, never from region_policy or a current_source string compare. — Measured: the staged tranche's current_source reads 'probe read (tranche 1/2)', so a string-equality witness would ship green and inert; the structural bool is proven to disagree with region_policy in both directions.
 
 ## Performance Metrics
 
@@ -3277,11 +3279,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 172 P06 | 62min | 3 tasks | 3 files |
 | Phase 172 P07 | 15min | 3 tasks | 3 files |
 | Phase 173 P06 | 25min | 3 tasks | 4 files |
+| Phase 179 P01 | 95min | 2 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-09-06T17:06:45.471Z
-**Stopped at:** Phase 179 planned
+**Last session:** 2026-09-06T20:25:42.683Z
+**Stopped at:** Completed 179-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 178 complete, ready to plan Phase 179
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
@@ -3333,7 +3336,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/175-structural-sentinel-over-derive-plan/175-CONTEXT.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
