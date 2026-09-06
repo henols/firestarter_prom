@@ -225,3 +225,11 @@ None - no external service configuration required.
 ---
 *Phase: 178-fault-attribution-the-two-axis-vocabulary*
 *Completed: 2026-09-06*
+
+## Self-Check: PASSED
+- FOUND: firestarter_app/tests/test_diagnostic_report.py, test_submit.py, test_chip_test.py, test_chip_test_sdp_leg.py
+- FOUND: .planning/phases/178-fault-attribution-the-two-axis-vocabulary/178-02-SUMMARY.md + 3 evidence files
+- FOUND: commit 8867e60 (Task 1, firestarter_app)
+- FOUND: commit 014a446 (Task 2, firestarter_app)
+- FOUND: commit 70aa490 (Task 3, firestarter_app)
+- FOUND: commit c4ebc7c1 (SUMMARY.md + evidence, meta-repo)
