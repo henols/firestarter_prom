@@ -4,15 +4,15 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 179
 current_phase_name: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
-status: planning
-stopped_at: Phase 178 complete, ready to plan Phase 179
-last_updated: "2026-09-06T13:26:28.360Z"
+status: planned
+stopped_at: "Phase 179 planned"
+last_updated: "2026-09-06T17:06:45.471Z"
 last_activity: 2026-09-06
-last_activity_desc: "Phase 178 COMPLETE: 4/4 plans, verifier 5/5 must-haves, ATTR-01..ATTR-06 all Complete. A transport fault now reports status=ERROR beside verdict=SKIPPED instead of spending the chip's BAD -- it titles `INCONCLUSIVE (harness)`, lands the ladder on inconclusive, exits 2, and still offers the filing prompt. The status axis is measured OUT of `dedup_fingerprint` by a positive Leg B plus an anti-vacuity sibling, not merely by a green frozen gate; the corpus now carries an 18th shape `attr01-status-axis-transport-fault` (hash 93cef8030c40, real-path construction per operator decision D-178-1) with the inherited 17 measured unmoved. `is_submittable` byte-unchanged (research T3 void); destructive-gate predicate, `_skip_result` bypass and `FP_TRANSPORT` measured non-changed. ATTR-06 ships the first rendered sentence saying a rail reading does not prove socket continuity. Code review: 0 critical, 1 warning + 1 info, both fixed in firestarter_app@835baba. Suite 2241 green on py3.11 and py3.12."
+last_activity_desc: "Phase 179 PLANNED -- 4 plans, 9 tasks, 4 waves, deliberately fully serial (each plan depends_on its predecessor). Research measured TWO independent defects, not one: chip_test.py:3189-3193 calls write_eprom with no operation_flags so the firmware write-init pre-flight refuses a non-blank UV write, AND the standalone blank-check returns VERDICT_BAD into a FAIL-dominant submit.overall_verdict -- so the flag alone still ships a FAIL, which is exactly what UV-02 warns about. Both are closed. Research also FALSIFIED two prior planning claims: PITFALLS.md:186-188's cycle-2-abort mechanism (the blank-check sits outside cycle_block_bounds) and SUMMARY.md:89's prescribed witness form current_source == 'probe read', which never matches because staged tranche targets carry 'probe read (tranche 1/2)' -- a witness written that way would have shipped green and inert. The witness is structural instead (_is_monotonic_masked_target) with an anti-vacuity leg. 179-01 is the tracer; 179-02 opens checkpoint:decision D-179-1/D-179-2 on the two one-way doors (how criterion 4 is satisfied; the frozen-shape construction route) and repairs the gate 179-01 leaves deliberately RED under the D-11 two-commit re-key protocol; 179-03 commits the 12-leg regression module; 179-04 is a blocking-human bench wave (chip handling is operator-only) machine-defended against --auto. RESEARCH Q1-Q8 all disposed, none silently; Q8 recorded BLOCKED because removing the stale UV-prompt comment would require rewriting retained comment lines, which the no-comments rule forbids. No CONTEXT.md by operator choice, so the spec-less probe fallback ran: 4 edge rows surfaced == 1 authored + 3 flagged. Plan-checker PASSED with 0 blockers and 0 warnings; both deterministic probes clean across 17 automated commands. NOT auto-advanced to execute."
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 23
+  total_plans: 27
   completed_plans: 23
   percent: 63
 ---
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 179 — UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
+Phase: 179 (UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-06 — Phase 178 complete, transitioned to Phase 179
+Status: Ready to execute
+Last activity: 2026-09-06 — Phase 179 planned: 4 plans, 9 tasks, 4 waves (serial); plan-checker passed 0 blockers / 0 warnings; requirements 3/3 covered; NOT auto-advanced to execute
 
 ## Roadmap Summary (v1.36)
 
@@ -3280,8 +3280,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-06T13:31:41.000Z
-**Stopped at:** Phase 178 complete, ready to plan Phase 179
+**Last session:** 2026-09-06T17:06:45.471Z
+**Stopped at:** Phase 179 planned
+**Was (superseded, retained for continuity):** Phase 178 complete, ready to plan Phase 179
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
