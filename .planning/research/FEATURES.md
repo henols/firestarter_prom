@@ -55,7 +55,7 @@ At artifact level the same split is enforced again:
 or rig fault is never filed as a chip verdict." The `dev test` harness today has **one** verdict axis
 (`VERDICT_OK` / `VERDICT_BAD` / `VERDICT_NA` / `VERDICT_SKIPPED` / `marginal`, `chip_test.py:893-897`)
 and it is the *result* axis. It has no *status* axis. That is precisely why
-`chip_test.py:2461`'s handler —
+`chip_test.py:2567-2574`'s handler —
 
 ```python
 except (SerialError, HardwareOperationError) as exc:
@@ -227,7 +227,7 @@ Measured against `firestarter_app` @ `0a93999`:
 |---|---|---|
 | `VERDICT_OK` / `BAD` / `NA` / `SKIPPED` / `marginal` | `chip_test.py:893-897` | Result axis only. No status axis. |
 | Run-fatal escape for 3 host-setup exceptions | `chip_test.py:2441-2460` | Only two settings: kill the run, or blame the chip. |
-| Transport fault → `VERDICT_BAD` | `chip_test.py:2461-2477` | **The defect.** Rig event spends a chip verdict. |
+| Transport fault → `VERDICT_BAD` | `chip_test.py:2567-2574` | **The defect.** Rig event spends a chip verdict. |
 | `FP_INDETERMINATE` fingerprint class | `chip_test.py:141` | Classifies a *byte pattern*, not a *run*. |
 | `_DISPOSITION_INCONCLUSIVE` + `_LADDER_NONE` | `diagnostic_report.py:~312` | Exists for the DB-diff ladder only; does not gate submit. |
 | `is_submittable(ac)` | `diagnostic_report.py:150-162` | Gates on **identity completeness** (`chip`, `protocol`, `host_version`) only — never on run validity. |
@@ -303,7 +303,7 @@ right.
 | Feature | Why expected | Complexity | Depends on (existing) | Notes |
 |---|---|---|---|---|
 | **T1. A run-status axis orthogonal to the chip verdict** — every step carries *did this run validly* separately from *what did it say about the chip* | Universal across OCP, JUnit, LTP, kselftest, smartctl exit bits. Without it a rig fault has nowhere to go but the verdict field | **MEDIUM** | Independent non-fatal steps; `StepResult` | Additive field on `StepResult`; existing `verdict` values keep their meaning. Adopt OCP names (`COMPLETE`/`ERROR`/`SKIP`) rather than coining. Enforce the 4-cell legal cross-product in a test |
-| **T2. Transport / rig faults classified as `ERROR`, never `BAD`** | This is the milestone's stated defect; `chip_test.py:2461` is the exact site | **LOW** once T1 exists | T1; `chip_test.py:2441-2477` | Move `SerialError`/`HardwareOperationError` from `VERDICT_BAD` to status=`ERROR`, result=`NOT_APPLICABLE`. One handler. The comment already argues for it |
+| **T2. Transport / rig faults classified as `ERROR`, never `BAD`** | This is the milestone's stated defect; `chip_test.py:2567-2574` is the exact site | **LOW** once T1 exists | T1; `chip_test.py:2441-2477` | Move `SerialError`/`HardwareOperationError` from `VERDICT_BAD` to status=`ERROR`, result=`NOT_APPLICABLE`. One handler. The comment already argues for it |
 | **T3. A run containing an `ERROR` step is not submittable as a chip FAIL** | ABRT `not-reportable`; kernel taint; "bug reports from tainted kernels will often be ignored" | **LOW** | `is_submittable`; the submit prompt | Extend the *existing* choke point `is_submittable(ac)` with a run-validity term. Do not build a second gate |
 | **T4. A machine-readable reason for non-submittability, carried in the JSON** | ABRT's `not-reportable` element is a **reason string**, not a boolean | **LOW** | Report `to_dict()` | Additive key. A human reading the JSON must be able to see *why* submit was withheld |
 | **T5. Run-validity flags are sticky and reported even on a PASS** | Kernel taint survives unloading the module; SMART self-test log keeps "Aborted by host" | **LOW** | Report | A run that re-synced twice and then passed is still a run that re-synced twice. v1.36's `transport_health` wiring of `serial_comm.py:520-526` / `:536-541` is exactly this |
