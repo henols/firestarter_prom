@@ -5,10 +5,10 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 178
 current_phase_name: Fault Attribution — the Two-Axis Vocabulary
 status: executing
-stopped_at: Phase 177 complete, ready to plan Phase 178
-last_updated: "2026-09-06T09:38:36.718Z"
-last_activity: 2026-09-05
-last_activity_desc: "Phase 177 COMPLETE: 3/3 plans, verifier 10/10 must-haves, all five requirements (PRUNE-01/02/03/04/07) Complete. A passing run now makes zero fingerprint read-backs and still reports a synthesized `match`; a failing prior cycle still keeps the real read-back. The Phase 174 re-key was taken under the D-11 protocol — behaviour in 177-01 (gate deliberately RED, 9 declared failures), declaration in 177-02 (RK-174-01/05/06 filled, RK-174-07 and RK-174-09 appended, no before_hash overwritten). PRUNE-04 closed as measured-empty by an ast census with two anti-vacuity legs; PRUNE-07 replaced the seed sentence in place. Suite 2216 passed / 0 failed; code review 0 critical / 2 warning (both pre-existing, in classify_fingerprint's unreachable transport bucket)."
+stopped_at: Phase 178 execution started — 4 plans, 3 waves
+last_updated: "2026-09-06T11:38:52.447Z"
+last_activity: 2026-09-06
+last_activity_desc: "Phase 178 EXECUTING: 4 plans across 3 waves (W1 178-01 tracer; W2 178-02 + 178-03 checkpoint:decision D-178-1; W3 178-04 close). Requirements ATTR-01..ATTR-06. Phase 177's completion record is preserved in .planning/phases/177-*/ and in git."
 progress:
   total_phases: 8
   completed_phases: 4
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 177 — Evidence-Gated Read-Back
+**Current focus:** Phase 178 — Fault Attribution — the Two-Axis Vocabulary
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 178 (Fault Attribution — the Two-Axis Vocabulary) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-05 — Phase 177 complete, transitioned to Phase 178
+Phase: 178 (Fault Attribution — the Two-Axis Vocabulary) — EXECUTING
+Plan: 1 of 4 complete (178-01) — next 178-02
+Status: Executing Phase 178
+Last activity: 2026-09-06 — Phase 178 execution started
 
 ## Roadmap Summary (v1.36)
 

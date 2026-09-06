@@ -387,7 +387,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 178-01-PLAN.md — Tracer: one transport-faulted run through every layer in one commit — the `STATUS_*` vocabulary, `StepResult.status`, the re-pointed `(SerialError, HardwareOperationError)` arm, the `run_status` fold, schema 1.8, the three consumer widenings (title / ladder / exit code), the two pinned key lists, all 17 snapshots, and the three BAD-pinning tests repaired forward
+- [x] 178-01-PLAN.md — Tracer: one transport-faulted run through every layer in one commit — the `STATUS_*` vocabulary, `StepResult.status`, the re-pointed `(SerialError, HardwareOperationError)` arm, the `run_status` fold, schema 1.8, the three consumer widenings (title / ladder / exit code), the two pinned key lists, all 17 snapshots, and the three BAD-pinning tests repaired forward
 
 **Wave 2**
 
