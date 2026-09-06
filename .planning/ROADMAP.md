@@ -391,7 +391,7 @@ Plans:
 
 **Wave 2**
 
-- [ ] 178-02-PLAN.md — ATTR-04's non-vacuous Leg B plus its anti-vacuity sibling and the adjacency / empty / ordering edges; ATTR-05's non-suppression with `is_submittable` measured byte-unchanged (T3 void); and the measured non-changes — the destructive-gate predicate, the `_skip_result` bypass, and `FP_TRANSPORT`
+- [x] 178-02-PLAN.md — ATTR-04's non-vacuous Leg B plus its anti-vacuity sibling and the adjacency / empty / ordering edges; ATTR-05's non-suppression with `is_submittable` measured byte-unchanged (T3 void); and the measured non-changes — the destructive-gate predicate, the `_skip_result` bypass, and `FP_TRANSPORT`
 - [ ] 178-03-PLAN.md — Register the reserved shape `attr01-status-axis-transport-fault` across all eight gate-enforced edit sites with a measured hash, then seal ATTR-04's Leg A with `RK-174-09` left `after_hash=None`. Opens with a `checkpoint:decision` on the one-way shape-construction route (D-178-1)
 
 **Wave 3**
