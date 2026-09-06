@@ -4,11 +4,11 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 179
 current_phase_name: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
-status: planned
-stopped_at: "Phase 179 planned"
-last_updated: "2026-09-06T17:06:45.471Z"
+status: executing
+stopped_at: "Phase 179 executing -- wave 1 dispatch"
+last_updated: "2026-09-06T19:50:49.525Z"
 last_activity: 2026-09-06
-last_activity_desc: "Phase 179 PLANNED -- 4 plans, 9 tasks, 4 waves, deliberately fully serial (each plan depends_on its predecessor). Research measured TWO independent defects, not one: chip_test.py:3189-3193 calls write_eprom with no operation_flags so the firmware write-init pre-flight refuses a non-blank UV write, AND the standalone blank-check returns VERDICT_BAD into a FAIL-dominant submit.overall_verdict -- so the flag alone still ships a FAIL, which is exactly what UV-02 warns about. Both are closed. Research also FALSIFIED two prior planning claims: PITFALLS.md:186-188's cycle-2-abort mechanism (the blank-check sits outside cycle_block_bounds) and SUMMARY.md:89's prescribed witness form current_source == 'probe read', which never matches because staged tranche targets carry 'probe read (tranche 1/2)' -- a witness written that way would have shipped green and inert. The witness is structural instead (_is_monotonic_masked_target) with an anti-vacuity leg. 179-01 is the tracer; 179-02 opens checkpoint:decision D-179-1/D-179-2 on the two one-way doors (how criterion 4 is satisfied; the frozen-shape construction route) and repairs the gate 179-01 leaves deliberately RED under the D-11 two-commit re-key protocol; 179-03 commits the 12-leg regression module; 179-04 is a blocking-human bench wave (chip handling is operator-only) machine-defended against --auto. RESEARCH Q1-Q8 all disposed, none silently; Q8 recorded BLOCKED because removing the stale UV-prompt comment would require rewriting retained comment lines, which the no-comments rule forbids. No CONTEXT.md by operator choice, so the spec-less probe fallback ran: 4 edge rows surfaced == 1 authored + 3 flagged. Plan-checker PASSED with 0 blockers and 0 warnings; both deterministic probes clean across 17 automated commands. NOT auto-advanced to execute."
+last_activity_desc: "Phase 179 EXECUTION STARTED 2026-09-06 -- 4 plans, 4 serial waves, ISOLATION=none (workflow.use_worktrees=false; both sub-repos are submodules so executors commit inside them on the milestone branch). PRIOR PLANNING RECORD: Phase 179 PLANNED -- 4 plans, 9 tasks, 4 waves, deliberately fully serial (each plan depends_on its predecessor). Research measured TWO independent defects, not one: chip_test.py:3189-3193 calls write_eprom with no operation_flags so the firmware write-init pre-flight refuses a non-blank UV write, AND the standalone blank-check returns VERDICT_BAD into a FAIL-dominant submit.overall_verdict -- so the flag alone still ships a FAIL, which is exactly what UV-02 warns about. Both are closed. Research also FALSIFIED two prior planning claims: PITFALLS.md:186-188's cycle-2-abort mechanism (the blank-check sits outside cycle_block_bounds) and SUMMARY.md:89's prescribed witness form current_source == 'probe read', which never matches because staged tranche targets carry 'probe read (tranche 1/2)' -- a witness written that way would have shipped green and inert. The witness is structural instead (_is_monotonic_masked_target) with an anti-vacuity leg. 179-01 is the tracer; 179-02 opens checkpoint:decision D-179-1/D-179-2 on the two one-way doors (how criterion 4 is satisfied; the frozen-shape construction route) and repairs the gate 179-01 leaves deliberately RED under the D-11 two-commit re-key protocol; 179-03 commits the 12-leg regression module; 179-04 is a blocking-human bench wave (chip handling is operator-only) machine-defended against --auto. RESEARCH Q1-Q8 all disposed, none silently; Q8 recorded BLOCKED because removing the stale UV-prompt comment would require rewriting retained comment lines, which the no-comments rule forbids. No CONTEXT.md by operator choice, so the spec-less probe fallback ran: 4 edge rows surfaced == 1 authored + 3 flagged. Plan-checker PASSED with 0 blockers and 0 warnings; both deterministic probes clean across 17 automated commands. NOT auto-advanced to execute."
 progress:
   total_phases: 8
   completed_phases: 5
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 179 (UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-06 — Phase 179 planned: 4 plans, 9 tasks, 4 waves (serial); plan-checker passed 0 blockers / 0 warnings; requirements 3/3 covered; NOT auto-advanced to execute
+Phase: 179 (UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 179
+Last activity: 2026-09-06 — Phase 179 execution started: 4 serial waves dispatched sequentially on the main working tree (use_worktrees=false); plan-checker had passed 0 blockers / 0 warnings; requirements 3/3 covered
 
 ## Roadmap Summary (v1.36)
 
