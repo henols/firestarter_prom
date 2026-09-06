@@ -5,15 +5,15 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 179
 current_phase_name: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
 status: executing
-stopped_at: "Completed 179-02-PLAN.md"
-last_updated: "2026-09-06T21:03:26.000Z"
+stopped_at: "Completed 179-03-PLAN.md"
+last_updated: "2026-09-06T22:10:00.000Z"
 last_activity: 2026-09-06
-last_activity_desc: "179-02 COMPLETE 2026-09-06 -- Task 1 checkpoint:decision resolved by operator (D-179-1/D-179-2, both Option A recorded in 179-DECISIONS.md); Task 2 registered uv-slot-write-pass across all eight gate-enforced sites and re-baselined m27c512-full-blank-check-bad in one commit (measured, not transcribed: new_hash=927571e5110f, rebaselined_hash=e42f1567967a); Task 3 declared RK-174-04-p179-uv-blank-check-abort in a SEPARATE commit, bound in .planning/MILESTONES.md, checker prints OK: 8 ledger row(s), 8 MILESTONES.md row(s) bound. Full suite green again: 2253 passed, 0 failed, 32 snapshots passed (was 5 failed at 179-01's deliberate red). RESERVED_SHAPE_IDS now empty, both read sites repaired non-vacuous. Ready for 179-03 (committed regression module) and 179-04 (blocking-human bench wave)."
+last_activity_desc: "179-03 COMPLETE 2026-09-06 -- tests/test_chip_test_uv_slot_write.py landed twelve named legs across two tests-only commits: Task 1 (legs 1-6) proved criterion 4's host half (double genuinely refuses/accepts, two-cycle run folds to PASS with run_count=2, flag on the wire both cycles, adjudication load-bearing via forced-BAD, not-blank finding survives); Task 2 (legs 7-12) proved ROADMAP criterion 3 in both disagreement directions via the public WriteContext.cycle_targets seam (zero probe reads, no monkeypatching), plus four anti-vacuity siblings (fail-closed empty cases, the research-prescribed probe-read string equality measured to never match, non-UV flag/adjudication non-always-on). All twelve legs passed on first write (behavior already implemented by 179-01/02) -- zero production code touched. Full suite: 2265 passed, 0 failed, 32 snapshots passed (was 2253). UV-01/02/03 correctly left Pending in REQUIREMENTS.md -- plan 179-04 owns the marking. Ready for 179-04 (blocking-human bench wave and requirement marking)."
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 27
-  completed_plans: 25
+  completed_plans: 26
   percent: 63
 ---
 
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 179 (UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
-Last activity: 2026-09-06 — Phase 179 execution started: 4 serial waves dispatched sequentially on the main working tree (use_worktrees=false); plan-checker had passed 0 blockers / 0 warnings; requirements 3/3 covered
+Last activity: 2026-09-06 — Plan 179-03 complete: tests/test_chip_test_uv_slot_write.py (12 named legs, 2 commits) closes ROADMAP criterion 4's host half and criterion 3; full suite 2265 passed, 32 snapshots passed. Ready for 179-04 (blocking-human bench wave).
 
 ## Roadmap Summary (v1.36)
 
@@ -3285,11 +3285,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 173 P06 | 25min | 3 tasks | 4 files |
 | Phase 179 P01 | 95min | 2 tasks | 5 files |
 | Phase 179 P02 | 40min | 3 tasks | 5 files |
+| Phase 179 P03 | 55min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-09-06T21:03:26.000Z
-**Stopped at:** Completed 179-02-PLAN.md
+**Last session:** 2026-09-06T22:10:00.000Z
+**Stopped at:** Completed 179-03-PLAN.md
+**Was (superseded, retained for continuity):** Completed 179-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 178 complete, ready to plan Phase 179
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
