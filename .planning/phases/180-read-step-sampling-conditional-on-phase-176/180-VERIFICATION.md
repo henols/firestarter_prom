@@ -1,7 +1,7 @@
 ---
 phase: 180-read-step-sampling-conditional-on-phase-176
 verified: 2026-09-08T19:10:00Z
-status: human_needed
+status: passed
 score: 25/26 must-haves verified
 covered_files:
   - ".planning/REQUIREMENTS.md"
@@ -23,7 +23,16 @@ covered_files:
   - "firestarter_app/tests/test_readback_inventory.py"
 covered_digest: "v1:sha256:6d6510e898285352a2c8f214672fa3c5f09041e3e529b6ccfa31f57fc5df8455"
 behavior_unverified: 0
-overrides_applied: 0
+overrides_applied: 1
+overrides:
+  - item: "WR-02 residual — `_last_ok_assignment_shape`'s docstring claims 'any third assignment... reddens a pin asserting it', but chained (`last_ok = _junk = ...`) and tuple-unpack reassignment are silently dropped from `targets`, so the pin stays GREEN while `last_ok` becomes divergence-dependent."
+    prohibition: "No test docstring may claim more than its own check proves (180-04-PLAN.md must_haves.prohibitions)."
+    disposition: accepted_as_is
+    decided_by: operator
+    decided_at: 2026-09-08
+    rationale: "Accepted as defense-in-depth against a code shape absent from all shipped code today. Independently re-confirmed at UAT time that `_dispatch_read` carries exactly the two single-target assignments the pin expects (`last_ok = True`, `last_ok = operator.read_eprom(...)`) and nothing else, and that the primary D-06 verdict-source pin (`_verdict_expression_names`) is unaffected — roadmap criterion 3 holds. No follow-up hardening pass directed before Phase 181."
+    residual_open: true
+    evidence: "180-UAT.md test 1 (result: pass, decision: accepted as-is), 180-REVIEW.md WR-01"
 re_verification:
   previous_status: gaps_found
   previous_score: 23/24
@@ -149,6 +158,23 @@ No orphaned requirements found for Phase 180.
 ### Gaps Summary
 
 No blocking gaps. The one item carried into this cycle from the prior `gaps_found` report — the seed's D-09 regeneration risk — is independently confirmed closed by reproducing the plan's own fragment-removal check byte-for-byte. The three review-flagged follow-ups (WR-01, IN-01, IN-02) are independently confirmed fully closed. WR-02 is substantively improved (the exact single-target mutation shape the phase's own anti-vacuity leg specifies is now correctly caught) but leaves a narrower residual gap of the same overclaim class: the pin's docstring states a categorical guarantee ("any third assignment... reddens a pin") that is empirically false for a chained assignment or tuple-unpack, independently reproduced against the real `_dispatch_read` source. This does not affect the phase's actual deliverable — no sampling code shipped, no reassignment of this shape exists anywhere in the current codebase, and the primary verdict-source pin (D-06, unchanged since 180-01) still correctly proves the verdict comes from the full read today. It is flagged as an unresolved judgment-tier prohibition per this project's own soft-gate handling, not silently passed, and routed to the operator for a proportionality call before this phase's PRUNE-08 closure is considered fully sealed.
+
+## Acknowledged Gaps
+
+Recorded at UAT close (`/gsd-verify-work 180`, 2026-09-08). The single human-verification
+item was presented to the operator and answered `pass` — an **accepted override**, not a
+remediation.
+
+| Gap | Class | Disposition | Still open in code? |
+|-----|-------|-------------|---------------------|
+| WR-02 residual — `_last_ok_assignment_shape` docstring overclaims; chained / tuple-unpack `last_ok` reassignment escapes the hardened pin | judgment-tier prohibition (`180-04-PLAN.md`) | Accepted as-is by operator override | **Yes** — the extraction loop still requires a single-target bare-`ast.Name` `ast.Assign`, and the docstring's "any third assignment" wording is still empirically false |
+
+The override does not close the gap; it records that the operator judged it acceptable to
+ship. Independently re-confirmed at UAT time: `_dispatch_read` today holds exactly the two
+single-target assignments the pin expects, so the residual guards a code shape that does not
+exist. If a future phase touches `last_ok`'s assignment shape, the fix suggested in
+`180-REVIEW.md` (flatten `ast.Assign` targets, force the `other` tag for non-simple targets,
+soften the docstring) should be applied first — the pin will not catch it as written.
 
 ---
 
