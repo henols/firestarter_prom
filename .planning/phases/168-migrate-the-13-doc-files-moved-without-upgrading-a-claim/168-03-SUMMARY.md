@@ -86,7 +86,7 @@ status: complete
 ## Accomplishments
 
 - Deleted the single `#` comment at `build_db.py` citing `firestarter/doc/AT28C04-ADAPTER.md` (no-comments rule); left the surrounding dispatch-behaviour comment block untouched — the diff is exactly one deleted line, zero added comment lines.
-- Rewrote the operator-visible `unsupported_reason` emitted for AT28C04/AT28C16 DIP24 chips to name the wiki page "AT28C04 Adapter" (from `tools/wiki/MIGRATION-TABLE.md`'s filled-in rendered title) instead of the doc path, keeping the `"adapter required:"` prefix `test_build_db_inclusion.py:539` pins.
+- Rewrote the operator-visible `unsupported_reason` emitted for AT28C04/AT28C16 DIP24 chips to name the wiki page "AT28C04 Adapter" (from `.planning/v1.35/MIGRATION-TABLE.md`'s filled-in rendered title) instead of the doc path, keeping the `"adapter required:"` prefix `test_build_db_inclusion.py:539` pins.
 - Regenerated `chip_database.json` via `python tools/build_db.py` against the pinned upstream `infoic.xml` commit: 744 upstream + 2 supplement = 746 total, matching the expected count exactly.
 - Confirmed the regeneration touched **exactly** 9 lines (9 added, 9 removed), every one an `unsupported_reason` value, and nothing else — the byte-for-byte round trip RESEARCH measured held except for the intended edit.
 - Ran `tools/diff_db.py` against the unmodified, historical `tools/baseline/chip_database.baseline.json`: **RC=0**. Confirms RESEARCH's prediction that the gate is measurably indifferent to this text, so the baseline is deliberately left untouched (its 9 copies of the old path are historical evidence, per the same reasoning as D-18's excluded-records list).
@@ -140,7 +140,7 @@ None. `python tools/build_db.py` required network access to `gitlab.com` (confir
 ## Next Phase Readiness
 
 - `chip_database.json`'s new sha256 (truncated to 16 hex): **`ccbc8d2c4866a5af`** — plan 168-05 stamps the wiki pages with this value and plan 168-12's freshness leg compares against it.
-- The AT28C04 Adapter wiki page (per `tools/wiki/MIGRATION-TABLE.md`) is now the canonical target every operator-visible reference to this chip family's adapter requirement points at — no repository path or URL remains anywhere in `build_db.py` or the generated database.
+- The AT28C04 Adapter wiki page (per `.planning/v1.35/MIGRATION-TABLE.md`) is now the canonical target every operator-visible reference to this chip family's adapter requirement points at — no repository path or URL remains anywhere in `build_db.py` or the generated database.
 - `firestarter_app` is on `gsd/v1.35-documentation-consolidation-wiki-migration` with 2 new commits (`4a156b8`, `c97c90e`), full suite green (1976 passed), tree clean except this plan's own changes.
 - No blockers for subsequent plans in this phase.
 

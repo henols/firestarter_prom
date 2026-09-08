@@ -52,7 +52,7 @@ created: 2026-08-30
 | 167-03-03 | 03 | 3 | WIKI-02, WIKI-04 | T-167-06 | The mirror wipe is load-bearing, proved by a localised copy-over mutation | integration | `bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
 | 167-04-01 | 04 | 3 | WIKI-05 | T-167-13, T-167-14, T-167-15 | No credential or planning vocabulary published; future pages named, never linked | unit | `python3 tools/wiki/wiki.py links` | ❌ W0 | ⬜ pending |
 | 167-04-02 | 04 | 3 | WIKI-04, WIKI-05 | T-167-13 | Committed generated sidebar is byte-stable over the real tree and banner-free | unit | `python3 tools/wiki/wiki.py check` | ❌ W0 | ⬜ pending |
-| 167-04-03 | 04 | 3 | WIKI-02 | T-167-16 | The provenance table is not a registry — no tool reads it | unit | `test -f tools/wiki/MIGRATION-TABLE.md && python3 tools/wiki/wiki.py check` | ❌ W0 | ⬜ pending |
+| 167-04-03 | 04 | 3 | WIKI-02 | T-167-16 | The provenance table is not a registry — no tool reads it | unit | `test -f .planning/v1.35/MIGRATION-TABLE.md && python3 tools/wiki/wiki.py check` | ❌ W0 | ⬜ pending |
 | 167-05-01 | 05 | 4 | WIKI-04, WIKI-05 | T-167-04, T-167-05, T-167-08, T-167-17 | `contents: read`, `pull_request` not `pull_request_target`, offline only, no fail-open | integration | `python3 tools/wiki/wiki.py check && bash tools/wiki/selftest.sh` | ❌ W0 | ⬜ pending |
 | 167-05-02 | 05 | 4 | WIKI-04 | — | Documents of record stay true; scoped edits only | smoke | `grep -q 'tools/wiki' CLAUDE.md && grep -q 'wiki-check.yml' .planning/codebase/STRUCTURE.md` | ✓ runs today | ⬜ pending |
 | 167-05-03 | 05 | 4 | WIKI-06 | T-167-18 | Read-back only; no setting-mutating API method permitted | smoke | `test "$(gh api repos/henols/firestarter --jq .has_wiki)" = "false"` (×3 repos) | ✓ runs today | ⬜ pending |
@@ -113,7 +113,7 @@ The phase's central evidentiary requirement — criteria 2, 4 and 5 each demand 
 - [ ] `tools/wiki/wiki.py` — single entry point; `--wiki-remote` parameterisation is a Wave 0 requirement, not a later refinement, because nothing else is testable without it
 - [ ] `tools/wiki/selftest.sh` — fixture driver + the 11 cases
 - [ ] `wiki/Home.md`, `wiki/How-This-Wiki-Is-Published.md` (D-12), `wiki/_Sidebar.md` (generated, committed per D-10)
-- [ ] `tools/wiki/MIGRATION-TABLE.md` — D-04 shell, with a rendered-title column (RESEARCH.md § Pitfall 4)
+- [ ] `.planning/v1.35/MIGRATION-TABLE.md` — D-04 shell, with a rendered-title column (RESEARCH.md § Pitfall 4)
 - [ ] `.github/workflows/wiki-check.yml` — offline legs only
 - [ ] Framework install: **none** — this is the point of the harness recommendation
 

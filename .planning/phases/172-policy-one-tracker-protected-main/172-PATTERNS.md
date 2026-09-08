@@ -41,7 +41,7 @@ the `tools/wiki/` checkers whose exact output strings the verify legs must asser
 | `README.md:33-37` trim | prom | doc | static link | its own current text | exact |
 | `firestarter/README.md:73-81` trim | fw | doc | static link | its own current text | exact |
 | `firestarter_app/README.md:104-108` trim | app | doc | static link | its own current text | exact |
-| `tools/wiki/MIGRATION-TABLE.md` (+1 row) | prom | data table | provenance record | the `Home` row + Phase 171's `Shell-Completion` row | exact |
+| `.planning/v1.35/MIGRATION-TABLE.md` (+1 row) | prom | data table | provenance record | the `Home` row + Phase 171's `Shell-Completion` row | exact |
 | `evidence/172-NN-*.txt|.json` | prom | evidence | file-I/O | `.planning/phases/171-…/evidence/171-0*.txt` | exact |
 | Three GitHub rulesets (API, not files) | — | live config | REST | `gh api /repos/henols/firestarter/rulesets/4998759` | exact |
 
@@ -282,7 +282,7 @@ Each trims to a single link at the canonical `Contributing` wiki page.
 
 ---
 
-### 8. `tools/wiki/MIGRATION-TABLE.md` — one authored-page row
+### 8. `.planning/v1.35/MIGRATION-TABLE.md` — one authored-page row
 
 **Analog:** the `Home` row (an authored, never-migrated page) at line 12, and Phase 171's
 `Shell-Completion` row at line 20:
@@ -391,7 +391,7 @@ argument/load errors.
 (`171-03-PLAN.md:278`):
 
 ```
-python3 -c "import sys; sys.path.insert(0,'tools/wiki'); from pathlib import Path; from honest01_claims import parse_migration_table; rows=parse_migration_table(Path('tools/wiki/MIGRATION-TABLE.md')); print('rows with a SHA:', len(rows)); [print(' ', r['Source path'], '->', r['Wiki page'], r['Moved in']) for r in rows]" > "$EV"
+python3 -c "import sys; sys.path.insert(0,'tools/wiki'); from pathlib import Path; from honest01_claims import parse_migration_table; rows=parse_migration_table(Path('.planning/v1.35/MIGRATION-TABLE.md')); print('rows with a SHA:', len(rows)); [print(' ', r['Source path'], '->', r['Wiki page'], r['Moved in']) for r in rows]" > "$EV"
 ```
 
 **Do not run `tools/wiki/selftest.sh`** — it mutates Phase 168 evidence.

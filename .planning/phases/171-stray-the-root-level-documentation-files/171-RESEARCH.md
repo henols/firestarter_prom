@@ -90,7 +90,7 @@ Seven measured facts contradict `171-CONTEXT.md`. Four of them change what the p
   rotting); and a new `Installing-avrdude` page (authoring new content from a five-line source,
   which decision 4 rules out).
 
-- **D-06: all three files get rows in `tools/wiki/MIGRATION-TABLE.md`.**
+- **D-06: all three files get rows in `.planning/v1.35/MIGRATION-TABLE.md`.**
   - `Shell-Completion` joins the **main table** as a Phase 171 row: source repo `firestarter_app`,
     source path `firestarter_app/autocomplete.md`, wiki page `Shell-Completion`, rendered title
     `Shell Completion`, pre-deletion SHA `d56424e1979edf7245cffb9ec3111c0469f5b23f`, moved in `171`.
@@ -190,7 +190,7 @@ then delete the source file, so the phase is never in a state where the content 
 | Publishing `Shell-Completion` | `firestarter_prom.wiki.git` (third repo, clone-commit-push) | — | Activation decision 5 as reversed (D-19): documentation lives only in the wiki. No in-repo source tree exists. `.planning/notes/v135-wiki-only-reversal.md:9-11` |
 | Wiki navigation (`_Sidebar.md`, `Home.md`) | `firestarter_prom.wiki.git` | — | Hand-maintained since `wiki.py sidebar` was retired. Same push as the page or the orphan/sidebar legs fail. |
 | Deleting the three root files | `firestarter_app` submodule, milestone branch | — | The files are app-repo artifacts. `commits_land_in: firestarter_app`, per 168-03/04/06/09-PLAN.md precedent. |
-| Provenance rows | Meta repo (`/workspaces`), `tools/wiki/MIGRATION-TABLE.md` | — | The table lives under `tools/`, survived the reversal intact (`v135-wiki-only-reversal.md:38-40`). `commits_land_in: meta (/workspaces)`. |
+| Provenance rows | Meta repo (`/workspaces`), `.planning/v1.35/MIGRATION-TABLE.md` | — | The table lives under `tools/`, survived the reversal intact (`v135-wiki-only-reversal.md:38-40`). `commits_land_in: meta (/workspaces)`. |
 | Gitlink re-pin | Meta repo | — | Separate `chore(171): advance submodule pointers` commit; precedent `f62021b4 chore(168): advance submodule pointers and refresh gate evidence`. |
 | Packaging verification | Scratch directory (`git archive` extraction) | — | **Never** the live working tree — see C-2 / §B.7. |
 | Security-policy surface | GitHub (`henols/firestarter_app` default branch) | — | Not writable by this phase; observable via `gh api …/community/profile` but reads `main` only. |
@@ -696,7 +696,7 @@ version, which is the correct provenance for what is being published. Confirms D
 
 ### C.9 — `MIGRATION-TABLE.md` — column headers and the machine reader `[VERIFIED]`
 
-**Main table header** (`tools/wiki/MIGRATION-TABLE.md:10-11`) — 6 columns:
+**Main table header** (`.planning/v1.35/MIGRATION-TABLE.md:10-11`) — 6 columns:
 
 ```
 | Source repo | Source path | Wiki page | Rendered title | Pre-deletion SHA | Moved in |
@@ -763,7 +763,7 @@ cd /workspaces && python3 -c "
 import sys; sys.path.insert(0,'tools/wiki')
 from pathlib import Path
 from honest01_claims import parse_migration_table
-rows = parse_migration_table(Path('tools/wiki/MIGRATION-TABLE.md'))
+rows = parse_migration_table(Path('.planning/v1.35/MIGRATION-TABLE.md'))
 print('rows with a SHA:', len(rows))
 for r in rows: print(' ', r['Source path'], '->', r['Wiki page'], r['Moved in'])
 "
@@ -1264,7 +1264,7 @@ section is mandatory.
 | **LEGACY-07** | page shape matches the other nine (§A.4) | automated | `sed -n '3,5p' "$V/Shell-Completion.md" \| tr '\n' '\|'` → `---\|\|# Shell Completion\|` | **live wiki** |
 | **LEGACY-07** | content preserved — the four shell sections and the migration note survived | automated | `for s in Bash Zsh Fish PowerShell "pipx Installations" "Migrating from a previous Firestarter"; do grep -qF "### $s" "$V/Shell-Completion.md" \|\| { echo "MISSING: $s"; exit 1; }; done` | **live wiki** |
 | **LEGACY-04/05/07** | nothing anywhere links to the three old paths | automated | the §C.10 sweep; expect only `firestarter/test/native/avr/test_eeprom28c_sdp/RED-BASELINE.md:637` (documented historical, no action) | **this repo** |
-| **D-06** | all three rows present and the SHA cited | automated | `grep -c 'd56424e1979edf7245cffb9ec3111c0469f5b23f' /workspaces/tools/wiki/MIGRATION-TABLE.md` → ≥ 8; plus `grep -q '| firestarter_app | firestarter_app/autocomplete.md | Shell-Completion |' …` | **this repo** |
+| **D-06** | all three rows present and the SHA cited | automated | `grep -c 'd56424e1979edf7245cffb9ec3111c0469f5b23f' /workspaces/.planning/v1.35/MIGRATION-TABLE.md` → ≥ 8; plus `grep -q '| firestarter_app | firestarter_app/autocomplete.md | Shell-Completion |' …` | **this repo** |
 | **D-06** | the new section does not corrupt `honest01`'s parse | automated | the §C.9 `parse_migration_table` snippet → 8 SHA-bearing rows, none of them a deletion row | **this repo** |
 | **packaging** | the sdist manifest is unchanged | automated | the §B.7 clean-tree before/after `diff` → empty; `173` entries each side | **this repo** |
 | **app health** | the suite still passes on the CI Python floor | automated | the §B.7 py3.11 route → `N passed` and zero `failed`/`error` | **this repo** |
@@ -1384,7 +1384,7 @@ The removal is a reduction in *false* assurance, not in real assurance.
 - `tools/wiki/honest01_claims.py:47,49,74-93,234` — `parse_migration_table` semantics
 - `tools/wiki/honest02_truth.py` — 2 runs (before/after simulated add), rc=0 both
 - `tools/wiki/dispatch_mirror.py:31,151-158` — argparse surface; 2 runs (workflow form rc=2, correct form rc=0)
-- `tools/wiki/MIGRATION-TABLE.md` (145 lines, read in full) — column headers, retired-section shape, hyphen hazard
+- `.planning/v1.35/MIGRATION-TABLE.md` (145 lines, read in full) — column headers, retired-section shape, hyphen hazard
 - `.github/workflows/wiki-check.yml` (108 lines, read in full) — legs, triggers, and its absence from `origin/main`
 - `firestarter_app/MANIFEST.in`, `firestarter_app/pyproject.toml`, `firestarter_app/.github/workflows/ci.yml`
 - `firestarter_app/autocomplete.md`, `things.md`, `SECURITY.md` — byte-level inspection + sha256

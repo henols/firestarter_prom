@@ -12,7 +12,7 @@ provides:
   - "wiki/Home.md — hand-authored reachability root, names the 13 Phase 168 pages as plain text, states the D-06 beta-tracking caveat"
   - "wiki/How-This-Wiki-Is-Published.md — D-12 scaffolding page: WIKI-02 authority rule, overwrite warning, publish commands, naming convention, legal link form, sidebar-is-generated rule"
   - "wiki/_Sidebar.md — generated via wiki.py sidebar, committed, byte-stable over the real tree"
-  - "tools/wiki/MIGRATION-TABLE.md — D-04 provenance table shell with two filled rows and thirteen source-pre-filled TBD rows for Phase 168"
+  - ".planning/v1.35/MIGRATION-TABLE.md — D-04 provenance table shell with two filled rows and thirteen source-pre-filled TBD rows for Phase 168"
 affects: [168]
 
 tech-stack:
@@ -26,7 +26,7 @@ key-files:
     - wiki/Home.md
     - wiki/How-This-Wiki-Is-Published.md
     - wiki/_Sidebar.md
-    - tools/wiki/MIGRATION-TABLE.md
+    - .planning/v1.35/MIGRATION-TABLE.md
   modified: []
 
 key-decisions:
@@ -70,7 +70,7 @@ coverage:
         status: pass
     human_judgment: false
   - id: D5
-    description: "tools/wiki/MIGRATION-TABLE.md exists with the five required columns, two filled demonstration rows, thirteen source-pre-filled TBD rows for the 13 Phase 168 files, an explicit non-registry statement, and no non-ASCII hyphen"
+    description: ".planning/v1.35/MIGRATION-TABLE.md exists with the five required columns, two filled demonstration rows, thirteen source-pre-filled TBD rows for the 13 Phase 168 files, an explicit non-registry statement, and no non-ASCII hyphen"
     requirement: WIKI-05
     verification:
       - kind: unit
@@ -107,7 +107,7 @@ status: complete
 - Authored `wiki/Home.md` — orients a reader, links `How-This-Wiki-Is-Published` in the single legal form, names the 13 Phase 168 source files as a plain-text list (no premature wiki-page-name invention), and states the D-06 beta-tracking caveat
 - Authored `wiki/How-This-Wiki-Is-Published.md` — the WIKI-02 authority rule, the web-UI overwrite warning, both publish commands, the hyphen-to-space naming convention, the single legal internal link form (with illegal-form examples escaped so the page doesn't fail its own rule), the sidebar-is-generated rule, and the D-06 branch fact — all in contributor-facing prose with zero planning vocabulary
 - Generated and committed `wiki/_Sidebar.md` via `python3 tools/wiki/wiki.py sidebar` against the real tree; confirmed fresh, byte-stable on regeneration into a temp copy, and banner-free
-- Created `tools/wiki/MIGRATION-TABLE.md` — the D-04 provenance table, with two demonstration rows for this plan's own pages and thirteen source-pre-filled `TBD` rows for the 13 files Phase 168 will migrate, plus an explicit statement that the publish path never reads this file and a named hyphen-hazard warning for the two at-risk titles (`AT28C04-ADAPTER`, `sram-nvram-behavior`)
+- Created `.planning/v1.35/MIGRATION-TABLE.md` — the D-04 provenance table, with two demonstration rows for this plan's own pages and thirteen source-pre-filled `TBD` rows for the 13 files Phase 168 will migrate, plus an explicit statement that the publish path never reads this file and a named hyphen-hazard warning for the two at-risk titles (`AT28C04-ADAPTER`, `sram-nvram-behavior`)
 - `python3 tools/wiki/wiki.py check` now exits 0 against real content for the first time — the exact command `.github/workflows/wiki-check.yml` will run in plan 167-05
 
 ## Task Commits
@@ -122,7 +122,7 @@ Each task was committed atomically:
 - `wiki/Home.md` - hand-authored reachability root; orients a reader, links the publishing page, names the 13 coming pages as plain text, states the beta caveat
 - `wiki/How-This-Wiki-Is-Published.md` - D-12 scaffolding page; authority rule, overwrite warning, publish commands, naming convention, link-form rule, sidebar-generated rule, beta caveat
 - `wiki/_Sidebar.md` - generated, two entries (`Home`, `How This Wiki Is Published`), committed
-- `tools/wiki/MIGRATION-TABLE.md` - D-04 provenance table shell, two filled rows + thirteen TBD rows for Phase 168
+- `.planning/v1.35/MIGRATION-TABLE.md` - D-04 provenance table shell, two filled rows + thirteen TBD rows for Phase 168
 
 ## Decisions Made
 - Named the 13 Phase 168 pages in `Home.md` by their current source filenames rather than pre-deciding their eventual `Title-Case-With-Hyphens` wiki page names — that decision (visible in `MIGRATION-TABLE.md`'s `TBD` columns) belongs to Phase 168, and inventing it here would risk `Home.md` naming a page under a name Phase 168 doesn't end up using
@@ -137,8 +137,8 @@ Each task was committed atomically:
 - **Found during:** Task 3, running the plan's own acceptance-criteria grep suite before committing
 - **Issue:** The first draft's paragraph explaining that `wiki.py publish` never reads `MIGRATION-TABLE.md` wrapped across two lines with "does not" ending one line and "read" starting the next. `grep -ciE 'publish.{0,40}(does not|never) read'` operates per line (no `-z`/multiline mode) and returned 0 — the acceptance criterion would have failed even though the file's prose correctly conveyed the fact.
 - **Fix:** Split the paragraph into two shorter sentences, keeping "`wiki.py publish` does not read this table" on a single physical line.
-- **Files modified:** tools/wiki/MIGRATION-TABLE.md
-- **Verification:** `grep -ciE 'publish.{0,40}(does not|never) read' tools/wiki/MIGRATION-TABLE.md` returns `1`
+- **Files modified:** .planning/v1.35/MIGRATION-TABLE.md
+- **Verification:** `grep -ciE 'publish.{0,40}(does not|never) read' .planning/v1.35/MIGRATION-TABLE.md` returns `1`
 - **Committed in:** 1638bfbf (Task 3 commit — fixed before the task was committed, no separate fix commit)
 
 ---
@@ -182,7 +182,7 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 - `wiki/` now holds real, checked content that `wiki.py check` validates against directly — plan 167-05's CI workflow (`.github/workflows/wiki-check.yml`) can run the exact same command against this tree with no fixture substitution.
-- `tools/wiki/MIGRATION-TABLE.md` is ready for Phase 168 to fill in: all 13 source paths are pre-recorded, and the hyphen-hazard note names the two titles (`AT28C04-ADAPTER`, `sram-nvram-behavior`) that need a deliberate reworded title rather than a mechanical hyphen-to-space substitution.
+- `.planning/v1.35/MIGRATION-TABLE.md` is ready for Phase 168 to fill in: all 13 source paths are pre-recorded, and the hyphen-hazard note names the two titles (`AT28C04-ADAPTER`, `sram-nvram-behavior`) that need a deliberate reworded title rather than a mechanical hyphen-to-space substitution.
 - **WIKI-05 is still only `Pending` in REQUIREMENTS.md, deliberately not marked complete** — this plan carries `wiki.py`'s remaining validation against real content, but WIKI-05 also spans plan 167-05 per this plan's own frontmatter; do not mark it complete until that plan lands.
 - **WIKI-02 is still only `Pending`** — spans through plan 167-06's operator-gated live demonstration.
 - No blockers for the next wave. The pre-existing `firestarter_app` submodule pointer drift noted above is unrelated to this plan's scope and was left untouched; a future plan or the orchestrator should decide whether it needs remediation.
@@ -192,7 +192,7 @@ None - no external service configuration required.
 - FOUND: wiki/Home.md
 - FOUND: wiki/How-This-Wiki-Is-Published.md
 - FOUND: wiki/_Sidebar.md
-- FOUND: tools/wiki/MIGRATION-TABLE.md
+- FOUND: .planning/v1.35/MIGRATION-TABLE.md
 - FOUND: 6faddf7b
 - FOUND: 4d3d6679
 - FOUND: 1638bfbf

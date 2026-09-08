@@ -311,7 +311,7 @@ The new leg follows exactly, appended after the dispatch-mirror leg:
         run: |
           python3 meta/tools/wiki/<script>.py \
             --wiki-dir wiki-clone \
-            --migration-table meta/tools/wiki/MIGRATION-TABLE.md
+            --migration-table meta/.planning/v1.35/MIGRATION-TABLE.md
           echo "OK: <the property, in plain words>"
 ```
 

@@ -6,7 +6,7 @@ tags: [honest01, claim-vocabulary, wiki, standalone-checker, stdlib, one-shot-pr
 
 requires:
   - phase: 168-01
-    provides: "tools/wiki/MIGRATION-TABLE.md with the 12 pre-deletion SHAs -- the only surviving source oracle now that both doc/ directories are deleted"
+    provides: ".planning/v1.35/MIGRATION-TABLE.md with the 12 pre-deletion SHAs -- the only surviving source oracle now that both doc/ directories are deleted"
   - phase: 168-05
     provides: "the 12 published wiki pages this checker's destination side reads"
   - phase: 168-10
@@ -60,7 +60,7 @@ coverage:
     requirement: "HONEST-01"
     verification:
       - kind: automated
-        command: "python3 tools/wiki/honest01_claims.py --table tools/wiki/MIGRATION-TABLE.md --wiki-dir <fresh clone of firestarter_prom.wiki.git @ aa4a5c7> --vocab tools/wiki/claim-vocabulary.json --repo-root ."
+        command: "python3 tools/wiki/honest01_claims.py --table .planning/v1.35/MIGRATION-TABLE.md --wiki-dir <fresh clone of firestarter_prom.wiki.git @ aa4a5c7> --vocab tools/wiki/claim-vocabulary.json --repo-root ."
         result: "OK: 12 pages compared, 19 tokens compared, 0 dropped, 0 added, 6 vacuous.; exit 0; all 6 expected_zero tokens printed as explicit '0 of 0 -- VACUOUS, not checked' lines"
         status: pass
     human_judgment: false

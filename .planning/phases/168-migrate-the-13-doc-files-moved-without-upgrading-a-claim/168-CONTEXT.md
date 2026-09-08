@@ -47,7 +47,7 @@ correctness defect sitting on the front-door repository's wiki right now.
   Rejected: whole-file normalized diff (drowns in intentional edits); claim-*line* diff (still
   sensitive to reflow and to the link rewrites every page gets).
 
-- **D-02: The pre-deletion snapshot is a git SHA per row in `tools/wiki/MIGRATION-TABLE.md`, not a
+- **D-02: The pre-deletion snapshot is a git SHA per row in `.planning/v1.35/MIGRATION-TABLE.md`, not a
   committed copy of the documents.** Each of the 12 rows records the sub-repo commit immediately
   before its `doc/` file is deleted; the checker reads the source side with
   `git -C <subrepo> show <sha>:doc/<file>`. Zero content duplication, exact, and — decisively —
@@ -215,7 +215,7 @@ correctness defect sitting on the front-door repository's wiki right now.
   subcommands with their argparse entries and selftest legs. A retired-but-present publish path is
   a loaded gun aimed at the live wiki — running it would wipe the wiki worktree and re-lay it from
   a stale source, which is exactly what its own `--push` documentation says it does. Kept:
-  `tools/wiki/MIGRATION-TABLE.md`, and `wiki.py links` per D-06.
+  `.planning/v1.35/MIGRATION-TABLE.md`, and `wiki.py links` per D-06.
   `.github/workflows/wiki-check.yml` is repointed at the clone rather than deleted.
 
 - **D-21: `How-This-Wiki-Is-Published` is live, public and false — it is rewritten in this phase,
@@ -284,7 +284,7 @@ Two things are deliberately left to research and planning:
   `check_orphans` at `:210`, and the 0/1/2 exit contract.
 - `tools/wiki/selftest.sh` — the driver every gate in this phase hangs off. Its fixture helpers
   (`new_source_dir`, `new_bare_wiki`) are what the D-10 negative cases are built from.
-- `tools/wiki/MIGRATION-TABLE.md` — 2 filled rows, 12 `TBD` rows to complete, the deferred
+- `.planning/v1.35/MIGRATION-TABLE.md` — 2 filled rows, 12 `TBD` rows to complete, the deferred
   PY32F071 note, and the hyphen-hazard warning. D-02 adds a per-row SHA column.
 - `.github/workflows/wiki-check.yml`, `.github/workflows/wiki-publish.yml` — the first is
   repointed, the second deleted.

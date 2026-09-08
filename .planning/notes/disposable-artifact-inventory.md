@@ -46,7 +46,7 @@ Total ignored bytes under `.planning/` is 68M, of which the 23M duplicate graph 
 
 `git ls-files | grep -v '^\.planning/'` is 36 entries: the devcontainer, two **registered** CI
 workflows (`catalog-sync-check.yml`, `rekey-ledger-check.yml`), the issue templates,
-`tools/catalog/`, `tools/rekey/`, the two `devtest-*` skills, and `tools/wiki/MIGRATION-TABLE.md`.
+`tools/catalog/`, `tools/rekey/`, the two `devtest-*` skills, and `.planning/v1.35/MIGRATION-TABLE.md`.
 All live.
 
 `tools/wiki/` is the one place that *looks* retired and partly is: commit `5426d7ef` (2026-09-02)
@@ -58,7 +58,7 @@ retirement**. That residue is disposable; see the reclaim todo.
 
 `MIGRATION-TABLE.md` survived that deletion and is the milestone's provenance record, not
 tooling. Operator's call: *"it is done and does not belong in tools"*. It is cited **286 times
-across 85 files** in path form (`tools/wiki/MIGRATION-TABLE.md`), plus 221 bare mentions, and
+across 85 files** in path form (`.planning/v1.35/MIGRATION-TABLE.md`), plus 221 bare mentions, and
 several citations are line-anchored (`:15`, `:18-19`, `:20`, `:45-58`, `:52-53`, `:68-80`,
 `:104-105`). So it must be **relocated with a scripted path remap**, never deleted. Tracked
 separately as a todo.

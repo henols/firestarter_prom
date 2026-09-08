@@ -6,7 +6,7 @@ tags: [firmware, claude-md, wiki-migration, link-repair, comment-removal]
 
 requires:
   - phase: 168-01
-    provides: "tools/wiki/MIGRATION-TABLE.md with page names, rendered titles and the pre-deletion SHA (a218b4f5) for the three firmware doc/ files"
+    provides: ".planning/v1.35/MIGRATION-TABLE.md with page names, rendered titles and the pre-deletion SHA (a218b4f5) for the three firmware doc/ files"
   - phase: 168-04
     provides: "the H-1 collection hazard severed — firestarter_app's test suite no longer aborts at collection when firestarter/doc/ is absent"
   - phase: 168-05
@@ -98,7 +98,7 @@ status: complete
 - Deleted `include/proto_constants.h:11-16`'s provenance comment block (citing `firestarter/doc/PROTOCOLS.md` and a commit hash) outright, per D-15 and the operator's no-comments rule — not repointed. The `#define` lines are byte-for-byte untouched; `git diff` on this file shows deletions only.
 - Deleted `test_loop_eprom_v131.cpp:1739-1763`'s block comment in full. This site appeared in neither the phase context's repair list nor its exclusion list; the plan decided it here under D-15's reasoning (see Open Finding Carried Forward below for what the comment recorded).
 - Re-confirmed the H-1 severance precondition (168-04) still holds before deleting: no remaining module-scope `fw_path("doc", ...)` call resolves a firmware `doc/` path in `firestarter_app/tests/`. The two textual hits found are comments in `test_diff_db_gate.py` and `test_build_db_inclusion.py` describing the D-14 repointing, not import-time resolutions; the five files that do resolve a `"doc"` path all key off `firestarter_app`'s own `doc/` directory (`_FA_DIR` / `_APP_DIR`), which is 168-09's territory, not this plan's.
-- Confirmed the pre-deletion SHA (`a218b4f5273d14f0abd796b21ac104792de01603`, recorded in `tools/wiki/MIGRATION-TABLE.md`) resolves to 49560 bytes for `PROTOCOLS.md` — matching the plan's stated oracle — both immediately before and immediately after `git rm -r doc/`.
+- Confirmed the pre-deletion SHA (`a218b4f5273d14f0abd796b21ac104792de01603`, recorded in `.planning/v1.35/MIGRATION-TABLE.md`) resolves to 49560 bytes for `PROTOCOLS.md` — matching the plan's stated oracle — both immediately before and immediately after `git rm -r doc/`.
 - Deleted `firestarter/doc/` (`PROTOCOLS.md`, `SHIELD-REVISIONS.md`, `AT28C04-ADAPTER.md`) with `git rm -r`. The firmware repair sweep (`git grep -lE '(^|[^A-Za-z])doc/[A-Za-z0-9_.-]+\.md' -- .`) afterward lists exactly the three D-18 historical exclusions and nothing else: `platform/py32f071/FLASH-PATH-AND-PCB.md`, `test/native/avr/test_eeprom28c_sdp/RED-BASELINE.md`, `tests/golden/eprom_params_citations.json`.
 - Confirmed `pio run -e uno` (SUCCESS, RAM 70.0%/Flash 70.1%) and `pio test -e native` (184 test cases succeeded) both stayed green with `doc/` gone.
 - Re-ran the H-1 proof against the real, now-doc-less `firestarter/` checkout (not a scratch clone this time — the real deletion): `firestarter_app`'s suite collects 1972 tests with no abort, matching 168-04's measured baseline exactly.

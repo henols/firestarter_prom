@@ -44,7 +44,7 @@ carve-outs above.
 - [ ] `.planning/state.json` and `.planning/milestone.lock` still exist.
 - [ ] `find .planning/v1.34/bench -name '*.bin' | wc -l` is unchanged from its pre-task count.
 - [ ] `git status --short` is still clean (nothing tracked was touched).
-- [ ] `tools/wiki/__pycache__/` is gone but `tools/wiki/MIGRATION-TABLE.md` remains.
+- [ ] `tools/wiki/__pycache__/` is gone but `.planning/v1.35/MIGRATION-TABLE.md` remains.
 - [ ] Root `platformio.ini` still exists — it is **generated** by
       `.devcontainer/gen-platformio-ini.py` (invoked from `.devcontainer/post-create.sh:5`) and
       root-level `pio` needs it. If removed, regenerate with

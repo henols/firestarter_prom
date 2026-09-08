@@ -15,8 +15,8 @@ RESEARCH.md disagree, RESEARCH.md's measured text is what is reproduced here.
 | `Shell-Completion.md` (new) | wiki clone | wiki reference page | file-I/O (publish) | `Breaking-Changes.md` (wiki) | exact |
 | `_Sidebar.md` (modified) | wiki clone | navigation index | file-I/O | its own state at wiki `7ec9988` | exact |
 | `Home.md` (modified) | wiki clone | navigation hub | file-I/O | its own state at wiki `7ec9988` | exact |
-| `tools/wiki/MIGRATION-TABLE.md` — main table row | meta | provenance record | machine-read table | `MIGRATION-TABLE.md:15` (`Install-Beta` row) | exact |
-| `tools/wiki/MIGRATION-TABLE.md` — new "removed, never published" section | meta | provenance record | machine-read table | `MIGRATION-TABLE.md:45-58` ("Retired from the wiki…") | exact |
+| `.planning/v1.35/MIGRATION-TABLE.md` — main table row | meta | provenance record | machine-read table | `MIGRATION-TABLE.md:15` (`Install-Beta` row) | exact |
+| `.planning/v1.35/MIGRATION-TABLE.md` — new "removed, never published" section | meta | provenance record | machine-read table | `MIGRATION-TABLE.md:45-58` ("Retired from the wiki…") | exact |
 | `firestarter_app/things.md`, `SECURITY.md`, `autocomplete.md` (deleted) | app submodule | repo-root strays | — | `firestarter_app` `50f85b2` | exact |
 | gitlink re-pin (meta) | meta | submodule pointer | — | meta `f62021b4` | exact |
 
@@ -148,10 +148,10 @@ Suggested row, matching the shape byte-for-byte:
 
 ---
 
-### 4. `tools/wiki/MIGRATION-TABLE.md` — the two row shapes
+### 4. `.planning/v1.35/MIGRATION-TABLE.md` — the two row shapes
 
 **(a) Main table.** Header and separator, byte-exact
-(`tools/wiki/MIGRATION-TABLE.md:10-11`):
+(`.planning/v1.35/MIGRATION-TABLE.md:10-11`):
 
 ```markdown
 | Source repo | Source path | Wiki page | Rendered title | Pre-deletion SHA | Moved in |
@@ -171,7 +171,7 @@ New Phase 171 row, appended after `:19`:
 ```
 
 **(b) The precedent for D-06's new "removed, never published" section.** Header and separator
-(`tools/wiki/MIGRATION-TABLE.md:52-53`) — **three** columns, `|---|` separators with no colons:
+(`.planning/v1.35/MIGRATION-TABLE.md:52-53`) — **three** columns, `|---|` separators with no colons:
 
 ```markdown
 | Source path | Was published as | What happened |
@@ -260,7 +260,7 @@ Plan frontmatter precedent (`168-09-PLAN.md:7`): `commits_land_in: firestarter_a
 
 **(c) Meta: MIGRATION-TABLE rows in their own commit.** `d10bd4b7`
 `feat(168-01): fill 12 page names, titles and pre-deletion SHAs` —
-`tools/wiki/MIGRATION-TABLE.md | 80 ++++…`, 1 file changed. The table is always touched alone.
+`.planning/v1.35/MIGRATION-TABLE.md | 80 ++++…`, 1 file changed. The table is always touched alone.
 
 **(d) Meta: gitlink re-pin last, as a separate commit.** `f62021b4`
 `chore(168): advance submodule pointers and refresh gate evidence`:
@@ -307,7 +307,7 @@ clone and once post-push against a **fresh** clone — is the only oracle. Do no
 leg that invokes `gh workflow run`.
 
 ### Deletion is recorded, never silent
-**Source:** `tools/wiki/MIGRATION-TABLE.md:45-58`. **Apply to:** all three deletions.
+**Source:** `.planning/v1.35/MIGRATION-TABLE.md:45-58`. **Apply to:** all three deletions.
 Every removal names the file, its disposition, and a recoverable SHA, so "what happened to this
 document" stays answerable from the table alone.
 

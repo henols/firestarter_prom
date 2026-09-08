@@ -554,7 +554,7 @@ the `blank-check` verdict triple, **not** `repeat_policy_tag`).
 
 **Analog A (structure, `--check` + exit codes):** `/workspaces/tools/catalog/codegen.py:1-40`. It is the
 only tracked meta-side Python script (`git ls-files tools/` returns exactly `tools/catalog/codegen.py`,
-`tools/catalog/messages.toml`, `tools/catalog/sync_to_subrepos.sh`, `tools/wiki/MIGRATION-TABLE.md`).
+`tools/catalog/messages.toml`, `tools/catalog/sync_to_subrepos.sh`, `.planning/v1.35/MIGRATION-TABLE.md`).
 
 Its docstring's two reusable contract blocks:
 ```

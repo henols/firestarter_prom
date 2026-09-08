@@ -351,7 +351,7 @@ already shipped and verified the in-repo source model. Documentation lives **onl
 no in-repo `wiki/` tree, no publish command, no source-vs-published drift check. **WIKI-03 and WIKI-04
 are withdrawn; WIKI-02 is rewritten and WIKI-05 reopened, both reassigned to Phase 168** (now 9
 requirements). Retired: `wiki/` (3 pages), `wiki-publish.yml`, and `wiki.py`'s `publish` / `sidebar` /
-`check`. Survives: `tools/wiki/MIGRATION-TABLE.md` (it sits under `tools/`, not `wiki/`) and
+`check`. Survives: `.planning/v1.35/MIGRATION-TABLE.md` (it sits under `tools/`, not `wiki/`) and
 `wiki.py links`, repointable at a wiki clone. **The unlock for HONEST-02:** `firestarter_prom.wiki.git`
 is a real git repository, so the claim check clones it and asserts against published pages — a
 first-party clone, not the external HTTP probe D-11 rejected. Full record:

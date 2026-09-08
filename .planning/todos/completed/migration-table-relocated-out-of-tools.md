@@ -1,9 +1,12 @@
 ---
+id: migration-table-relocated-out-of-tools
 created: 2026-09-08T00:00:00Z
 title: Relocate MIGRATION-TABLE.md out of tools/ — it is a closed-milestone record, not tooling
+resolved: 2026-09-08 (git mv + scripted remap of 324 citations; round-trip oracle green)
+status: resolved
 area: meta
 files:
-  - tools/wiki/MIGRATION-TABLE.md (the file to move; the only survivor of 5426d7ef)
+  - .planning/v1.35/MIGRATION-TABLE.md (the file to move; the only survivor of 5426d7ef)
   - .planning/v1.35/ (proposed destination — the milestone whose output it is)
   - .planning/ROADMAP.md, .planning/STATE.md (live records that cite it)
   - .planning/milestones/v1.35-REQUIREMENTS.md, .planning/milestones/v1.35-ROADMAP.md
@@ -26,7 +29,7 @@ It must **not** be deleted — it is cited from live records (`ROADMAP.md`, `STA
 
 ## Measured citation surface
 
-- **286** occurrences of the path form `tools/wiki/MIGRATION-TABLE.md` across **85** `.md` files
+- **286** occurrences of the path form `.planning/v1.35/MIGRATION-TABLE.md` across **85** `.md` files
   under `.planning/`.
 - **221** further bare `MIGRATION-TABLE` mentions with no path prefix — these need **no** change.
 - Several citations are **line-anchored**: `MIGRATION-TABLE.md:15`, `:18-19`, `:20`, `:45-58`,
@@ -36,9 +39,9 @@ It must **not** be deleted — it is cited from live records (`ROADMAP.md`, `STA
 
 ## Approach
 
-1. `git mv tools/wiki/MIGRATION-TABLE.md .planning/v1.35/MIGRATION-TABLE.md` — content untouched,
+1. `git mv .planning/v1.35/MIGRATION-TABLE.md .planning/v1.35/MIGRATION-TABLE.md` — content untouched,
    so line anchors survive. `tools/wiki/` then disappears entirely.
-2. **Scripted** path remap of the 286 path-form citations, `tools/wiki/MIGRATION-TABLE.md` ->
+2. **Scripted** path remap of the 286 path-form citations, `.planning/v1.35/MIGRATION-TABLE.md` ->
    `.planning/v1.35/MIGRATION-TABLE.md`. Do this with a script, not by hand — the citation-repair
    discipline requires a round-trip oracle, and 85 files is past the hand-edit threshold.
 3. Round-trip oracle: after the remap, assert that **zero** files contain the old path and that
@@ -59,7 +62,7 @@ misapplied.
       re-key checker retirement todo lands, `rekey/` — which is itself slated for removal
       (see `2026-09-08-retire-the-rekey-cross-tree-checker.md`), leaving `catalog/` alone.
 - [ ] `.planning/v1.35/MIGRATION-TABLE.md` exists and is byte-identical to the old file
-      (`git log --follow` shows the rename; `git show HEAD~1:tools/wiki/MIGRATION-TABLE.md | diff - .planning/v1.35/MIGRATION-TABLE.md` is empty).
+      (`git log --follow` shows the rename; `git show HEAD~1:.planning/v1.35/MIGRATION-TABLE.md | diff - .planning/v1.35/MIGRATION-TABLE.md` is empty).
 - [ ] `/usr/bin/grep -rn "tools/wiki/MIGRATION-TABLE" .planning | wc -l` is **0**.
 - [ ] `/usr/bin/grep -rn "tools/wiki" .planning --include='*.md' | wc -l` — the remaining hits are
       only historical references to the *deleted checkers*, not to the table. Enumerate them in
@@ -74,3 +77,30 @@ misapplied.
 ## Note
 
 Use `/gsd-quick` for this. It is a tracked-file change with a real oracle, not an inline edit.
+
+## RESOLUTION (2026-09-08)
+
+`git mv tools/wiki/MIGRATION-TABLE.md .planning/v1.35/MIGRATION-TABLE.md`, then a scripted remap.
+
+| | |
+|---|---|
+| Content | **byte-identical** after the move (193 lines), so all **33** line-anchored `MIGRATION-TABLE.md:N` citations stay valid |
+| Path citations remapped | **324** across **87** files |
+| Old path remaining in `.planning/` | 0 (the last one was this todo's own grep-check string, resolved by closing it) |
+| `tools/` now contains | `catalog/` only — `codegen.py`, `messages.toml`, `sync_to_subrepos.sh` |
+
+**Deliberately NOT remapped:** roughly 1,150 citations to the *deleted* checkers
+(`tools/wiki/wiki.py` ×411, `selftest.sh` ×313, `dispatch_mirror.py` ×92,
+`provenance_footers.py` ×83, `honest01_claims.py`/`honest02_truth.py` ×58 each,
+`claim-allowlist.json` ×41, bare `tools/wiki/` ×192). Those name files `5426d7ef` removed on
+2026-09-02. Rewriting them would destroy the evidence of what the retirement removed — they are
+historical by intent, exactly as the plan specified.
+
+**Precedent note, as planned:** before the move these 324 were `.planning/` -> source citations,
+which the repair rule covers. They are now `.planning/` -> `.planning/`, which is historical by
+intent and explicitly NOT subject to future repair. This remap was the one-time transition across
+that boundary; a later reader seeing 324 same-tree citations should not conclude the rule was
+misapplied.
+
+`tools/rekey/` is also gone as of the same day — see
+`rekey-cross-tree-checker-retirement.md`. `tools/` is now `catalog/` alone.

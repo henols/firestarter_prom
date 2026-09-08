@@ -191,7 +191,7 @@ rediscovered:
 
 | # | What v1.35 claims | What v1.35 explicitly does NOT claim |
 |---|---|---|
-| L1 | All migrated pages passed HONEST-01's claim-token comparison against their frozen pre-deletion source at Phase 168's close (wiki commit `aa4a5c7`), and every claim-token dropped by the four editorially rewritten pages (`Install-Beta`, `Testing-Chips`, `Shield-Revisions`, `Lockable-PROMs`) was reviewed against that source before publication (`tools/wiki/MIGRATION-TABLE.md`, Honesty note). | This is **not** a claim that the relocated content is technically accurate today — **relocation is not verification**; HONEST-01 is a retired one-shot proving the move preserved claims, and only HONEST-02's ongoing DB-agreement check speaks to accuracy. |
+| L1 | All migrated pages passed HONEST-01's claim-token comparison against their frozen pre-deletion source at Phase 168's close (wiki commit `aa4a5c7`), and every claim-token dropped by the four editorially rewritten pages (`Install-Beta`, `Testing-Chips`, `Shield-Revisions`, `Lockable-PROMs`) was reviewed against that source before publication (`.planning/v1.35/MIGRATION-TABLE.md`, Honesty note). | This is **not** a claim that the relocated content is technically accurate today — **relocation is not verification**; HONEST-01 is a retired one-shot proving the move preserved claims, and only HONEST-02's ongoing DB-agreement check speaks to accuracy. |
 | L2 | FUT-W-01 through FUT-W-05 are named, tracked against Backlog 999.12, and posted upstream on gh#5's reply (`evidence/bodies/173-gh5.md`). | v1.35 does **not** claim any of FUT-W-01 through FUT-W-05 were delivered — the compatibility matrix, family pages, algorithm pages and tutorials are **deferred, not delivered**, with no target milestone. |
 | L3 | HONEST-02's mechanism — a clone-and-check against the live wiki — establishes agreement between a wiki page's per-chip/per-protocol claims and `chip_database.json` / `PROTOCOL-LEDGER.json` at the moment the check runs. | It does **not** claim continuous agreement — the check is true at a **point in time** only; a wiki edit made after the last run, with no pull request or CI gate on the edit itself, could disagree with the database with nothing detecting it until the next run. |
 | L4 | All three `Protect main` rulesets carry exactly one bypass actor, `DeployKey:null:always`, and all three repositories measure zero deploy keys today, making POLICY-03's "no direct push" literally true of every person and bot right now (`evidence/172-06-ruleset-readback.txt`, inherited NON-CLAIM 1). | This is **not** a claim that the bypass is permanently inert — `actor_id: null` grants bypass to **any** deploy key, present or future, with no further ruleset change; the zero count is the only reason it is inert today. |
@@ -248,7 +248,7 @@ milestone's own scope note names.
   `Lockable-PROMs`, `Shell-Completion`, commit `d7073f64c81e5206372d81072623369499429377`).
 - `.planning/notes/v135-close-procedure-under-protection.md`, the close-procedure note.
 - The `CLAUDE.md` pointer section (`## Milestone close and branch protection`).
-- `tools/wiki/MIGRATION-TABLE.md`'s new and corrected rows (this phase's own edits, plan 173-01).
+- `.planning/v1.35/MIGRATION-TABLE.md`'s new and corrected rows (this phase's own edits, plan 173-01).
 - Backlog 999.46's own workflow line-anchored citations
   (`firestarter_app/.github/workflows/release.yml`, `firestarter/.github/workflows/build.yml`).
 
@@ -270,7 +270,7 @@ deleting the sentence that made it would be the opposite of what this document i
 
 **What changed.** The operator reviewed `.github/workflows/wiki-check.yml` immediately after the
 close and judged it disproportionate. It and every checker under `tools/wiki/` are deleted.
-`tools/wiki/MIGRATION-TABLE.md` survives — it is the migration's audit record and what the
+`.planning/v1.35/MIGRATION-TABLE.md` survives — it is the migration's audit record and what the
 Backlog 999.9 rename sweep greps, not machinery.
 
 **The measurements that decided it**, taken 2026-09-02:

@@ -148,7 +148,7 @@ wording review; and — only on explicit operator authorization — the full bet
 
 - **D-09: the full ledger is internal, at `.planning/v1.35/CLOSE-RECORD.md`, and each migrated wiki page carries a generated per-page provenance footer.** One line at the foot of each
   page: relocated from `<repo>/<source path>`, content unchanged, not re-verified.
-  `tools/wiki/MIGRATION-TABLE.md` already holds every field needed — source repo, source path,
+  `.planning/v1.35/MIGRATION-TABLE.md` already holds every field needed — source repo, source path,
   wiki page, rendered title, pre-deletion SHA, phase — so the footer is **generated from that
   table, not authored twelve times**. This puts the milestone's central non-claim where the
   reader actually is; HONEST-02's stamp reaches only the DB-backed pages, and "relocation is
@@ -375,7 +375,7 @@ These follow from prior decisions and measured state. Planning must honour them.
 
 ### The wiki surface D-09 and D-10 touch
 
-- `tools/wiki/MIGRATION-TABLE.md` — the provenance table the footers are generated from, and
+- `.planning/v1.35/MIGRATION-TABLE.md` — the provenance table the footers are generated from, and
   what the 999.9 rename sweep greps. Its header documents the pre-deletion-SHA convention and
   the clone-commit-push model. **Carries two stale rows** (`Protocol-Flags`, `Protocol-ID`).
 - `.github/workflows/wiki-check.yml` — D-10's carrier. Registered with Actions as of Phase 172

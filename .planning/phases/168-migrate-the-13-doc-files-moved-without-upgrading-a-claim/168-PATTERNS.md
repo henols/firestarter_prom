@@ -25,7 +25,7 @@
 | `tools/wiki/selftest.sh` (modify: −7 cases, +3 cases) | meta | test driver | batch | `case_orphan_exit_1` (`selftest.sh:137-161`) | exact |
 | `.github/workflows/wiki-check.yml` (rewrite) | meta | config/CI | event-driven (schedule + dispatch) | `.github/workflows/catalog-sync-check.yml` | exact |
 | `.github/workflows/wiki-publish.yml` (delete) | meta | config/CI | — | — (deletion) | n/a |
-| `tools/wiki/MIGRATION-TABLE.md` (modify: +SHA column, 12 rows, prose repair) | meta | data/record | file-I/O | itself `:9-24` | exact |
+| `.planning/v1.35/MIGRATION-TABLE.md` (modify: +SHA column, 12 rows, prose repair) | meta | data/record | file-I/O | itself `:9-24` | exact |
 | `firestarter_app/tools/build_db.py` (modify `:543`, `:569`) | app | generator | transform (emit) | itself `:543-569` | exact |
 | `firestarter_app/firestarter/data/chip_database.json` (regenerate) | app | generated data | batch | `build_db.py` run + `diff_db.py` gate | exact |
 | `firestarter_app/tests/test_dispatch_mirror.py` (modify `:5,37,38`) | app | test | file-I/O at module scope | `tests/fw_presence.py:117-140` (`fw_path`) | exact |
@@ -612,10 +612,10 @@ asserted content, proving the gate can genuinely fail. In `selftest.sh` terms th
 
 ---
 
-### `tools/wiki/MIGRATION-TABLE.md` (data/record, file-I/O)
+### `.planning/v1.35/MIGRATION-TABLE.md` (data/record, file-I/O)
 
 **Analog:** itself, `:9-24`. Pipe table, one row per file, `TBD` as the explicit unfilled marker
-(which makes `! grep -q TBD tools/wiki/MIGRATION-TABLE.md` a one-line completeness gate):
+(which makes `! grep -q TBD .planning/v1.35/MIGRATION-TABLE.md` a one-line completeness gate):
 
 ```markdown
 | Source repo | Source path | Wiki page | Rendered title | Moved in |

@@ -142,7 +142,7 @@ None. No push to any remote was made or attempted; `wiki-publish.yml`'s deletion
 
 - `wiki.py links --source-dir <clone>` is the sole surviving subcommand and is ready for later plans in this phase to point at the real `firestarter_prom.wiki.git` clone once the 12 migrated pages are pushed (plan 168-05 and later).
 - `.github/workflows/wiki-check.yml` was left untouched, as instructed — it is repointed by plan 168-13, not deleted here.
-- `tools/wiki/MIGRATION-TABLE.md` (filled by plan 168-01) and `wiki.py links` are the only two artifacts this plan keeps from the retired tooling generation; both are load-bearing for later plans.
+- `.planning/v1.35/MIGRATION-TABLE.md` (filled by plan 168-01) and `wiki.py links` are the only two artifacts this plan keeps from the retired tooling generation; both are load-bearing for later plans.
 - No blockers identified for subsequent plans in this phase.
 
 ---

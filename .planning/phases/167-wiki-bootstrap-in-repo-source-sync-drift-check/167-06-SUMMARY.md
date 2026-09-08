@@ -118,7 +118,7 @@ status: complete
 - `.github/workflows/wiki-publish.yml` — new CI publish workflow: `push` to `beta` (paths `wiki/**`, `tools/wiki/**`, its own file) plus `workflow_dispatch`; job `wiki-publish` with `permissions: contents: write`; job-level `env.WIKI_TOKEN` fallback expression; `Publish wiki` step (`--push --require-wiki --wiki-remote`) and `Assert wiki matches source after publish` post-condition step (same command minus `--push`).
 - `.github/workflows/wiki-check.yml` — added `wiki-drift-live` job (`if: github.event_name == 'workflow_dispatch'`, `permissions: contents: read`, one step running `python3 tools/wiki/wiki.py publish --require-wiki`); the pre-existing `wiki-check` job is byte-for-byte unchanged.
 
-No files under `wiki/` or `tools/wiki/` changed in this plan — the measured rendered titles in `tools/wiki/MIGRATION-TABLE.md` already matched the mechanical derivation exactly (see Step H), so no correction was needed.
+No files under `wiki/` or `tools/wiki/` changed in this plan — the measured rendered titles in `.planning/v1.35/MIGRATION-TABLE.md` already matched the mechanical derivation exactly (see Step H), so no correction was needed.
 
 ## Task 2 — Live Demonstration Captures
 
@@ -334,7 +334,7 @@ $ curl -sL https://github.com/henols/firestarter_prom/wiki/How-This-Wiki-Is-Publ
 <title>How This Wiki Is Published · henols/firestarter_prom Wiki · GitHub</title>
 ```
 
-**Rendered titles measured directly on this wiki:** `Home` → "Home", `How-This-Wiki-Is-Published` → "How This Wiki Is Published". Both match the mechanical `render_title()` derivation (hyphen → space) exactly — **no correction needed** to `tools/wiki/MIGRATION-TABLE.md`, whose two authored rows already carry these exact values.
+**Rendered titles measured directly on this wiki:** `Home` → "Home", `How-This-Wiki-Is-Published` → "How This Wiki Is Published". Both match the mechanical `render_title()` derivation (hyphen → space) exactly — **no correction needed** to `.planning/v1.35/MIGRATION-TABLE.md`, whose two authored rows already carry these exact values.
 
 ```
 $ grep -o 'wiki-custom-sidebar[^"]*' home.html
@@ -445,7 +445,7 @@ No sentence in this SUMMARY, in `wiki-publish.yml`, or in `wiki-check.yml` asser
 
 - Used the operator's two genuine pre-existing pages (`Home.md`, `Scratch.md`) as the live evidence for criterion 2 rather than treating the second page as noise — it closes an open research question for free.
 - Job-level `env:` (not step-level) for `WIKI_TOKEN`, to satisfy both "one token variable" and the acceptance criterion of exactly one `secrets.`-matching line in the file, while still letting two steps compose the tokenized remote independently.
-- Left `tools/wiki/MIGRATION-TABLE.md` unmodified: the measured rendered titles already matched the mechanical derivation exactly, so there was nothing to correct.
+- Left `.planning/v1.35/MIGRATION-TABLE.md` unmodified: the measured rendered titles already matched the mechanical derivation exactly, so there was nothing to correct.
 
 ## Deviations from Plan
 
