@@ -451,11 +451,11 @@ Plans:
 
 **Wave 2**
 
-- [ ] 180-02-PLAN.md — Complete the closing document (named exclusion, criterion 4's N/A verdict, the granted standing, R4-01 as the invalidating condition) and amend the seed in place so the rejected sampling design cannot be regenerated from it
+- [x] 180-02-PLAN.md — Complete the closing document (named exclusion, criterion 4's N/A verdict, the granted standing, R4-01 as the invalidating condition) and amend the seed in place so the rejected sampling design cannot be regenerated from it
 
 **Wave 3**
 
-- [ ] 180-03-PLAN.md — Record PRUNE-08 Complete in exactly two ledger lines, only after its closing document exists, then the seven-leg phase seal
+- [x] 180-03-PLAN.md — Record PRUNE-08 Complete in exactly two ledger lines, only after its closing document exists, then the seven-leg phase seal
 
 ### Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 
