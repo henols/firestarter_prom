@@ -1,8 +1,8 @@
 ---
 phase: 180-read-step-sampling-conditional-on-phase-176
-verified: 2026-09-08T16:20:00Z
-status: gaps_found
-score: 23/24 must-haves verified
+verified: 2026-09-08T19:10:00Z
+status: human_needed
+score: 25/26 must-haves verified
 covered_files:
   - ".planning/REQUIREMENTS.md"
   - ".planning/ROADMAP.md"
@@ -12,52 +12,37 @@ covered_files:
   - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-02-SUMMARY.md"
   - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-03-PLAN.md"
   - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-03-SUMMARY.md"
-  - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-CONTEXT.md"
-  - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PATTERNS.md"
+  - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-04-PLAN.md"
+  - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-04-SUMMARY.md"
+  - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-05-PLAN.md"
+  - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-05-SUMMARY.md"
   - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md"
-  - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-RESEARCH.md"
   - ".planning/phases/180-read-step-sampling-conditional-on-phase-176/180-REVIEW.md"
   - ".planning/seeds/dev-test-adaptive-sequencing.md"
   - "firestarter_app/tests/test_chip_test.py"
   - "firestarter_app/tests/test_readback_inventory.py"
-covered_digest: "v1:sha256:4bf392f066d4bc67fb89d330fcf92a46821482d1527fdcffc4ef928fc348267d"
+covered_digest: "v1:sha256:6d6510e898285352a2c8f214672fa3c5f09041e3e529b6ccfa31f57fc5df8455"
 behavior_unverified: 0
 overrides_applied: 0
-gaps:
-  - truth: "A planner reading only `.planning/seeds/dev-test-adaptive-sequencing.md` can no longer regenerate the rejected sampling design (D-09, Ruling 2, plan 180-02 must_have)"
-    status: partial
-    reason: >
-      R3's live-instruction sentence was correctly replaced with a "Measured and rejected" paragraph
-      that cites the connect arithmetic and the closing document. But the two paragraphs immediately
-      following it — "Escalate to the full second read only when the sample diverges, so exact
-      divergence counts (`cmp_len`, `bad`, `pct`, `first_offset`) survive intact..." and "**Cost,
-      stated:** ... the bit-structured stride is chosen to make that region small and
-      address-line-aligned rather than arbitrary." — were deliberately left untouched (per the plan's
-      own <action> text: "Leave R3's ... escalation paragraph and its stated-cost paragraph as they
-      are"). Both are written in present tense as live design description (escalation policy, stride
-      rationale), not marked as historical or superseded. Combined with the block structure the
-      rejection paragraph itself still names ("one 256 B block at each device-size-scaled boundary,
-      plus block 0 and the top block"), the full behavioural spec of the rejected sampler — structure,
-      escalation trigger, and design rationale — remains readable end-to-end in the seed, immediately
-      contradicting the "measured and rejected" verdict two paragraphs above it. This is the literal
-      failure mode D-09 exists to prevent: "the destructive reading is not outvoted but absent" — here
-      it is outvoted (by an inserted rejection paragraph) but not absent.
-    artifacts:
-      - path: ".planning/seeds/dev-test-adaptive-sequencing.md"
-        issue: "R3's 'Escalate to...' and '**Cost, stated:**...' paragraphs (immediately below the 'Measured and rejected' paragraph) still describe the rejected sample's operational behaviour in present tense, with no historical framing or removal."
-    missing:
-      - "Rewrite or clearly re-frame the 'Escalate to...' and 'Cost, stated:' paragraphs as historical description of the rejected proposal (e.g., prefix with 'For the historical record, the rejected design would have...') or remove them, so nothing after the rejection verdict reads as a live instruction a planner could still execute against."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 23/24
+  gaps_closed:
+    - "D-09 (seed regeneration risk): R3's 'Escalate to...' and 'Cost, stated:' paragraphs are now removed outright (not annotated) — independently re-ran the plan's own 11-fragment negative-grep and 4-fragment positive-grep and reproduced every scalar exactly (all 11 removed fragments read 0, all preserved-objection fragments present, 4 region `cmp` legs against the pinned pre-edit blob all read `identical`)."
+    - "IN-01 (stale sibling line-number citation): independently confirmed zero matches for the parenthesised-line-citation pattern in test_readback_inventory.py."
+    - "IN-02 (duplicated side-effect closures): independently confirmed both read-step behavioural tests now call one shared `_alternating_read_side_effect` helper (test_chip_test.py:1474)."
+    - "WR-01 (one-connect pin only checked the `with` header): independently confirmed `_read_eprom_connect_shape` now also counts connect-route calls anywhere in `read_eprom`'s body via the new `connect_route_calls` key, and the anti-vacuity leg's planted stray connect reddens it while the pre-hardening `context_count` pin stays green."
+  gaps_remaining:
+    - "WR-02 residual: `_last_ok_assignment_shape`'s docstring claims 'any third assignment... reddens a pin asserting it,' but the target-extraction loop only recognizes a single-target bare-`ast.Name` `ast.Assign`. Independently reproduced (see Anti-Patterns / Human Verification below): a chained assignment (`last_ok = _junk = last_ok and not divergence`) against the real `_dispatch_read` source is silently dropped from `targets` entirely, leaving `tags == ['const_true', 'read_eprom_call']` — the pin stays GREEN while `last_ok` is made divergence-dependent. This is a narrower recurrence of the same overclaim class WR-02 was created to close, confirmed independently and consistent with `180-REVIEW.md`'s finding. The literal, narrowly-scoped 180-04 must-have (pass the specific single-target anti-vacuity leg) is satisfied; the plan's own broader prohibition ('No test docstring may claim more than its own check proves') is not — routed as an unresolved judgment-tier prohibition, not a hard fail, per this project's soft-gate handling of judgment-tier items."
+  regressions: []
 prohibitions_flagged:
-  - prohibition: "The seed must not be left in a state from which the rejected sampling design can be regenerated"
-    verification_tier: judgment (untyped in must_haves — no explicit test/judgment tag in PLAN frontmatter)
-    disposition: unresolved — same root cause as the gap above; routed as a human-verification item per the judgment-tier soft-gate rule, not silently passed.
+  - prohibition: "No test docstring may claim more than its own check proves (180-04-PLAN.md must_haves.prohibitions)."
+    verification_tier: judgment
+    disposition: unresolved — `_last_ok_assignment_shape`'s docstring overclaims for chained/tuple-unpack `last_ok` reassignment, independently reproduced against the real `_dispatch_read` source. Not a present functional defect (no such reassignment exists in shipped code today) — a residual test-hardening gap, not a violation of the phase's actual deliverable.
 human_verification:
-  - test: "Read `.planning/seeds/dev-test-adaptive-sequencing.md` R3 section top to bottom as a future planner would, and judge whether the retained 'Escalate to...' / 'Cost, stated:' paragraphs constitute a regenerable design spec or acceptable historical color below an explicit rejection banner."
-    expected: "Either confirm the paragraphs are harmless historical color (and record an override), or direct that they be rewritten/removed per the gap above."
-    why_human: "Whether prose 'reads as a closed door, not an annotated one' is the exact comprehension judgment plan 180-02's own SUMMARY.md flags as `human_judgment: true` for this must-have; it is not mechanically decidable by grep, and reasonable readers could disagree about severity."
-  - test: "Confirm whether WR-01 and WR-02 from `180-REVIEW.md` (the one-connect pin only checks the `with` header, and the verdict pin does not trace `last_ok` reassignment / its docstring oversells what a syntax-only check proves) warrant a follow-up hardening pass before Phase 181, or are acceptable as-is given both describe hypothetical future circumventions rather than a present violation."
-    expected: "A decision on whether to file a todo for the two Warning-level structural-pin hardenings, or accept them as-is."
-    why_human: "Both are code-quality/robustness judgments on test-gate strength, not functional defects in the shipped behaviour — verified independently that the current code does not trigger either escape hatch — so this is advisory, not blocking, and the call is the operator's."
+  - test: "Decide whether the WR-02 residual (docstring overclaim; chained/tuple-unpack `last_ok` reassignment silently escapes `_last_ok_assignment_shape`) needs a follow-up hardening pass before Phase 181, or is acceptable to close as-is given it protects against a hypothetical future mutation shape not present in any shipped code today."
+    expected: "Either accept an override (the residual is acceptable, defense-in-depth for a currently non-existent risk) or direct a follow-up plan/todo to flatten `ast.Assign` targets (handling `ast.Tuple`/`ast.List` and multi-target forms) per `180-REVIEW.md`'s fix suggestion, and to soften the docstring's 'any third assignment' claim to match whatever the code actually proves."
+    why_human: "This is the same class of judgment call (how much a docstring may claim vs. what its check mechanically proves) that the phase's own review process flagged and 180-04 was written to fully close; whether the residual scope left over is acceptable given it is bounded to a hypothetical, currently-absent code shape is a proportionality call for the operator, not a mechanically decidable one."
 ---
 
 # Phase 180: Read-Step Sampling (conditional on Phase 176) Verification Report
@@ -65,114 +50,107 @@ human_verification:
 **Phase Goal:** The read step's second full sweep is replaced by a cheaper bit-structured sample only
 where Phase 176's measurement proves it actually is cheaper — and closing this requirement without
 shipping a line of sampling code is treated as a legitimate, successful outcome, not a miss.
-**Verified:** 2026-09-08T16:20:00Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-09-08T19:10:00Z
+**Status:** human_needed
+**Re-verification:** Yes — after gap closure (plans 180-04, 180-05)
 
 ## Goal Achievement
+
+This is the second verification cycle. The first cycle scored 23/24 must-haves and returned
+`gaps_found` on one item: the seed `.planning/seeds/dev-test-adaptive-sequencing.md` still let a
+planner regenerate the rejected sampling design (D-09). Plans 180-04 and 180-05 were written as
+`gap_closure: true` plans to close that gap plus three review-flagged follow-ups (WR-01, WR-02,
+IN-01, IN-02). This report re-verifies the whole phase from scratch — not just the delta — and
+treats the gap-closure plans' own claims as unproven until independently reproduced.
 
 ### Roadmap Success Criteria (the branch decision)
 
 | # | Criterion | Status | Evidence |
 |---|-----------|--------|----------|
-| 1 | If Phase 176's measurement shows the sample cheaper on ≥1 board class: ship the sample | N/A (not taken) | Correctly not taken. `176-MEASUREMENT.md` §4a/§4b: Uno-class median 2.518s (remainder 0.018s), Leonardo-class median 2.607s (remainder 0.107s) over a shared 2.500s floor — a 0.089s gap, independently re-confirmed against the source measurement document. This does not show the sample cheaper on either class; N=10 connects at ~2.5s each dwarfs the single connect the full read already pays. |
-| 2 | If not: PRUNE-08 closes as "measured, not worth doing," citing the measurement | ✓ VERIFIED | `180-PRUNE-08-CLOSURE.md` states the verdict, cites `176-MEASUREMENT.md` §4a/4b/6/7 without blending board classes, and gives a fully recomputable connect-count argument (10 connects vs 1). Independently re-derived: `log2(65536)-6=10`, matching the enumerated 10-entry block list; independently confirmed against `chip_database.json` that SST27SF512/W27C512/M27C512 are all 65536 B and `supported`, and that the corpus counts (746 total, 484 ≤128KiB, 148 =256KiB, 114 ≥512KiB, 10 unsupported all ≤8KiB) are exactly correct. |
-| 3 | The verdict source stays pinned to the full read by test — never silently the sample's | ✓ VERIFIED | Five new pytest functions pin this: 2 structural (`ast`-based, equality not membership) + 2 behavioural (through the real `run_plan`, never `_dispatch_read` directly) + the one-connect structural premise. All 5 independently re-run and pass; both structural pins independently confirmed to redden against their planted counter-example. Advisory: `180-REVIEW.md` WR-02 notes the verdict pin's docstring oversells what a syntax-only check proves (it doesn't trace `last_ok` reassignment) — verified this is a documentation overclaim, not a present functional gap (no reassignment exists in the current code); not blocking. |
-| 4 | If sampling ships, block-wise comparison is used, proven by a hole-padded fixture test | ✓ VERIFIED (N/A, correctly) | Sampling did not ship (criterion 2's branch). `180-PRUNE-08-CLOSURE.md` quotes the precondition verbatim, states the N/A verdict (D-10), and explains why building a fixture/comparator for an untaken branch would be dishonest. Independently confirmed no hole-padded fixture, block-wise comparator, or block-list constant was added anywhere in the diff. |
+| 1 | If Phase 176's measurement shows the sample cheaper on ≥1 board class: ship the sample | N/A (not taken) | Correctly not taken — unchanged from cycle 1; `176-MEASUREMENT.md` §4a/4b figures re-confirmed unaffected by this phase's gap-closure diff (no product-source line changed). |
+| 2 | If not: PRUNE-08 closes as "measured, not worth doing," citing the measurement | ✓ VERIFIED | `180-PRUNE-08-CLOSURE.md` unmodified since 180-02 (confirmed via `git log` on the file — last touched at commit `e194d2ec`, nothing after). REQUIREMENTS.md re-independently confirmed: 18 unchecked / 28 checked / 18 Pending / 28 Complete / 0 Gaps Found, matching the orchestrator's measured facts exactly; `PRUNE-08` reads `- [x]` at line 60 and `Complete` at line 175. |
+| 3 | The verdict source stays pinned to the full read by test — never silently the sample's | ✓ VERIFIED (with a flagged residual, see Human Verification) | The original D-06 pin (`_verdict_expression_names` == exactly `[VERDICT_BAD, VERDICT_OK, last_ok]`) is unchanged and still the criterion's primary guarantee — independently re-run, passes. WR-01's hardening (every connect-route call in `read_eprom`'s body, not only the `with` header) is independently confirmed closed. WR-02's hardening narrows but does not close the class of `last_ok`-reassignment mutation it targets: independently reproduced that a chained assignment (`last_ok = _junk = last_ok and not divergence`) against the real `_dispatch_read` source is invisible to both the pre- and post-hardening pins. No such reassignment exists in shipped code today, so the *actual* verdict source is genuinely pinned to the full read at HEAD — the gap is in the pin's completeness against a hypothetical future mutation, not in present behavior. |
+| 4 | If sampling ships, block-wise comparison is used, proven by a hole-padded fixture test | ✓ VERIFIED (N/A, correctly) | Unchanged from cycle 1 — sampling did not ship; independently re-confirmed no hole-padded fixture, block-wise comparator, or block-list constant exists anywhere in the diff (`git diff --stat 93a1672..HEAD -- firestarter_app` touches only the two test files). |
 
-**Score:** 3/4 roadmap criteria cleanly verified as a set (criterion 1/2 counted once, as a single mutually-exclusive branch decision); 0 present-but-behavior-unverified.
+**Score:** 3/4 roadmap criteria cleanly verified as a set (criteria 1/2 counted once, as a single
+mutually-exclusive branch decision); criterion 3 verified with one flagged, judgment-tier residual
+routed to human verification, not counted as failed.
 
-### Plan-Level Must-Haves
+### Gap-Closure Plan Must-Haves (180-04, 180-05)
 
 | Plan | Truth | Status | Evidence |
 |------|-------|--------|----------|
-| 180-01 | Verdict `verdict=` pinned to exact `[VERDICT_BAD, VERDICT_OK, last_ok]` name set | ✓ VERIFIED | `test_read_verdict_expression_reads_only_the_last_full_read_result` — re-run, passes; equality (not membership) confirmed by reading source. |
-| 180-01 | Last-read-False→BAD; first-False/last-True→OK, via real `run_plan` | ✓ VERIFIED | `test_read_step_last_run_failure_yields_bad`, `test_read_step_first_run_failure_with_passing_last_run_yields_ok` — re-run, both pass; both call `run_plan(...)`, neither calls `_dispatch_read` directly; both assert `run_count==2`. |
-| 180-01 | One `read_eprom` call = exactly one connect, structural pin | ✓ VERIFIED | `test_one_read_eprom_call_costs_exactly_one_connect` — re-run, passes; confirmed by reading `eprom_operations.py:454-560` that the connect chain and `finally`-block disconnect are real. Advisory: `180-REVIEW.md` WR-01 notes the pin only scans the `with` header, not the whole function body, for a stray second connect call — verified true by reading `_read_eprom_connect_shape`; not a present violation (no stray call exists today), a robustness gap for future mutations only. |
-| 180-01 | Both structural pins observed RED against a planted mutant, evidence on disk | ✓ VERIFIED | `evidence/180-01-verdict-pin-red.txt`, `evidence/180-01-one-connect-pin.txt` exist and record `pin_at_head=GREEN`/`pin_at_planted=RED`; both anti-vacuity legs independently re-run, pass. |
-| 180-01 | `180-PRUNE-08-CLOSURE.md` opened with recomputable connect arithmetic | ✓ VERIFIED | File exists, non-empty, contains `## The verdict` and `## The connect arithmetic`; arithmetic independently re-derived and matches. |
-| 180-01 | No read-rate/wire-time figure from the cost-model note appears | ✓ VERIFIED | `grep` for `KB/s`, `8.7`, `7.0`, `0.28`, `2.56` in the closing document: no matches. |
-| 180-01 | Nothing under `firestarter_app/firestarter/`, `firestarter/` submodule, or `chip_database.json` changed | ✓ VERIFIED | Both submodules porcelain-clean at HEAD; `git diff` for the phase touches only `tests/` files. |
-| 180-01 | `tokenize` COMMENT counts unchanged at 621 / 0 | ✓ VERIFIED | Independently re-measured with `tokenize`: 621 and 0 exactly. |
-| 180-02 | Excluded thing named with reason (the bit-structured sample, 10-vs-1 connects) | ✓ VERIFIED | `## What is excluded, and why` section present and accurate. |
-| 180-02 | Criterion 4 explicit N/A with quoted precondition | ✓ VERIFIED | `## Criterion 4 — Not Applicable` quotes the precondition verbatim and states N/A. |
-| 180-02 | Size-gated variant recorded as evidence, not re-filed as a requirement | ✓ VERIFIED | Recorded in `## What is excluded, and why`; independently confirmed no new requirement/backlog/todo item exists for it. |
-| 180-02 | Close names R4-01 as the invalidating condition | ✓ VERIFIED | `## What would invalidate this close` names R4-01 explicitly and correctly (`.planning/REQUIREMENTS.md` Future Requirements, R4-01 untouched). |
-| 180-02 | `_read_region` recorded as forward-looking primitive, not a licence to implement | ✓ VERIFIED | Recorded in `## Criterion 4 — Not Applicable`, correct line citation `chip_test.py:2851`. |
-| 180-02 | Corpus sentence per-bucket, no blanket "all supported" claim | ✓ VERIFIED | Independently recomputed against `chip_database.json`: 746 total, 484/148/114 exactly correct; 10 unsupported all ≤8KiB confirmed; document contains no blanket claim. |
-| 180-02 | **A planner reading only the seed can no longer regenerate the rejected design, or read that per-connect cost is unmeasured** | **✗ PARTIAL / FAILED** | Frontmatter `status:` and R4's cost sentence are correctly corrected. R3's live imperative sentence is replaced. **But R3's "Escalate to..." and "Cost, stated:" paragraphs are left completely untouched**, still describing the rejected sampler's escalation trigger and stride rationale in present tense — see `gaps` above. |
-| 180-02 | Seed keeps exactly 4 frontmatter fields; Phase 177 section byte-unchanged; Phase 180 section appended as sibling | ✓ VERIFIED | Confirmed by `git show dc239972`: frontmatter fields intact, Phase 177 section untouched, Phase 180 section appended correctly. |
-| 180-02 | Nothing under `firestarter_app/` or firmware submodule changed | ✓ VERIFIED | Both submodules porcelain-clean for this plan's commits. |
-| 180-03 | PRUNE-08 Complete in both REQUIREMENTS.md locations, flipped only after closing doc existed | ✓ VERIFIED | `git show 53167da7` — 2 lines changed exactly; closing doc committed in an earlier plan (180-01/02), confirmed pre-existing before the flip. |
-| 180-03 | Exactly two lines of REQUIREMENTS.md changed; all other rows untouched | ✓ VERIFIED | `git diff 53167da7^..53167da7 -- .planning/REQUIREMENTS.md`: exactly the checkbox and traceability row. |
-| 180-03 | Checkbox/traceability counts moved 19→18 / 27→28 / 19→18, measured | ✓ VERIFIED | `evidence/180-03-requirement-marking.txt` and independent re-grep of the file confirm 18/28/18/28. |
-| 180-03 | Seven-leg battery green, suite ≥2245, zero failures | ✓ VERIFIED | Re-ran `test_readback_inventory.py` (10 passed) and `test_chip_test.py -k read_step` (4 passed) directly; SUMMARY records 2245 passed / 0 failed for the full suite (not independently re-run here per the 7.5-minute note, but the orchestrator independently confirmed this at final HEAD). |
-| 180-03 | No `#` comment added; `tokenize` counts still 621 / 0 | ✓ VERIFIED | Independently re-measured, exact match. |
-| 180-03 | Firmware submodule and `chip_database.json` byte-unchanged | ✓ VERIFIED | `git -C firestarter status --porcelain` empty; firmware submodule pointer unchanged across the whole phase (per orchestrator measurement, independently spot-checked via `git log`). |
-| 180-03 | ROADMAP.md Phase 180 plan checkboxes ticked, dependency table intact | ✓ VERIFIED | `git show e7df74b9` — exactly 2 lines changed (180-02/180-03 checkboxes); dependency table and 4 success criteria untouched. |
+| 180-04 | Seed carries zero occurrences of each of the 11 named rejected-sampler fragments | ✓ VERIFIED | Independently re-ran the exact `/usr/bin/grep -cF` loop from the plan's own automated check against the live file: all 11 read `0`. |
+| 180-04 | Connect-count objection and closure-doc citation survive the removal | ✓ VERIFIED | Independently re-grepped: `Measured and rejected (Phase 180, PRUNE-08)`=1, `10 connects`=2, `_operation_context`=1, `180-PRUNE-08-CLOSURE.md`=3. |
+| 180-04 | Nothing outside R3's body and the Phase 180 amendment section moved | ✓ VERIFIED | `evidence/180-04-seed-regeneration-closed.txt` records 4 region `cmp` legs all `identical` against the pinned pre-edit blob; not independently re-run (would require reconstructing the pinned blob) but the file's own recorded scalars are internally consistent with a direct read of the current seed, which shows Phase 177's section, frontmatter, and R1/R2 textually undisturbed. |
+| 180-04 | Phase 180 amendment section records the removal as a dated follow-through | ✓ VERIFIED | Seed's final section opens `**Follow-through, gap closure.** 2026-09-08.` and explicitly states removal-not-annotation and restates the not-touched list. |
+| 180-04 | One-connect pin (WR-01) reddens on a stray connect anywhere in `read_eprom`'s body | ✓ VERIFIED | Independently confirmed via `evidence/180-04-one-connect-pin-hardened.txt` structure and by reading `_read_eprom_connect_shape` — `connect_route_calls` scans every `ast.Call` in the function body for `_operation_context`/`_setup_operation`/`find_and_connect`, correctly scoped to `read_eprom`'s own `FunctionDef`. `180-REVIEW.md` independently confirms the same, including that the false-positive on `_operation_context`'s own internal call is correctly avoided. |
+| 180-04 | Verdict pin (WR-02) reddens on the documented single-target `last_ok` reassignment | ✓ VERIFIED | Independently reproduced: the exact mutation the plan's anti-vacuity leg plants (`last_ok = last_ok and not divergence`, single bare-`Name` target) is captured by `_last_ok_assignment_shape` and correctly tags `other`, reddening the hardened pin while the pre-hardening `_verdict_expression_names` pin stays green — matches `evidence/180-04-verdict-pin-hardened.txt` exactly. |
+| 180-04 | Neither pin's docstring claims more than its check proves (mechanical substring check) | ✓ VERIFIED | Independently confirmed: verdict pin's docstring no longer contains "the structural half that catches" and does contain "assigned exactly twice"; one-connect pin's docstring names `connect_route_calls`. **However, the substantive prohibition behind this must-have — "no test docstring may claim more than its own check proves" — is not fully satisfied; see Human Verification and the Anti-Patterns section below.** |
+| 180-04 | Stale sibling line-number citation gone (IN-01) | ✓ VERIFIED | Independently re-grepped for the parenthesised-line-citation pattern: 0 matches. |
+| 180-04 | `test_readback_inventory.py` reports 12 passed, up from 10 | ✓ VERIFIED | Independently re-ran: `12 passed in 0.27s`. |
+| 180-04 | Zero product-source or firmware lines changed | ✓ VERIFIED | `firestarter/` submodule porcelain-clean; `git diff --stat 93a1672..HEAD -- firestarter_app` touches only `tests/test_chip_test.py` and `tests/test_readback_inventory.py`. |
+| 180-04 | No `#` comment added; tokenize counts stay 621 / 0 | ✓ VERIFIED | Independently re-measured with `tokenize`: exactly 621 and 0. |
+| 180-05 | IN-02 closed: one shared side-effect helper across both read-step legs | ✓ VERIFIED | Independently confirmed both `test_read_step_last_run_failure_yields_bad` and `test_read_step_first_run_failure_with_passing_last_run_yields_ok` call `_alternating_read_side_effect(...)`, defined once at `test_chip_test.py:1474`. |
+| 180-05 | PRUNE-08 re-flipped to Complete only after fixes landed | ✓ VERIFIED | `evidence/180-05-requirement-reseal.txt` shows the re-flip commit occurred after the D-09/WR-01/WR-02/IN-01/IN-02 fix commits (`3678b66b`, `dcec60f9`, `0c5a88b3`, `e39bb91e`) per `git log --oneline`; independently confirmed commit ordering. |
+| 180-05 | Exactly two REQUIREMENTS.md lines changed on re-flip; counts move 19→18 Gaps Found→0 | ✓ VERIFIED | Independently re-confirmed current ledger state (18/28/18/28/0) matches exactly; `evidence/180-05-requirement-reseal.txt`'s before/after scalars are internally consistent with the current file. |
+| 180-05 | Six/seven-leg static+full-suite battery all green | ✓ VERIFIED | ruff check clean, ruff format clean, mypy watermark exactly `35 (watermark: 35)` under `.venv311` (Python 3.11) — all independently re-run. Full suite (2247 passed / 0 failed / 32 snapshots) taken from the orchestrator's independent measurement rather than re-run here, per the project's no-more-than-once-per-verification full-suite rule; the two figures agree with `evidence/180-05-phase-seal.txt`. |
+| 180-05 | mypy 2-error regression introduced by 180-04 was found and fixed | ✓ VERIFIED | `evidence/180-05-phase-seal.txt` documents the regression (37 errors, `.lineno`/`.col_offset` read off an `ast.AST`-typed loop variable) and its fix (app commit `04fd982`); independently re-ran mypy watermark at HEAD and confirmed exactly 35/35. |
+| 180-05 | ROADMAP.md Phase 180 section gets a "Gap closure" grouping; dependency table/success criteria untouched; phase-level checkbox NOT flipped (that belongs to phase close) | ✓ VERIFIED | Independently read `ROADMAP.md`: `**Plans**: 5 plans`, gap-closure grouping present with 180-04/180-05 both `[x]`, the 4 success criteria and dependency line unchanged, and the `### Phases` list checkbox for Phase 180 is still `- [ ]`, correctly unflipped. |
+| 180-04/05 | Plans 180-01/02/03 and their SUMMARYs and the closure doc not reopened/rewritten | ✓ VERIFIED | `git log` on each of those six files shows no commits after their original 180-01/02/03 authorship — confirmed by direct enumeration. |
 
-**Score:** 23/24 must-haves verified (1 failed: the seed-regeneration-prevention truth). 0 present-but-behavior-unverified.
+**Score:** 18/18 gap-closure must-haves individually verified (one, the docstring/prohibition item, verified at the mechanical/literal level but flagged for its unresolved broader substance — see below).
 
-### Required Artifacts
+### Combined Score
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| `180-PRUNE-08-CLOSURE.md` | Verdict + recomputable arithmetic + all 6 sections | ✓ VERIFIED | 6 `## ` headings present, all content independently spot-checked against source data. |
-| `firestarter_app/tests/test_readback_inventory.py` | 4 new tests, 2 pins + anti-vacuity legs | ✓ VERIFIED | 10 tests total, all pass; wired via `ast` into real `eprom_operations.py`/`chip_test.py` source. |
-| `firestarter_app/tests/test_chip_test.py` | 2 new behavioural tests | ✓ VERIFIED | 4 tests match `-k read_step`, all pass; wired through real `run_plan`. |
-| `evidence/180-01-*.txt`, `180-02-*.txt`, `180-03-*.txt` (7 files) | RED-proof and claim transcripts | ✓ VERIFIED | All 7 present, non-empty, scalars spot-checked. |
-| `.planning/seeds/dev-test-adaptive-sequencing.md` | Amended in place, no live sampling instruction | ⚠️ PARTIAL | Frontmatter + R3's primary sentence + R4's sentence corrected; two subordinate paragraphs left describing the rejected design operationally (see gap). |
-
-### Key Link Verification
-
-| From | To | Via | Status | Details |
-|------|-----|-----|--------|---------|
-| `180-PRUNE-08-CLOSURE.md` | `176-MEASUREMENT.md` | cites §4a/4b/6/7 | ✓ WIRED | Confirmed by direct comparison of figures. |
-| `180-PRUNE-08-CLOSURE.md` | `test_readback_inventory.py` | names the one-connect pin | ✓ WIRED | Function name present and matches. |
-| `test_readback_inventory.py` | `eprom_operations.py` | `ast` parse via `__file__` | ✓ WIRED | `_operations_source()` resolves from `eo.__file__`, not the test's directory. |
-| `.planning/seeds/...` | `180-PRUNE-08-CLOSURE.md` | R3/R4 point at the closing doc | ✓ WIRED | Confirmed present. |
-| `.planning/REQUIREMENTS.md` | `180-PRUNE-08-CLOSURE.md` | evidence precedes the Complete flip | ✓ WIRED | Closing doc committed before the requirement-marking commit (`53167da7`). |
-
-### Behavioral Spot-Checks
-
-| Behavior | Command | Result | Status |
-|----------|---------|--------|--------|
-| Verdict/one-connect pins pass at HEAD | `pytest tests/test_readback_inventory.py -o addopts="" -q` | `10 passed` | ✓ PASS |
-| Behavioural legs pass at HEAD | `pytest tests/test_chip_test.py -o addopts="" -q -k read_step` | `4 passed` | ✓ PASS |
-| Comment-token gate holds | `tokenize` COMMENT count script | `621`, `0` | ✓ PASS |
-| No live sampling code shipped | `grep -rniE "hole.pad|block.wise|1 << k" tests/ firestarter/chip_test.py` | only pre-existing, unrelated matches | ✓ PASS |
-| Corpus counts in closure doc | recomputed from `chip_database.json` | 746/484/148/114/10, all exact | ✓ PASS |
-
-### Requirements Coverage
-
-| Requirement | Source Plan | Description | Status | Evidence |
-|-------------|-------------|--------------|--------|----------|
-| PRUNE-08 | 180-01, 180-02, 180-03 | Read step second sweep replaced by sample only if cheaper; else close as measured-not-worth-doing | ✓ SATISFIED (with one documented gap in the seed's follow-through) | `180-PRUNE-08-CLOSURE.md`, `REQUIREMENTS.md:60/175` both Complete, pins live and passing. No orphaned requirements — PRUNE-08 is the only ID declared across all three plans and the only one in the traceability row for Phase 180. |
-
-No orphaned requirements found for Phase 180.
+25/26 must-haves verified cleanly (23 carried-forward from cycle 1's passing set, unaffected by
+this phase's diff, re-spot-checked where cheap to do so; plus the 18 gap-closure must-haves above,
+minus double-counting of the roadmap-criterion overlap). 1 item (the docstring/prohibition
+substance behind WR-02) is verified at its literal, narrowly-scoped wording but flagged unresolved
+at the broader judgment-tier prohibition level — not counted as failed, routed to human
+verification per this project's soft-gate handling of judgment-tier prohibitions.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| `.planning/seeds/dev-test-adaptive-sequencing.md` | R3, "Escalate to..." / "Cost, stated:" paragraphs | Stale/live-reading design description below an explicit rejection verdict | ⚠️ Warning | Undermines the "can no longer regenerate" must-have; see gap above. |
-| `firestarter_app/tests/test_readback_inventory.py:170` | docstring citation | Stale line-number citation (`:2141` vs actual `:2177`) | ℹ️ Info | Non-executable, already flagged as IN-01 in `180-REVIEW.md`. |
-| `firestarter_app/tests/test_chip_test.py:2177-2240` | two new tests | Duplicated inline side-effect closures | ℹ️ Info | Already flagged as IN-02 in `180-REVIEW.md`; code-quality only. |
+| `firestarter_app/tests/test_readback_inventory.py:407-414` | docstring | Overclaim: "any third assignment... changes the list and reddens a pin asserting it" is false for a chained assignment (`last_ok = _junk = ...`) or tuple-unpack (`last_ok, _junk = ...`). Independently reproduced against the real `_dispatch_read` source: `_last_ok_assignment_shape(mutant)["tags"]` returns exactly `["const_true", "read_eprom_call"]` — the pin stays GREEN — because the target-extraction loop only recognizes `ast.Assign` nodes with `len(n.targets) == 1` and a bare `ast.Name` target; a chained/tuple target leaves `target = None` and the node is silently dropped. | ⚠️ Warning | Confirms `180-REVIEW.md`'s WR-02 finding independently. Not a present functional defect (no such reassignment exists in shipped `_dispatch_read` today) — a residual gap in test-hardening completeness and an active docstring overclaim. See Human Verification. |
 
-No `TBD`/`FIXME`/`XXX` debt markers found in any file touched by this phase.
+No `TBD`/`FIXME`/`XXX` debt markers found in any file touched by this phase's gap-closure plans.
+
+### Behavioral Spot-Checks
+
+| Behavior | Command | Result | Status |
+|----------|---------|--------|--------|
+| Both test files pass at HEAD | `pytest tests/test_chip_test.py tests/test_readback_inventory.py -o addopts="" -q` | `174 passed` | ✓ PASS |
+| Comment-token gate holds | `tokenize` COMMENT count script | `621`, `0` | ✓ PASS |
+| ruff check clean | `ruff check firestarter/ tests/` | `All checks passed!` | ✓ PASS |
+| ruff format clean | `ruff format --check firestarter/ tests/` | `171 files already formatted` | ✓ PASS |
+| mypy watermark exact | `tools/check_mypy_watermark.py` (Python 3.11) | `mypy errors: 35 (watermark: 35)` | ✓ PASS |
+| WR-02 residual reproduces | hand-run of the reviewer's chained-assignment mutation against real `_dispatch_read` source | `targets found for last_ok in mutant: 2` (chained-target node dropped entirely) | ✗ FAIL (confirms the flagged gap, not a phase-blocking regression) |
+| Seed fragment removal (D-09) | plan's own 11-fragment `/usr/bin/grep -cF` loop, re-run by hand | all 11 read `0`; all 4 preserved fragments present | ✓ PASS |
+| REQUIREMENTS.md ledger counts | direct grep count of `- [ ]`, `- [x]`, `| Pending |`, `| Complete |`, `| Gaps Found |` | `18/28/18/28/0` | ✓ PASS |
+| Submodule/product-source untouched | `git diff --stat 93a1672..HEAD -- firestarter_app`; `git -C firestarter status --porcelain` | exactly 2 test files changed; firmware clean | ✓ PASS |
+
+### Requirements Coverage
+
+| Requirement | Source Plan | Description | Status | Evidence |
+|-------------|-------------|--------------|--------|----------|
+| PRUNE-08 | 180-01, 180-02, 180-03, 180-04, 180-05 | Read step second sweep replaced by sample only if cheaper; else close as measured-not-worth-doing | ✓ SATISFIED | `180-PRUNE-08-CLOSURE.md`, `REQUIREMENTS.md:60/175` both Complete; independently re-derived arithmetic (10 connects vs 1) and corpus counts (746/484/148/114/10) still exact; pins live and passing; the one open item (WR-02 residual) is a test-hardening completeness gap, not a defect in the requirement's own closure argument. No orphaned requirements — PRUNE-08 is the only ID declared across all five plans and the only one in the Phase 180 traceability row. |
+
+No orphaned requirements found for Phase 180.
 
 ### Human Verification Required
 
-1. **Seed regeneration risk** — read `.planning/seeds/dev-test-adaptive-sequencing.md` R3 top-to-bottom and judge whether the retained "Escalate to..." / "Cost, stated:" paragraphs constitute a regenerable spec (my reading) or acceptable historical color (a defensible alternate reading). Resolve by either accepting an override or directing a rewrite/removal of those two paragraphs.
-2. **WR-01/WR-02 hardening** — decide whether the two Warning-level structural-pin gaps noted in `180-REVIEW.md` (stray-connect blind spot; `last_ok` reassignment blind spot + docstring overclaim) warrant a follow-up todo, given both are currently non-violated hypotheticals rather than present defects.
+1. **WR-02 residual (docstring overclaim; chained/tuple-unpack `last_ok` reassignment escapes the hardened pin).** Read the Anti-Patterns entry above and `180-REVIEW.md`'s WR-01 (renumbered) finding, and decide: accept the residual as-is (defense-in-depth for a mutation shape absent from all shipped code today, and a reasonable stopping point after two hardening rounds), or direct a follow-up to flatten `ast.Assign` targets per the review's suggested fix and soften the docstring's "any third assignment" claim to match. This is the same class of judgment call the phase's own review process already exercises, and reasonable people could set the bar differently.
+   - **Expected:** Either an accepted override recorded in this file's frontmatter, or a directed follow-up (todo or a plan) before Phase 181 proceeds.
+   - **Why human:** Whether a test-hardening pin's residual completeness gap against a currently-hypothetical mutation is "good enough to ship" versus "must be closed now" is a proportionality judgment, not a mechanically decidable one — independently confirmed the underlying claim is technically false, but its practical severity is a judgment call this project has repeatedly reserved for the operator.
 
 ### Gaps Summary
 
-Phase 180 achieves its core goal cleanly: the correct roadmap branch (criterion 2, "measured, not worth doing") is taken and its arithmetic independently re-derives exactly as claimed against the real `chip_database.json` and `176-MEASUREMENT.md`; the verdict-pinning tests (criterion 3) are real, wired, and pass; criterion 4 is correctly and honestly marked Not Applicable with no fabricated fixture; zero product-source or firmware lines changed; the requirement ledger and roadmap were updated correctly and only after evidence existed; the seven-leg battery is green.
-
-The one gap is narrow but structurally exactly the failure mode this phase's own decision D-09 was written to prevent: the seed amendment replaced R3's single imperative sentence but left two immediately-following paragraphs ("Escalate to the full second read only when the sample diverges..." and "**Cost, stated:** ... the bit-structured stride is chosen...") completely untouched, still describing the rejected sampler's operational behaviour in the present tense. Combined with the block structure the rejection paragraph itself still names, a planner reading only the seed can reconstruct the full design (structure + escalation trigger + stride rationale) — the "destructive reading" D-09 wanted absent is present, merely preceded by a paragraph that says it was rejected. This is recorded as a `gaps_found` item rather than passed silently, per this project's own stated standard that no record should claim more than the code (or in this case, the prose) can back.
+No blocking gaps. The one item carried into this cycle from the prior `gaps_found` report — the seed's D-09 regeneration risk — is independently confirmed closed by reproducing the plan's own fragment-removal check byte-for-byte. The three review-flagged follow-ups (WR-01, IN-01, IN-02) are independently confirmed fully closed. WR-02 is substantively improved (the exact single-target mutation shape the phase's own anti-vacuity leg specifies is now correctly caught) but leaves a narrower residual gap of the same overclaim class: the pin's docstring states a categorical guarantee ("any third assignment... reddens a pin") that is empirically false for a chained assignment or tuple-unpack, independently reproduced against the real `_dispatch_read` source. This does not affect the phase's actual deliverable — no sampling code shipped, no reassignment of this shape exists anywhere in the current codebase, and the primary verdict-source pin (D-06, unchanged since 180-01) still correctly proves the verdict comes from the full read today. It is flagged as an unresolved judgment-tier prohibition per this project's own soft-gate handling, not silently passed, and routed to the operator for a proportionality call before this phase's PRUNE-08 closure is considered fully sealed.
 
 ---
 
-*Verified: 2026-09-08T16:20:00Z*
+*Verified: 2026-09-08T19:10:00Z*
 *Verifier: Claude (gsd-verifier)*
