@@ -5,15 +5,15 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 180
 current_phase_name: Read-Step Sampling (conditional on Phase 176)
 status: executing
-stopped_at: Completed 180-01-PLAN.md
-last_updated: "2026-09-08T15:02:49.588Z"
+stopped_at: Completed 180-02-PLAN.md
+last_updated: "2026-09-08T15:20:41.535Z"
 last_activity: 2026-09-08
 last_activity_desc: "Phase 180 EXECUTION STARTED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, sequential (use_worktrees=false; 180-01 writes into the firestarter_app submodule). Previously: Phase 180 PLANNED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, tracer-first; plan-checker passed on iteration 1 with zero blockers/warnings. PRUNE-08 closes as measured-not-worth-doing (roadmap criterion 2, CONTEXT.md D-01): zero sampling code ships. Deliverables are 180-PRUNE-08-CLOSURE.md, D-06's three verdict-source pins plus a one-connect-premise pin (all with planted-mutation RED proofs), an in-place amendment of .planning/seeds/dev-test-adaptive-sequencing.md, and PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines. Research returned 7 corrections; 3 orchestrator rulings folded in (one-connect pin included; seed R4's falsified \\\"per-connect cost is unmeasured\\\" sentence corrected; the closing argument leads with the model-free 10-connects-versus-1 form, publishing no modelled read-rate figure). Green-tree battery is SEVEN legs, suite floor 2239 (2245 expected after 6 additive tests) -- not phase 179's eight legs or 2242. Previously: Phase 179 COMPLETE 2026-09-08, verification passed 4/4 must-haves."
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 30
-  completed_plans: 28
+  completed_plans: 29
   percent: 75
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-09-08 — Phase 180 execution started
 
@@ -2889,6 +2889,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 179]: 179-02: uv-slot-write-pass registered across all eight gate-enforced sites in one commit (measured hash 927571e5110f); m27c512-full-blank-check-bad re-baselined to its measured post-179-01 value (e42f1567967a) in the SAME commit, with its LADDER_PINS pair moving community-fail -> community-reported (forced, verified against a live build_db_diff). RESERVED_SHAPE_IDS drawn down to empty, its two read sites repaired so neither goes silently vacuous.
 - [Phase 179]: 179-02: RK-174-04-p179-uv-blank-check-abort declared in a SEPARATE commit (per the D-11 protocol) — after_hash e42f1567967a, before_hash 077a32d1a5c4 untouched, bound in .planning/MILESTONES.md in the same logical step; the cross-tree checker then reported OK on 8 ledger rows and 8 MILESTONES.md rows. (That checker, the ledger fixture and the MILESTONES.md table were RETIRED 2026-09-08 -- CI must not police a .planning record; see the v1.36 section of MILESTONES.md. This entry records what was true when 179-02 ran.) The provenance note is corrected: the triple moves BAD -> SKIPPED, not OK -> BAD as originally seeded, and PITFALLS.md:186-188's cycle-2-abort mechanism is recorded FALSIFIED (the abort measured came from the write step's own firmware refusal, not the blank-check step, which sits outside cycle_block_bounds).
 - [Phase 180]: 180-01: pinned roadmap criterion 3 (read verdict = last full read) and Ruling 1's one-connect premise with structural ast pins + behavioural legs, each with a planted-mutation RED transcript; opened 180-PRUNE-08-CLOSURE.md on the 10-vs-1 connect arithmetic, no modelled figure published
+- [Phase 180]: 180-02: Completed 180-PRUNE-08-CLOSURE.md (named exclusion, criterion 4 N/A, granted standing, R4-01 as invalidating condition) and amended dev-test-adaptive-sequencing.md in place (R3 replaced, R4's now-false sentence corrected, sibling Phase 180 amendment section appended, Phase 177 section left byte-unchanged).
 
 ## Performance Metrics
 
@@ -3288,11 +3289,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 179 P02 | 40min | 3 tasks | 5 files |
 | Phase 179 P03 | 55min | 2 tasks | 1 files |
 | Phase 180 P01 | 55min | 3 tasks | 5 files |
+| Phase 180 P02 | 20 min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-09-08T15:02:49.064Z
-**Stopped at:** Completed 180-01-PLAN.md
+**Last session:** 2026-09-08T15:20:14.218Z
+**Stopped at:** Completed 180-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
