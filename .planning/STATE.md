@@ -5,8 +5,8 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 180
 current_phase_name: Read-Step Sampling (conditional on Phase 176)
 status: planning
-stopped_at: Phase 179 complete, ready to plan Phase 180
-last_updated: "2026-09-08T09:23:19.571Z"
+stopped_at: Phase 180 context gathered
+last_updated: "2026-09-08T13:28:58.912Z"
 last_activity: 2026-09-08
 last_activity_desc: "Phase 179 COMPLETE 2026-09-08 -- verification passed 4/4 must-haves (179-VERIFICATION.md; re-verified after the UV-02 falsified-mechanism repair in 4cd35fab, and covered_digest recomputed to v1:sha256:e95881f4 in acc97941 once the re-key checker retirement deleted one covered file), gaps_remaining empty, ROADMAP checkbox marked, STATE advanced to Phase 180. Prior activity retained: 179-04 COMPLETE 2026-09-08 -- the blocking-human bench wave: a real ST M27C512 on a Leonardo (/dev/ttyACM0), holding 16 bytes outside its top slot, accepted a write at 0xFF00 via `firestarter dev test m27c512` (no --fast, exit 0) and reached overall_verdict==PASS with write/verify run_count==2, title `[dev test] m27c512 -- PASS (dea6e2474d30)`; blank-check adjudicated SKIPPED with its not-blank finding intact (error_code=176). Recorded in 179-MEASUREMENT.md; one of two budgeted slots spent, no retry needed. Task 2 sealed the phase on that PASS sentinel: UV-01/UV-02/UV-03 all marked Complete in REQUIREMENTS.md, ROADMAP.md's four Phase 179 plan checkboxes ticked, two falsified prior claims (PITFALLS.md's hardware_refused abort mechanism; SUMMARY.md's probe-read string-equality witness) repaired in place, three residuals filed as todos (ladder-flip T-179-05, Q5 disclosure key deferred to Phase 181, Q8 mid-line-boundary blocker). Every gate green in both repos: full suite 2265 passed/0 failed/32 snapshots, phase_added_comments=0 anchored at 835baba, cli_handlers.py and plan_shapes.json byte-unchanged across the whole phase. Phase 179 fully closed (4/4 plans). Ready to plan Phase 180 (Read-Step Sampling, conditional on Phase 176's connect-cost measurement)."
 progress:
@@ -3289,8 +3289,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-08T09:30:00.000Z
-**Stopped at:** Phase 179 complete, ready to plan Phase 180
+**Last session:** 2026-09-08T13:28:58.369Z
+**Stopped at:** Phase 180 context gathered
 **Was (superseded, retained for continuity):** Completed 179-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
@@ -3345,7 +3345,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/180-read-step-sampling-conditional-on-phase-176/180-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
