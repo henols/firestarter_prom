@@ -443,7 +443,7 @@ Plans:
   3. Whichever branch is taken, the read step's verdict source stays pinned to the full read by test — it never silently becomes the sample's verdict.
   4. If sampling ships, block-wise `(offset, block)` comparison is used, never a whole-file compare, proven by a test using a hole-padded region fixture that a whole-file compare would misreport as a false divergence.
 
-**Plans**: 3 plans
+**Plans**: 5 plans
 
 **Wave 1**
 
@@ -456,6 +456,11 @@ Plans:
 **Wave 3**
 
 - [x] 180-03-PLAN.md — Record PRUNE-08 Complete in exactly two ledger lines, only after its closing document exists, then the seven-leg phase seal
+
+**Gap closure** — planned after verification returned `gaps_found` at 23 of 24 must-haves (the seed's R3 kept two present-tense paragraphs describing the rejected sampler's operational behaviour, contradicting its own "measured and rejected" verdict). `180-04-PLAN.md` and `180-05-PLAN.md` both carry `gap_closure: true`, and their own wave numbers (`wave: 1`, `wave: 2`) are that run's waves, not further waves of the original execution.
+
+- [x] 180-04-PLAN.md — Remove R3's remaining rejected-sampler operative text by absence, not annotation (D-09), and harden both structural pins (WR-01's connect-shape scan, WR-02's verdict-assignment scan) with a three-way GREEN/RED/GREEN discrimination each
+- [x] 180-05-PLAN.md — Share one alternating read side-effect builder across both read-step verdict legs (IN-02), re-flip PRUNE-08 to Complete only after the fixes land, and re-run the seven-leg green-tree battery
 
 ### Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 
