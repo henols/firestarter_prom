@@ -4,17 +4,17 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 180
 current_phase_name: Read-Step Sampling (conditional on Phase 176)
-status: executing
-stopped_at: Completed 180-02-PLAN.md
-last_updated: "2026-09-08T15:20:41.535Z"
+status: complete
+stopped_at: Completed 180-03-PLAN.md
+last_updated: "2026-09-08T15:36:00.000Z"
 last_activity: 2026-09-08
-last_activity_desc: "Phase 180 EXECUTION STARTED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, sequential (use_worktrees=false; 180-01 writes into the firestarter_app submodule). Previously: Phase 180 PLANNED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, tracer-first; plan-checker passed on iteration 1 with zero blockers/warnings. PRUNE-08 closes as measured-not-worth-doing (roadmap criterion 2, CONTEXT.md D-01): zero sampling code ships. Deliverables are 180-PRUNE-08-CLOSURE.md, D-06's three verdict-source pins plus a one-connect-premise pin (all with planted-mutation RED proofs), an in-place amendment of .planning/seeds/dev-test-adaptive-sequencing.md, and PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines. Research returned 7 corrections; 3 orchestrator rulings folded in (one-connect pin included; seed R4's falsified \\\"per-connect cost is unmeasured\\\" sentence corrected; the closing argument leads with the model-free 10-connects-versus-1 form, publishing no modelled read-rate figure). Green-tree battery is SEVEN legs, suite floor 2239 (2245 expected after 6 additive tests) -- not phase 179's eight legs or 2242. Previously: Phase 179 COMPLETE 2026-09-08, verification passed 4/4 must-haves."
+last_activity_desc: 'Phase 180 COMPLETE 2026-09-08 -- 3 plans, 7 tasks, 3 waves, sequential. PRUNE-08 flipped Complete in REQUIREMENTS.md (v1 checkbox :60, traceability row :175, exactly two lines changed, measured counts 18/28/18/28), flipped only after 180-PRUNE-08-CLOSURE.md existed and was committed (T-180-09 mitigation). Seven-leg green-tree seal: ruff check, ruff format, mypy watermark 35/35, snapshot_report_shapes --check, devtest orchestrator, diagnostic-report claims, full suite -- 2245 passed / 0 failed (the 2239 floor plus this phase-s 6 additive tests), all measured this session. tokenize comment gate held at 621/0 for the two touched test modules; both submodules and chip_database.json porcelain-clean. ROADMAP.md Phase 180 section now shows all three plan checkboxes ticked, exactly two lines changed, dependency table and requirements line intact. One Rule-3 deviation: ruff format --check failed on a 180-01-introduced implicit string concat in test_readback_inventory.py; collapsed to one literal (app commit 93a1672, gitlink 9f65162c), no semantic change, 10/10 tests still pass. Previously: Phase 179 COMPLETE 2026-09-08, verification passed 4/4 must-haves.'
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 30
-  completed_plans: 29
-  percent: 75
+  completed_plans: 30
+  percent: 88
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
-Last activity: 2026-09-08 — Phase 180 execution started
+Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — COMPLETE
+Plan: 3 of 3 complete
+Status: Phase complete — PRUNE-08 Complete in the ledger, seven-leg seal green (2245 passed, 0 failed), ready for /gsd-plan-phase 181
+Last activity: 2026-09-08 — Phase 180 complete (180-03: requirement marking + phase seal)
 
 ## Roadmap Summary (v1.36)
 
@@ -2890,6 +2890,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 179]: 179-02: RK-174-04-p179-uv-blank-check-abort declared in a SEPARATE commit (per the D-11 protocol) — after_hash e42f1567967a, before_hash 077a32d1a5c4 untouched, bound in .planning/MILESTONES.md in the same logical step; the cross-tree checker then reported OK on 8 ledger rows and 8 MILESTONES.md rows. (That checker, the ledger fixture and the MILESTONES.md table were RETIRED 2026-09-08 -- CI must not police a .planning record; see the v1.36 section of MILESTONES.md. This entry records what was true when 179-02 ran.) The provenance note is corrected: the triple moves BAD -> SKIPPED, not OK -> BAD as originally seeded, and PITFALLS.md:186-188's cycle-2-abort mechanism is recorded FALSIFIED (the abort measured came from the write step's own firmware refusal, not the blank-check step, which sits outside cycle_block_bounds).
 - [Phase 180]: 180-01: pinned roadmap criterion 3 (read verdict = last full read) and Ruling 1's one-connect premise with structural ast pins + behavioural legs, each with a planted-mutation RED transcript; opened 180-PRUNE-08-CLOSURE.md on the 10-vs-1 connect arithmetic, no modelled figure published
 - [Phase 180]: 180-02: Completed 180-PRUNE-08-CLOSURE.md (named exclusion, criterion 4 N/A, granted standing, R4-01 as invalidating condition) and amended dev-test-adaptive-sequencing.md in place (R3 replaced, R4's now-false sentence corrected, sibling Phase 180 amendment section appended, Phase 177 section left byte-unchanged).
+- [Phase 180]: 180-03: PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines, gated on a precondition that 180-PRUNE-08-CLOSURE.md exist and be committed first (T-180-09 mitigation). Seven-leg green-tree seal run and recorded: 2245 passed / 0 failed (measured, not transcribed), tokenize comment gate 621/0 held, both submodules and chip_database.json clean. ROADMAP.md's Phase 180 section ticked for all three plans, exactly two lines changed. One Rule-3 auto-fix landed first: ruff format --check failed on a 180-01-introduced implicit string concat in test_readback_inventory.py, collapsed to one literal (no semantic change) before the battery ran.
 
 ## Performance Metrics
 
@@ -3290,11 +3291,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 179 P03 | 55min | 2 tasks | 1 files |
 | Phase 180 P01 | 55min | 3 tasks | 5 files |
 | Phase 180 P02 | 20 min | 2 tasks | 4 files |
+| Phase 180 P03 | 30min | 2 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-09-08T15:20:14.218Z
-**Stopped at:** Completed 180-02-PLAN.md
+**Last session:** 2026-09-08T15:36:00.000Z
+**Stopped at:** Completed 180-03-PLAN.md
+**Was (superseded, retained for continuity):** Completed 180-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
