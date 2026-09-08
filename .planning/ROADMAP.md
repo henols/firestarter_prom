@@ -416,19 +416,19 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 179-01-PLAN.md — Tracer: one UV slot write through every layer in one commit — the `WriteTarget.current_is_probe_read` witness and its tranche carry-through, `_is_monotonic_masked_target`, the inline positional `FLAG_SKIP_BLANK_CHECK` at the write call site, the additive `Step.uv_prewrite`, and the execution-time UV blank-check adjudication that lifts the fold to `PASS`; plus the carry-through and fail-closed pins. Leaves ONE frozen gate red by the D-11 protocol
+- [x] 179-01-PLAN.md — Tracer: one UV slot write through every layer in one commit — the `WriteTarget.current_is_probe_read` witness and its tranche carry-through, `_is_monotonic_masked_target`, the inline positional `FLAG_SKIP_BLANK_CHECK` at the write call site, the additive `Step.uv_prewrite`, and the execution-time UV blank-check adjudication that lifts the fold to `PASS`; plus the carry-through and fail-closed pins. Leaves ONE frozen gate red by the D-11 protocol
 
 **Wave 2**
 
-- [ ] 179-02-PLAN.md — Opens with a `checkpoint:decision` on the two one-way calls (`D-179-1` criterion 4's route, `D-179-2` the frozen-shape construction route), then re-baselines `m27c512-full-blank-check-bad`, registers the last reserved shape `uv-slot-write-pass` across all eight gate-enforced sites, and declares `RK-174-04` in a separate commit bound to `.planning/MILESTONES.md`
+- [x] 179-02-PLAN.md — Opens with a `checkpoint:decision` on the two one-way calls (`D-179-1` criterion 4's route, `D-179-2` the frozen-shape construction route), then re-baselines `m27c512-full-blank-check-bad`, registers the last reserved shape `uv-slot-write-pass` across all eight gate-enforced sites, and declares `RK-174-04` in a separate commit bound to `.planning/MILESTONES.md`
 
 **Wave 3**
 
-- [ ] 179-03-PLAN.md — The committed, never-skipped regression module `tests/test_chip_test_uv_slot_write.py`: criterion 4's host half (PASS with `run_count == 2` against a firmware-faithful double) and UV-03's witness-wins disagreement legs in both directions, with an anti-vacuity sibling behind every positive claim
+- [x] 179-03-PLAN.md — The committed, never-skipped regression module `tests/test_chip_test_uv_slot_write.py`: criterion 4's host half (PASS with `run_count == 2` against a firmware-faithful double) and UV-03's witness-wins disagreement legs in both directions, with an anti-vacuity sibling behind every positive claim
 
 **Wave 4**
 
-- [ ] 179-04-PLAN.md — The `blocking-human` bench wave on a real ST M27C512 producing `179-MEASUREMENT.md`, then the phase seal: the sentinel-branched requirement marking, the two falsified prior claims repaired in place, the three residuals filed as todos, and every gate in both repos
+- [x] 179-04-PLAN.md — The `blocking-human` bench wave on a real ST M27C512 producing `179-MEASUREMENT.md`, then the phase seal: the sentinel-branched requirement marking, the two falsified prior claims repaired in place, the three residuals filed as todos, and every gate in both repos
 
 ### Phase 180: Read-Step Sampling (conditional on Phase 176)
 

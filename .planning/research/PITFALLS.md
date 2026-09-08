@@ -175,6 +175,20 @@ Trace the second run of a used UV part through HEAD:
 
 1. `_run_step` → `operator.check_eprom_blank(...)` → `False` → `StepResult(verdict=VERDICT_BAD, error_code=MSG_ERR_NOT_BLANK)` (`chip_test.py:2527-2542`).
 2. In the cycle loop, `if result.error_code is not None: hardware_refused = True` → after the cycle, `break` (`chip_test.py:1568-1570`). **Cycle 2 never runs.**
+
+   **FALSIFIED (Phase 179, `179-02-PLAN.md`).** MEASURED against the live tree: for a UV plan the
+   `blank-check` step sits at index 2, OUTSIDE the cycle block — the cycle block is `(3, 6)` for
+   `m27c512`, `am27c020` and `tms27c512` — and `run_plan`'s per-step dispatch path has no
+   `hardware_refused` mechanism at all; that name does not exist anywhere in `chip_test.py`. The
+   abort this step describes never happened via the blank-check step. The consequence for the plan
+   was unchanged — both defects (the write-init pre-flight refusal AND the standalone blank-check's
+   `BAD` verdict) still had to be fixed, and Phase 179 fixed both — but the *mechanism* named here is
+   wrong: the pre-179-01 abort came from the WRITE step's own firmware refusal
+   (`WriteInitPreflightChip`'s write-init pre-flight, `eprom.cpp:143-145`), not from this blank-check
+   step tripping a cycle-abort flag that does not exist. See `179-MEASUREMENT.md` §5 for the
+   full-run step table proving the blank-check step now adjudicates `SKIPPED` with its finding
+   (`reason`, `error_code=176`) intact, and `179-01-SUMMARY.md` / `.planning/MILESTONES.md`'s
+   `RK-174-04-p179-uv-blank-check-abort` row for the corrected provenance.
 3. `run_count` for the destructive ops collapses to 1 → `repeat_policy_tag` returns the degraded tag (`chip_test.py:1094-1097`) → `dedup_fingerprint` gets a `fast`-shaped discriminator on a run the operator did not ask to be fast.
 4. `overall_verdict` is FAIL-dominant on any BAD (`submit.py:140-152`) → the submit prompt still offers **`[dev test] AM27C020 — FAIL`**.
 

@@ -73,9 +73,9 @@ own comment says so. This is the gh#23 gap.
 
 ### UV Slot Writes
 
-- [ ] **UV-01**: A UV part holding data outside the target slot accepts a slot write.
-- [ ] **UV-02**: Such a run reports **`overall_verdict == "PASS"` with `run_count == 2`**. `FLAG_SKIP_BLANK_CHECK` fixes the firmware write-init pre-flight only; the plan's own standalone `blank-check` step still returns `VERDICT_BAD`, trips `hardware_refused` and aborts cycle 2, so the write step going OK is **not** the criterion.
-- [ ] **UV-03**: The `FLAG_SKIP_BLANK_CHECK` pass is witness-form — not gated on `region_policy`.
+- [x] **UV-01**: A UV part holding data outside the target slot accepts a slot write.
+- [x] **UV-02**: Such a run reports **`overall_verdict == "PASS"` with `run_count == 2`**. `FLAG_SKIP_BLANK_CHECK` fixes the firmware write-init pre-flight only; the plan's own standalone `blank-check` step still returns `VERDICT_BAD`, trips `hardware_refused` and aborts cycle 2, so the write step going OK is **not** the criterion.
+- [x] **UV-03**: The `FLAG_SKIP_BLANK_CHECK` pass is witness-form — not gated on `region_policy`.
 
 ### Report Fidelity
 
@@ -169,9 +169,9 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | ATTR-04 | Phase 178 | Complete |
 | ATTR-05 | Phase 178 | Complete |
 | ATTR-06 | Phase 178 | Complete |
-| UV-01 | Phase 179 | Pending |
-| UV-02 | Phase 179 | Pending |
-| UV-03 | Phase 179 | Pending |
+| UV-01 | Phase 179 | Complete |
+| UV-02 | Phase 179 | Complete |
+| UV-03 | Phase 179 | Complete |
 | PRUNE-08 | Phase 180 | Pending |
 | RPT-A1 | Phase 181 | Pending |
 | RPT-A2 | Phase 181 | Pending |

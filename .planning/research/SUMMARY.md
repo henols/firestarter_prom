@@ -87,6 +87,20 @@ Two recorded non-claims in the source become **false** if R4 lands (`chip_test.p
 1. **The four re-key paths and the missing gate** (measured; see Executive Summary). Build the pinned-hash harness first; declare each re-key deliberately in `MILESTONES.md`. Warning sign: any plan that says "dedup is unaffected because no *field* changed."
 2. **The UV fix does not reach the UV outcome** (measured, falsifies PROJECT.md:78-83). The standalone `blank-check` step still returns `VERDICT_BAD` with `error_code`, which sets `hardware_refused` and kills cycle 2. Whatever verdict replaces it **must not set `error_code`**. Assert the title, not the write.
 3. **The blank-check skip must be gated on the monotonicity *witness*, not the region policy string.** `if step.region_policy == REGION_POLICY_UV_SLOT: flags |= FLAG_SKIP_BLANK_CHECK` reads naturally and is the same line count as the safe form — but policy and monotonicity are only *currently* coextensive, and the docstring at `chip_test.py:2769-2772` shows they were not one design iteration ago. Derive from `target.masked and target.current is not None and target.current_source == "probe read"`. Recovery cost if wrong: **physically unrecoverable** — a UV part written with a non-monotone pattern needs a UV eraser or is scrapped.
+
+   **FALSIFIED (Phase 179, `179-01-PLAN.md`/`179-03-SUMMARY.md`).** MEASURED: the staged tranche
+   targets that actually reach `write_eprom` — the only path onto the report — carry
+   `current_source` values that start `"probe read (tranche 1/2)"` / `"probe read (tranche 2/2)"`
+   (`chip_test.py:1518`), never the bare string `"probe read"` this prescription names. A witness
+   written as `target.current_source == "probe read"` would never match on a real run, would ship
+   green, and would be silently inert — never actually gating anything. Phase 179 implemented the
+   witness as a new structural boolean instead
+   (`WriteTarget.current_is_probe_read`, set once at the UV probe arm, carried through unchanged),
+   and
+   `tests/test_chip_test_uv_slot_write.py::test_the_prescribed_probe_read_string_equality_would_never_match`
+   pins the falsification so a future return to the string-equality form goes red rather than
+   silently inert. See `179-MEASUREMENT.md` for the real-hardware run whose `write_current_source`
+   reads `"probe read (tranche 2/2)"` exactly as measured here.
 4. **Auto-classifying rig faults from a sensor that cannot see the rig fault.** The voltage sampler measures the boost rail, not the socket. A classifier built on `vpp_before_mv` reports "rig OK" on precisely the run (gh#23) that motivated the milestone. Enumerate, per cause label, the signal that carries it and what that signal *physically measures*; emit `unknown` where no honest signal exists; and **never let classification suppress the submit offer** — that converts a visible wrong verdict into an invisible missing one (the Firefox flaky-dismissal failure mode). The six open community issues (#21, #23, #28, #31, #45, #50) are a ready-made labelled evaluation set and should be used as one.
 5. **Skipping a diagnostic silently removes it from the record.** After gating, `fingerprint: null` means three different things: skipped-because-everything-passed, ran-and-returned-`b""`-because-the-chip-was-absent, and never-had-one. Emit the *reason*, not the absence (`fingerprint_source: "skipped: all runs passed" | "read-back" | "unavailable: empty read"`). This one key also solves the re-key if the gate outcome is what gets hashed, and gives R3's sampling provenance the same idiom.
 6. **R3 sampling has three traps and is blocked on an unmeasured number.** The read step's verdict source silently moves to the sample; a hole-padded region file compared whole-file against a full read reports catastrophic false divergence; and a ten-block sample is **ten connects** where the full read was one, because `EpromOperator.comm` is torn down after every call. **If a connect costs more than ~0.5 s, R3 is net-negative on a 64 KiB part.** Cutting R3 on that measurement is a success, not a failure.

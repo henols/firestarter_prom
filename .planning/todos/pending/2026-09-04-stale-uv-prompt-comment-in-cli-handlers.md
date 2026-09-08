@@ -2,7 +2,7 @@
 title: Stale UV-prompt design-history comment at `cli_handlers.py:2295-2303` describes the reverted `260821-wna` design
 date: 2026-09-04
 priority: medium
-blocked_by: nothing technical; deferred by Phase 175's test-only boundary — the phase is test-only and `cli_handlers.py` is product code, so this phase could not touch it without invalidating its own zero-production-diff claim.
+blocked_by: nothing technical; deferred by Phase 175's test-only boundary — the phase is test-only and `cli_handlers.py` is product code, so this phase could not touch it without invalidating its own zero-production-diff claim. Phase 179 re-examined this todo (Q8) and found a SECOND, independent blocker: the stale sentences begin mid-line and end mid-line inside the `# ALWAYS WRITES` paragraph, so a comment-preserving edit would require REWRITING two retained comment lines — and the standing operator rule forbids writing any `#` comment into source, ever, with no plan able to override it. The only zero-comment-added fix is deleting the WHOLE `ALWAYS WRITES` paragraph, which would also delete still-accurate prose about the AT28C family, the full-device write and report persistence. This needs the operator's call on which cost to pay (rewrite two lines vs. delete accurate prose); Phase 179 deliberately paid neither. See the "Q8 mid-line boundary finding (Phase 179)" section below for the measured line numbers.
 resolves_phase: none
 ---
 
@@ -66,3 +66,45 @@ ceiling (`_resolve_write_scope` returning `"partial"` for every one of the 270 U
 eventually resolved, is to **delete** the stale block rather than to update it — nothing in the current
 design needs a comment describing a reverted UI flow, and the file's own docstring already states the
 current rule accurately.
+
+## Q8 mid-line boundary finding (Phase 179)
+
+Phase 179 (`179-04-PLAN.md`, Task 2) re-examined this todo before Phase 179 closed, to decide whether
+this phase's own zero-comment-added rule permitted a fix here. It does not. MEASURED against the live
+tree (`firestarter_app/firestarter/cli_handlers.py`, current line numbers — they have shifted from the
+`2295-2303` range this todo originally cited, but the block itself is unchanged):
+
+```
+2331: # ALWAYS WRITES: every run writes to the chip, unconditionally. A
+2332: # UV-erasable EPROM is asked first, and quick task 260821-wna
+2333: # changes what the two answers DO: yes permits the whole device to be
+2334: # written IF the chip reads blank, and otherwise writes one masked
+2335: # 256-byte slot; no writes one 256-byte slot only,
+2336: # unconditionally -- never read-only or non-destructive either way, and
+2337: # the two answers no longer resolve to the same window on a used chip. Off
+2338: # a TTY the ask is treated as a DECLINED prompt, not absent consent, so a
+2339: # single 256-byte slot is written anyway. Every OTHER family --
+2340: # explicitly including this milestone's own AT28C family, an
+```
+
+The stale sentences **begin mid-line**: line 2331 opens `# ALWAYS WRITES: every run writes to the
+chip, unconditionally. A` — the trailing `A` is the start of the next (stale) sentence, not the end of
+a clean one. They **end mid-line**: line 2339 reads `# single 256-byte slot is written anyway. Every
+OTHER family --` — the stale content ends at `anyway.` but the SAME physical line continues straight
+into `Every OTHER family --`, which is the opening of still-accurate prose about the AT28C family
+(lines 2339-onward describe the non-UV full-device write path, confirmed accurate by this todo's
+original filing).
+
+Because the stale and accurate content share physical lines at both boundaries, there is no edit that
+removes only the stale text without rewriting at least two retained comment lines (2331 and 2339) to
+re-terminate the sentences that survive. This project's standing operator rule is that **no `#`
+comment is written into source, ever, by any plan** — including a corrective rewrite of an existing
+line. The only edit that adds zero comment content is deleting the entire `ALWAYS WRITES` paragraph
+(lines 2331-2339+), which would also delete the still-accurate AT28C-family, full-device-write and
+report-persistence prose this todo's own filing confirmed was correct.
+
+**This is an operator decision, not a mechanical one:** rewrite two retained comment lines (violates
+the zero-comment rule to fix a stale one), or delete accurate prose along with the stale sentences
+(loses correct documentation to remove incorrect documentation). Phase 179 deliberately paid neither
+cost and left `cli_handlers.py` byte-unchanged — confirmed across the whole phase by
+`git diff 835baba..HEAD --name-only -- firestarter/cli_handlers.py` reporting zero files.
