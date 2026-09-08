@@ -4,11 +4,11 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 180
 current_phase_name: Read-Step Sampling (conditional on Phase 176)
-status: complete
-stopped_at: Completed 180-03-PLAN.md
+status: verifying
+stopped_at: "Phase 180 verification: gaps_found (23/24) -- 1 gap in the seed R3 amendment"
 last_updated: "2026-09-08T15:36:00.000Z"
 last_activity: 2026-09-08
-last_activity_desc: 'Phase 180 COMPLETE 2026-09-08 -- 3 plans, 7 tasks, 3 waves, sequential. PRUNE-08 flipped Complete in REQUIREMENTS.md (v1 checkbox :60, traceability row :175, exactly two lines changed, measured counts 18/28/18/28), flipped only after 180-PRUNE-08-CLOSURE.md existed and was committed (T-180-09 mitigation). Seven-leg green-tree seal: ruff check, ruff format, mypy watermark 35/35, snapshot_report_shapes --check, devtest orchestrator, diagnostic-report claims, full suite -- 2245 passed / 0 failed (the 2239 floor plus this phase-s 6 additive tests), all measured this session. tokenize comment gate held at 621/0 for the two touched test modules; both submodules and chip_database.json porcelain-clean. ROADMAP.md Phase 180 section now shows all three plan checkboxes ticked, exactly two lines changed, dependency table and requirements line intact. One Rule-3 deviation: ruff format --check failed on a 180-01-introduced implicit string concat in test_readback_inventory.py; collapsed to one literal (app commit 93a1672, gitlink 9f65162c), no semantic change, 10/10 tests still pass. Previously: Phase 179 COMPLETE 2026-09-08, verification passed 4/4 must-haves.'
+last_activity_desc: "Phase 180 EXECUTED 2026-09-08 -- 3/3 plans, 13 commits (4 in firestarter_app, 9 in meta); app suite 2245 passed / 0 failed at final HEAD, re-run by the orchestrator. VERIFICATION returned gaps_found at 23/24 must-haves: the seed's R3 keeps two present-tense paragraphs (the 'Escalate to...' escalation policy and the '**Cost, stated:**' stride rationale) that plan 180-02's own <action> text told the executor to leave alone, so the rejected sampler stays reconstructable from the seed and D-09 is only partly met -- a PLANNING defect, not an execution one. PRUNE-08 was reverted out of Complete to 'Gaps Found' per the gaps_found gate; phase.complete NOT run. Code review (standard, 2 files): 0 critical, 2 warning (WR-01 one-connect pin checks only the with-header; WR-02 verdict-pin docstring overclaims a syntax-only check), 2 info -- unapplied. Next: /gsd-plan-phase 180 --gaps."
 progress:
   total_phases: 8
   completed_phases: 7
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — COMPLETE
-Plan: 3 of 3 complete
-Status: Phase complete — PRUNE-08 Complete in the ledger, seven-leg seal green (2245 passed, 0 failed), ready for /gsd-plan-phase 181
-Last activity: 2026-09-08 — Phase 180 complete (180-03: requirement marking + phase seal)
+Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — GAPS FOUND
+Plan: 3 of 3 executed
+Status: Verification returned gaps_found (23/24) — phase NOT complete; run /gsd-plan-phase 180 --gaps
+Last activity: 2026-09-08 — Phase 180 executed 3/3, verification found 1 gap in the seed R3 amendment; PRUNE-08 reverted to Gaps Found
 
 ## Roadmap Summary (v1.36)
 
