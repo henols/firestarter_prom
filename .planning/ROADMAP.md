@@ -235,7 +235,7 @@ UNMEASURED everywhere it appears).
 - [x] **Phase 176: Transport Instrumentation + Connect-Cost Measurement** *(partially hardware-gated — MEAS-01)* - Wire the two dormant re-sync counters into the report and measure per-connect cost per board class. (completed 2026-09-04)
 - [x] **Phase 177: Evidence-Gated Read-Back** - Stop paying for a fingerprint read-back a passing run cannot use, without ever turning the diagnostic into an oracle on a failing one. (completed 2026-09-05)
 - [x] **Phase 178: Fault Attribution — the Two-Axis Vocabulary** - Give a transport or tool fault a status distinct from the chip's verdict, so a half-seated cable stops filing as `[dev test] <chip> — FAIL`. (completed 2026-09-06)
-- [ ] **Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK`** *(hardware-gated)* - Make a UV part holding data outside the target slot actually reach `overall_verdict == "PASS"` with `run_count == 2`.
+- [x] **Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK`** *(hardware-gated)* - Make a UV part holding data outside the target slot actually reach `overall_verdict == "PASS"` with `run_count == 2`. (completed 2026-09-08)
 - [ ] **Phase 180: Read-Step Sampling** *(conditional on Phase 176's measurement)* - Replace the read step's second full sweep with a bit-structured sample only if the measured connect cost says it is cheaper; closing the requirement as "measured, not worth doing" is a valid outcome.
 - [ ] **Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close** - Make the report describe only what the run knows, name chips the database recognizes, and close the milestone's dependency and re-key ledger.
 
@@ -411,7 +411,7 @@ Plans:
   3. The blank-check skip is derived from the monotonicity witness — target masked, current value known, sourced from a probe read — not from the `region_policy` string alone, proven by a test constructed so the two signals disagree and the witness wins.
   4. The regression test proving criteria 1 and 2 is committed to the suite and passes against real UV hardware, closing the gap that no such test exists today.
 
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1**

@@ -1,20 +1,20 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
-current_phase: 179
-current_phase_name: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
-status: verifying
-stopped_at: "Phase 179 plans all complete, awaiting verification"
-last_updated: "2026-09-08T07:54:59.000Z"
+current_phase: 180
+current_phase_name: Read-Step Sampling (conditional on Phase 176)
+status: planning
+stopped_at: Phase 179 complete, ready to plan Phase 180
+last_updated: "2026-09-08T09:23:19.571Z"
 last_activity: 2026-09-08
-last_activity_desc: "179-04 COMPLETE 2026-09-08 -- the blocking-human bench wave: a real ST M27C512 on a Leonardo (/dev/ttyACM0), holding 16 bytes outside its top slot, accepted a write at 0xFF00 via `firestarter dev test m27c512` (no --fast, exit 0) and reached overall_verdict==PASS with write/verify run_count==2, title `[dev test] m27c512 -- PASS (dea6e2474d30)`; blank-check adjudicated SKIPPED with its not-blank finding intact (error_code=176). Recorded in 179-MEASUREMENT.md; one of two budgeted slots spent, no retry needed. Task 2 sealed the phase on that PASS sentinel: UV-01/UV-02/UV-03 all marked Complete in REQUIREMENTS.md, ROADMAP.md's four Phase 179 plan checkboxes ticked, two falsified prior claims (PITFALLS.md's hardware_refused abort mechanism; SUMMARY.md's probe-read string-equality witness) repaired in place, three residuals filed as todos (ladder-flip T-179-05, Q5 disclosure key deferred to Phase 181, Q8 mid-line-boundary blocker). Every gate green in both repos: full suite 2265 passed/0 failed/32 snapshots, phase_added_comments=0 anchored at 835baba, cli_handlers.py and plan_shapes.json byte-unchanged across the whole phase. Phase 179 fully closed (4/4 plans). Ready to plan Phase 180 (Read-Step Sampling, conditional on Phase 176's connect-cost measurement)."
+last_activity_desc: "Phase 179 COMPLETE 2026-09-08 -- verification passed 4/4 must-haves (179-VERIFICATION.md; re-verified after the UV-02 falsified-mechanism repair in 4cd35fab, and covered_digest recomputed to v1:sha256:e95881f4 in acc97941 once the re-key checker retirement deleted one covered file), gaps_remaining empty, ROADMAP checkbox marked, STATE advanced to Phase 180. Prior activity retained: 179-04 COMPLETE 2026-09-08 -- the blocking-human bench wave: a real ST M27C512 on a Leonardo (/dev/ttyACM0), holding 16 bytes outside its top slot, accepted a write at 0xFF00 via `firestarter dev test m27c512` (no --fast, exit 0) and reached overall_verdict==PASS with write/verify run_count==2, title `[dev test] m27c512 -- PASS (dea6e2474d30)`; blank-check adjudicated SKIPPED with its not-blank finding intact (error_code=176). Recorded in 179-MEASUREMENT.md; one of two budgeted slots spent, no retry needed. Task 2 sealed the phase on that PASS sentinel: UV-01/UV-02/UV-03 all marked Complete in REQUIREMENTS.md, ROADMAP.md's four Phase 179 plan checkboxes ticked, two falsified prior claims (PITFALLS.md's hardware_refused abort mechanism; SUMMARY.md's probe-read string-equality witness) repaired in place, three residuals filed as todos (ladder-flip T-179-05, Q5 disclosure key deferred to Phase 181, Q8 mid-line-boundary blocker). Every gate green in both repos: full suite 2265 passed/0 failed/32 snapshots, phase_added_comments=0 anchored at 835baba, cli_handlers.py and plan_shapes.json byte-unchanged across the whole phase. Phase 179 fully closed (4/4 plans). Ready to plan Phase 180 (Read-Step Sampling, conditional on Phase 176's connect-cost measurement)."
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 27
   completed_plans: 27
-  percent: 63
+  percent: 75
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 179 (UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)) — PLANS COMPLETE, VERIFYING
-Plan: 4 of 4
-Status: Awaiting phase verification
-Last activity: 2026-09-08 — Plan 179-04 complete: real ST M27C512 bench PASS on a Leonardo; phase seal applied; verification not yet run
+Phase: 180 — Read-Step Sampling (conditional on Phase 176)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-08 — Phase 179 complete: verification passed 4/4 must-haves, zero gaps; ROADMAP marked, transitioned to Phase 180
 
 ## Roadmap Summary (v1.36)
 
@@ -3290,7 +3290,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-08T07:54:59.000Z
-**Stopped at:** Phase 179 plans all complete, awaiting verification
+**Stopped at:** Phase 179 complete, ready to plan Phase 180
 **Was (superseded, retained for continuity):** Completed 179-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
