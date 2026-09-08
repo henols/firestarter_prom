@@ -1,6 +1,6 @@
 ---
 phase: 180-read-step-sampling-conditional-on-phase-176
-reviewed: 2026-09-08T15:55:24Z
+reviewed: 2026-09-08T00:00:00Z
 depth: standard
 files_reviewed: 2
 files_reviewed_list:
@@ -8,135 +8,137 @@ files_reviewed_list:
   - firestarter_app/tests/test_readback_inventory.py
 findings:
   critical: 0
-  warning: 2
-  info: 2
-  total: 4
+  warning: 1
+  info: 0
+  total: 1
 status: issues_found
 ---
 
 # Phase 180: Code Review Report
 
-**Reviewed:** 2026-09-08T15:55:24Z
+**Reviewed:** 2026-09-08T00:00:00Z
 **Depth:** standard
 **Files Reviewed:** 2
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the Phase 180 additions to `firestarter_app/tests/test_chip_test.py` (two new
-behavioural tests, `f0eb002`/`07c6dab`) and `firestarter_app/tests/test_readback_inventory.py`
-(two new structural AST pins plus their anti-vacuity legs, `3ca6195`, formatting fix `93a1672`),
-using the submodule's own range `ffb0060..HEAD`. Both files are test-only; no product source was
-touched by this phase.
+This is an incremental review of Phase 180's gap-closure wave (plans 180-04 and 180-05),
+scoped against the prior review at `41a264c2` (gitlink `93a1672`, 0 critical / 2 warning /
+2 info). The diff under review runs `93a1672..04fd982` in the `firestarter_app` submodule
+and touches only these two test files: the IN-02 `_alternating_read_side_effect` factor-out
+in `test_chip_test.py`, and the WR-01/WR-02 hardening plus a follow-up mypy narrowing fix in
+`test_readback_inventory.py`.
 
-The two behavioural tests in `test_chip_test.py` are sound: `test_read_step_last_run_failure_yields_bad`
-(`[True, False]`, runs=2 → BAD) and `test_read_step_first_run_failure_with_passing_last_run_yields_ok`
-(`[False, True]`, runs=2 → OK) exercise the real `run_plan` → `_dispatch_read` path (confirmed by
-reading `_dispatch_read` at `firestarter/chip_test.py:2767-2810`, which dispatches with
-`runs=runs` directly from `run_plan`'s op-routing `if step.op == OP_READ` arm). Together the two
-legs discriminate "verdict = last full read's result" from every plausible alternative fold
-(first-only, AND-all, OR-any) — verified by hand-tracing all four policies against both legs.
-Neither test is vacuous and I confirmed both pass (`pytest -k "read_step_last_run_failure or
-read_step_first_run_failure"`).
+**IN-01 (stale line citation)** is confirmed closed: the docstring on
+`test_read_verdict_expression_reads_only_the_last_full_read_result` no longer cites a line
+number for the sibling behavioural tests, removing the drift risk entirely rather than just
+correcting it.
 
-The two new structural pins in `test_readback_inventory.py` are real AST-based gates (verified by
-reading the actual `_dispatch_read` and `read_eprom`/`_operation_context`/`_setup_operation`
-source they inspect, and by hand-checking anchor-string uniqueness with `grep`), and both come
-with a genuine anti-vacuity leg that plants the literal named counter-example and asserts the pin
-reddens — not a decorative `pytest.raises` around an unrelated statement. All 10 tests in the file
-pass. However, both pins are narrower than their own framing implies (see WR-01/WR-02 below): each
-inspects one specific code shape rather than the full invariant its docstring claims to close, and
-for the "one connect per read" pin there is no runtime backstop anywhere in this diff, so a
-plausible bypass mutation would go completely undetected.
+**IN-02 (duplicated read-side-effect closures)** is confirmed closed: both
+`test_read_step_last_run_failure_yields_bad` and
+`test_read_step_first_run_failure_with_passing_last_run_yields_ok` now call the shared
+`_alternating_read_side_effect(*call_returns)` helper (`test_chip_test.py:1474-1494`), and I
+verified the refactor is behaviour-preserving (same call-count-modulo indexing, same
+64-zero-byte payload, same two orderings passed at each call site) and both tests still pass.
 
-No hardcoded secrets, dangerous functions, or empty catch blocks were found. No comments (`#`)
-were added by this phase in either file — only docstrings, consistent with the project's
-zero-comments-in-source rule (docstrings are explicitly permitted).
+**WR-01 (one-connect pin only checked the `with` header)** is substantively closed. The
+hardened `_read_eprom_connect_shape` now additionally counts every `ast.Call` anywhere in
+`read_eprom`'s body whose `func.attr` is `_operation_context`, `_setup_operation`, or
+`find_and_connect` (`connect_route_calls`), scoped correctly to `read_eprom`'s own
+`FunctionDef` rather than the module (avoiding the false-positive on `_operation_context`'s
+own internal `_setup_operation` call that the prior review's naive fix suggestion would have
+tripped). I re-derived the anti-vacuity leg by hand (planting a direct
+`self._setup_operation(...)` call outside the `with` header) and confirmed against the real
+`eprom_operations.py` source that `connect_route_calls` goes from 1 to 2 and the pin's own
+equality assertion reddens, exactly as claimed.
+
+**WR-02 (verdict-source pin didn't trace `last_ok` reassignment)** is largely closed for the
+mutation shape the prior review's counter-example used (a plain single-target reassignment
+statement), but the fix introduces a new, narrower gap of the same kind — see WR-01 below
+(renumbered for this review, since this is a fresh finding raised by the hardening itself,
+not a residual of the original WR-02).
+
+No hardcoded secrets, dangerous functions, or empty catch blocks were found. All 174 tests in
+these two files pass (`pytest tests/test_chip_test.py tests/test_readback_inventory.py -o
+addopts=""`), `ruff check` and `ruff format --check` are clean on both files, and the app's
+mypy watermark gate is confirmed at exactly 35/35 under Python 3.11 with neither file
+contributing an error (consistent with the 180-05 fix commit's own claim).
 
 ## Warnings
 
-### WR-01: "One connect per read" structural pin only checks the `with` header, not the rest of `read_eprom`'s body
+### WR-01: `_last_ok_assignment_shape`'s "closed claim" is false for multi-target and tuple-unpacking reassignment
 
-**File:** `firestarter_app/tests/test_readback_inventory.py:243-336`
-**Issue:** `test_one_read_eprom_call_costs_exactly_one_connect` and its anti-vacuity leg
-(`test_a_planted_second_operation_context_in_read_eprom_reddens_the_pin`) pin the "one call = one
-connect" premise entirely through `_read_eprom_connect_shape`'s `context_count`, which counts only
-`_operation_context(...)` items inside `read_eprom`'s `with` header (lines 256-264). It does not
-scan the rest of `read_eprom`'s body for any other route to a second connect — e.g. a stray direct
-`self._setup_operation(...)` or `SerialCommunicator.find_and_connect(...)` call added anywhere
-else inside the function, outside a `with` statement entirely. Such a mutation would still leave
-`context_count == 1` and the pin would stay green while the "one connect" premise the closure
-document (`180-PRUNE-08-CLOSURE.md`) rests on is silently false. Unlike the verdict-source pin
-(WR-02), there is no companion runtime/behavioural test anywhere in this diff that would catch
-this — the pin's own docstring concedes "it does not prove at runtime that exactly one serial open
-occurred," but that ceiling statement undersells the gap: it isn't just that runtime isn't proven,
-it's that a second **static** connect call outside the `with` header is invisible to this check
-too.
-**Fix:** Extend `_read_eprom_connect_shape` to also count any `ast.Call` anywhere in
-`read_eprom`'s body (not just within the `with` header) whose `func.attr` is `_setup_operation` or
-`find_and_connect`, and assert that total equals `context_count` (i.e., every connect-shaped call
-inside `read_eprom` is reached only via the one `_operation_context` item already counted):
+**File:** `firestarter_app/tests/test_readback_inventory.py:401-435` (docstring claim at
+407-414, vulnerable guard at 425, consuming pin at 176-200, anti-vacuity leg at 470-492)
+**Issue:** The docstring for `_last_ok_assignment_shape` states plainly: *"`other` is what
+makes the list a closed claim: any third assignment, any augmented assignment and any
+walrus on `last_ok` changes the list and reddens a pin asserting it."* This claim is false.
+The target-extraction loop only recognizes a plain `ast.Assign` when it has exactly one
+target (`len(n.targets) == 1`) and that target is a bare `ast.Name`:
+
 ```python
-stray_connects = sum(
-    1
-    for n in ast.walk(read_eprom)
-    if isinstance(n, ast.Call)
-    and isinstance(n.func, ast.Attribute)
-    and n.func.attr in ("_setup_operation", "find_and_connect")
-)
-assert stray_connects == 0
+if isinstance(n, ast.Assign) and len(n.targets) == 1:
+    target = n.targets[0]
 ```
 
-### WR-02: Verdict-source pin inspects the `verdict=` expression's syntax, not `last_ok`'s data flow
+A chained assignment (`last_ok = _junk = last_ok and not divergence`) or a tuple-unpacking
+assignment (`last_ok, _junk = (last_ok and not divergence), None`) reassigns `last_ok` to
+exactly the same divergence-dependent value the WR-02 anti-vacuity leg plants, but neither
+form is captured by the loop at all — `target` stays `None` for that node, so it is silently
+dropped from `targets` rather than being tagged `"other"`. I verified this empirically
+against the real `_dispatch_read` source: with either mutation applied,
+`_last_ok_assignment_shape(mutant)["tags"]` still returns exactly
+`["const_true", "read_eprom_call"]` (the "everything is fine" shape), and
+`_verdict_expression_names(mutant)` is unaffected too (`["VERDICT_BAD", "VERDICT_OK",
+"last_ok"]`) — so **both** the pre-hardening and the hardened pin stay green while `last_ok`
+now silently depends on `divergence`, the exact regression class Phase 180's WR-02 was
+supposed to close for good. This reopens (in a narrower but still ordinary-Python-idiom
+form) the same gap the phase's own hardening pass was written to eliminate, and the
+docstring's "closed claim" language overclaims what the code actually proves — exactly the
+failure mode the review scope calls out ("An over-claiming docstring on a structural pin is
+a real defect here, not a style nit").
+**Fix:** Flatten every `Assign` target (handling `ast.Tuple`/`ast.List` targets and multiple
+plain targets) before checking for `last_ok`, and tag any occurrence found inside a
+multi-target or destructuring assignment as `"other"` (never `"const_true"`/`"read_eprom_call"`,
+since those two tags should only ever apply to the two known-good single-target forms):
 
-**File:** `firestarter_app/tests/test_readback_inventory.py:138-212`
-**Issue:** `test_read_verdict_expression_reads_only_the_last_full_read_result` asserts the
-`ast.Name` set reachable from `_dispatch_read`'s `verdict=` keyword value is exactly
-`{VERDICT_BAD, VERDICT_OK, last_ok}`. This correctly catches the anti-vacuity leg's counter-example
-(a divergence term inlined directly into the ternary), but it does not trace whether `last_ok`
-itself was reassigned earlier in the function body before reaching the `StepResult(...)` call — for
-example, inserting `last_ok = last_ok and not divergence` immediately before the `return`
-statement would leave the `verdict=` line's `ast.Name` set completely unchanged (`last_ok`,
-`VERDICT_OK`, `VERDICT_BAD`), and this structural pin would stay green while the verdict now
-silently depends on divergence. (This particular escape happens to still be caught by the existing
-behavioural test `test_read_step_disagreement_is_divergence_metric_not_marginal` in
-`test_chip_test.py`, so it is not a fully unguarded gap today — but the pin's own docstring markets
-itself as "the structural half that catches a future change a behavioural test alone cannot," which
-overstates what a syntax-only check on one keyword expression can prove.)
-**Fix:** Either narrow the docstring's claim to "the literal verdict expression's shape" (drop the
-"catches what behavioural tests can't" framing), or strengthen the pin to walk the whole function
-body and assert `last_ok` is the target of exactly one `ast.Assign`/`ast.NamedExpr` (the one inside
-the `for` loop), so a later reassignment is caught structurally too.
+```python
+def _flatten_targets(node: ast.AST) -> list[ast.AST]:
+    if isinstance(node, (ast.Tuple, ast.List)):
+        out: list[ast.AST] = []
+        for elt in node.elts:
+            out.extend(_flatten_targets(elt))
+        return out
+    return [node]
 
-## Info
+for n in ast.walk(fn):
+    raw_targets: list[ast.AST] = []
+    is_simple_single_target = False
+    if isinstance(n, ast.Assign):
+        for t in n.targets:
+            raw_targets.extend(_flatten_targets(t))
+        is_simple_single_target = len(n.targets) == 1 and isinstance(
+            n.targets[0], ast.Name
+        )
+    elif isinstance(n, (ast.AugAssign, ast.AnnAssign, ast.NamedExpr)):
+        raw_targets = [n.target]
+        is_simple_single_target = True
+    hits_last_ok = any(
+        isinstance(t, ast.Name) and t.id == "last_ok" for t in raw_targets
+    )
+    if hits_last_ok:
+        targets.append((n.lineno, n.col_offset, n, is_simple_single_target))
+```
 
-### IN-01: Stale line citation in a new docstring
-
-**File:** `firestarter_app/tests/test_readback_inventory.py:170`
-**Issue:** The docstring for `test_read_verdict_expression_reads_only_the_last_full_read_result`
-cites `` `tests/test_chip_test.py`'s `test_read_step_last_run_failure_yields_bad` (:2141 sibling
-range) `` — but that function is defined at `test_chip_test.py:2177`, a 36-line drift from the
-citation. Non-executable (doesn't affect the gate), but factually wrong at the moment it was
-written, which suggests the citation wasn't checked against the actual sibling file before commit.
-**Fix:** Update the citation to the correct line (`:2177`), or drop the specific line number and
-cite the function name only, which can't drift.
-
-### IN-02: Duplicated read-side-effect closures across the two new behavioural tests
-
-**File:** `firestarter_app/tests/test_chip_test.py:2177-2240`
-**Issue:** `test_read_step_last_run_failure_yields_bad` and
-`test_read_step_first_run_failure_with_passing_last_run_yields_ok` each define an essentially
-identical local `_read_side_effect` / `call_returns` / `call_count` closure, differing only in the
-two-element list's order (`[True, False]` vs `[False, True]`). The file already has a precedent
-for factoring a `read_eprom` side-effect builder out into a shared helper
-(`_writes_bytes_to_output_file`, line 1428), but that helper always returns `True` and can't
-express an alternating pass/fail sequence, so it wasn't reusable here as-is.
-**Fix:** Factor a small `_alternating_read_side_effect(*call_returns: bool)` helper (mirroring
-`_writes_bytes_to_output_file`'s shape) that both new tests call with their own ordered tuple,
-removing the duplicated boilerplate.
+and have `_tag` force `"other"` whenever `is_simple_single_target` is `False`, before
+applying the existing `const_true`/`read_eprom_call` pattern checks. Add a seventh
+anti-vacuity leg planting one of the two forms above (I used
+`last_ok = _junk = last_ok and not divergence`) and asserting the hardened pin now reddens
+on it.
 
 ---
 
-_Reviewed: 2026-09-08T15:55:24Z_
+_Reviewed: 2026-09-08T00:00:00Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
