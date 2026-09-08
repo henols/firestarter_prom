@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
-current_phase: 180
-current_phase_name: Read-Step Sampling (conditional on Phase 176)
-status: planning
-stopped_at: "Phase 179 complete, ready to plan Phase 180"
+current_phase: 179
+current_phase_name: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)
+status: verifying
+stopped_at: "Phase 179 plans all complete, awaiting verification"
 last_updated: "2026-09-08T07:54:59.000Z"
 last_activity: 2026-09-08
 last_activity_desc: "179-04 COMPLETE 2026-09-08 -- the blocking-human bench wave: a real ST M27C512 on a Leonardo (/dev/ttyACM0), holding 16 bytes outside its top slot, accepted a write at 0xFF00 via `firestarter dev test m27c512` (no --fast, exit 0) and reached overall_verdict==PASS with write/verify run_count==2, title `[dev test] m27c512 -- PASS (dea6e2474d30)`; blank-check adjudicated SKIPPED with its not-blank finding intact (error_code=176). Recorded in 179-MEASUREMENT.md; one of two budgeted slots spent, no retry needed. Task 2 sealed the phase on that PASS sentinel: UV-01/UV-02/UV-03 all marked Complete in REQUIREMENTS.md, ROADMAP.md's four Phase 179 plan checkboxes ticked, two falsified prior claims (PITFALLS.md's hardware_refused abort mechanism; SUMMARY.md's probe-read string-equality witness) repaired in place, three residuals filed as todos (ladder-flip T-179-05, Q5 disclosure key deferred to Phase 181, Q8 mid-line-boundary blocker). Every gate green in both repos: full suite 2265 passed/0 failed/32 snapshots, phase_added_comments=0 anchored at 835baba, cli_handlers.py and plan_shapes.json byte-unchanged across the whole phase. Phase 179 fully closed (4/4 plans). Ready to plan Phase 180 (Read-Step Sampling, conditional on Phase 176's connect-cost measurement)."
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 5
   total_plans: 27
   completed_plans: 27
-  percent: 75
+  percent: 63
 ---
 
 # Project State
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 180 — Read-Step Sampling (conditional on Phase 176)
+**Current focus:** Phase 179 — UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated) — plans complete, verification pending
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 180 — Read-Step Sampling (conditional on Phase 176)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-08 — Phase 179 complete, transitioned to Phase 180
+Phase: 179 (UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` (hardware-gated)) — PLANS COMPLETE, VERIFYING
+Plan: 4 of 4
+Status: Awaiting phase verification
+Last activity: 2026-09-08 — Plan 179-04 complete: real ST M27C512 bench PASS on a Leonardo; phase seal applied; verification not yet run
 
 ## Roadmap Summary (v1.36)
 
@@ -3290,7 +3290,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-08T07:54:59.000Z
-**Stopped at:** Phase 179 complete, ready to plan Phase 180
+**Stopped at:** Phase 179 plans all complete, awaiting verification
 **Was (superseded, retained for continuity):** Completed 179-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
