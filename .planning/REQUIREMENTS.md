@@ -57,7 +57,7 @@ buffer is unmodelled.
 - [x] **PRUNE-05**: Unsupported steps keep their `StepResult` with an NA verdict; only the work is skipped. They are **not** dropped from `Plan.steps` — 637 of 677 chips carry six `supported=False` SDP steps and they are hash ballast, not waste.
 - [x] **PRUNE-06**: A structural test over `derive_plan` output fails when a plan emits a write with no verify behind it. Expressed as a relational predicate over `Plan.steps`, not a self-declared per-step annotation, and carrying anti-vacuity legs including a planted counter-example.
 - [x] **PRUNE-07**: The seed `.planning/seeds/dev-test-adaptive-sequencing.md` is amended so R1 no longer instructs a planner to destroy the diagnostic R2 preserves (D-1).
-- [x] **PRUNE-08**: The read step's second full sweep is replaced by a bit-structured sample **only if** MEAS-01 shows the sample is cheaper on the measured board class. If it is not, this requirement closes as *measured, not worth doing*, with the measurement recorded — that is a success, not a miss.
+- [ ] **PRUNE-08**: The read step's second full sweep is replaced by a bit-structured sample **only if** MEAS-01 shows the sample is cheaper on the measured board class. If it is not, this requirement closes as *measured, not worth doing*, with the measurement recorded — that is a success, not a miss.
 
 ### Fault Attribution
 
@@ -172,7 +172,7 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | UV-01 | Phase 179 | Complete |
 | UV-02 | Phase 179 | Complete |
 | UV-03 | Phase 179 | Complete |
-| PRUNE-08 | Phase 180 | Complete |
+| PRUNE-08 | Phase 180 | Gaps Found |
 | RPT-A1 | Phase 181 | Pending |
 | RPT-A2 | Phase 181 | Pending |
 | RPT-A3 | Phase 181 | Pending |
