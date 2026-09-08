@@ -4,15 +4,15 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 180
 current_phase_name: Read-Step Sampling (conditional on Phase 176)
-status: verifying
-stopped_at: "Phase 180 verification: gaps_found (23/24) -- 1 gap in the seed R3 amendment"
-last_updated: "2026-09-08T15:36:00.000Z"
+status: planned
+stopped_at: "Phase 180 gap closure PLANNED -- 2 plans (180-04, 180-05), plan-checker passed; ready to execute"
+last_updated: "2026-09-08T17:25:53.820Z"
 last_activity: 2026-09-08
-last_activity_desc: "Phase 180 EXECUTED 2026-09-08 -- 3/3 plans, 13 commits (4 in firestarter_app, 9 in meta); app suite 2245 passed / 0 failed at final HEAD, re-run by the orchestrator. VERIFICATION returned gaps_found at 23/24 must-haves: the seed's R3 keeps two present-tense paragraphs (the 'Escalate to...' escalation policy and the '**Cost, stated:**' stride rationale) that plan 180-02's own <action> text told the executor to leave alone, so the rejected sampler stays reconstructable from the seed and D-09 is only partly met -- a PLANNING defect, not an execution one. PRUNE-08 was reverted out of Complete to 'Gaps Found' per the gaps_found gate; phase.complete NOT run. Code review (standard, 2 files): 0 critical, 2 warning (WR-01 one-connect pin checks only the with-header; WR-02 verdict-pin docstring overclaims a syntax-only check), 2 info -- unapplied. Next: /gsd-plan-phase 180 --gaps."
+last_activity_desc: "Phase 180 EXECUTED 2026-09-08 -- 3/3 plans, 13 commits (4 in firestarter_app, 9 in meta); app suite 2245 passed / 0 failed at final HEAD, re-run by the orchestrator. VERIFICATION returned gaps_found at 23/24 must-haves: the seed's R3 keeps two present-tense paragraphs (the 'Escalate to...' escalation policy and the '**Cost, stated:**' stride rationale) that plan 180-02's own <action> text told the executor to leave alone, so the rejected sampler stays reconstructable from the seed and D-09 is only partly met -- a PLANNING defect, not an execution one. PRUNE-08 was reverted out of Complete to 'Gaps Found' per the gaps_found gate; phase.complete NOT run. Code review (standard, 2 files): 0 critical, 2 warning (WR-01 one-connect pin checks only the with-header; WR-02 verdict-pin docstring overclaims a syntax-only check), 2 info -- unapplied. GAP CLOSURE PLANNED 2026-09-08 -- /gsd-plan-phase 180 --gaps wrote 2 plans, committed 79c4a200: 180-04 (wave 1) removes the two live-reading R3 paragraphs by absence per D-09 and hardens both pins with a three-way GREEN/RED/GREEN discrimination, 180-05 (wave 2) does IN-02 then the re-seal. 180-01/02/03 byte-untouched. Operator elected to harden WR-01/WR-02 and fix IN-01/IN-02 in-phase rather than defer. gsd-plan-checker: VERIFICATION PASSED, 0 blocker / 0 warning / 0 info; both deterministic probes clean (60 commands each, all severity none, no readError). Requirements coverage 1/1 (PRUNE-08), decision coverage 9/9. Two planner findings recorded: the REVIEW WR-02 fix is wrong against this source (_dispatch_read assigns last_ok twice, not once) and a dash-leading /usr/bin/grep -qF pattern in 180-03 exits 2, so both new plans use -qFe. Next: /gsd-execute-phase 180 --gaps-only."
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 30
+  total_plans: 32
   completed_plans: 30
   percent: 88
 ---
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — GAPS FOUND
-Plan: 3 of 3 executed
-Status: Verification returned gaps_found (23/24) — phase NOT complete; run /gsd-plan-phase 180 --gaps
-Last activity: 2026-09-08 — Phase 180 executed 3/3, verification found 1 gap in the seed R3 amendment; PRUNE-08 reverted to Gaps Found
+Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — READY TO EXECUTE
+Plan: 5 planned / 3 executed — 180-04 and 180-05 are gap_closure, pending
+Status: Gap closure planned and checker-passed — phase NOT complete; run /gsd-execute-phase 180 --gaps-only
+Last activity: 2026-09-08 — Phase 180 gap closure planned: 2 plans (180-04, 180-05) for the seed R3 gap plus WR-01/WR-02/IN-01/IN-02; plan-checker passed clean
 
 ## Roadmap Summary (v1.36)
 
