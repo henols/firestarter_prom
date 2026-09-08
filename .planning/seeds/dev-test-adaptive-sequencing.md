@@ -73,30 +73,20 @@ Read-repeatability is a **statistical** property, and so is `ff_ratio`. Both are
 currently established by full-device sweeps.
 
 **Measured and rejected (Phase 180, PRUNE-08).** The bit-structured sample this
-rule proposed — one 256 B block at each device-size-scaled boundary, plus
-block 0 and the top block — was priced against `EpromOperator._operation_context`
+rule proposed was priced against `EpromOperator._operation_context`
 (`firestarter_app/firestarter/eprom_operations.py:515-550`), which connects on
 entry and disconnects inside its own `finally` block: **every** `read_eprom`
 call, sampled or full, pays one full connect. At the 64 KiB reference size the
-sample is 10 blocks, so it substitutes 10 whole `read_eprom` calls — 10
-connects — for the 1 whole `read_eprom` call the full sweep it would replace
-already costs. Ten connects exceed one connect on both measured board classes
-(MEAS-01) at every reference size this milestone tests, so the sample is
-dearer than the sweep it would replace, not cheaper. The full argument, the
-per-board-class measured figures and the size-axis finding are in
+sample was 10 separate `read_eprom` calls — 10 connects — against the 1 whole
+`read_eprom` call the full sweep it would replace already costs. Ten connects
+exceed one connect on both measured board classes (MEAS-01) at every
+reference size this milestone tests, so the sample is dearer than the sweep
+it would replace, not cheaper. The full argument, the per-board-class
+measured figures and the size-axis finding are in
 `.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`.
-
-Escalate to the full second read only when the sample diverges, so exact
-divergence counts (`cmp_len`, `bad`, `pct`, `first_offset`) survive intact on
-every run where they mean anything.
-
-**Cost, stated:** on a passing run the divergence metric becomes an *estimate*
-over a sampled subset rather than an exact whole-device count. A scattered
-transport fault — the uno328pb signature, and the only fault class this metric
-was built to catch — is caught with high probability by any sample of this size,
-because scatter is what makes it detectable. A fault confined entirely to
-unsampled bytes would be missed on the first pass; the bit-structured stride is
-chosen to make that region small and address-line-aligned rather than arbitrary.
+Nothing in this rule is a live instruction to build the sample, and the
+design's operative detail — how its blocks were chosen and when it would have
+escalated — is deliberately not restated here.
 
 ### R4 — One session per plan, not one per call
 
@@ -208,3 +198,16 @@ one sentence of R4 are now amended by this section. Not touched by this
 amendment:** R1, R2, the projected-effect table, the per-class
 characteristics section, the sequencing note and the out-of-scope section
 above.
+
+**Follow-through, gap closure.** 2026-09-08. `180-VERIFICATION.md` found that
+the amendment above still left R3's escalate-on-divergence paragraph and its
+stated-cost paragraph standing beneath the rejection verdict, both written in
+the present tense as live design description — an escalation policy and a
+stride rationale — with no historical framing. They are now removed outright
+rather than annotated, and R3's verdict paragraph no longer enumerates which
+blocks the sample would have used. An annotated retention — a "for the
+historical record" banner in front of the same text — is the exact route
+D-09 rejects: the destructive reading must be absent, not merely outvoted by
+a paragraph beside it. This follow-through does not touch R1, R2, R4, the
+projected-effect table, the per-class characteristics section, the sequencing note,
+or the out-of-scope section, exactly as the amendment above it did not.
