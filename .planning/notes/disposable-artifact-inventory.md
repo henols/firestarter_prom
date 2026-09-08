@@ -69,7 +69,7 @@ Raised during this exploration: *"isn't that something that is bypassing gsd?"* 
 impression — a hand-rolled Python checker with its own GitHub Actions workflow — and it is wrong.
 Recording the refutation so a later cleanup sweep does not act on the same instinct.
 
-- `.planning/MILESTONES.md:49` designates the **local** invocation, `python3
+- `.planning/MILESTONES.md` (line 49 as it then stood) designated the **local** invocation, `python3
   tools/rekey/check_rekey_ledger.py` run from `/workspaces`, as the **primary** gate, and states
   it "does not depend on CI registration to exist at all (D-13)". The registered workflow is the
   *additional* leg — its own `name:` field says so. When a row goes red, the local gate is
