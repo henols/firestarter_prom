@@ -86,7 +86,7 @@ Use `/gsd-quick` for this. It is a tracked-file change with a real oracle, not a
 |---|---|
 | Content | **byte-identical** after the move (193 lines), so all **33** line-anchored `MIGRATION-TABLE.md:N` citations stay valid |
 | Path citations remapped | **324** across **87** files |
-| Old path remaining in `.planning/` | 0 (the last one was this todo's own grep-check string, resolved by closing it) |
+| Old path remaining in `.planning/` | 0 live citations. Two literal occurrences survive **in this file only** — the `git mv` command recorded below, and the criterion's own grep string at line 66. Both are historical records of what was run, not references to a moved file, so criterion 3 above is self-defeating as written and is discharged by this row instead. |
 | `tools/` now contains | `catalog/` only — `codegen.py`, `messages.toml`, `sync_to_subrepos.sh` |
 
 **Deliberately NOT remapped:** roughly 1,150 citations to the *deleted* checkers
