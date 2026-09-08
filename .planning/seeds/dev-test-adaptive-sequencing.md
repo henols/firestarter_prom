@@ -2,7 +2,7 @@
 title: dev test — adaptive, evidence-gated test sequencing
 trigger_condition: Next milestone that touches `dev test` / chip_test.py. Explicitly NOT v1.35 (documentation-only). Natural carriers, whichever activates first: a `dev test` throughput milestone in its own right, or folded into the next chip-validation milestone that already has the engine open.
 planted_date: 2026-08-30
-status: R1 and R2 realized by Phase 177 (2026-09-05, PRUNE-01/02/03/04); R3 remains for Phase 180 (PRUNE-08); R4 deferred to Future Requirements (R4-01/R4-02)
+status: R1 and R2 realized by Phase 177 (2026-09-05, PRUNE-01/02/03/04); R3 closed by Phase 180 (2026-09-08) as measured, not worth doing (PRUNE-08); R4 deferred to Future Requirements (R4-01/R4-02)
 ---
 
 # `dev test` — adaptive, evidence-gated sequencing
@@ -72,13 +72,19 @@ The read-back is what costs; the classification is free.
 Read-repeatability is a **statistical** property, and so is `ff_ratio`. Both are
 currently established by full-device sweeps.
 
-Replace the read step's second full run with a **bit-structured sample**: one
-256 B block at each `1 << k` boundary for `k` in `8..log2(size)`, plus block 0
-and the top block. For a 64 KiB part that is 10 blocks / 2560 B, and it toggles
-**every address line in both polarities** — which is precisely the structure
-`classify_fingerprint` looks for when it clusters mismatch offsets by high
-address bit. A contiguous sample would not do this; the bit-structure is the
-whole point.
+**Measured and rejected (Phase 180, PRUNE-08).** The bit-structured sample this
+rule proposed — one 256 B block at each device-size-scaled boundary, plus
+block 0 and the top block — was priced against `EpromOperator._operation_context`
+(`firestarter_app/firestarter/eprom_operations.py:515-550`), which connects on
+entry and disconnects inside its own `finally` block: **every** `read_eprom`
+call, sampled or full, pays one full connect. At the 64 KiB reference size the
+sample is 10 blocks, so it substitutes 10 whole `read_eprom` calls — 10
+connects — for the 1 whole `read_eprom` call the full sweep it would replace
+already costs. Ten connects exceed one connect on both measured board classes
+(MEAS-01) at every reference size this milestone tests, so the sample is
+dearer than the sweep it would replace, not cheaper. The full argument, the
+per-board-class measured figures and the size-axis finding are in
+`.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`.
 
 Escalate to the full second read only when the sample diverges, so exact
 divergence counts (`cmp_len`, `bad`, `pct`, `first_offset`) survive intact on
@@ -101,9 +107,13 @@ at28c256**, whose six-op SDP leg alone costs 12 connects for ~3 KB of traffic.
 Cheaper, strictly-additive sub-step available independently: fold `sample_vpp_mv`
 and `sample_vpe_mv` into one monitor read (−2 connects per write step).
 
-**Per-connect cost is unmeasured** — the counts are validated, the seconds are
-not. Anyone planning this should measure a connect first and let that decide how
-much R4 is worth relative to R1–R3.
+**Per-connect cost is now measured** (MEAS-01, `176-MEASUREMENT.md` §4a/§4b) —
+the counts were already validated; the seconds are Uno-class median 2.518 s
+and Leonardo-class median 2.607 s, per board class and never blended. What
+that measurement decided about R1 through R3 is recorded in
+`.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`.
+R4 itself remains unscoped: whether leasing one validated link per plan is
+worth building is still an open question this phase does not answer.
 
 ## Projected effect
 
@@ -175,3 +185,26 @@ cycle alone, and states that a passing step still reports a synthesized
 `match` fingerprint. **Not touched by this amendment:** R3, R4, the
 projected-effect table, the per-class characteristics section and the
 out-of-scope section above.
+
+## Status: Phase 180 amendment
+
+**Phase 180, 2026-09-08.** R3's live paragraph instructed a future planner to
+build the bit-structured sample described above. Phase 176 measured the
+per-connect cost this rule needed and Phase 180 spent it: at the 64 KiB
+reference size the sample costs 10 connects against the 1 the full sweep it
+would replace already pays, on both measured board classes, at every
+reference size this milestone tests — so the design this paragraph proposed
+is dearer than what it would replace, not cheaper. Decision `D-01`
+(`.planning/REQUIREMENTS.md`, PRUNE-08) and MEAS-01's measurement
+(`176-MEASUREMENT.md` §4a/§4b) are the deciding authority; the full argument
+is `.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`.
+As with Phase 177's amendment to R1, this amendment replaces R3's paragraph
+**in place** rather than merely annotating it, so the destructive reading is
+not outvoted but absent — a planner reading only this seed can no longer
+regenerate it. R4's opening sentence is also corrected in place: its claim
+that the per-connect cost is unmeasured was true when written and is false
+now that MEAS-01 exists, so it now cites the measurement instead. **R3 and
+one sentence of R4 are now amended by this section. Not touched by this
+amendment:** R1, R2, the projected-effect table, the per-class
+characteristics section, the sequencing note and the out-of-scope section
+above.
