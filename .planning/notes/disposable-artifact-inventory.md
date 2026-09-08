@@ -95,6 +95,13 @@ ledger `firestarter_app/tests/fixtures/rekey_ledger.py` as **authoritative** and
 the record" direction. It is a recorded decision (D-09/D-13), justified by the ledger being
 machine-readable and co-located with the frozen test hashes it governs.
 
-**Verdict: not removable.** Both `tools/catalog/` and `tools/rekey/` are live gates with
-registered workflows. After the `MIGRATION-TABLE.md` relocation, they are all that `tools/`
-should contain.
+**Verdict, superseded the same day.** The paragraphs above answered "is this a bypass?" — no,
+its provenance is GSD's own. They did **not** answer "should it exist?", and the operator's ruling
+on that is the opposite: *"it's not the CI's job to do"*, and *"gsd shall not use it in any way at
+all, it will just break the GSD's intended workflow."* Provenance is not justification. Two
+measured defects settle it independently — the coupling turns app CI red (`13 failed, 13 passed`
+on a bare checkout versus `26 passed` here), and three of the checker's own fail-closed proofs are
+tautological, because `python3` on a missing script exits `2` exactly as the checker's
+fail-closed path does, so they pass with their own subject deleted. Retirement scope is in
+`.planning/todos/pending/2026-09-08-retire-the-rekey-cross-tree-checker.md`. After it lands,
+`tools/` holds only `catalog/`.

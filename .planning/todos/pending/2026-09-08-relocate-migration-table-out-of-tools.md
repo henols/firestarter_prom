@@ -55,7 +55,9 @@ misapplied.
 
 ## Acceptance
 
-- [ ] `tools/wiki/` no longer exists; `tools/` contains only `catalog/` and `rekey/`.
+- [ ] `tools/wiki/` no longer exists. `tools/` then contains `catalog/` and, until the
+      re-key checker retirement todo lands, `rekey/` — which is itself slated for removal
+      (see `2026-09-08-retire-the-rekey-cross-tree-checker.md`), leaving `catalog/` alone.
 - [ ] `.planning/v1.35/MIGRATION-TABLE.md` exists and is byte-identical to the old file
       (`git log --follow` shows the rename; `git show HEAD~1:tools/wiki/MIGRATION-TABLE.md | diff - .planning/v1.35/MIGRATION-TABLE.md` is empty).
 - [ ] `/usr/bin/grep -rn "tools/wiki/MIGRATION-TABLE" .planning | wc -l` is **0**.
