@@ -192,6 +192,6 @@ None — no external service configuration required.
 ## Self-Check: PASSED
 
 - All key files exist on disk: `test_chip_test.py`, `test_readback_inventory.py`, `REQUIREMENTS.md`, `ROADMAP.md`, and all three new evidence transcripts.
-- Meta-repo commits found: `e39bb91e`, `36135c6c`, `61cd927c`, `2b93c20a`, `bc8d0d82` (`git log --oneline --all | grep` confirms all five).
-- Submodule commits found: `dd9fe88`, `04fd982` (inside `firestarter_app`).
+- Meta-repo commits found (`git log --oneline --all | grep`): `e39bb91e`, `36135c6c`, `61cd927c`, `2b93c20a`, `bc8d0d82`, `ebf41313` (this SUMMARY's own commit).
+- Submodule commits found (`git -C firestarter_app log --oneline --all | grep`, meta-repo `git log` does not carry submodule history): `dd9fe88`, `04fd982`.
 - All acceptance criteria for all three tasks independently re-verified in this session and passed: builder call-site counts, nested-closure removal, pytest counts (162/4/12/2247), assertion-safety diff, ledger counts, pinned-blob diff ceilings, roadmap region `cmp` legs, mypy watermark, tokenize comment gate, and the seven-leg battery's `rc=0` count.
