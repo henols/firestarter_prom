@@ -9,7 +9,7 @@ This is a meta-repo / planning repo for the Firestarter EPROM programmer project
 - `firestarter/` — Arduino C++ firmware (PlatformIO). See `firestarter/CLAUDE.md`.
 - `firestarter_app/` — Python host CLI application (pip package). See `firestarter_app/CLAUDE.md`.
 
-This repo tracks `.planning/` (GSD project management artifacts), `.claude/` (project settings), `tools/` and `.github/` (repo-level tooling and CI). Neither sub-repo is committed here. Documentation lives only in the `firestarter_prom` GitHub wiki — there is no in-repo copy of it. `tools/wiki/` holds the checkers that run against a clone of that wiki.
+This repo tracks `.planning/` (GSD project management artifacts), `.claude/` (project settings), `tools/` and `.github/` (repo-level tooling and CI). Neither sub-repo is committed here. Documentation lives only in the `firestarter_prom` GitHub wiki — there is no in-repo copy of it. The `tools/wiki/` checkers that used to validate a clone of that wiki were retired on 2026-09-02 (`5426d7ef`); only `MIGRATION-TABLE.md` survives there, as a record of the completed migration, and **no automated wiki guard exists now**.
 
 ## System Overview
 
@@ -47,9 +47,31 @@ pio test                          # run unit tests
 - **Board differences**: Uno has a 512-byte data buffer; Leonardo has 1024 bytes. Buffer size affects chunked transfer in `eprom_operations.py`.
 - Hardware calibration (R1/R2 resistor values, board revision) is persisted in Arduino EEPROM via `rurp_configuration_t`.
 
+## Source code comments — hard rule
+
+**Write no comments into product source.** This covers everything under `firestarter/` and
+`firestarter_app/`, and it is not overridable by a plan, task, skill, or subagent instruction.
+
+- GSD process commentary never belongs in code: no `// Phase NNN (REQ-NN):`, no `// D-06`, no
+  `// LOCK-04`, no plan/task/milestone citations, no blocks explaining why a phase decided
+  something. The reader of the firmware or the pip package does not have `.planning/` and never
+  will — those identifiers resolve to nothing for them, and phase numbers are renumbered at
+  milestone close.
+- **Where it goes instead:** the phase `SUMMARY.md` ("Key decisions made during execution with
+  rationale"), `.planning/REQUIREMENTS.md` traceability, or the commit message. That is where GSD
+  itself puts rationale; nothing in GSD asks for it in source.
+- **Planners:** do not write "add a comment citing X" into a plan, and do not make "a comment
+  exists" an acceptance criterion. Both generate exactly what this rule forbids.
+- **Executors:** if an existing plan instructs a source comment, do not add it. Record the
+  deviation in the plan's `SUMMARY.md` instead.
+- If code needs explaining, make the code clearer — better names, smaller functions, a named
+  constant — rather than annotating it.
+- Docstrings are a separate question. Click docstrings in `firestarter_app` are user-facing
+  `--help` text, not commentary, and must not be treated as comments.
+
 ## Milestone close and branch protection
 
 - **`main` is protected in all three repositories** — pull request required, no direct push, no force-push, no deletion. `current_user_can_bypass` is `never`, so no person can bypass.
 - **This project's close targets `beta`, not `main`.** `.planning/config.json` sets `git.base_branch` to `beta`, so `/gsd-complete-milestone` and `/gsd-ship` both point there.
-- **Before running `/gsd-ship`, recreate local `beta` from `origin/beta`** — `ship.md:316` anchors its audit range on `merge-base beta HEAD` and local `beta` goes stale.
+- **Before running `/gsd-ship`, recreate local `beta` from `origin/beta`** — `ship.md` anchors its audit range on `RANGE_BASE=$(git merge-base "${BASE_BRANCH}" HEAD)` and local `beta` goes stale. Cited by content, not line number: `workflows/ship.md` is installer-owned and a GSD version bump moves its lines.
 - **The mechanics, the blocked stable-release route and the consumer sites are in `.planning/notes/v135-close-procedure-under-protection.md`.**
