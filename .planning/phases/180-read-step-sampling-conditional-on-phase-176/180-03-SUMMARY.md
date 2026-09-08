@@ -171,3 +171,20 @@ None — no external service configuration required.
 ---
 *Phase: 180-read-step-sampling-conditional-on-phase-176*
 *Completed: 2026-09-08*
+
+## Self-Check: PASSED
+
+All created files verified present on disk: `180-03-SUMMARY.md` (this file),
+`evidence/180-03-requirement-marking.txt`, `evidence/180-03-phase-seal.txt`. All
+four meta-repo commits verified present in `git log --oneline --all`: `53167da7`
+(requirement marking), `9f65162c` (gitlink advance for the Rule-3 fix),
+`e7df74b9` (phase seal), `500d1337` (this SUMMARY + STATE.md + ROADMAP.md +
+REQUIREMENTS.md). The one submodule commit, `93a1672` (style fix in
+`firestarter_app`), verified present in that repo's own `git log --oneline
+--all`. All plan-level `<verification>` items re-confirmed: PRUNE-08 reads
+Complete at both REQUIREMENTS.md sites with counts 18/28/18/28; all seven
+battery legs plus the comment-delta and cleanliness legs read `rc=0` in
+`evidence/180-03-phase-seal.txt`; ROADMAP.md's Phase 180 section carries three
+ticked plan checkboxes with its requirements line and dependency table
+byte-unchanged outside the two ticked lines; `.planning/STATE.md`'s frontmatter
+re-parses as valid YAML after the hand edits.
