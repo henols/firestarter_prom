@@ -442,7 +442,19 @@ Plans:
   3. Whichever branch is taken, the read step's verdict source stays pinned to the full read by test — it never silently becomes the sample's verdict.
   4. If sampling ships, block-wise `(offset, block)` comparison is used, never a whole-file compare, proven by a test using a hole-padded region fixture that a whole-file compare would misreport as a false divergence.
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+**Wave 1**
+
+- [ ] 180-01-PLAN.md — Pin the read step's verdict to the last full read and the one-connect-per-read premise, each proven RED against a planted mutant, and open `180-PRUNE-08-CLOSURE.md` on the model-free connect arithmetic
+
+**Wave 2**
+
+- [ ] 180-02-PLAN.md — Complete the closing document (named exclusion, criterion 4's N/A verdict, the granted standing, R4-01 as the invalidating condition) and amend the seed in place so the rejected sampling design cannot be regenerated from it
+
+**Wave 3**
+
+- [ ] 180-03-PLAN.md — Record PRUNE-08 Complete in exactly two ledger lines, only after its closing document exists, then the seven-leg phase seal
 
 ### Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 
