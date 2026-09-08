@@ -3,8 +3,8 @@ phase: 179-uv-slot-writes-flag-skip-blank-check-hardware-gated
 verified: 2026-09-08T09:45:00Z
 status: passed
 score: 4/4 must-haves verified
-covered_files: [".planning/REQUIREMENTS.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-01-PLAN.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-01-SUMMARY.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-02-PLAN.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-02-SUMMARY.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-03-PLAN.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-03-SUMMARY.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-04-PLAN.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-04-SUMMARY.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-DECISIONS.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-MEASUREMENT.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-REVIEW.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/COVERAGE.md", "firestarter_app/firestarter/chip_test.py", "firestarter_app/tests/fake_chip.py", "firestarter_app/tests/fixtures/rekey_ledger.py", "firestarter_app/tests/fixtures/report_shapes.py", "firestarter_app/tests/fixtures/reports/m27c512-full-blank-check-bad.json", "firestarter_app/tests/fixtures/reports/uv-slot-write-pass.json", "firestarter_app/tests/fixtures/shape_ids.json", "firestarter_app/tests/test_blast_radius_invariance.py", "firestarter_app/tests/test_chip_test_cycle.py", "firestarter_app/tests/test_chip_test_uv_slot_write.py", "firestarter_app/tests/test_dev_test_cmd.py", "firestarter_app/tests/test_uv_mask.py"]
-covered_digest: "v1:sha256:30db8fe3a836f64b8e41da23007614c46afa4cd91b4404cbe9696250838bda95"
+covered_files: [".planning/REQUIREMENTS.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-01-PLAN.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-01-SUMMARY.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-02-PLAN.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-02-SUMMARY.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-03-PLAN.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-03-SUMMARY.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-04-PLAN.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-04-SUMMARY.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-DECISIONS.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-MEASUREMENT.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/179-REVIEW.md", ".planning/phases/179-uv-slot-writes-flag-skip-blank-check-hardware-gated/COVERAGE.md", "firestarter_app/firestarter/chip_test.py", "firestarter_app/tests/fake_chip.py", "firestarter_app/tests/fixtures/report_shapes.py", "firestarter_app/tests/fixtures/reports/m27c512-full-blank-check-bad.json", "firestarter_app/tests/fixtures/reports/uv-slot-write-pass.json", "firestarter_app/tests/fixtures/shape_ids.json", "firestarter_app/tests/test_blast_radius_invariance.py", "firestarter_app/tests/test_chip_test_cycle.py", "firestarter_app/tests/test_chip_test_uv_slot_write.py", "firestarter_app/tests/test_dev_test_cmd.py", "firestarter_app/tests/test_uv_mask.py"]
+covered_digest: "v1:sha256:e95881f4877228321faa6f754eba4d90fedc85a965749aa89f4e47cdcfb1066e"
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
@@ -183,6 +183,31 @@ and marked falsified, matching this project's established precedent), and findin
 scoped, accurately-attributed todo (T-179-07). Zero open findings against this phase remain from this
 verifier's own two passes, beyond the one pre-existing, already-documented code-review warning (WR-01)
 that was never part of this remediation request.
+
+## Covered-input fingerprint repaired (2026-09-08, post-verification)
+
+`covered_files` listed `firestarter_app/tests/fixtures/rekey_ledger.py`, which was **deleted**
+after this verification ran, as part of retiring the re-key cross-tree checker (meta `f81b1e8b`,
+app `e596853` — operator ruling: CI must not police a `.planning` record, and GSD must not depend
+on such a gate).
+
+`covered_digest` is a sha256 over the covered files' **contents**, and
+`verification.fingerprint` fails closed on a missing path rather than emitting a partial value.
+So the digest recorded here had become **unrecomputable**, not merely stale — confirmed by
+running the verb against the original 25-entry list, which returned *"could not compute
+fingerprint — a covered file is missing, unreadable, or escapes the project root"*.
+
+Repaired by dropping only that one entry and recomputing over the 24 survivors with the official
+verb. Nothing else in this report was touched; the verdict, score and findings stand as verified.
+
+| | |
+|---|---|
+| Entry removed | `firestarter_app/tests/fixtures/rekey_ledger.py` (1 of 25) |
+| Digest as verified | `v1:sha256:30db8fe3a836f64b8e41da23007614c46afa4cd91b4404cbe9696250838bda95` (no longer recomputable) |
+| Digest now | `v1:sha256:e95881f4877228321faa6f754eba4d90fedc85a965749aa89f4e47cdcfb1066e` (recomputes clean over 24 files) |
+
+The removed path is recorded above rather than erased, because this file's own `covered_files`
+field is machine-read and cannot carry the explanation itself.
 
 ---
 
