@@ -2,13 +2,13 @@
 gsd_state_version: "1.0"
 milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
-current_phase: 180
-current_phase_name: Read-Step Sampling (conditional on Phase 176)
-status: verifying
-stopped_at: "Phase 180 RE-VERIFIED human_needed 25/26 -- 1 UAT item (WR-02 residual); run /gsd-verify-work 180"
-last_updated: "2026-09-08T18:56:09Z"
+current_phase: 181
+current_phase_name: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
+status: planning
+stopped_at: Phase 180 complete, ready to plan Phase 181
+last_updated: "2026-09-08T19:34:18.074Z"
 last_activity: 2026-09-08
-last_activity_desc: "Phase 180 EXECUTED 2026-09-08 -- 3/3 plans, 13 commits (4 in firestarter_app, 9 in meta); app suite 2245 passed / 0 failed at final HEAD, re-run by the orchestrator. VERIFICATION returned gaps_found at 23/24 must-haves: the seed's R3 keeps two present-tense paragraphs (the 'Escalate to...' escalation policy and the '**Cost, stated:**' stride rationale) that plan 180-02's own <action> text told the executor to leave alone, so the rejected sampler stays reconstructable from the seed and D-09 is only partly met -- a PLANNING defect, not an execution one. PRUNE-08 was reverted out of Complete to 'Gaps Found' per the gaps_found gate; phase.complete NOT run. Code review (standard, 2 files): 0 critical, 2 warning (WR-01 one-connect pin checks only the with-header; WR-02 verdict-pin docstring overclaims a syntax-only check), 2 info -- unapplied. GAP CLOSURE PLANNED 2026-09-08 -- /gsd-plan-phase 180 --gaps wrote 2 plans, committed 79c4a200: 180-04 (wave 1) removes the two live-reading R3 paragraphs by absence per D-09 and hardens both pins with a three-way GREEN/RED/GREEN discrimination, 180-05 (wave 2) does IN-02 then the re-seal. 180-01/02/03 byte-untouched. Operator elected to harden WR-01/WR-02 and fix IN-01/IN-02 in-phase rather than defer. gsd-plan-checker: VERIFICATION PASSED, 0 blocker / 0 warning / 0 info; both deterministic probes clean (60 commands each, all severity none, no readError). Requirements coverage 1/1 (PRUNE-08), decision coverage 9/9. Two planner findings recorded: the REVIEW WR-02 fix is wrong against this source (_dispatch_read assigns last_ok twice, not once) and a dash-leading /usr/bin/grep -qF pattern in 180-03 exits 2, so both new plans use -qFe. 180-04 EXECUTED 2026-09-08 -- 3 commits (1 in firestarter_app, 2 in meta): R3's escalation and stated-cost paragraphs removed by absence (not annotation), connect-count objection preserved, all four byte-unchanged regions cmp-identical against pinned blob 7a47a1fd; a dated follow-through appended to the seed's Phase 180 amendment section. WR-01 hardened (connect_route_calls counts every connect-shaped call in read_eprom's whole body, not just the with-header: 1 at HEAD, 2 on a planted stray _setup_operation call, context_count unmoved at 1). WR-02 hardened (_last_ok_assignment_shape pins last_ok assigned exactly twice in _dispatch_read: tags const_true,read_eprom_call at HEAD, gains a third other entry on a planted last_ok rebinding, _verdict_expression_names unmoved at the three-name list). IN-01 closed (stale :2141 citation dropped from the verdict pin's docstring). test_readback_inventory.py: 10 -> 12 passed. Zero product-source/firmware/chip_database.json lines touched; tokenize COMMENT counts held at 621/0. REQUIREMENTS.md and ROADMAP.md intentionally NOT touched (plan 180-05's scope). 180-05 EXECUTED 2026-09-08 -- 8 commits (2 in firestarter_app, 6 in meta): IN-02 closed (one shared _alternating_read_side_effect builder replaces both read-step verdict legs' nested closures, test_chip_test.py still 162 passed / -k read_step 4 passed, zero assertion lines removed since app anchor 93a1672). PRUNE-08 re-flipped to Complete in both REQUIREMENTS.md locations (line 60 checkbox, line 175 traceability row) gated on measured fixes rather than a plan promise -- ledger counts 18/28/18/28/0 (Pending unmoved at 18 because the row was reading Gaps Found, not Pending). ROADMAP.md's Phase 180 section extended to 5 plans with a Gap closure grouping (180-04/180-05 ticked), both regions outside the section cmp-identical against pinned blob cc949993; phase-level checkbox left unticked for phase completion. Seven-leg battery re-run green at the measured floor of 2247 passed / 0 failed. Found and fixed en route (Rule 3): 180-04's WR-02 hardening left 2 new mypy errors (37 vs watermark 35) from reading .lineno/.col_offset off an ast.AST-typed loop variable; narrowed to the four node types already used for target extraction (app commit 04fd982), no behavior change, mypy back to 35/35. Phase 180 now has all 5 plans summarized; ready for /gsd-verify-work re-verification and phase completion. gsd_run query state.advance-plan was invoked and returned a plan_position_unreadable error but ALSO silently corrupted progress.completed_phases (7->5) and progress.percent (88->63) in the same call -- reverted via git checkout before any commit, then hand-edited completed_plans 30->31 only (completed_phases/percent stay phase-gated at 7/88, unchanged by this plan per project convention: percent = completed_phases/total_phases). Next: /gsd-verify-work 180, then phase completion if it passes."
+last_activity_desc: "Phase 180 CLOSED 2026-09-08 -- UAT complete (1/1 passed, 0 issues), verification canonicalized to passed at 25/26 must-haves. The single human-verification item -- the WR-02 residual, where `_last_ok_assignment_shape` only recognises a single-target bare-`ast.Name` `ast.Assign` so a chained or tuple-unpack `last_ok` reassignment escapes the pin while its docstring claims 'any third assignment... reddens a pin' -- was ACCEPTED AS-IS by operator override, recorded in 180-VERIFICATION.md (`overrides_applied: 1`, `## Acknowledged Gaps`). The residual is still open in code and guards a shape absent from shipped source: re-confirmed at UAT time that `_dispatch_read` carries exactly `last_ok = True` and `last_ok = operator.read_eprom(...)` and nothing else, and the primary D-06 verdict-source pin (`_verdict_expression_names`) is unaffected, so roadmap criterion 3 holds. If a future phase touches `last_ok`'s assignment shape, apply 180-REVIEW.md's flatten-targets fix FIRST -- the pin will not catch it as written. PRUNE-08 closed as measured-not-worth-doing; no sampling code shipped. Transitioned to Phase 181."
 progress:
   total_phases: 8
   completed_phases: 7
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 180 — Read-Step Sampling (conditional on Phase 176)
+**Current focus:** Phase 181 — Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — GAP CLOSURE EXECUTED AND RE-VERIFIED, AWAITING UAT
-Plan: 5 planned / 5 executed — 180-04 and 180-05 both done
-Status: Re-verification returned human_needed at 25/26 must-haves, zero blocking gaps; one operator judgment call persisted in 180-UAT.md — run /gsd-verify-work 180
-Last activity: 2026-09-08 — 180-05 executed: IN-02 closed (one shared _alternating_read_side_effect builder), PRUNE-08 re-flipped to Complete (18/28/18/28/0), ROADMAP.md Gap closure grouping added (5 plans), seven-leg battery green at 2247 passed / 0 failed. Fixed a 2-error mypy regression left by 180-04 along the way (app commit 04fd982). Next: /gsd-verify-work 180 Re-verified 2026-09-08: 25/26, D-09/WR-01/IN-01/IN-02 independently reproduced as closed, WR-02 residual routed to UAT; code review 0 critical / 1 warning; app suite 2247 passed / 0 failed re-run by the orchestrator.
+Phase: 181 — Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-08 — Phase 180 CLOSED: UAT 1/1 passed, verification passed at 25/26; the WR-02 residual accepted as-is by operator override (recorded in 180-VERIFICATION.md `overrides_applied: 1` + `## Acknowledged Gaps`) — still open in code, guards a shape absent from shipped source. PRUNE-08 closed as measured-not-worth-doing. Transitioned to Phase 181.
 
 ## Roadmap Summary (v1.36)
 
@@ -3299,8 +3299,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-08T18:35:00.000Z
-**Stopped at:** Completed 180-05-PLAN.md (gap closure re-seal; PRUNE-08 Complete, seven-leg battery green at 2247; next: /gsd-verify-work 180)
+**Last session:** 2026-09-08T19:31:02.000Z
+**Stopped at:** Phase 180 complete, ready to plan Phase 181
 **Was (superseded, retained for continuity):** Completed 180-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 180-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 180-02-PLAN.md

@@ -65,7 +65,17 @@ faults is the worst defect it can have.
   **never `outcomes`**, so every *passing* run pays two full-device reads to classify a mismatch set
   that is empty by construction; a full read where an on-device `verify` gives the same coverage ~24%
   cheaper and early-returns on first mismatch; the read step's second full sweep, replaceable by a
-  bit-structured sample that toggles every address line in both polarities; and **32 serial connects
+  bit-structured sample that toggles every address line in both polarities (**MEASURED AND REJECTED,
+  Phase 180** — this clause is left standing, marked, rather than rewritten. PRUNE-08 closed as
+  *measured, not worth doing*: because `EpromOperator._operation_context` connects on entry and
+  disconnects on exit, a region-wise sample costs **10 connects where the full sweep it replaces
+  costs 1** — a net plus-nine connects per read step, 25.18 s on the Uno class against Phase 176's
+  measured per-connect cost, and dearer on Leonardo too. The sample is not cheaper on either board
+  class, so no sampling code shipped and criterion 4 is recorded Not Applicable rather than left
+  silently unaddressed. Full arithmetic and the invalidating condition — R4-01, which would move the
+  read step off one-connect-per-read and make this close recomputable — in
+  `.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`); and
+  **32 serial connects
   for one at28c256 run** (`self.comm = None`, `eprom_operations.py:547`), 12 of them spent on ~3 KB of
   SDP traffic. The modelled saving is 31.5% across six chip classes, but **speed is the consequence,
   not the goal** — the rule is that pointless work does not run.

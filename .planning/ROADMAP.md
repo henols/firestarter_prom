@@ -236,7 +236,7 @@ UNMEASURED everywhere it appears).
 - [x] **Phase 177: Evidence-Gated Read-Back** - Stop paying for a fingerprint read-back a passing run cannot use, without ever turning the diagnostic into an oracle on a failing one. (completed 2026-09-05)
 - [x] **Phase 178: Fault Attribution — the Two-Axis Vocabulary** - Give a transport or tool fault a status distinct from the chip's verdict, so a half-seated cable stops filing as `[dev test] <chip> — FAIL`. (completed 2026-09-06)
 - [x] **Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK`** *(hardware-gated)* - Make a UV part holding data outside the target slot actually reach `overall_verdict == "PASS"` with `run_count == 2`. (completed 2026-09-08)
-- [ ] **Phase 180: Read-Step Sampling** *(conditional on Phase 176's measurement)* - Replace the read step's second full sweep with a bit-structured sample only if the measured connect cost says it is cheaper; closing the requirement as "measured, not worth doing" is a valid outcome.
+- [x] **Phase 180: Read-Step Sampling** *(conditional on Phase 176's measurement)* - Replace the read step's second full sweep with a bit-structured sample only if the measured connect cost says it is cheaper; closing the requirement as "measured, not worth doing" is a valid outcome. (completed 2026-09-08)
 - [ ] **Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close** - Make the report describe only what the run knows, name chips the database recognizes, and close the milestone's dependency and re-key ledger.
 
 ## Phase Details
@@ -443,7 +443,7 @@ Plans:
   3. Whichever branch is taken, the read step's verdict source stays pinned to the full read by test — it never silently becomes the sample's verdict.
   4. If sampling ships, block-wise `(offset, block)` comparison is used, never a whole-file compare, proven by a test using a hole-padded region fixture that a whole-file compare would misreport as a false divergence.
 
-**Plans**: 5 plans
+**Plans:** 5/5 plans complete
 
 **Wave 1**
 
