@@ -5,15 +5,15 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 180
 current_phase_name: Read-Step Sampling (conditional on Phase 176)
 status: executing
-stopped_at: Phase 180 planned -- 3 plans, 3 waves
-last_updated: "2026-09-08T14:48:16.258Z"
+stopped_at: Completed 180-01-PLAN.md
+last_updated: "2026-09-08T15:02:49.588Z"
 last_activity: 2026-09-08
 last_activity_desc: "Phase 180 EXECUTION STARTED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, sequential (use_worktrees=false; 180-01 writes into the firestarter_app submodule). Previously: Phase 180 PLANNED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, tracer-first; plan-checker passed on iteration 1 with zero blockers/warnings. PRUNE-08 closes as measured-not-worth-doing (roadmap criterion 2, CONTEXT.md D-01): zero sampling code ships. Deliverables are 180-PRUNE-08-CLOSURE.md, D-06's three verdict-source pins plus a one-connect-premise pin (all with planted-mutation RED proofs), an in-place amendment of .planning/seeds/dev-test-adaptive-sequencing.md, and PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines. Research returned 7 corrections; 3 orchestrator rulings folded in (one-connect pin included; seed R4's falsified \\\"per-connect cost is unmeasured\\\" sentence corrected; the closing argument leads with the model-free 10-connects-versus-1 form, publishing no modelled read-rate figure). Green-tree battery is SEVEN legs, suite floor 2239 (2245 expected after 6 additive tests) -- not phase 179's eight legs or 2242. Previously: Phase 179 COMPLETE 2026-09-08, verification passed 4/4 must-haves."
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 30
-  completed_plans: 27
+  completed_plans: 28
   percent: 75
 ---
 
@@ -236,8 +236,8 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 180
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-09-08 — Phase 180 execution started
 
 ## Roadmap Summary (v1.36)
@@ -2888,6 +2888,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 179]: D-179-2 (Task 1 checkpoint:decision, operator-answered): uv-slot-write-pass is built real-path — _build_real_path_report(chip="m27c512", write_scope="full", operator=<WriteInitPreflightChip seeded outside the top slot>, runs=2) — accepting the coupling to derive_plan/chip_database.json regeneration every other real-path shape already has. — Proves the actual witness, positional flag and adjudicated verdict, which is why UV-01/UV-02 wanted this shape; the hand-specified alternative would prove nothing about them.
 - [Phase 179]: 179-02: uv-slot-write-pass registered across all eight gate-enforced sites in one commit (measured hash 927571e5110f); m27c512-full-blank-check-bad re-baselined to its measured post-179-01 value (e42f1567967a) in the SAME commit, with its LADDER_PINS pair moving community-fail -> community-reported (forced, verified against a live build_db_diff). RESERVED_SHAPE_IDS drawn down to empty, its two read sites repaired so neither goes silently vacuous.
 - [Phase 179]: 179-02: RK-174-04-p179-uv-blank-check-abort declared in a SEPARATE commit (per the D-11 protocol) — after_hash e42f1567967a, before_hash 077a32d1a5c4 untouched, bound in .planning/MILESTONES.md in the same logical step; the cross-tree checker then reported OK on 8 ledger rows and 8 MILESTONES.md rows. (That checker, the ledger fixture and the MILESTONES.md table were RETIRED 2026-09-08 -- CI must not police a .planning record; see the v1.36 section of MILESTONES.md. This entry records what was true when 179-02 ran.) The provenance note is corrected: the triple moves BAD -> SKIPPED, not OK -> BAD as originally seeded, and PITFALLS.md:186-188's cycle-2-abort mechanism is recorded FALSIFIED (the abort measured came from the write step's own firmware refusal, not the blank-check step, which sits outside cycle_block_bounds).
+- [Phase 180]: 180-01: pinned roadmap criterion 3 (read verdict = last full read) and Ruling 1's one-connect premise with structural ast pins + behavioural legs, each with a planted-mutation RED transcript; opened 180-PRUNE-08-CLOSURE.md on the 10-vs-1 connect arithmetic, no modelled figure published
 
 ## Performance Metrics
 
@@ -3286,11 +3287,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 179 P01 | 95min | 2 tasks | 5 files |
 | Phase 179 P02 | 40min | 3 tasks | 5 files |
 | Phase 179 P03 | 55min | 2 tasks | 1 files |
+| Phase 180 P01 | 55min | 3 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-09-08T13:28:58.369Z
-**Stopped at:** Phase 180 context gathered
+**Last session:** 2026-09-08T15:02:49.064Z
+**Stopped at:** Completed 180-01-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
@@ -3345,7 +3347,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/180-read-step-sampling-conditional-on-phase-176/180-CONTEXT.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing

@@ -359,6 +359,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
+
 - [x] 177-01-PLAN.md — The four scope calls the operator owns (PRUNE-04's measured-empty closure, the classifier's `match` bucket, the falsified `readback-gated` shape, publishing the filed-corpus mapping), then the tracer: `FP_MATCH`, a zero-I/O synthesizing constructor, `prior_cycles_failed` threaded down the four `collect_fingerprint` hops, the rewritten gate, the analog counting test inverted from 2 to 0, the cycle-1-fail/cycle-2-pass leg — one behaviour commit that leaves the Phase 174 gate deliberately RED, with the exact moved set measured and written down
 
 **Wave 2**
@@ -446,7 +447,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 180-01-PLAN.md — Pin the read step's verdict to the last full read and the one-connect-per-read premise, each proven RED against a planted mutant, and open `180-PRUNE-08-CLOSURE.md` on the model-free connect arithmetic
+- [x] 180-01-PLAN.md — Pin the read step's verdict to the last full read and the one-connect-per-read premise, each proven RED against a planted mutant, and open `180-PRUNE-08-CLOSURE.md` on the model-free connect arithmetic
 
 **Wave 2**
 
