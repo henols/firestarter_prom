@@ -4,11 +4,11 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 180
 current_phase_name: Read-Step Sampling (conditional on Phase 176)
-status: planned
+status: executing
 stopped_at: Phase 180 planned -- 3 plans, 3 waves
-last_updated: "2026-09-08T14:37:47.708Z"
+last_updated: "2026-09-08T14:48:16.258Z"
 last_activity: 2026-09-08
-last_activity_desc: "Phase 180 PLANNED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, tracer-first; plan-checker passed on iteration 1 with zero blockers/warnings. PRUNE-08 closes as measured-not-worth-doing (roadmap criterion 2, CONTEXT.md D-01): zero sampling code ships. Deliverables are 180-PRUNE-08-CLOSURE.md, D-06's three verdict-source pins plus a one-connect-premise pin (all with planted-mutation RED proofs), an in-place amendment of .planning/seeds/dev-test-adaptive-sequencing.md, and PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines. Research returned 7 corrections; 3 orchestrator rulings folded in (one-connect pin included; seed R4's falsified \"per-connect cost is unmeasured\" sentence corrected; the closing argument leads with the model-free 10-connects-versus-1 form, publishing no modelled read-rate figure). Green-tree battery is SEVEN legs, suite floor 2239 (2245 expected after 6 additive tests) -- not phase 179's eight legs or 2242. Previously: Phase 179 COMPLETE 2026-09-08, verification passed 4/4 must-haves."
+last_activity_desc: "Phase 180 EXECUTION STARTED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, sequential (use_worktrees=false; 180-01 writes into the firestarter_app submodule). Previously: Phase 180 PLANNED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, tracer-first; plan-checker passed on iteration 1 with zero blockers/warnings. PRUNE-08 closes as measured-not-worth-doing (roadmap criterion 2, CONTEXT.md D-01): zero sampling code ships. Deliverables are 180-PRUNE-08-CLOSURE.md, D-06's three verdict-source pins plus a one-connect-premise pin (all with planted-mutation RED proofs), an in-place amendment of .planning/seeds/dev-test-adaptive-sequencing.md, and PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines. Research returned 7 corrections; 3 orchestrator rulings folded in (one-connect pin included; seed R4's falsified \\\"per-connect cost is unmeasured\\\" sentence corrected; the closing argument leads with the model-free 10-connects-versus-1 form, publishing no modelled read-rate figure). Green-tree battery is SEVEN legs, suite floor 2239 (2245 expected after 6 additive tests) -- not phase 179's eight legs or 2242. Previously: Phase 179 COMPLETE 2026-09-08, verification passed 4/4 must-haves."
 progress:
   total_phases: 8
   completed_phases: 6
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 180 — Read-Step Sampling (conditional on Phase 176's connect-cost measurement) — not started, ready to plan
+**Current focus:** Phase 180 — Read-Step Sampling (conditional on Phase 176)
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 180 — Read-Step Sampling (conditional on Phase 176) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-08 — Phase 180 planned: 3 plans / 7 tasks / 3 waves, tracer-first; research + pattern map + plan-checker all clean on the first pass
+Phase: 180 (Read-Step Sampling (conditional on Phase 176)) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 180
+Last activity: 2026-09-08 — Phase 180 execution started
 
 ## Roadmap Summary (v1.36)
 
