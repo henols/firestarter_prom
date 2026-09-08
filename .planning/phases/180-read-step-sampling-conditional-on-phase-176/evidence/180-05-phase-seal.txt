@@ -61,7 +61,7 @@ ticked_plan_boxes=5
 gap_closure_grouping_present=1
 requirements_line_intact=1
 phase_level_checkbox_ticked=0
-plans_3_plans_global_count=11
+plans_3_plans_global_count=7
 rc=0
 
 == summary scalars
