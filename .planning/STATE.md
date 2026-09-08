@@ -4,15 +4,15 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 180
 current_phase_name: Read-Step Sampling (conditional on Phase 176)
-status: planning
-stopped_at: Phase 180 context gathered
-last_updated: "2026-09-08T13:28:58.912Z"
+status: planned
+stopped_at: Phase 180 planned -- 3 plans, 3 waves
+last_updated: "2026-09-08T14:37:47.708Z"
 last_activity: 2026-09-08
-last_activity_desc: "Phase 179 COMPLETE 2026-09-08 -- verification passed 4/4 must-haves (179-VERIFICATION.md; re-verified after the UV-02 falsified-mechanism repair in 4cd35fab, and covered_digest recomputed to v1:sha256:e95881f4 in acc97941 once the re-key checker retirement deleted one covered file), gaps_remaining empty, ROADMAP checkbox marked, STATE advanced to Phase 180. Prior activity retained: 179-04 COMPLETE 2026-09-08 -- the blocking-human bench wave: a real ST M27C512 on a Leonardo (/dev/ttyACM0), holding 16 bytes outside its top slot, accepted a write at 0xFF00 via `firestarter dev test m27c512` (no --fast, exit 0) and reached overall_verdict==PASS with write/verify run_count==2, title `[dev test] m27c512 -- PASS (dea6e2474d30)`; blank-check adjudicated SKIPPED with its not-blank finding intact (error_code=176). Recorded in 179-MEASUREMENT.md; one of two budgeted slots spent, no retry needed. Task 2 sealed the phase on that PASS sentinel: UV-01/UV-02/UV-03 all marked Complete in REQUIREMENTS.md, ROADMAP.md's four Phase 179 plan checkboxes ticked, two falsified prior claims (PITFALLS.md's hardware_refused abort mechanism; SUMMARY.md's probe-read string-equality witness) repaired in place, three residuals filed as todos (ladder-flip T-179-05, Q5 disclosure key deferred to Phase 181, Q8 mid-line-boundary blocker). Every gate green in both repos: full suite 2265 passed/0 failed/32 snapshots, phase_added_comments=0 anchored at 835baba, cli_handlers.py and plan_shapes.json byte-unchanged across the whole phase. Phase 179 fully closed (4/4 plans). Ready to plan Phase 180 (Read-Step Sampling, conditional on Phase 176's connect-cost measurement)."
+last_activity_desc: "Phase 180 PLANNED 2026-09-08 -- 3 plans, 7 tasks, 3 waves, tracer-first; plan-checker passed on iteration 1 with zero blockers/warnings. PRUNE-08 closes as measured-not-worth-doing (roadmap criterion 2, CONTEXT.md D-01): zero sampling code ships. Deliverables are 180-PRUNE-08-CLOSURE.md, D-06's three verdict-source pins plus a one-connect-premise pin (all with planted-mutation RED proofs), an in-place amendment of .planning/seeds/dev-test-adaptive-sequencing.md, and PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines. Research returned 7 corrections; 3 orchestrator rulings folded in (one-connect pin included; seed R4's falsified \"per-connect cost is unmeasured\" sentence corrected; the closing argument leads with the model-free 10-connects-versus-1 form, publishing no modelled read-rate figure). Green-tree battery is SEVEN legs, suite floor 2239 (2245 expected after 6 additive tests) -- not phase 179's eight legs or 2242. Previously: Phase 179 COMPLETE 2026-09-08, verification passed 4/4 must-haves."
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 27
+  total_plans: 30
   completed_plans: 27
   percent: 75
 ---
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 180 — Read-Step Sampling (conditional on Phase 176)
+Phase: 180 — Read-Step Sampling (conditional on Phase 176) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-08 — Phase 179 complete: verification passed 4/4 must-haves, zero gaps; ROADMAP marked, transitioned to Phase 180
+Status: Ready to execute
+Last activity: 2026-09-08 — Phase 180 planned: 3 plans / 7 tasks / 3 waves, tracer-first; research + pattern map + plan-checker all clean on the first pass
 
 ## Roadmap Summary (v1.36)
 
