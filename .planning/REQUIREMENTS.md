@@ -74,7 +74,7 @@ own comment says so. This is the gh#23 gap.
 ### UV Slot Writes
 
 - [x] **UV-01**: A UV part holding data outside the target slot accepts a slot write.
-- [x] **UV-02**: Such a run reports **`overall_verdict == "PASS"` with `run_count == 2`**. `FLAG_SKIP_BLANK_CHECK` fixes the firmware write-init pre-flight only; the plan's own standalone `blank-check` step still returns `VERDICT_BAD`, trips `hardware_refused` and aborts cycle 2, so the write step going OK is **not** the criterion.
+- [x] **UV-02**: Such a run reports **`overall_verdict == "PASS"` with `run_count == 2`**. `FLAG_SKIP_BLANK_CHECK` fixes the firmware write-init pre-flight only; the plan's own standalone `blank-check` step also had to stop dominating the fold, so the write step going OK is **not** the criterion. (**Mechanism FALSIFIED, Phase 179** — the original wording of this requirement said the blank-check "trips `hardware_refused` and aborts cycle 2". MEASURED: the standalone blank-check sits at index 2, OUTSIDE a `cycle_block_bounds` that is `(3, 6)` for `m27c512`, `am27c020` and `tms27c512`, and `run_plan`'s per-step path has no `hardware_refused` mechanism at all — the cycle-2 abort came from the WRITE step's own firmware refusal. What the blank-check actually did was return `VERDICT_BAD` into a FAIL-dominant `submit.overall_verdict` (`submit.py:164-171`). The requirement's substance is unchanged — both defects still had to be closed for UV-02 to be reachable — but the named mechanism was wrong. Same falsification recorded at `.planning/research/PITFALLS.md` Pitfall 5 step 2 and `.planning/research/SUMMARY.md`.)
 - [x] **UV-03**: The `FLAG_SKIP_BLANK_CHECK` pass is witness-form — not gated on `region_policy`.
 
 ### Report Fidelity
