@@ -139,3 +139,13 @@ None - no external service configuration required.
 ---
 *Phase: 181-report-fidelity-schema-2-0-canonical-naming-hygiene-close*
 *Completed: 2026-09-09*
+
+## Self-Check: PASSED
+
+- `firestarter_app/pyproject.toml` — FOUND
+- `firestarter_app/tests/test_runtime_dependencies.py` — FOUND
+- `.planning/phases/181-.../evidence/181-03-dependency-pins.txt` — FOUND
+- `.planning/phases/181-.../181-03-SUMMARY.md` — FOUND
+- App commits `75ce56a`, `ebf4f2b` — FOUND in `firestarter_app`
+- Meta commits `74f9c53d`, `357afaff`, `97c2c6db` — FOUND in `/workspaces`
+- All plan-level `<verification>` legs re-run and passing; all three porcelain legs print nothing.
