@@ -3,7 +3,7 @@ title: A UV run with all slots exhausted flips build_db_diff's fourth ladder arm
 date: 2026-09-08
 priority: medium
 blocked_by: nothing technical — the fix is a "no write actually ran" guard in build_db_diff, not a UV special case; filed as a residual by Phase 179 rather than fixed in-phase because the underlying hole is PRE-EXISTING and reachable today on any non-UV refused write, and Phase 179's scope was UV-01/02/03, not a general ladder-fold audit.
-resolves_phase: none
+resolves_phase: 181
 ---
 
 # UV run with exhausted slots: the ladder flip (T-179-05)

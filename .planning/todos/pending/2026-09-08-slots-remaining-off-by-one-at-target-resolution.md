@@ -3,7 +3,7 @@ title: slots_remaining is computed before the write that consumes the slot, so a
 date: 2026-09-08
 priority: medium
 blocked_by: nothing technical — the fix is a one-line index adjustment plus a decision about whether the field means "before this run" or "after this run"; filed as a residual because it was surfaced by Phase 179's bench measurement rather than authored by it, and the field predates the phase.
-resolves_phase: none
+resolves_phase: 181
 ---
 
 # `slots_remaining` off-by-one at target-resolution time (T-179-07)

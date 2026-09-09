@@ -146,3 +146,69 @@ Updated rather than left red:
     non-m27c512 shapes; CANDIDATE retains five shapes after the move).
 
 END OF TASK 2 TRANSCRIPT (Task 3 appends its own numbered section below)
+
+7. TASK 3 -- THE PLANTED COUNTER-EXAMPLES, OBSERVED RED
+-----------------------------------------------------------------------------
+A gate is not trusted here until it has been observed RED against a planted
+violation. Three legs, all in-memory/in-process, zero fixture files
+written:
+
+na_disqualifier_planted=RED
+  `test_a_planted_na_as_refusal_disqualifier_reddens_the_na_case_claim`
+  (tests/test_diagnostic_report.py). Anchors `_write_step_was_refused`
+  returning `False` for an NA write BEFORE mutating. Monkeypatches
+  `diagnostic_report._write_step_was_refused` with an over-broad predicate
+  that ALSO treats NA as a refusal, confirmed to differ on the anchor input
+  first (`over_broad_predicate(na_write_results) is True`), then asserts
+  the claim "the mutated build_db_diff still proposes candidate for the
+  NA case" raises AssertionError -- observed RED. Proves the NA/SKIPPED
+  distinction in `_write_step_was_refused` is load-bearing, not decorative.
+
+missing_condition_planted=RED
+  `test_a_planted_missing_write_ran_condition_reddens_the_refused_slots_claim`
+  (tests/test_diagnostic_report.py). Anchors the RAN case's real "255 of
+  256" sentence first, then computes what a no-condition (always-subtract)
+  implementation would have produced for the SAME target's REFUSED case
+  ("255 of 256"), and asserts that claim against the real refused-case
+  output -- observed RED (the real function correctly says "256 of 256").
+
+empty_expected_set=RED
+  `test_comparing_a_real_disposition_against_an_empty_expected_set_fails_rather_than_passes_vacuously`
+  (tests/test_diagnostic_report.py). A real `build_db_diff` disposition
+  compared against `set()` via `in` raises AssertionError rather than
+  passing -- observed RED, the standalone vacuity leg.
+
+fixture_files_written=0
+  All three legs build `StepResult`/`WriteTarget`/`Step` objects and
+  monkeypatch one module attribute (leg 1 only) in memory; none writes to
+  disk.
+
+shapes_reproducing=19/19
+  `tests/test_blast_radius_invariance.py -k test_dedup_fingerprint_is_frozen`
+  -- 19 passed. All 19 `FROZEN_HASHES` literals re-confirmed byte-identical
+  to app base `04fd982` after every Task 1/2/3 edit in this plan.
+
+frozen_hash_literal_count=19
+frozen_hash_lines_added_or_removed_since_04fd982=0
+
+todo_uv_ladder_resolves_phase=181
+todo_slots_off_by_one_resolves_phase=181
+  Both `.planning/todos/pending/2026-09-08-uv-ladder-flip-on-exhausted-
+  slots.md` and `.planning/todos/pending/2026-09-08-slots-remaining-off-
+  by-one-at-target-resolution.md` edited in place, `resolves_phase: none`
+  -> `resolves_phase: 181`. Neither moved to `completed/` or deleted --
+  plan `181-10` owns that step, after the phase's own verification.
+
+VERDICT: this plan's two folded defects (D-20, D-21) are closed by one
+shared predicate, proven correct on the frozen 19-shape corpus (5 flips,
+all and only the shapes whose write step is genuinely SKIPPED) and proven
+NOT vacuous by three planted-RED legs. What is EXCLUDED: this plan does
+not re-run the seven-leg green-tree battery, does not invoke
+`check_rekey_ledger.py`, and does not assert a suite floor -- per the
+plan's own `<verification>` section, that battery runs once, in `181-10`.
+The gate that would redden if this predicate regressed is
+`test_a_refused_write_disqualifies_the_fourth_arm_but_na_and_ok_do_not`
+plus the three planted legs above, all re-run on every future edit to
+`build_db_diff`/`_write_coverage_line`/`_write_step_was_refused` via the
+normal test suite -- no separate battery is required to catch a
+regression here.
