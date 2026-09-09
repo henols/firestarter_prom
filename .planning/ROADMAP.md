@@ -506,7 +506,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 181-07-PLAN.md — Export what the run already measured, and stop one `None` from meaning two different things. RPT-A2 is a serialization change only — `Fingerprint` has carried `total`, `bad`, `bad_pct` and `evidence` since Phase 108 — and an agreeing read now records `divergence` with `bad: 0`, mirroring PRUNE-03, so an absent divergence means "not computed" rather than "computed and clean"
+- [x] 181-07-PLAN.md — Export what the run already measured, and stop one `None` from meaning two different things. RPT-A2 is a serialization change only — `Fingerprint` has carried `total`, `bad`, `bad_pct` and `evidence` since Phase 108 — and an agreeing read now records `divergence` with `bad: 0`, mirroring PRUNE-03, so an absent divergence means "not computed" rather than "computed and clean"
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
