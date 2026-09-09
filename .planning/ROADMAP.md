@@ -498,7 +498,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 181-05-PLAN.md — Give a filed `dev test` issue the chip's own database name, and prove the rule that picks it. The matched row's `part_number` reduced by a selector mirroring `get_eprom_config`'s exact-then-paren-stripped ladder, across the four surfaces D-03 names — while `ac.chip` and the artifact filenames keep the operator's raw token. D-04's canonical-spelling test sweep is REFUSED with the measurement that a sweep would collide two frozen shapes
+- [x] 181-05-PLAN.md — Give a filed `dev test` issue the chip's own database name, and prove the rule that picks it. The matched row's `part_number` reduced by a selector mirroring `get_eprom_config`'s exact-then-paren-stripped ladder, across the four surfaces D-03 names — while `ac.chip` and the artifact filenames keep the operator's raw token. D-04's canonical-spelling test sweep is REFUSED with the measurement that a sweep would collide two frozen shapes
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
