@@ -514,7 +514,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 181-09-PLAN.md — Delete two report fields no code path has ever assigned, and PROVE that rather than assert it: `voltage.vpp_mv` and `voltage.vpe_mv` go from the dataclass, `_voltage_dict()` and the schema, with a source census as the proving test. `SKILL.md`'s report-voltage sentence is extended in a skill-first commit pair, leaving the database-field row at `:375` alone because rewriting it would turn a correct row false
+- [x] 181-09-PLAN.md — Delete two report fields no code path has ever assigned, and PROVE that rather than assert it: `voltage.vpp_mv` and `voltage.vpe_mv` go from the dataclass, `_voltage_dict()` and the schema, with a source census as the proving test. `SKILL.md`'s report-voltage sentence is extended in a skill-first commit pair, leaving the database-field row at `:375` alone because rewriting it would turn a correct row false
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
