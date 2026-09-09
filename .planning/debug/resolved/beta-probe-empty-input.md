@@ -2,22 +2,27 @@
 status: resolved
 trigger: "an enduser reported that he couldent get the beta version to work"
 created: 2026-09-09T09:11:18Z
-updated: 2026-09-09T10:07:16Z
+updated: 2026-09-09T10:53:12Z
 ---
 
 ## Current Focus
 
-status_in_one_line: DONE. Host-side fix confirmed hardware-free (RED/GREEN test + full suite).
-  Live-hardware leg completed with operator's standing flash grant: 41 probe trials across
-  firmware 3.0.0b22 and 3.0.0b25 (published wheel + patched-published wheel, idle and
-  immediate-post-flash) produced ZERO reproductions of the spurious interleave on this specific
-  Uno R3 — an honest non-reproduction. Source archaeology (hex diff + git diff across the ENTIRE
-  probe-relevant code path) PROVES there is no firmware code regression anywhere in the
-  b22->b23->b24->b25 chain: b23/b24/b25 are compiled-byte-identical except a one-line version
-  string, and b22->b23's actual code changes never touch the CMD_IDLE decode path, the PORTD/
-  com_mode transition code, or state/cmd extraction (100% comment-only diff there; the large
-  diffs elsewhere are memory-operation code CMD_FW_VERSION structurally never reaches). No
-  firmware fix is needed or was applied. Bench left flashed to 3.0.0b25.
+status_in_one_line: REOPENED, then RE-RESOLVED with the live reproduction that had been
+  missing. The failure and its cause turned out to be separable: `_probe_port`'s existing
+  `fault_inject_outgoing` hook (already in production code for dev fault-inject tooling)
+  manufactures the exact interleaved-frame CONDITION deterministically on real hardware,
+  without needing the reporter's own environment. Matrix A/B/C/D run against the live Uno on
+  `/dev/ttyACM1` (fw 3.0.0b25): A (pre-fix + 1 bad frame) reproduced the reporter's failure
+  byte-for-byte — the live RED that had been missing all session. B (post-fix + 1 bad frame)
+  succeeded. C (post-fix + 2 bad frames, the reporter's log literally shows two "Empty input"
+  lines) FAILED — the original fix's fixed one-retry bound was under-built. Reworked the fix
+  into a wall-clock deadline that discards any number of the generic error text within a
+  bounded window (`SETUP_ACK_RECOVERY_TIMEOUT_S`) rather than one fixed retry; re-ran the full
+  matrix plus a 3-bad-frame case, all pass. Committed as `8b3d8f9`. Secondary raw-byte capture
+  (non-blocking, attempted after the matrix) caught a REPRODUCIBLE stray byte (`0xf0`, 8/8
+  captures across plain DTR-reset cycles and immediate-post-avrdude-flash) — corroborating,
+  not required, evidence that this board genuinely does emit spurious pre-command bytes on
+  reset, independent of any injection.
 
 hypothesis (SEEDED — orchestrator's pre-analysis): FALSIFIED in its specific mechanism, CORRECT
   in its general class. The "board hasn't booted yet" framing is wrong by direct measurement:
@@ -28,16 +33,19 @@ hypothesis (SEEDED — orchestrator's pre-analysis): FALSIFIED in its specific m
   reset-adjacent framing artifact, just a different one: a spurious `MSG_ERR_EMPTY_INPUT` frame
   interleaved with the genuine ack, consumed by the host's read-first-response logic.
 
-next_action: DONE. Operator granted a standing flash authorization (socket empty, no
-  per-action confirmation needed for the rest of this session). Flashed 3.0.0b25 (the
-  reporter's exact firmware) via the real `firestarter` avrdude installer, both against this
-  branch's editable install and against a throwaway venv running the ACTUAL PUBLISHED
-  `firestarter==3.0.0b36` wheel (to remove the branch-vs-published confound). Replayed the
-  reporter's tight flash-then-probe sequence repeatedly, pre-fix and post-fix, idle and
-  immediately post-flash. Zero reproductions. Bisected via source diff instead of three more
-  flash cycles, since b23/b24/b25 firmware is compiled-byte-identical (see Resolution) — no
-  firmware defect exists to bisect toward. Session complete; see Resolution for the full,
-  honest accounting of what was and was not confirmed.
+next_action: DONE. First pass (documented in the frozen evidence below) established: 41/41
+  clean natural probe attempts on this Uno, plus proof via hex/source diff that no firmware
+  regression exists in the b22-b25 range. That left the fix hardware-UNVERIFIED (never
+  exercised its own retry branch on real hardware) even though nothing contradicted it.
+  Reopened per the coordinator's insight: the FAILURE (needs the reporter's noisy environment)
+  and the CAUSE (an interleaved spurious frame ahead of the real ack) are separable, and the
+  CAUSE can be manufactured deterministically via `_probe_port`'s existing
+  `fault_inject_outgoing` hook. Ran the A/B/C/D matrix (see new Evidence entries below); C
+  failed against the original single-retry fix, so reworked it into a bounded deadline,
+  re-verified the full matrix plus a 3-frame case, extended the regression test with the
+  2-frame case (RED against the old fix, GREEN against the rework), re-ran ruff/format/mypy
+  watermark/full-suite, committed as `8b3d8f9`. Attempted the optional raw-byte capture
+  afterward and got a positive, reproducible result (see Evidence). Session re-resolved.
 
 reasoning_checkpoint:
   hypothesis: "The host's SerialCommunicator._probe_port gives up on the setup-command probe
@@ -72,15 +80,21 @@ reasoning_checkpoint:
     ambiguous, catch-all error text ONE bounded extra chance to be superseded by a real ack, at
     the ONE call site (_probe_port's setup handshake) proven hazard-free to retry because
     CMD_FW_VERSION never reaches configure_memory / engages VPP-VPE."
-  blind_spots: "The EXACT electrical/firmware trigger for the spurious MSG_ERR_EMPTY_INPUT frame
-    is not confirmed on real Uno hardware — only argued by analogy to two other documented
-    PORTD-pin-sharing hazards in this same codebase (PD1/TX garbage, PD0/RX boot-transition
-    garbage). It is possible the reporter's board has an additional or different Uno-specific
-    fault this fix does not address, in which case the probe would still eventually fail after
-    the one retry. The fix does not fix that firmware-side ambiguity (MSG_ERR_EMPTY_INPUT as a
-    4-way catch-all) — a future enhancement could split it into distinct message IDs so the
-    host can retry ONLY on truly-transient causes, not on every framing failure. Not verified on
-    Uno-class hardware at all — operator-gated."
+  blind_spots (SUPERSEDED — see the 2026-09-09T11:xx:xxZ evidence entries below; kept verbatim
+    for the record of what was unknown at write time): "The EXACT electrical/firmware trigger
+    for the spurious MSG_ERR_EMPTY_INPUT frame is not confirmed on real Uno hardware — only
+    argued by analogy to two other documented PORTD-pin-sharing hazards in this same codebase
+    (PD1/TX garbage, PD0/RX boot-transition garbage). It is possible the reporter's board has an
+    additional or different Uno-specific fault this fix does not address, in which case the
+    probe would still eventually fail after the one retry. The fix does not fix that
+    firmware-side ambiguity (MSG_ERR_EMPTY_INPUT as a 4-way catch-all) — a future enhancement
+    could split it into distinct message IDs so the host can retry ONLY on truly-transient
+    causes, not on every framing failure. Not verified on Uno-class hardware at all —
+    operator-gated." RESOLUTION: the "probe would still eventually fail after the one retry"
+    concern was EXACTLY RIGHT and is what matrix leg C on real hardware confirmed — the fix has
+    since been reworked from a fixed one-retry bound to a wall-clock deadline that survives any
+    number of the generic error text within the bound, and this is now live-hardware-verified
+    (matrix A/B/C/D, see below), not merely argued by analogy.
   candidate_causes:
     - "code: host-side expect_ack()/_probe_port has no tolerance for an interleaved unsolicited
       response between a sent command and its ack (confirmed, fixed)."
@@ -427,6 +441,95 @@ Leonardo pass as a fix for this bug.
     against b22 (post-fix) and the b25 flash-cycles above (pre-fix) all passed with the published
     artifact, ruling out "this only worked because it's the dev branch" as a confound.
 
+- timestamp: 2026-09-09T11:05:00Z
+  source: coordinator reopened the session — the FAILURE (needed the reporter's environment)
+    and the CAUSE (an interleaved spurious frame ahead of the real ack) are separable, and the
+    CAUSE can be manufactured deterministically on ANY attached hardware via `_probe_port`'s
+    existing `fault_inject_outgoing` parameter (`serial_comm.py:809-814`, already wired into
+    production code for the `dev fault-inject` tooling — no new production code needed to use
+    it). A hook that returns `(b"\x00" * n) + real_frame` puts `n` minimal, syntactically-valid
+    but empty COBS frames immediately ahead of the real command in ONE write. Traced through
+    `rurp_communication_read_data`: a lone `0x00` byte is read as an immediate delimiter with
+    `block_remaining==0` (no violation) and `has_last==False`, so it returns -1 ("empty frame,
+    no CRC decoded") with the RX cursor already correctly positioned at the very next byte — no
+    drain needed, no misalignment risk for the frame that follows in the same write. Each `-1`
+    return routes to `firestarter.cpp`'s `else: LOG_ERROR_ID(MSG_ERR_EMPTY_INPUT)` catch-all.
+    Board identity re-verified before use: same Uno R3 (serial 55736303739351B040E1),
+    `/dev/ttyACM1`, firmware 3.0.0b25 (from the prior session's final flash).
+
+- timestamp: 2026-09-09T11:10:00Z
+  source: live hardware matrix, `SerialCommunicator._probe_port` called directly (no CLI
+    involved) with `fault_inject_outgoing` set to the hook above, `.venv311` (the coordinator's
+    prepared 3.11 venv)
+  finding: **A — pre-fix (`31f3455~1`) + 1 injected bad frame: FAILURE.** Log ordering
+    byte-for-byte matches the reporter's report: `ERROR: Empty input` -> `responded but not with
+    OK: Empty input` -> (late) `OK: Ready` -> (late) `OK: FW: 3.0.0b25:uno` -> `PROBE_RESULT:
+    FAILURE (None)`. This is the live reproduction that was missing all session.
+    **B — post-fix (`b2546da`, single fixed retry) + 1 injected bad frame: SUCCESS.**
+    `PROBE_RESULT: SUCCESS identity='3.0.0b25:uno'`, with the retry's own debug line visibly
+    firing. Live GREEN for the original fix, on the exact class of input it targets.
+    **C — post-fix (`b2546da`) + 2 injected bad frames: FAILURE.** The single fixed retry
+    consumed the SECOND spurious `Empty input` (not the real ack), then gave up, reproducing the
+    identical failure with two stray frames — exactly the shape the reporter's own log already
+    showed (two `Empty input` lines). This is the bound test the coordinator predicted would
+    matter, and it failed as flagged: **the original fix (`31f3455`/`b2546da`) was under-built
+    for more than one spurious frame.**
+    **D — post-fix, no injection: SUCCESS**, x2, confirming the rig is unchanged from the
+    prior session's 41/41 clean baseline.
+
+- timestamp: 2026-09-09T11:20:00Z
+  source: rework of `SerialCommunicator._probe_port` (`firestarter_app/firestarter/serial_comm.py`)
+    per the coordinator's specified design — a wall-clock deadline
+    (`SETUP_ACK_RECOVERY_TIMEOUT_S`) that keeps reading and discarding responses whose text is
+    exactly `GENERIC_FRAME_DECODE_ERROR_TEXT`, returning the first response that is anything
+    else — then the SAME A/B/C/D matrix re-run against it, plus a 3rd case
+  finding: A/B/D unchanged (still fail/succeed/succeed respectively, as expected — the rework
+    only changes behavior when the generic error text repeats). **C now SUCCEEDS**:
+    `ERROR: Empty input` x2, then `OK: Ready`, `PROBE_RESULT: SUCCESS`. A bonus **3-injected-bad-frame
+    case also SUCCEEDS** (not required by the matrix, tried because the deadline design should
+    generalize beyond the observed count of two) — `ERROR: Empty input` x3, then `OK: Ready`,
+    success. The rework is confirmed live-hardware-correct, not just argued to be more robust.
+
+- timestamp: 2026-09-09T11:30:00Z
+  source: `tests/test_probe_spurious_setup_ack.py`, extended with a 2-frame case, run against
+    both fix versions
+  finding: the new 2-frame test FAILS against the pre-rework fix (`b2546da`) —
+    `assert comm is not None` -> `AssertionError: assert None is not None` — and PASSES against
+    the reworked fix. The existing 1-frame and negative-control tests are unaffected by the
+    rework (still pass). Full suite re-run on `.venv311`: 2238 passed, 0 failed. `ruff check` /
+    `ruff format --check`: clean. `tools/check_mypy_watermark.py`: 35/35, unchanged (not
+    regressed). Committed as `8b3d8f9`.
+
+- timestamp: 2026-09-09T11:45:00Z
+  source: secondary/optional task — raw byte capture across DTR-reset cycles and immediately
+    after an `avrdude` flash, using a plain `pyserial` open (no `firestarter` parsing layer) to
+    see genuinely-emitted noise the app's own parser would otherwise silently discard
+  finding: NOT a null result. **A single byte, value `0xf0`, appeared in every one of 8
+    independent captures** — 5 plain open/close (DTR-reset) cycles with no flash in between,
+    plus 3 more immediately after a fresh `avrdude` flash — each capture window 3-5 seconds,
+    each showing EXACTLY one byte, EXACTLY `0xf0`, nothing else. This is reproducible and
+    deterministic on THIS board, not random noise (random electrical noise would not be
+    byte-value-identical across 8 independent trials). Traced through the decoder: a lone
+    `0xf0` byte (not `0x00`) is read as a COBS run-code claiming `block_remaining = 0xEF = 239`
+    more data bytes; with nothing else arriving, `rurp_communication_read_data`'s mid-frame
+    inter-byte deadline (`TIMEOUT_MS = 1000` ms) eventually fires, drains (finds nothing to
+    drain, buffer already empty) and returns -1 -- ALSO routing to `MSG_ERR_EMPTY_INPUT`. This
+    means the FIRST "Empty input" in the reporter's report (the one that appears BEFORE
+    "Sending command to programmer" in their log) is now explained by a directly-observed,
+    reproducible artifact on real Uno-class hardware, not merely inferred. Its ~1-second
+    resolution window comfortably completes within this host's 2.0s `CONNECTION_STABILIZE_DELAY`
+    plus 0.5s pre-send drain, which is exactly why it does NOT interfere with a normal
+    (non-injected) probe on THIS board — consistent with the 41/41 clean natural-probe baseline
+    from the prior session. BOUNDARY, stated honestly: the ultimate origin of this byte (AVR
+    UART start-bit sampling glitch during the DTR-triggered reset transition vs. a bootloader
+    artifact vs. something else) was not further isolated — that was explicitly out of scope
+    ("a null result here is fine and expected"; a POSITIVE result was found instead and is
+    reported as far as it was characterized, not further chased). This finding corroborates
+    that this board genuinely does emit spurious pre-command bytes on reset — it does not by
+    itself reproduce the reporter's exact SECOND, post-send interleave (that required deliberate
+    injection, per the A/B/C/D matrix above), and is offered as supporting evidence, not as a
+    second independent proof.
+
 ## Eliminated
 
 - hypothesis: The app mis-sorted firmware releases and picked an old firmware (e.g. string-sorted
@@ -503,21 +606,29 @@ root_cause: A generic-catch-all/host-read-ordering compound defect, confirmed in
   correct failure mode for firmware old enough to predate COBS framing entirely, talking to a
   COBS-only host. Not a defect; no fix needed or applied for it.
 
-fix: `firestarter_app/firestarter/serial_comm.py` — in `SerialCommunicator._probe_port`, after
-  sending the setup command, if `expect_ack()`'s first response is exactly the generic
-  frame-decode-failure text (`MSG_ERR_EMPTY_INPUT`'s catalog format string, read from
-  `CATALOG` rather than hardcoded so it can't silently drift from the firmware's own text),
-  give the exchange one short additional read window (`SETUP_ACK_RECOVERY_TIMEOUT = 2.0s`) for
-  the genuine ack to arrive before concluding the probe failed. Scoped narrowly to this one
-  ambiguous error text (not to "any non-OK response") so a genuine, unrelated protocol
-  rejection — pre-COBS `Bad JSON`, a real hardware-revision refusal, a real
-  `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` — is unaffected and still fails immediately, exactly as
-  before. Scoped to `_probe_port` only (not a global `expect_ack()` behavior change) because
-  this is the one call site proven hazard-free to retry (evidence entry 2026-09-09T10:02:00Z:
-  CMD_FW_VERSION never engages VPP/VPE), whereas `expect_ack()` is also used mid-operation on
-  paths where silently waiting past a real error could mask a genuine failure or stall a
-  hazardous rail. No firmware change made — none was needed for the fix to close the reported
-  loop, and none could be safely verified without the Uno hardware this session lacks.
+fix: `firestarter_app/firestarter/serial_comm.py` — `SerialCommunicator._probe_port`.
+  **REWORKED once, on live-hardware evidence (matrix leg C — see below).**
+  Original shape (`31f3455`, renamed by the coordinator in `b2546da`): after sending the setup
+  command, if `expect_ack()`'s first response was exactly the generic frame-decode-failure text
+  (`MSG_ERR_EMPTY_INPUT`'s catalog format string, read from `CATALOG` rather than hardcoded so
+  it can't silently drift from the firmware's own text), gave the exchange ONE additional
+  `expect_ack()` call bounded at `SETUP_ACK_RECOVERY_TIMEOUT_S = 2.0s`. Live-hardware matrix leg
+  C (2 injected spurious frames) proved this was under-built: the fixed single retry consumed
+  the second spurious frame, and the genuine ack — one read further behind — was missed again.
+  Current shape (`8b3d8f9`): the same trigger condition (first response is exactly the generic
+  text) now opens a wall-clock deadline (`time.time() + SETUP_ACK_RECOVERY_TIMEOUT_S`), and a
+  loop keeps calling `expect_ack(timeout=remaining)` — discarding ONLY responses whose text is
+  exactly that generic string — until either a different response arrives (a real OK, or a
+  specific error) or the deadline is exhausted. Strictly more robust than the fixed retry and no
+  more permissive: a genuine, unrelated, specific rejection (pre-COBS `Bad JSON`, a real
+  hardware-revision refusal, a real `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED`) still fails immediately
+  on its first appearance, and total wait time is still bounded by the same constant. Scoped to
+  `_probe_port` only (not a global `expect_ack()` change) for the same reason as before —
+  CMD_FW_VERSION never engages VPP/VPE (evidence entry 2026-09-09T10:02:00Z), so retrying here
+  is hazard-free, whereas `expect_ack()` is also used mid-operation where masking a real error
+  could be dangerous. No firmware change made — none was needed or found (see the source-diff
+  evidence below); the raw-byte-capture evidence explains the mechanism's precondition but
+  changes nothing about where the fix belongs.
 
 verification: Hardware-free, host-only, CONFIRMED:
   - New regression test `firestarter_app/tests/test_probe_spurious_setup_ack.py` replays the
@@ -576,24 +687,54 @@ verification: Hardware-free, host-only, CONFIRMED:
   memory-operation-only set of changes this probe command never reaches. There is no firmware
   code regression to bisect toward, and none was found, so none was fixed.
 
-  HONEST SCOPE OF THIS VERIFICATION: this is a genuine, sustained non-reproduction, not a
-  confirmation and not a refutation of either the fix or the root-cause analysis. The fix's
-  retry branch was never exercised on real hardware (its trigger condition never fired here).
-  It does not prove the fix cures the reporter's exact failure. It does not undermine the
-  root-cause analysis either — the interleave may be intermittent, or specific to the
-  reporter's exact USB-to-serial bridge chip/revision, host OS/driver, or avrdude version (8.0
-  vs. this session's 7.1) in a way 41 trials on a different board could not surface. What IS
-  now conclusively excluded: a nameable firmware code defect in the b22-b25 range. The host-side
-  fix (`31f3455`) is the only confirmed, evidenced defect in this investigation, is proven safe
-  (full suite + live hardware, no regressions), and is kept as-is — not narrowed, not reworked —
-  because there is no firmware-side "truly transient vs. regression" distinction to split
-  retry-worthiness on; splitting `MSG_ERR_EMPTY_INPUT` into more granular message IDs remains a
-  reasonable FUTURE enhancement (noted in `blind_spots` above) but is not required by anything
-  found this session.
+  STATUS AS OF THE FIRST PASS (superseded by the matrix below, kept for the record): a genuine,
+  sustained non-reproduction under NATURAL conditions — not a confirmation and not a refutation.
+  The fix's retry branch had never been exercised on real hardware.
+
+  **RESOLVED by separating the FAILURE from the CAUSE.** The reporter's environment was needed
+  to reproduce the failure NATURALLY (a noisy USB bridge triggering it on its own), but the
+  CAUSE — an interleaved spurious `MSG_ERR_EMPTY_INPUT` frame ahead of the genuine ack — can be
+  manufactured deterministically on ANY attached hardware via `_probe_port`'s existing
+  `fault_inject_outgoing` parameter (already-shipped production code, used here with zero
+  production-code changes to exercise it). Live matrix, this same Uno R3, firmware 3.0.0b25:
+    - **A (pre-fix + 1 injected bad frame): FAILURE**, log ordering byte-for-byte identical to
+      the reporter's report — the live RED that was missing.
+    - **B (post-fix, single-retry version + 1 injected bad frame): SUCCESS** — live GREEN.
+    - **C (post-fix, single-retry version + 2 injected bad frames): FAILURE** — the fix was
+      under-built for more than one spurious frame, exactly as the reporter's own log (which
+      shows two "Empty input" lines) already implied was possible.
+    - **D (post-fix, no injection): SUCCESS x2** — rig unchanged from the 41/41 baseline.
+  C forced a rework: the fix is now a wall-clock deadline (`SETUP_ACK_RECOVERY_TIMEOUT_S`,
+  unchanged value, 2.0s) instead of a fixed one-retry count, discarding any number of the exact
+  generic error text within that bound. Re-ran A/B/C/D against the rework: A/B/D unchanged, **C
+  now SUCCEEDS**, and a bonus 3-injected-bad-frame case also succeeds (the design generalizes
+  past the specific count of two that was tested). This is now genuinely **live-hardware-verified**,
+  not argued by analogy or left as an untested inference.
+
+  Additionally (secondary/optional task, not required for the above): a raw-byte capture across
+  8 independent DTR-reset-and-immediate-post-flash cycles caught a reproducible single stray
+  byte (`0xf0`) on THIS board every single time, corroborating that Uno-class hardware genuinely
+  does emit spurious pre-command bytes around reset — independent evidence for the mechanism's
+  precondition, though its precise electrical origin was not further isolated (out of scope) and
+  it does not, by itself, reproduce the reporter's exact post-send double-interleave (that
+  required deliberate injection).
+
+  Source archaeology (unchanged from the first pass) still conclusively excludes a nameable
+  firmware code defect in the b22-b25 range — `firestarter_uno.hex` for b23/b24/b25 remains
+  compiled-byte-identical, and b22->b23's real code changes remain comment-only across every
+  file the CMD_FW_VERSION probe path touches. No firmware fix was needed or made.
+
+  REMAINING, HONESTLY: the reporter's OWN exact environment (their specific USB-to-serial bridge
+  chip/revision, host OS/driver, avrdude 8.0) was never reproduced or tested — only the
+  documented FAILURE MODE was manufactured and cured. This is the strongest verification
+  achievable without that exact hardware, and is materially stronger than the first pass: the
+  fix's own retry/deadline logic has now actually executed and been observed succeeding and
+  failing (before the rework) on physical Uno-class hardware, not only against a `_FakeSerial`.
 
   Bench left in a stated, working condition: Arduino Uno R3 on `/dev/ttyACM1`, flashed to
   firmware **3.0.0b25** (the current published/newest firmware) as the final resting state.
 
 files_changed:
-  - firestarter_app/firestarter/serial_comm.py
-  - firestarter_app/tests/test_probe_spurious_setup_ack.py
+  - firestarter_app/firestarter/serial_comm.py (commits `31f3455`, `b2546da` [coordinator's
+    rename, not this session's], `8b3d8f9` [this session's rework])
+  - firestarter_app/tests/test_probe_spurious_setup_ack.py (commits `31f3455`, `8b3d8f9`)
