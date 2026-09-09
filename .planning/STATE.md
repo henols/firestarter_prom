@@ -4,17 +4,17 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 181
 current_phase_name: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
-status: executing
-stopped_at: "Phase 181 — all 10 plans complete, 9/9 waves gated green; awaiting verification"
-last_updated: "2026-09-09T09:11:54.639Z"
+status: completed
+stopped_at: "Phase 181 COMPLETE — verified 19/19; all 8 v1.36 phases complete"
+last_updated: "2026-09-09T16:57:44.490Z"
 last_activity: 2026-09-09
-last_activity_desc: "Phase 181 EXECUTION STARTED 2026-09-09 (wave 1 of 9). Prior record, preserved: Phase 181 PLANNED 2026-09-09 -- 10 plans, 9 waves, 18/18 requirements and 22/22 decisions covered. Resumed an INTERRUPTED planning session: plans 181-01..04 already existed from the context session (8 requirements, 9 decisions) and were preserved BYTE-UNCHANGED; 181-04 was untracked and is now committed unmodified. Six new plans 181-05..10 cover the remaining ten requirements (RPT-A1/A2/A3/A5/B1/D1/D2/F1/F2, HYG-03) and thirteen decisions (D-01/03/04/05/06/07/10/11/12/18/20/21/22). **Strictly serial, waves 4-9**, because every remaining unit edits `diagnostic_report.py` and `test_blast_radius_invariance.py`, so no two can share a wave without a same-wave file collision -- the plan-checker verified that reason against the actual `files_modified` sets. **Three record-vs-reality falsifications the planner corrected rather than followed:** CONTEXT D-03's console-title anchor is `diagnostic_report.py:943`, NOT the `:826` the decision cites (`:826` is inside `_step_dict`); `SKILL.md:375`'s `vpp_mv` is the DATABASE field in the datasheet-vs-`firestarter info` cross-check table, not the report's, so the CONTEXT/PATTERNS instruction to rewrite it as `vpp_before_mv`/`vpp_after_mv` would turn a CORRECT row false -- 181-09 extends the report-voltage sentence at `:330` instead and amends CONTEXT.md in place; and `check_eprom_id` echoes the host's own expected id on a PASS (`eprom_operations.py:2314`), so RPT-A1's `chip_id_actual` equals `chip_id_expected` on every pass and is an echo, NOT a read-back -- 181-08 states that honesty ceiling in the docstring and evidence rather than hiding it behind a passing equality. **Plan-checker: 0 blockers after one revision iteration.** Its one WARNING was real and is CLOSED: 181-10's full-suite battery leg trusted a hand-written `suite_passed=` scalar instead of re-deriving it, the same fail-open shape as the `MAX_27C020_SIZE` tautology; the leg now re-parses pytest's own output, reconciles passed+failed+skipped+xfailed+xpassed+error against pytest's `collected` total, and is observed RED against three distinct plants (hand-edited scalar, backdated file, falsified count) through ONE `ck` function invoked four times. The 741s-vs-600s timeout constraint is honoured -- the suite still runs once in the background and is never re-invoked at verify time. Deterministic probes: 186/186 commands resolve, 186/186 carry a `<fails_when>`. **A planner claim that is FALSE, corrected here:** it reported `check.decision-coverage-plan` skips on this phase with `no trackable decisions`; the gate was measured directly twice and discriminates correctly -- 9/22 before planning, 22/22 after. It IS real protection and it IS green. STATE.md and ROADMAP.md were hand-edited: `state.planned-phase` and `roadmap.annotate-dependencies` are both measured-destructive in this repo. Next: `/gsd-execute-phase 181`."
+last_activity_desc: "Phase 181 COMPLETE 2026-09-09 — 10/10 plans, 9/9 waves, verification PASSED 19/19. Suite 2247 -> 2285, zero failures at every closed wave; regression gate 886/886 over 20 prior-phase files. All 19 FROZEN_HASHES literals byte-identical to app base 04fd982 across the whole phase (0 literal lines changed) — D-16 discharges as ZERO re-keys and RPT-E3s exception clause discharges EMPTY. Seven orchestrator-side corrections: six GSD-provenance comments removed (the recurring shape is rewording a comment a deletion falsified, which is still writing comment prose), and a ruff format --check regression the plan had waived as pre-existing by measuring against the wave-3 tip instead of the phase base. One red gate (wave 6) caught a real cross-module break: a Phase-180 anti-vacuity pin anchored on the literal text of _dispatch_read s reason line, which 181-07 had to change. Verifier found one gap — the firestarter_app gitlink was never advanced, because I told all ten executors to leave it alone on a v1.6-v1.8 convention phase 180 had already superseded; closed at 6de7273 and the fabricated CLAUDE.md citation in 181-10-SUMMARY.md corrected. Code review: 0 critical, 1 warning (WR-01, _is_interactive now dead) filed as a todo. NOT pushed."
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 42
   completed_plans: 42
-  percent: 88
+  percent: 100
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 181 (Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close) — EXECUTING
-Plan: 10 of 10 complete (all 9 waves done)
-Status: Executing Phase 181
-Last activity: 2026-09-09 — Phase 181 EXECUTION STARTED, wave 1 of 9. Prior: 2026-09-09 — Phase 181 PLANNED: 10 plans in 9 waves, 18/18 requirements and 22/22 decisions covered. Plans 181-01…04 preserved byte-unchanged from the interrupted context session; six new plans 181-05…10 cover the remaining ten requirements. Strictly serial from wave 4 — every remaining unit edits `diagnostic_report.py`. Plan-checker passed with 0 blockers after one revision that made 181-10's full-suite leg re-derive its verdict from pytest's own output instead of trusting a hand-written scalar. Three record-vs-reality falsifications corrected in-plan (D-03's line anchor, `SKILL.md:375`'s database-vs-report field, RPT-A1's echo-not-read-back ceiling). NOT auto-advanced to execute.
+Phase: 181 (Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close) — COMPLETE
+Plan: 10 of 10 complete (all 9 waves gated green)
+Status: Phase 181 complete and verified 19/19 — all 8 v1.36 phases complete; nothing pushed
+Last activity: 2026-09-09 — Phase 181 COMPLETE. 10/10 plans, verification PASSED 19/19 after one gap (the unadvanced firestarter_app gitlink, an orchestrator error) was found and closed. Suite 2247 -> 2285 with zero failures at every closed wave; regression gate 886/886. All 19 frozen dedup hashes unmoved. Seven orchestrator-side corrections, six of them GSD-provenance comments. Both repos remain LOCAL.
 
 ## Roadmap Summary (v1.36)
 
@@ -3300,7 +3300,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-09T08:45:00.000Z
-**Stopped at:** Phase 181 PLANNED — 10 plans, 9 waves; plan-checker passed (0 blockers, 1 warning closed by revision), requirements 18/18 and decisions 22/22 covered; NOT auto-advanced to execute
+**Stopped at:** Phase 181 complete — all phases complete
 **Was (superseded, retained for continuity):** Phase 181 context gathered
 **Was (superseded, retained for continuity):** Phase 180 complete, ready to plan Phase 181
 **Was (superseded, retained for continuity):** Completed 180-04-PLAN.md

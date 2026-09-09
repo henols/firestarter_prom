@@ -237,7 +237,7 @@ UNMEASURED everywhere it appears).
 - [x] **Phase 178: Fault Attribution — the Two-Axis Vocabulary** - Give a transport or tool fault a status distinct from the chip's verdict, so a half-seated cable stops filing as `[dev test] <chip> — FAIL`. (completed 2026-09-06)
 - [x] **Phase 179: UV Slot Writes — `FLAG_SKIP_BLANK_CHECK`** *(hardware-gated)* - Make a UV part holding data outside the target slot actually reach `overall_verdict == "PASS"` with `run_count == 2`. (completed 2026-09-08)
 - [x] **Phase 180: Read-Step Sampling** *(conditional on Phase 176's measurement)* - Replace the read step's second full sweep with a bit-structured sample only if the measured connect cost says it is cheaper; closing the requirement as "measured, not worth doing" is a valid outcome. (completed 2026-09-08)
-- [ ] **Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close** - Make the report describe only what the run knows, name chips the database recognizes, and close the milestone's dependency and re-key ledger.
+- [x] **Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close** - Make the report describe only what the run knows, name chips the database recognizes, and close the milestone's dependency and re-key ledger. (completed 2026-09-09)
 
 ## Phase Details
 
