@@ -489,8 +489,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 181-02-PLAN.md — Make plan 181-04's demolition a small reviewable edit instead of a 117-site one, and MEASURE D-09's equivalence claim before anything is deleted: `derive_plan` byte-identical across all 677 part numbers under canonical serialization, `write_scope='none'` proven unreachable from `dev test`, and `Plan.locked_destructive` proven EMPTY at the reachable scope. Touches no product source
-- [ ] 181-03-PLAN.md — Close the two dependency-hygiene requirements the way the requirement text demands — by test, not by a sentence: `syrupy` bounded `>=5.0,<7` with the boundary exercised on both sides, and the runtime dependency list pinned as exact order-insensitive SET equality over the six shipped names, read with stdlib `tomllib` so the pin needs no new dependency to make its own point
+- [x] 181-02-PLAN.md — Make plan 181-04's demolition a small reviewable edit instead of a 117-site one, and MEASURE D-09's equivalence claim before anything is deleted: `derive_plan` byte-identical across all 677 part numbers under canonical serialization, `write_scope='none'` proven unreachable from `dev test`, and `Plan.locked_destructive` proven EMPTY at the reachable scope. Touches no product source
+- [x] 181-03-PLAN.md — Close the two dependency-hygiene requirements the way the requirement text demands — by test, not by a sentence: `syrupy` bounded `>=5.0,<7` with the boundary exercised on both sides, and the runtime dependency list pinned as exact order-insensitive SET equality over the six shipped names, read with stdlib `tomllib` so the pin needs no new dependency to make its own point
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

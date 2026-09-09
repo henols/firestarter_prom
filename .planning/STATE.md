@@ -13,7 +13,7 @@ progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 42
-  completed_plans: 33
+  completed_plans: 35
   percent: 88
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 181 (Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close) — EXECUTING
-Plan: 1 of 10 complete (wave 1 of 9 done)
+Plan: 3 of 10 complete (wave 2 of 9 done)
 Status: Executing Phase 181
 Last activity: 2026-09-09 — Phase 181 EXECUTION STARTED, wave 1 of 9. Prior: 2026-09-09 — Phase 181 PLANNED: 10 plans in 9 waves, 18/18 requirements and 22/22 decisions covered. Plans 181-01…04 preserved byte-unchanged from the interrupted context session; six new plans 181-05…10 cover the remaining ten requirements. Strictly serial from wave 4 — every remaining unit edits `diagnostic_report.py`. Plan-checker passed with 0 blockers after one revision that made 181-10's full-suite leg re-derive its verdict from pytest's own output instead of trusting a hand-written scalar. Three record-vs-reality falsifications corrected in-plan (D-03's line anchor, `SKILL.md:375`'s database-vs-report field, RPT-A1's echo-not-read-back ceiling). NOT auto-advanced to execute.
 
