@@ -5,10 +5,10 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 181
 current_phase_name: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 status: planning
-stopped_at: Phase 180 complete, ready to plan Phase 181
-last_updated: "2026-09-08T19:34:18.074Z"
-last_activity: 2026-09-08
-last_activity_desc: "Phase 180 CLOSED 2026-09-08 -- UAT complete (1/1 passed, 0 issues), verification canonicalized to passed at 25/26 must-haves. The single human-verification item -- the WR-02 residual, where `_last_ok_assignment_shape` only recognises a single-target bare-`ast.Name` `ast.Assign` so a chained or tuple-unpack `last_ok` reassignment escapes the pin while its docstring claims 'any third assignment... reddens a pin' -- was ACCEPTED AS-IS by operator override, recorded in 180-VERIFICATION.md (`overrides_applied: 1`, `## Acknowledged Gaps`). The residual is still open in code and guards a shape absent from shipped source: re-confirmed at UAT time that `_dispatch_read` carries exactly `last_ok = True` and `last_ok = operator.read_eprom(...)` and nothing else, and the primary D-06 verdict-source pin (`_verdict_expression_names`) is unaffected, so roadmap criterion 3 holds. If a future phase touches `last_ok`'s assignment shape, apply 180-REVIEW.md's flatten-targets fix FIRST -- the pin will not catch it as written. PRUNE-08 closed as measured-not-worth-doing; no sampling code shipped. Transitioned to Phase 181."
+stopped_at: Phase 181 context gathered
+last_updated: "2026-09-09T00:00:00.000Z"
+last_activity: 2026-09-09
+last_activity_desc: "Phase 181 CONTEXT gathered 2026-09-09 -- all four gray areas discussed, 13 operator answers, 26 decisions locked in `181-CONTEXT.md`. **Canonical naming (RPT-F1):** the title shows the alias that case-insensitively equals the operator's raw token, falling back to the first alias -- measured necessary because 514 of 953 database aliases resolve to a comma-joined `part_number` and `first alias` is wrong on some of them (`w27c020` -> `W27C02`, a different part). Parenthetical mode annotations are kept VERBATIM (43 rows carry them; 24 paren-stripped names collide across rows -- every DALLAS NVRAM ships as both an `(RW)` and a `(TEST)` row), and the selector mirrors `get_eprom_config`'s own exact-then-paren-stripped ladder rather than writing a second normalization. Four surfaces switch (title, body, console table title, saved report heading); artifact FILENAMES keep the raw token. The RPT-F1 todo's canonical-spelling test sweep is REFUSED with the measurement: it claims 18 occurrences, the real count is 103 across 23 files including the frozen-shape builders, and rewriting `chip=\"m27c512\"` yields `776846bf2dc8` -- already frozen as `m27c512-full-canonical-name`, the shape Phase 174 registered expressly to redden on a `parts[0]` normalization. **Duration (RPT-D1/D2):** `duration_s` becomes the MEAN over cycles that ran (== median at N=2, and the only candidate under which a `--fast` value and a default value measure the same quantity); `elapsed` runs CLI entry -> just before the first serialization, stamped ONCE as a stored field because `to_dict()` is called three times per run; an `elapsed` row replaces `steps total` in the console table. **Deletions (RPT-B2/D-7):** operator adjudicated at the FULLEST depth, against the recommendation and against D-7's own `narrower than RPT-B2 states` wording -- `banner.locked_steps`, `Plan.locked_destructive` AND `write_scope=\"none\"` all go, and `derive_plan`'s `write_scope` parameter is dropped ENTIRELY. Verified equivalent before locking: `write_scope == \"partial\"` iff `is_uv`, and `derive_plan` already computes `is_uv = is_uv_eprom(full)` off the same record `_resolve_write_scope` consults -- so it is RPT-A4's own `never re-derived` principle applied one level up, behaviour-identical on every reachable path, `op=` hash component unmoved. Two measurements de-risk it: every frozen shape builds with `write_scope=\"full\"`, and `tests/plan_corpus.py` explicitly EXCLUDES `\"none\"` from its 1,354-plan sweep, so neither the invariance corpus nor Phase 175's PRUNE-06 coverage is touched. Consequence to carry: `_resolve_write_scope` dies, so HYG-04 must REMOVE it from `_HANDLER_FUNCTION_NAMES` or `test_handler_function_names_all_resolve_to_real_callables` goes RED. **Two render/field calls:** the console `chip_id` row stays ONE-sided on agreement (the 2026-08-21 operator decision preserved; RPT-A1 satisfied in the export), and an agreeing read now RECORDS `divergence` with `bad: 0`, mirroring PRUNE-03 -- a declared edit to `test_read_step_agreement_no_divergence_recorded`. **D-16, the phase's headline leg:** Phase 181 declares ZERO re-keys, asserted positively -- every change falls outside `dedup_fingerprint`'s five-entry allow-list, so all 19 frozen hashes must be byte-identical and RPT-E3's exception clause discharges as empty. RPT-E3 is re-anchored to `FROZEN_HASHES` + the two-commit review rule in the oracle's failure message, because GATE-06's `RK-174-` ledger was RETIRED 2026-09-08. **Four residual todos folded:** the UV exhausted-slots ladder false-green (T-179-05, a live regression where an all-slots-spent run proposes the same disposition as a genuine PASS), `slots_remaining`'s off-by-one (T-179-07, measured on hardware), deletion of the stale `ALWAYS WRITES` comment block (twice-blocked on `rewrite vs delete`; the hard no-comments rule settles it), and closure of the 2026-08-05 `ladder_state` todo which Phase 177's `match` bucket already fixed -- verified in code, zero implementation. One guard (`did a write actually run`) serves both the `slots_remaining` fix and the ladder fix. **Scope boundary:** the phase STOPS AT THE RECORD -- the beta cut, the `v1.36` tag and the three `.github`-only PRs to protected `main` stay with `/gsd-complete-milestone` and `/gsd-ship`, keeping a verifier pass (which caught gaps in 174, 179 and 180) between the last code change and any push; recreate local `beta` from `origin/beta` first. Deferred, not opened: exposing the `elapsed`-minus-step-sum overhead gap. Next: `/gsd-plan-phase 181`."
 progress:
   total_phases: 8
   completed_phases: 7
@@ -237,8 +237,8 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 181 — Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-08 — Phase 180 CLOSED: UAT 1/1 passed, verification passed at 25/26; the WR-02 residual accepted as-is by operator override (recorded in 180-VERIFICATION.md `overrides_applied: 1` + `## Acknowledged Gaps`) — still open in code, guards a shape absent from shipped source. PRUNE-08 closed as measured-not-worth-doing. Transitioned to Phase 181.
+Status: Context gathered, ready to plan
+Last activity: 2026-09-09 — Phase 181 CONTEXT gathered: all four gray areas discussed, 26 decisions locked in `181-CONTEXT.md`. Canonical naming resolves the comma-joined alias by raw-token match with parens kept verbatim; `duration_s` becomes the per-cycle mean and a stamped-once `elapsed` replaces the `steps total` row; D-7 adjudicated at the fullest depth so `write_scope` is dropped entirely (proven equivalent to `is_uv`); four residual todos folded; D-16 commits the phase to ZERO re-keys across all 19 frozen hashes. Phase stops at the record — close stays with `/gsd-complete-milestone`.
 
 ## Roadmap Summary (v1.36)
 
@@ -3299,8 +3299,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-08T19:31:02.000Z
-**Stopped at:** Phase 180 complete, ready to plan Phase 181
+**Last session:** 2026-09-09T00:00:00.000Z
+**Stopped at:** Phase 181 context gathered
+**Was (superseded, retained for continuity):** Phase 180 complete, ready to plan Phase 181
 **Was (superseded, retained for continuity):** Completed 180-04-PLAN.md
 **Was (superseded, retained for continuity):** Completed 180-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 180-02-PLAN.md
@@ -3358,7 +3359,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** `.planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CONTEXT.md`
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
