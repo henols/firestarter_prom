@@ -494,7 +494,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 181-04-PLAN.md — Perform D-08's deletion at the depth the operator adjudicated on 2026-09-09 while leaving the milestone's headline claim intact: `_WRITE_SCOPE_NONE`, `write_execute`, `Plan.locked_destructive`, `BannerCounts.locked_steps` and `cli_handlers._resolve_write_scope` all die; `write_scope` narrows to two members with NO default so a two-argument call raises `TypeError`; HYG-04 discharges as a four-way edit, not the two-way D-19 describes
+- [x] 181-04-PLAN.md — Perform D-08's deletion at the depth the operator adjudicated on 2026-09-09 while leaving the milestone's headline claim intact: `_WRITE_SCOPE_NONE`, `write_execute`, `Plan.locked_destructive`, `BannerCounts.locked_steps` and `cli_handlers._resolve_write_scope` all die; `write_scope` narrows to two members with NO default so a two-argument call raises `TypeError`; HYG-04 discharges as a four-way edit, not the two-way D-19 describes
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
