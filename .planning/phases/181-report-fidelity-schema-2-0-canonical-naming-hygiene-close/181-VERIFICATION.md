@@ -1,8 +1,8 @@
 ---
 phase: 181-report-fidelity-schema-2-0-canonical-naming-hygiene-close
-verified: 2026-09-09T00:00:00Z
-status: gaps_found
-score: 18/19 must-haves verified
+verified: 2026-09-09T00:20:00Z
+status: passed
+score: 19/19 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 covered_files:
@@ -32,25 +32,13 @@ covered_files:
   - .planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CLOSURE.md
   - .planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CONTEXT.md
 covered_digest: "v1:sha256:ab4ceec4ed49e139c165e9cfecb38d0975481bcc2ad8429fea0f15788c39da92"
-gaps:
-  - truth: "The phase's app-repo work is committed and reachable from the meta repo's own tracked submodule pointer, consistent with every prior phase's closing practice in this milestone"
-    status: failed
-    reason: >
-      The meta repo's committed `firestarter_app` gitlink is still `04fd982` (the phase's own BASE
-      commit) at the current HEAD (`1fdbf3e1`/`9fbc0eb6`) — it has never been advanced through any of
-      phase 181's 10 plans or its close plan, despite 38 real commits (all 18 requirements' worth of
-      work) landing in the submodule up to `6de7273`. `git status --porcelain` in the meta repo shows
-      `M firestarter_app` uncommitted right now. This breaks the pattern every earlier phase in this
-      milestone followed without exception: 179-01/179-02/179-03, 180-01, 180-03, 180-04, and 180-05
-      each carried an explicit "advance firestarter_app gitlink" commit, and phase 180's own close
-      commit (`2b93c20a`) is the one that set the pointer to `04fd982` in the first place. Nothing in
-      181's plans changes that convention.
-    artifacts:
-      - path: "firestarter_app (gitlink)"
-        issue: "Meta-tracked submodule pointer frozen at 04fd982 (phase base) through all of phase 181; working tree dirty at 6de7273 but never committed"
-    missing:
-      - "A meta-repo commit that advances the firestarter_app gitlink to (at least) 6de7273, matching every prior phase's per-plan or close-time convention"
-      - "A correction to 181-10-SUMMARY.md's false claim (line ~56, ~202) that CLAUDE.md contains an explicit 'leave the M firestarter_app gitlink line alone' convention deferring gitlink bumps to milestone close — no such text exists anywhere in /workspaces/CLAUDE.md (grep confirms zero matches for 'gitlink' or 'M firestarter_app'), and this exact false-claim pattern ('gitlink bumps are deferred to milestone close') was already identified and corrected out-of-band once before, in a different phase (125-06-SUMMARY.md, per STATE.md's own recorded finding, commit 4bb038e)"
+re_verification:
+  previous_status: gaps_found
+  previous_score: 18/19
+  gaps_closed:
+    - "The phase's app-repo work is committed and reachable from the meta repo's own tracked submodule pointer, consistent with every prior phase's closing practice in this milestone. Closed post-verification by commit 6e7a7f0f (\"fix(181): advance the firestarter_app gitlink through phase 181\"), which advances the meta-tracked firestarter_app gitlink from 04fd982 to 6de7273, matching app HEAD. The false CLAUDE.md citation in 181-10-SUMMARY.md was independently corrected by commit 36095c27, which re-attributes the leave-it-alone instruction to the orchestrator's dispatch prompt (a stale v1.6-v1.8 carry-forward) rather than to CLAUDE.md."
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close Verification Report
@@ -60,18 +48,42 @@ nothing assumed, nothing dead — the schema bump is honest about the breaking c
 the way the database names them, and the milestone's dependency and re-key discipline is closed out in
 one place.
 
-**Verified:** 2026-09-09
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-09-09 (initial pass), re-verified 2026-09-09 after post-verification gap closure
+**Status:** passed
+**Re-verification:** Yes — one must-have (gitlink advance) re-checked after closure; all other 18
+must-haves stand on the same tree checked in the initial pass (no source files changed)
 
 ## Goal Achievement
 
-Everything the phase's 18 requirements actually claim about the report, the schema, the naming, and
-the dependency/re-key discipline was independently re-derived against the live codebase (not read off
-any SUMMARY) and is **substantively correct** — every code-level truth below is VERIFIED. The one
-failure is structural, not functional: the meta repo's own committed record of this phase's work is
-incomplete (see Gap 1), and the SUMMARY that explains away that gap cites a project convention that
-does not exist.
+Everything the phase's 18 requirements claim about the report, the schema, the naming, and the
+dependency/re-key discipline was independently re-derived against the live codebase (not read off any
+SUMMARY) and is **substantively correct**. The initial pass found one structural gap — the meta repo's
+`firestarter_app` gitlink had never been advanced through the phase, and the SUMMARY explaining that
+away cited a CLAUDE.md convention that does not exist. That gap has now been closed and is independently
+re-verified below, not accepted on the coordinator's say-so.
+
+### Post-verification gap closure (re-checked against the live tree, not the coordinator's message)
+
+- `git -C /workspaces ls-tree HEAD firestarter_app` → `160000 commit 6de727368056898a57f695e11d6f31c309a5dec2`
+- `git -C /workspaces/firestarter_app rev-parse HEAD` → `6de727368056898a57f695e11d6f31c309a5dec2`
+- Both identical. `git -C /workspaces status --porcelain` → empty (clean).
+- `git show --stat 6e7a7f0f` touches exactly one file, `firestarter_app` (the gitlink), 1 insertion/1
+  deletion — a pure pointer advance, no source files touched.
+- `grep -i gitlink /workspaces/CLAUDE.md` → still zero matches, confirming the original finding that
+  no such convention exists there.
+- `181-10-SUMMARY.md` (commit `36095c27`) now reads, at all four previously-flagged occurrences: "per
+  the orchestrator's dispatch instruction to leave the M firestarter_app gitlink line alone.
+  CORRECTION (post-verification): that instruction was attributed here to CLAUDE.md, which says
+  nothing about gitlinks; it came from a stale v1.6-v1.8 convention the orchestrator carried forward.
+  Phase 180 advanced the gitlink three times by name (`9f65162c`, `dcec60f9`, `e39bb91e`)... The
+  pointer was advanced to `6de7273` after this plan closed." — the fabricated citation is retracted
+  and attributed correctly, and the closure is recorded in the artifact itself rather than only in a
+  commit message.
+
+Both halves of the gap (the missing gitlink advance and the false citation explaining it away) are
+independently confirmed closed against the live tree. Nothing else about the phase changed: no
+`firestarter_app` source files were touched by either closing commit, so all 18 code-level truths
+below stand on the same tree verified in the initial pass.
 
 ### Observable Truths
 
@@ -95,9 +107,9 @@ does not exist.
 | 16 | HYG-02: runtime deps stay exactly the 6 shipped names, pinned by test | ✓ VERIFIED | `pyproject.toml:46-53`; `test_runtime_dependencies.py` 4/4 pass |
 | 17 | HYG-03: decision recorded that `dedup_fingerprint` must never hash `to_dict()`/reflect over dataclass fields, enforced by an AST pin | ✓ VERIFIED | `MILESTONES.md` (naming the mechanism, the consumer, and the gate); `test_dedup_fingerprint_hashes_an_explicit_allow_list_and_never_the_serialized_mapping` + its planted-mutant leg, both present and passing |
 | 18 | HYG-04: every new `dev_test` helper (`_canonical_part_number`, `_chip_id_fields`) registered in `check_devtest_orchestrator.py`'s allow-list; `_resolve_write_scope` removed from it along with the source | ✓ VERIFIED | `check_devtest_orchestrator.py:152-165` |
-| 19 | The milestone's dependency/re-key discipline is "closed out in one place" — including the meta repo's own tracked record of the app-side work that discipline governs | ✗ FAILED | See Gap 1. Meta gitlink frozen at phase-base `04fd982`; SUMMARY's justification cites a non-existent CLAUDE.md rule |
+| 19 | The milestone's dependency/re-key discipline is "closed out in one place" — including the meta repo's own tracked record of the app-side work that discipline governs | ✓ VERIFIED (closed post-verification) | `firestarter_app` gitlink advanced to `6de7273` (commit `6e7a7f0f`), matching app HEAD exactly; `git status --porcelain` clean; SUMMARY's false citation corrected (commit `36095c27`) — see "Post-verification gap closure" above |
 
-**Score:** 18/19 truths verified
+**Score:** 19/19 truths verified
 
 ### Required Artifacts
 
@@ -113,7 +125,7 @@ does not exist.
 | `.planning/MILESTONES.md` | HYG-03 decision record | ✓ VERIFIED | Present, names mechanism + gate |
 | `.planning/REQUIREMENTS.md` | 18 checkboxes + 18 traceability rows flipped, nothing else | ✓ VERIFIED | Diffed against pre-181 commit `2facbc8f`: exactly 36 changed lines, all 18 IDs, no other row touched |
 | `.planning/phases/.../181-CLOSURE.md` | leads with zero-re-key verdict | ✓ VERIFIED | Opens with the claim in its first paragraph |
-| `firestarter_app` gitlink (meta repo) | advanced to reflect the phase's committed work | ✗ MISSING | Still `04fd982` (phase base); dirty, uncommitted at `6de7273` |
+| `firestarter_app` gitlink (meta repo) | advanced to reflect the phase's committed work | ✓ VERIFIED | `6de7273`, matches app HEAD exactly, working tree clean |
 
 ### Key Link Verification
 
@@ -124,7 +136,7 @@ does not exist.
 | `cli_handlers.py::_chip_id_fields` | `chip_test.py::StepResult.chip_id_detected` | structural field read | ✓ WIRED |
 | `cli_handlers.py::_canonical_part_number` | `submit.py`/`diagnostic_report.py` canonical surfaces | all four surfaces read the exported `to_dict()` value, not a second selector call | ✓ WIRED |
 | `test_blast_radius_invariance.py::LADDER_PINS` | `diagnostic_report.py::build_db_diff` | 19-shape disposition census | ✓ WIRED |
-| meta `.planning/REQUIREMENTS.md`/`MILESTONES.md` | `firestarter_app` submodule work | gitlink pointer | ✗ NOT_WIRED — pointer frozen at pre-phase commit |
+| meta `.planning/REQUIREMENTS.md`/`MILESTONES.md` | `firestarter_app` submodule work | gitlink pointer | ✓ WIRED — advanced to `6de7273`, matches app HEAD |
 
 ### Behavioral Spot-Checks
 
@@ -140,6 +152,8 @@ does not exist.
 | `dev test` orchestrator gate | independently re-run | PASS, 0 forbidden patterns | ✓ PASS |
 | 19 `FROZEN_HASHES` literals vs. app base `04fd982` | `diff <(git show 04fd982:...) <(current)` | zero diff | ✓ PASS |
 | Full suite (orchestrator-measured, corroborated by 623-test sample above) | 2285 passed, 0 failed | matches | ✓ PASS |
+| `firestarter_app` gitlink vs. app HEAD | `git ls-tree HEAD firestarter_app` vs `git -C firestarter_app rev-parse HEAD` | both `6de7273` | ✓ PASS |
+| Meta repo porcelain | `git -C /workspaces status --porcelain` | empty | ✓ PASS |
 
 ### Requirements Coverage
 
@@ -172,7 +186,7 @@ found in either direction.
 | File | Line | Pattern | Severity | Impact |
 |---|---|---|---|---|
 | — | — | No `TBD`/`FIXME`/`XXX`/`TODO`/`HACK`/`PLACEHOLDER` found in any product-source file touched by this phase | — | none |
-| `181-10-SUMMARY.md` | ~56, ~202 | False citation: claims CLAUDE.md states an explicit "leave the `M firestarter_app` gitlink line alone" convention deferring gitlink bumps to milestone close. No such text exists in `/workspaces/CLAUDE.md` (grep confirms). This exact false-claim pattern was already caught and corrected once before, in a different phase's SUMMARY (125-06, per `STATE.md`'s own recorded finding) | 🛑 Blocker | Masks a real, unresolved gap (the gitlink was never advanced) behind a fabricated project-convention citation |
+| `181-10-SUMMARY.md` | ~56, ~202 (pre-`36095c27`) | **RESOLVED.** Previously cited a non-existent CLAUDE.md gitlink convention; commit `36095c27` corrected all four occurrences to attribute the instruction to the orchestrator's dispatch prompt and to record the pointer advance. Independently re-confirmed: `grep -i gitlink /workspaces/CLAUDE.md` still returns nothing, and the SUMMARY no longer claims otherwise. | — (was 🛑 Blocker, now closed) | none remaining |
 
 Three commits landed on the shared branch during this phase's execution window that are **not**
 part of any 181-XX plan (`8b3d8f9`, `31f3455`, `b2546da`, all touching
@@ -182,27 +196,18 @@ correctly and consistently documented across 181-01/02/04's SUMMARYs as a concur
 
 ### Gaps Summary
 
-Every functional, code-level claim this phase's 18 requirements make was independently re-derived
-against the live `firestarter_app` submodule (not read off any SUMMARY) and holds. The report schema,
-the deletions, the additive fields, the canonical naming, the dependency bounds, and the HYG-03
-enforcement mechanism are all real, tested, and wired correctly — including the specific claims this
-verification was asked to be skeptical of (RPT-B1's AST-not-textual census, RPT-E3's empty exception
-clause distinguished from the unrelated `LADDER_PINS` ladder re-key, and RPT-A1's honesty-ceiling
-statement, which is literally true of `check_eprom_id`'s implementation).
-
-The one gap is structural rather than functional: the phase goal's closing clause — "the milestone's
-dependency and re-key discipline is closed out **in one place**" — is not actually true of the meta
-repo's own committed history. The `firestarter_app` gitlink has not moved past the phase's own base
-commit (`04fd982`) despite 38 real commits landing in the submodule, breaking a convention every
-earlier phase in this milestone (179, 180) followed without exception, including phase 180's own close
-commit, which is the one that set today's stale pointer. The close plan's SUMMARY explains this away
-by citing a CLAUDE.md convention that does not exist — and this specific false-claim pattern
-("gitlink bumps are deferred to milestone close") was already flagged and corrected once before in a
-different phase, per `STATE.md`'s own record. Fixing it is mechanical (one commit advancing the
-gitlink to at least `6de7273`), but it must actually happen, and the SUMMARY's false citation should
-be corrected rather than left standing as the record of why it didn't.
+None remaining. The initial pass found one structural gap — the meta repo's `firestarter_app` gitlink
+frozen at the phase's own base commit (`04fd982`) despite 38 real commits landing in the submodule, and
+a SUMMARY that explained the omission by citing a CLAUDE.md convention that does not exist. Both halves
+are now closed and independently re-verified against the live tree (not accepted on report): the
+gitlink is `6de7273`, matching app HEAD exactly, via a pure-pointer commit (`6e7a7f0f`) that touches no
+source; and the false citation is corrected in `181-10-SUMMARY.md` (commit `36095c27`), attributing the
+leave-it-alone instruction to its real source — a stale orchestrator dispatch-prompt convention
+superseded by phase 180's own practice — rather than to CLAUDE.md. All other 18 must-haves were
+verified in the initial pass against the same tree (no source files changed by the closing commits) and
+stand unchanged.
 
 ---
 
-_Verified: 2026-09-09_
+_Verified: 2026-09-09 (initial), re-verified 2026-09-09 (post-closure)_
 _Verifier: Claude (gsd-verifier)_
