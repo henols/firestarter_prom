@@ -518,7 +518,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 181-10-PLAN.md — Close the phase at the record and leave behind the decision that protects everything the milestone built: HYG-03's refusal to ever refactor `dedup_fingerprint` to hash `to_dict()`, recorded in `MILESTONES.md`. Sealed by a green-tree battery whose full-suite leg re-derives its verdict from pytest's own output — reconciled against the `collected` total and observed RED against a hand-edited scalar, a stale file and a falsified count
+- [x] 181-10-PLAN.md — Close the phase at the record and leave behind the decision that protects everything the milestone built: HYG-03's refusal to ever refactor `dedup_fingerprint` to hash `to_dict()`, recorded in `MILESTONES.md`. Sealed by a green-tree battery whose full-suite leg re-derives its verdict from pytest's own output — reconciled against the `collected` total and observed RED against a hand-edited scalar, a stale file and a falsified count
 
 ### v1.36 Coverage
 
