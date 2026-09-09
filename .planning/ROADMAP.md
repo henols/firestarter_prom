@@ -502,7 +502,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 181-06-PLAN.md — Make the two numbers an operator reads about time mean what they say: `duration_s` stops summing across cycles and becomes the mean over the cycles that ran, so it measures a per-operation cost whose meaning does not vary with `run_count`; a stamped-once wall-clock `elapsed` covers CLI entry to just before the first serialization; and the render-only sum-of-sums "steps total" row is replaced
+- [x] 181-06-PLAN.md — Make the two numbers an operator reads about time mean what they say: `duration_s` stops summing across cycles and becomes the mean over the cycles that ran, so it measures a per-operation cost whose meaning does not vary with `run_count`; a stamped-once wall-clock `elapsed` covers CLI entry to just before the first serialization; and the render-only sum-of-sums "steps total" row is replaced
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
