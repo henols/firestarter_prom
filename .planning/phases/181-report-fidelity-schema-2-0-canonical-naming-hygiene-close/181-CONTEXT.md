@@ -405,12 +405,40 @@ Four residuals absorbed, all inside "the report describes only what the run know
 - `firestarter_app/pyproject.toml` — `dependencies` (`:46-53`, HYG-02), `syrupy>=5.0` (`:73`,
   HYG-01).
 - `tools/check_devtest_orchestrator.py` — `_HANDLER_FUNCTION_NAMES` (`:152-164`, HYG-04, D-19).
-- `.claude/skills/devtest-triage/SKILL.md` — the `vpp_mv: 13500` example row at `:375` is the **only
-  occurrence**; RPT-F2/D-5 replaces it with `vpp_before_mv`/`vpp_after_mv` and a row stating what
-  they do **not** prove. Its two frozen fixtures under
-  `.claude/skills/devtest-triage/fixtures/` carry `"schema_version": "1.2"` / `"1.4"`,
-  `"locked_steps": []`, `"vpp_mv": 11800` and `"vpe_mv": 13700` — these are **RPT-E2's forward-only
-  parse targets** and their headers forbid regeneration.
+- `.claude/skills/devtest-triage/SKILL.md`
+
+  ## Status: Phase 181 amendment
+
+  **2026-09-09, measured correction (plan 181-09).** This bullet previously instructed
+  the planner to treat the skill's `:375` example row as the report's own field and to
+  rewrite it with the deleted key's before/after replacements. That instruction is
+  **wrong and is removed outright rather than annotated** — an annotated caveat still
+  reads as the original instruction with a footnote, and a future reader could act on
+  the footnoted half by mistake. Measured instead: the `:375`
+  row sits inside the datasheet-versus-database cross-check table (`### 5c. Cross-check
+  the datasheet against what firestarter believes`), whose firestarter-side column reads
+  the `VPP:` line from `firestarter info -a <chip>` — so its value is the **DATABASE's**
+  programming voltage for the part, a different field that happens to share a name with
+  the report's deleted key. Rewriting it as a rail reading would turn a correct row into
+  a false one. The report's own rail fields are named separately, in the sentence at
+  `:330` (*"Voltage sanity from the report itself..."*), and RPT-F2 is discharged by
+  extending THAT sentence — naming all four before/after fields, stating plainly they
+  are regulator-rail readings never socket readings, and adding the pre-2.0 note —
+  while the `:375` example row stays byte-unchanged. The leg that proves it: Task 1's
+  skill-diff verify leg in `181-09-PLAN.md` fails if that row is added to or removed
+  from the file. Full measurement and column-structure evidence:
+  `evidence/181-09-skill-same-commit.txt`.
+
+  **D-5's two-repo residue, stated once here rather than glossed:** one commit across
+  two git repositories is structurally impossible. The criterion is discharged as two
+  commits landing inside one task (plan 181-09 Task 1) with cross-referencing commit
+  messages, skill first — so this record does not claim a literal same-commit that did
+  not happen.
+
+  Its two frozen fixtures under `.claude/skills/devtest-triage/fixtures/` carry
+  `"schema_version": "1.2"` / `"1.4"`, `"locked_steps": []`, `"vpp_mv": 11800` and
+  `"vpe_mv": 13700` — these are **RPT-E2's forward-only parse targets** and their
+  headers forbid regeneration.
 
 ### Project rules (non-negotiable)
 - `/workspaces/CLAUDE.md` §"Source code comments — hard rule" — D-26.
