@@ -1,0 +1,88 @@
+# 181-06 Task 2 -- a real wall-clock elapsed, stamped once between CLI entry
+# and the first serialization (Task 3 extends this transcript with the
+# console-row swap and the filed-body line)
+# Measured against firestarter_app app HEAD 32f4ff7 (plans 181-01..181-05 plus
+# this plan's Task 1 landed).
+
+## Section 1: the stamp, the assignment site, and the DiagnosticReport field
+
+group_first_stmt=ctx.meta[_CLI_START_MONOTONIC_META_KEY] = time.monotonic()
+stmt_before_first_serialization=report.elapsed = None if cli_start is None else round(time.monotonic() - cli_start, 3)
+report_field_present=true
+to_dict_key_count_before=14
+to_dict_key_count_after=15
+elapsed_expr_is_plain_attribute_read=true
+elapsed_expr_has_call_node=false
+rc=0
+
+## Section 2: the None-safety and stability properties (Task 2's own inline leg)
+
+elapsed_without_cli_context=None
+to_dict_invocations_per_run=3
+elapsed_stamped_once=true
+elapsed_stable_across_invocations=true
+generated_restamped=possibly -- documented as "possibly-different" in the
+  plan's own behavior block: generated has second-level resolution, so two
+  to_dict() calls inside one run are not guaranteed to disagree; only
+  elapsed's stability is asserted as a hard equality.
+rc=0
+
+## Section 3: real end-to-end CliRunner proof (same run, three real to_dict() calls)
+
+Test: tests/test_dev_test_cmd.py::test_a_real_invocation_saves_a_nonnegative_elapsed_stable_across_to_dict_calls
+Result: 1 passed
+  - saved JSON's elapsed: float, >= 0 (asserted, value varies per run --
+    real wall-clock, per the milestone's operation-counts-not-seconds rule)
+  - embedded JSON block inside the saved .md (report.to_json_block()'s own
+    to_dict() call, the THIRD of three): elapsed identical to the saved
+    JSON's (the SECOND of three) -- same in-memory report, same stored value
+rc=0
+
+## Section 4: HYG-04 registration (D-19)
+
+new_helper=_cli_start_time
+registered_in_HANDLER_FUNCTION_NAMES=true
+referenced_helpers_floor_before=6
+referenced_helpers_floor_after=7 (measured live, not computed from prose)
+rc=0
+
+## Section 5 (Task 2 partial measurement): tests re-run after this task's edits
+
+tests/test_dev_test_cmd.py: 63 passed (was 62 pre-task)
+tests/test_blast_radius_invariance.py: 103 passed
+tests/test_check_devtest_orchestrator.py: 26 passed
+rc=0
+
+## Section 6: tokenize COMMENT-token census -- non-increase gate
+
+comment_tokens_pretask firestarter/diagnostic_report.py=214
+comment_tokens_pretask firestarter/cli_handlers.py=357
+comment_tokens_pretask tests/test_dev_test_cmd.py=216
+comment_tokens_pretask tests/test_blast_radius_invariance.py=0
+comment_tokens_pretask tests/test_check_devtest_orchestrator.py=98
+comment_tokens_pretask tools/check_devtest_orchestrator.py=91
+
+comment_tokens_posttask firestarter/diagnostic_report.py=214
+comment_tokens_posttask firestarter/cli_handlers.py=357
+comment_tokens_posttask tests/test_dev_test_cmd.py=216
+comment_tokens_posttask tests/test_blast_radius_invariance.py=0
+comment_tokens_posttask tests/test_check_devtest_orchestrator.py=98
+comment_tokens_posttask tools/check_devtest_orchestrator.py=92 (was 91;
+  +1 is a legitimate, deliberate update to the fail-open allow-list's own
+  explanatory comment, naming the helper that just joined -- tools/ is not
+  product source, same exemption already applied in 181-04/181-05)
+
+phase_added_comments=0 (product source)
+rc=0
+
+## Section 7: ruff / mypy across the full scope
+
+ruff_check=All checks passed! (firestarter/ tests/)
+ruff_format_check=174 files already formatted
+mypy_watermark=35/35 (unchanged)
+rc=0
+
+## Section 8: porcelain (run AFTER Task 2's commit, before Task 3 starts)
+
+firestarter_submodule_porcelain=clean
+rc=0
