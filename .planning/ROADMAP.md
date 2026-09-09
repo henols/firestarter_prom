@@ -475,7 +475,50 @@ Plans:
   4. `schema_version` reads `2.0`; the frozen schema-1.2 fixtures still parse unchanged under it; and `dedup_fingerprint` is byte-identical for every pre-existing report shape except the re-keys Phase 174's ledger declared, each shown to be exactly the declared change and nothing more.
   5. The issue title and body use `auto_capture.canonical_part_number` (the matched database `part_number`) while `ac.chip` keeps the operator's raw token, with a stated rule for which alias a title shows when `part_number` is a comma-joined list; `syrupy` is bounded `>=5.0,<7`; no new runtime dependency is added; the decision against ever hashing `to_dict()` is recorded in `MILESTONES.md`; and any new `dev_test` helper introduced across this milestone is registered in `tools/check_devtest_orchestrator.py`.
 
-**Plans**: TBD
+**Plans**: 10 plans
+
+**Cross-cutting constraints** (asserted by every plan that can touch them):
+
+- `git -C /workspaces/firestarter status --porcelain` prints nothing and the generated `chip_database.json` is untouched — this phase is host-only (10 plans)
+- No `#` comment is added to product source, measured by a non-increase `tokenize` COMMENT-token census against the app base — `firestarter_app/tests/` counts as product source (6 plans)
+- All 19 `FROZEN_HASHES` literals stay byte-identical to app base `04fd982` — D-16 commits the phase to ZERO re-keys, so every plan that touches report shape re-proves it
+
+Plans:
+
+- [ ] 181-01-PLAN.md — The tracer: one additive key travels the whole stack and proves the mechanism every later plan depends on — an additive report key cannot re-key a filed report. `plan.is_uv` reaches `to_dict()` as a top-level boolean read off the single `derive_plan` decision, `SCHEMA_VERSION` moves to `2.0` in the same commit as its literal assertions, both frozen 1.2/1.4 `devtest-triage` fixtures still parse forward-only, and RPT-E3 re-anchors from the retired `RK-174-` ledger to the 19 absolute `FROZEN_HASHES` literals with its exception clause discharged EMPTY
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 181-02-PLAN.md — Make plan 181-04's demolition a small reviewable edit instead of a 117-site one, and MEASURE D-09's equivalence claim before anything is deleted: `derive_plan` byte-identical across all 677 part numbers under canonical serialization, `write_scope='none'` proven unreachable from `dev test`, and `Plan.locked_destructive` proven EMPTY at the reachable scope. Touches no product source
+- [ ] 181-03-PLAN.md — Close the two dependency-hygiene requirements the way the requirement text demands — by test, not by a sentence: `syrupy` bounded `>=5.0,<7` with the boundary exercised on both sides, and the runtime dependency list pinned as exact order-insensitive SET equality over the six shipped names, read with stdlib `tomllib` so the pin needs no new dependency to make its own point
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 181-04-PLAN.md — Perform D-08's deletion at the depth the operator adjudicated on 2026-09-09 while leaving the milestone's headline claim intact: `_WRITE_SCOPE_NONE`, `write_execute`, `Plan.locked_destructive`, `BannerCounts.locked_steps` and `cli_handlers._resolve_write_scope` all die; `write_scope` narrows to two members with NO default so a two-argument call raises `TypeError`; HYG-04 discharges as a four-way edit, not the two-way D-19 describes
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 181-05-PLAN.md — Give a filed `dev test` issue the chip's own database name, and prove the rule that picks it. The matched row's `part_number` reduced by a selector mirroring `get_eprom_config`'s exact-then-paren-stripped ladder, across the four surfaces D-03 names — while `ac.chip` and the artifact filenames keep the operator's raw token. D-04's canonical-spelling test sweep is REFUSED with the measurement that a sweep would collide two frozen shapes
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 181-06-PLAN.md — Make the two numbers an operator reads about time mean what they say: `duration_s` stops summing across cycles and becomes the mean over the cycles that ran, so it measures a per-operation cost whose meaning does not vary with `run_count`; a stamped-once wall-clock `elapsed` covers CLI entry to just before the first serialization; and the render-only sum-of-sums "steps total" row is replaced
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 181-07-PLAN.md — Export what the run already measured, and stop one `None` from meaning two different things. RPT-A2 is a serialization change only — `Fingerprint` has carried `total`, `bad`, `bad_pct` and `evidence` since Phase 108 — and an agreeing read now records `divergence` with `bad: 0`, mirroring PRUNE-03, so an absent divergence means "not computed" rather than "computed and clean"
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 181-08-PLAN.md — Stop the report recovering a number by reading its own prose, and stop two surfaces describing a write that never happened. The detected chip ID becomes a structured `StepResult` field instead of a `cli_handlers.py` prose scrape, with the honesty ceiling stated plainly (on a PASS the firmware echoes the host's own expected id, so the field is an echo, not a read-back); one "did a write actually run" predicate fixes both `slots_remaining`'s off-by-one and the UV ladder false-green
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 181-09-PLAN.md — Delete two report fields no code path has ever assigned, and PROVE that rather than assert it: `voltage.vpp_mv` and `voltage.vpe_mv` go from the dataclass, `_voltage_dict()` and the schema, with a source census as the proving test. `SKILL.md`'s report-voltage sentence is extended in a skill-first commit pair, leaving the database-field row at `:375` alone because rewriting it would turn a correct row false
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 181-10-PLAN.md — Close the phase at the record and leave behind the decision that protects everything the milestone built: HYG-03's refusal to ever refactor `dedup_fingerprint` to hash `to_dict()`, recorded in `MILESTONES.md`. Sealed by a green-tree battery whose full-suite leg re-derives its verdict from pytest's own output — reconciled against the `collected` total and observed RED against a hand-edited scalar, a stale file and a falsified count
 
 ### v1.36 Coverage
 
