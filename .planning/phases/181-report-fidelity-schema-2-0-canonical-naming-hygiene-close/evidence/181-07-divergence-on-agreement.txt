@@ -100,3 +100,47 @@ declared-cost test's stronger replacement),
 (the None-means-no-comparison property), and
 `test_aggregate_cycle_results_preserves_a_zero_bad_divergence_mapping` (the
 truthiness-filtered fold silently discarding a zero-bad mapping).
+
+## Section 7 (Task 3): steps[].divergence exported, key pin re-measured
+
+steps_key_count_before=18
+steps_key_count_after=19
+divergence_present_on_every_step=true
+frozen_hash_literal_count=19
+frozen_hash_lines_added_or_removed_since_04fd982=0
+shapes_reproducing=19/19
+snapshot_files_changed=18
+snapshot_files_diff_confined_to_added_key=18
+
+No hash could move: `dedup_fingerprint` reads a step's `op`, `verdict` and
+`fingerprint.classification` and nothing else (plus `repeat_policy_tag`/
+`coverage_tag` at the report level); `divergence` is not in that five-entry
+allow-list at all.
+
+## Section 8 (Task 3): final re-proof of the md5 anchor
+
+git show 04fd982:tests/fixtures/report_shapes.py | grep -oE '"[0-9a-f]{12}"' | sort | md5sum
+= 555a6d762d528102b74061b504183df6
+tests/fixtures/report_shapes.py (working tree, post-Task-3) | grep -oE '"[0-9a-f]{12}"' | sort | md5sum
+= 555a6d762d528102b74061b504183df6
+match=true
+
+## Section 9 (Task 3): whole-suite tail across every touched/dependent module
+
+tests/test_blast_radius_invariance.py + tests/test_diagnostic_report.py +
+tests/test_parse_devtest_issue.py + tests/test_chip_test.py: 371 passed
+rc=0
+
+comment_tokens_posttask firestarter/chip_test.py=893
+comment_tokens_posttask firestarter/diagnostic_report.py=207
+comment_tokens_posttask tests/test_chip_test.py=563
+comment_tokens_posttask tests/test_diagnostic_report.py=182
+comment_tokens_posttask tests/test_blast_radius_invariance.py=0 (pin_module)
+
+full mandated census (git diff --name-only 04fd982..HEAD, all .py files):
+files over baseline: 0 / 25
+
+porcelain legs (run after this task's commits):
+git -C /workspaces/firestarter status --porcelain -> empty
+git -C /workspaces/firestarter_app status --porcelain firestarter/ -> empty
+git -C /workspaces/firestarter_app status --porcelain -> empty
