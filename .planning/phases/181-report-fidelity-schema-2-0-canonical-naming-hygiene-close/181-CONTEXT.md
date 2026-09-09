@@ -136,21 +136,40 @@ status --porcelain` must stay clean.
   `sdp_oracle_applicable`'s second arm, plus ~69 `write_scope="none"` test uses across 7 files and
   41 `locked_*` assertions across 7 files.
 
-- **D-09:** **`derive_plan`'s `write_scope` parameter is dropped entirely**, not merely narrowed to
-  two values. Verified equivalent before locking: `write_scope == "partial"` **iff** `is_uv`
-  (`_resolve_write_scope`, `cli_handlers.py:2298-2300` — `if not _is_uv_eprom(...): return "full"`),
-  and `derive_plan` **already** computes `is_uv = is_uv_eprom(full)` (`chip_test.py:591`) off the
-  same record via the same function. The parameter therefore carries no information the function
-  does not already hold, and dropping it is RPT-A4's own principle — *"read off the single
-  `derive_plan` decision, never re-derived"* — applied one level up. Behaviour-identical on every
-  reachable path, and `dedup_fingerprint`'s `op=write` vs `op=write-partial` component is unmoved
-  because the selecting condition is the same either way.
+- **D-09:**
+
+  ## Status: Phase 181 amendment
+
+  **2026-09-09, operator adjudication.** `derive_plan`'s `write_scope` parameter is NARROWED to
+  `"full"`/`"partial"` with NO DEFAULT, not dropped entirely. This D-09 decision originally called
+  for dropping the parameter; that reading is reversed here, on a measurement, not a preference.
+  The equivalence `write_scope == "partial"` **iff** `is_uv` holds on every path `dev test` itself
+  can reach, but 7 of the 19 registered shapes in `tests/fixtures/report_shapes.py` build a UV chip
+  at `write_scope="full"` — a combination `dev test` never produces. Selecting the write op from
+  `is_uv` instead of `write_scope` renames their write op and re-keys all seven filed dedup
+  fingerprints, including `m27c512-full-canonical-name` (`776846bf2dc8` → `c4ab2e895c1a`) and
+  `m27c512-full-comma-joined-name`, the two shapes Phase 174 froze expressly as D-02's rejected
+  alternatives — this phase's own RPT-F1 depends on both as a tripwire. Measured pairs and method:
+  `.planning/phases/181-.../evidence/181-04-frozen-hash-reproof.txt`.
+  **Therefore:** `write_scope` stays keyword-only with **no default** — a bare two-argument call now
+  raises `TypeError` rather than silently selecting the retired `"none"` scope, which is the shape
+  that makes the 15 previously-bare call sites (measured in `181-02-derive-plan-equivalence.txt`)
+  safe. `_resolve_write_scope` is **still deleted**; its two-line rule is inlined at the single
+  production `derive_plan` call site in `cli_handlers.dev_test`. Everything else D-08 names still
+  dies. **D-16 stands unamended** — zero re-keys, all 19 frozen hashes byte-identical, precisely
+  because `write_op` and `full_device_permitted` are left reading off `write_scope`.
   **Consequences the planner must carry:** `full_device_permitted = write_scope == _WRITE_SCOPE_FULL`
-  becomes `not is_uv`; `write_op = OP_WRITE_PARTIAL if write_scope == _WRITE_SCOPE_PARTIAL else
-  OP_WRITE` becomes the same test on `is_uv`; `_resolve_write_scope` dies, so **HYG-04 must
+  and `write_op = OP_WRITE_PARTIAL if write_scope == _WRITE_SCOPE_PARTIAL else OP_WRITE` are
+  **BYTE-UNCHANGED** — do not re-point either onto `is_uv`; that is now an instruction to cause the
+  defect this amendment exists to prevent. `_resolve_write_scope` still dies, so **HYG-04 must
   *remove* it from `_HANDLER_FUNCTION_NAMES`** or
-  `test_handler_function_names_all_resolve_to_real_callables` goes RED; and the `_WRITE_SCOPE_*`
-  constants, `_WRITE_SCOPES` and the `ValueError` ladder all go with it.
+  `test_handler_function_names_all_resolve_to_real_callables` goes RED; and `_WRITE_SCOPE_NONE`, the
+  three-member `_WRITE_SCOPES` (now two members) and the `ValueError` ladder's value list narrow with
+  it — the ladder itself survives, since two values still need fail-closed validation.
+  The gate that would redden if a later change tried the rejected reading anyway:
+  `test_the_write_op_selector_reads_write_scope_and_never_is_uv` in
+  `firestarter_app/tests/test_derive_plan_structural_sentinel.py`, observed RED against the exact
+  planted mutation (`.planning/phases/181-.../evidence/181-04-write-op-pin-red.txt`).
   — **Reversibility:** costly — same surface as D-08, plus the one production call site.
 
 - **D-10:** **The console `chip_id` row stays one-sided on agreement and two-sided only on a
