@@ -4,11 +4,11 @@ milestone: v1.36
 milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 181
 current_phase_name: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
-status: completed
-stopped_at: "Phase 181 SHIPPED — PRs prom#63, app#61, fw#60 open against beta; awaiting merge"
+status: complete
+stopped_at: "v1.36 CLOSED 2026-09-09 — 8 phases, 42 plans, 46/46 requirements; merged to beta in all three repos (app 3.0.0b38, fw 3.0.0b26). NOT tagged, by operator decision."
 last_updated: "2026-09-09T16:57:44.490Z"
 last_activity: 2026-09-09
-last_activity_desc: "Phase 181 COMPLETE 2026-09-09 — 10/10 plans, 9/9 waves, verification PASSED 19/19. Suite 2247 -> 2285, zero failures at every closed wave; regression gate 886/886 over 20 prior-phase files. All 19 FROZEN_HASHES literals byte-identical to app base 04fd982 across the whole phase (0 literal lines changed) — D-16 discharges as ZERO re-keys and RPT-E3s exception clause discharges EMPTY. Seven orchestrator-side corrections: six GSD-provenance comments removed (the recurring shape is rewording a comment a deletion falsified, which is still writing comment prose), and a ruff format --check regression the plan had waived as pre-existing by measuring against the wave-3 tip instead of the phase base. One red gate (wave 6) caught a real cross-module break: a Phase-180 anti-vacuity pin anchored on the literal text of _dispatch_read s reason line, which 181-07 had to change. Verifier found one gap — the firestarter_app gitlink was never advanced, because I told all ten executors to leave it alone on a v1.6-v1.8 convention phase 180 had already superseded; closed at 6de7273 and the fabricated CLAUDE.md citation in 181-10-SUMMARY.md corrected. Code review: 0 critical, 1 warning (WR-01, _is_interactive now dead) filed as a todo. NOT pushed."
+last_activity_desc: "v1.36 `dev test` Fidelity CLOSED 2026-09-09. 8 phases (174-181), 42 plans, 46/46 requirements. Merged to beta with MERGE COMMITS not squashes (prom#63/297eeea, app#61/b868264, fw#60/85c4761) so the meta gitlinks stay reachable from beta; sub-repos merged first and both gitlinks verified reachable before the meta PR. Pre-releases cut automatically: app 3.0.0b38 (also on PyPI, wheel+sdist, 33s after the release — the v1.21 manual-dispatch note is STALE), fw 3.0.0b26. NOT tagged, by operator decision. App suite 2285 passed/0 failed (2247 at milestone start); regression gate 886/886; security 36/36 closed, threats_open 0; verification passed 19/19 after one gap. The gap was an ORCHESTRATOR error: all ten executor prompts said leave the firestarter_app gitlink alone, a v1.6-v1.8 convention phase 180 had already superseded. Zero of 19 frozen dedup hashes moved across the whole milestone — the invariant it was built around. Archive is HAND-written: .planning/v1.36/CLOSE-RECORD.md, milestones/v1.36-{ROADMAP,REQUIREMENTS}.md, MILESTONES.md close entry. milestone.complete was NOT run. Open: WR-01 (_is_interactive dead, two ..._on_a_tty tests pass for the wrong reason) filed as a todo. Phase dirs 174-181 still in .planning/phases/ — /gsd-cleanup archives those separately."
 progress:
   total_phases: 8
   completed_phases: 8
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 181 (Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close) — COMPLETE
-Plan: 10 of 10 complete (all 9 waves gated green)
-Status: Phase 181 shipped — prom#63 / app#61 / fw#60 open against beta, not yet merged
-Last activity: 2026-09-09 — Phase 181 COMPLETE. 10/10 plans, verification PASSED 19/19 after one gap (the unadvanced firestarter_app gitlink, an orchestrator error) was found and closed. Suite 2247 -> 2285 with zero failures at every closed wave; regression gate 886/886. All 19 frozen dedup hashes unmoved. Seven orchestrator-side corrections, six of them GSD-provenance comments. Both repos remain LOCAL.
+Phase: — (v1.36 closed; no milestone active)
+Plan: —
+Status: v1.36 CLOSED 2026-09-09 — merged to beta, not tagged. Awaiting next milestone.
+Last activity: 2026-09-09 — v1.36 `dev test` Fidelity closed and archived by hand. 8 phases, 42 plans, 46/46 requirements, 0 of 19 frozen hashes moved. Merged to beta in all three repos; app 3.0.0b38 on PyPI, fw 3.0.0b26. Not tagged.
 
 ## Roadmap Summary (v1.36)
 

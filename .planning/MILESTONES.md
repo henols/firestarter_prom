@@ -1,5 +1,27 @@
 # Milestones
 
+## v1.36 `dev test` Fidelity (Shipped: 2026-09-09)
+
+**8 phases (174-181) · 42 plans · 46/46 requirements · app `3.0.0b38`, firmware `3.0.0b26` on `beta`. Not tagged, by operator decision.**
+
+Full close record: [`v1.36/CLOSE-RECORD.md`](v1.36/CLOSE-RECORD.md).
+
+`dev test` files community chip-validation issues. This milestone asked whether those reports tell the truth — whether every field corresponds to something the run actually measured. Seven ways it did not are now closed: fields that populated only on failure, a summed number presented as a per-operation one, fields no code path ever assigned, a chip ID recovered by scraping the report's own prose, an absent value meaning two different things, chips named however the operator typed them, and a `schema_version` that had not moved while the shape underneath it had.
+
+**The governing constraint, and it held.** A filed issue body carries its own `dedup_fingerprint`, and `count_agreeing` reads that embedded hash and never re-hashes — so a re-key is **permanent for the historical corpus**. Phase 174 built the blast-radius harness before any behaviour change landed, precisely so this could be measured. The closing phase then added seven exported keys and moved **none** of the 19 frozen hashes: zero literal lines changed, re-verified at every wave, including across the two shapes that genuinely could have moved them — `duration_s`'s semantic change and a schema *removal*. HYG-03's standing refusal to ever hash `to_dict()` is recorded below and pinned by an AST test with a planted-mutant leg.
+
+One deliberate re-key did happen and is **not** a dedup re-key: five `LADDER_PINS` disposition entries moved CANDIDATE → NO_CHANGE, closing the T-179-05 exhausted-slots ladder-flip bug. The check discriminates — the five shapes that moved carry `write` `status=SKIP`; the controls that actually wrote did not move.
+
+**What the close cost, recorded rather than absorbed.** Nine corrections were applied that the executors' own self-checks reported as clean. Six were GSD-provenance comments in shipped source, five of them the same shape: a deletion falsifies a pre-existing comment and the author *rewords* it, which is still writing comment prose. One was a red Host CI gate waived as "pre-existing" by measuring against the wave-3 tip instead of the phase base. Three were records asserting something untrue — a closure claiming its own suite floor was re-derived when the evidence shows it was not, a summary citing a CLAUDE.md convention that does not exist, and a requirements row still instructing a change that would have turned a correct row false.
+
+**The one verified gap was an orchestrator error.** The verifier returned `gaps_found` 18/19: the meta `firestarter_app` gitlink was never advanced, because all ten executor prompts carried a v1.6–v1.8 convention that phase 180 had already superseded. Every executor complied with a wrong instruction. Closed, independently re-checked, `passed` 19/19 — with the `gaps:` block replaced by a `re_verification:` block rather than deleted, so the record shows a gap found and closed rather than a gap that never was.
+
+**CI caught what local testing could not.** `test_skip_census.py` failed on the PR: a `pytest.skip` guard added by 181-01 had no registered reason. It cannot fire locally, because here the app *is* a submodule and the fixtures resolve; on CI the repo is standalone. Both halves of the mechanism worked as designed.
+
+Security: **36/36 threats closed, `threats_open: 0`** (ASVS L1). App suite **2285 passed / 0 failed**, up from 2247 at milestone start; regression gate 886/886.
+
+**Not claimed:** `chip_id_actual` is an echo, not a read-back — on a pass the firmware echoes the host's own expected id, and the docstring says so rather than hiding it behind a passing equality. The mypy watermark is fail-open in this devcontainer and is not trustworthy local evidence. `WR-01` is open and filed: `_is_interactive` is dead code, and two tests named `..._on_a_tty` pass for the wrong reason.
+
 ### v1.36 Frozen-Shape Blast Radius (2026-09-03)
 
 **Measured by Phase 174, the milestone's own blast-radius invariance harness, before any behaviour change lands.**
