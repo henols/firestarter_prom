@@ -786,7 +786,7 @@ Each case must appear in the plan with its mutation, expected exit code, and a c
 - [ ] `tools/wiki/wiki.py` — the single entry point; `--wiki-remote` parameterisation is a Wave 0 requirement, not a later refinement, because nothing else is testable without it
 - [ ] `tools/wiki/selftest.sh` — fixture driver + the 11 cases
 - [ ] `wiki/Home.md`, `wiki/How-This-Wiki-Is-Published.md` (D-12), `wiki/_Sidebar.md` (generated)
-- [ ] `tools/wiki/MIGRATION-TABLE.md` (D-04 shell, with a rendered-title column per Pitfall 4)
+- [ ] `.planning/v1.35/MIGRATION-TABLE.md` (D-04 shell, with a rendered-title column per Pitfall 4)
 - [ ] `.github/workflows/wiki-check.yml` — offline legs only
 - [ ] Framework install: **none** — this is the point of the harness recommendation
 

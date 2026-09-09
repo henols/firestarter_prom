@@ -295,7 +295,7 @@ These follow from prior decisions and measured state. Planning must honour them.
 - `.github/workflows/wiki-check.yml` — D-13's carrier. Already checks out meta, both sub-repos and
   a fresh wiki clone; runs `wiki.py links`, `honest02_truth.py` and `dispatch_mirror.py`.
   **Not registered with Actions** — absent from prom's default branch.
-- `tools/wiki/MIGRATION-TABLE.md` — the provenance table; also documents the clone-commit-push
+- `.planning/v1.35/MIGRATION-TABLE.md` — the provenance table; also documents the clone-commit-push
   model and the pre-deletion-SHA convention.
 - `tools/wiki/wiki.py` — the `links` subcommand: orphan detection, sidebar completeness, internal
   link form, filename legality. Run against the wiki clone before pushing.

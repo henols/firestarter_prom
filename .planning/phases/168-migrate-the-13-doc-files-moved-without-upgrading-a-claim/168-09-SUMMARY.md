@@ -12,7 +12,7 @@ requires:
 provides:
   - "17 doc-reading test legs removed by name across 5 modules -- 12 from the four documentation-claim modules (Task 1), 5 from the deferred-install-guide packaging module (Task 2) -- with the coverage each one took named, not silently dropped"
   - "the 33 code-side legs sharing those same 5 modules (26 + 7, matching the plan's 26/7 split) still run unchanged"
-  - "firestarter_app/doc/ deleted -- all 10 files including the deferred PY32F071-FIRMWARE-INSTALL.md, recoverable from its recorded pre-deletion SHA in tools/wiki/MIGRATION-TABLE.md"
+  - "firestarter_app/doc/ deleted -- all 10 files including the deferred PY32F071-FIRMWARE-INSTALL.md, recoverable from its recorded pre-deletion SHA in .planning/v1.35/MIGRATION-TABLE.md"
   - "the last doc/-citing comment in the test tree (test_diagnostic_report.py:844) deleted"
   - "the tools/baseline/chip_database.baseline.json stale doc/ reference explicitly decided as a named historical exclusion, not fixed here"
 affects: ["168-10 (relocates the retired dispatch-mirror gate against the published wiki)", "168-13 (owns the CI-Python-floor MIGRATE-03 evidence run and the closing honesty ledger that reads this plan's coverage-loss accounting)"]

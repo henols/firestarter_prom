@@ -15,4 +15,8 @@ echo "=== Installing graphify skill (writes into ~/.claude volume) ==="
 # skill/references into the ~/.claude named volume, which is only mounted at runtime.
 graphify install
 
+echo "=== Installing GSD (project-local, pinned) ==="
+GSD_VERSION=1.13.0
+npx -y --package=@opengsd/gsd-core@"$GSD_VERSION" -- gsd-core --claude --local
+
 echo "=== Done ==="

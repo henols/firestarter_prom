@@ -99,7 +99,7 @@ so the choice was made knowing the link is not already dead.
 
 ## Provenance recording
 
-### Q1 — Do these three files get rows in `tools/wiki/MIGRATION-TABLE.md`?
+### Q1 — Do these three files get rows in `.planning/v1.35/MIGRATION-TABLE.md`?
 
 | Option | Description | Selected |
 |--------|-------------|----------|

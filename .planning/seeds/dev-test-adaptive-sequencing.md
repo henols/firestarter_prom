@@ -2,7 +2,7 @@
 title: dev test — adaptive, evidence-gated test sequencing
 trigger_condition: Next milestone that touches `dev test` / chip_test.py. Explicitly NOT v1.35 (documentation-only). Natural carriers, whichever activates first: a `dev test` throughput milestone in its own right, or folded into the next chip-validation milestone that already has the engine open.
 planted_date: 2026-08-30
-status: dormant
+status: R1 and R2 realized by Phase 177 (2026-09-05, PRUNE-01/02/03/04); R3 closed by Phase 180 (2026-09-08) as measured, not worth doing (PRUNE-08); R4 deferred to Future Requirements (R4-01/R4-02)
 ---
 
 # `dev test` — adaptive, evidence-gated sequencing
@@ -31,9 +31,14 @@ Same byte coverage as a read-back, **24% cheaper**, no host file I/O, and it
 early-returns on the first mismatch — so failing runs get *faster*, not slower.
 
 Any place the engine reads the whole device back to compare it against a buffer
-it already holds is a verify. This applies to the fingerprint read-backs; it does
-**not** apply to the SDP leg, whose `_read_region` read-back *is* the verdict and
-must stay a real read.
+it already holds is a verify. Two read-backs are excluded by design and
+**must stay real reads**: the **fingerprint** read-back, which R2 governs — a
+verify returns a bool and one mismatch address, while `classify_fingerprint`
+needs the whole mismatch distribution (`ff_ratio` across the buffer,
+bit-clustering across every offset), so converting it deletes the diagnostic
+R2 exists to preserve — and the **SDP leg**, whose `_read_region` read-back
+*is* the verdict. The seam is: verify decides; a read-back diagnoses; the
+read-back only needs to run when verify says something is wrong.
 
 ### R2 — Diagnose on failure only
 
@@ -46,37 +51,42 @@ Gate the fingerprint read-back at
 
 The `ff_ratio` false-PASS check that motivated the unconditional form is
 preserved for free — a write that reports OK without driving the bus is caught by
-the verify step immediately following it in the same cycle. **This dependency
-must be asserted structurally**, not assumed: if a future plan ever emits a write
-without a verify behind it, that plan needs the unconditional read-back back.
+the verify step immediately following it in the same cycle. **This dependency is
+now asserted structurally**, not merely assumed, by Phase 175's sentinel
+(`tests/test_derive_plan_structural_sentinel.py`): if a future plan ever emits a
+write without a verify behind it, that sentinel fails first.
 
 Note the pleasing asymmetry: because verify early-returns on first mismatch, the
 runs that now pay for a read-back are exactly the runs whose verify was cheapest.
+
+The predicate must consult the step's outcomes **across all cycles**, not
+`not all(outcomes)` alone: under `_run_cycle_block` each cycle calls
+`_dispatch_multi_run` with `runs=1`, so `outcomes` is a one-element list
+describing the final cycle only. A cycle-1-fail / cycle-2-pass run must keep its
+fingerprint. And a passing step still **reports** a fingerprint — synthesized
+from `bad=0`, `total=region_length`, `ff_ratio: None` and classified `match`.
+The read-back is what costs; the classification is free.
 
 ### R3 — Sample for a rate, sweep for a map
 
 Read-repeatability is a **statistical** property, and so is `ff_ratio`. Both are
 currently established by full-device sweeps.
 
-Replace the read step's second full run with a **bit-structured sample**: one
-256 B block at each `1 << k` boundary for `k` in `8..log2(size)`, plus block 0
-and the top block. For a 64 KiB part that is 10 blocks / 2560 B, and it toggles
-**every address line in both polarities** — which is precisely the structure
-`classify_fingerprint` looks for when it clusters mismatch offsets by high
-address bit. A contiguous sample would not do this; the bit-structure is the
-whole point.
-
-Escalate to the full second read only when the sample diverges, so exact
-divergence counts (`cmp_len`, `bad`, `pct`, `first_offset`) survive intact on
-every run where they mean anything.
-
-**Cost, stated:** on a passing run the divergence metric becomes an *estimate*
-over a sampled subset rather than an exact whole-device count. A scattered
-transport fault — the uno328pb signature, and the only fault class this metric
-was built to catch — is caught with high probability by any sample of this size,
-because scatter is what makes it detectable. A fault confined entirely to
-unsampled bytes would be missed on the first pass; the bit-structured stride is
-chosen to make that region small and address-line-aligned rather than arbitrary.
+**Measured and rejected (Phase 180, PRUNE-08).** The bit-structured sample this
+rule proposed was priced against `EpromOperator._operation_context`
+(`firestarter_app/firestarter/eprom_operations.py:515-550`), which connects on
+entry and disconnects inside its own `finally` block: **every** `read_eprom`
+call, sampled or full, pays one full connect. At the 64 KiB reference size the
+sample was 10 separate `read_eprom` calls — 10 connects — against the 1 whole
+`read_eprom` call the full sweep it would replace already costs. Ten connects
+exceed one connect on both measured board classes (MEAS-01) at every
+reference size this milestone tests, so the sample is dearer than the sweep
+it would replace, not cheaper. The full argument, the per-board-class
+measured figures and the size-axis finding are in
+`.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`.
+Nothing in this rule is a live instruction to build the sample, and the
+design's operative detail — how its blocks were chosen and when it would have
+escalated — is deliberately not restated here.
 
 ### R4 — One session per plan, not one per call
 
@@ -87,9 +97,13 @@ at28c256**, whose six-op SDP leg alone costs 12 connects for ~3 KB of traffic.
 Cheaper, strictly-additive sub-step available independently: fold `sample_vpp_mv`
 and `sample_vpe_mv` into one monitor read (−2 connects per write step).
 
-**Per-connect cost is unmeasured** — the counts are validated, the seconds are
-not. Anyone planning this should measure a connect first and let that decide how
-much R4 is worth relative to R1–R3.
+**Per-connect cost is now measured** (MEAS-01, `176-MEASUREMENT.md` §4a/§4b) —
+the counts were already validated; the seconds are Uno-class median 2.518 s
+and Leonardo-class median 2.607 s, per board class and never blended. What
+that measurement decided about R1 through R3 is recorded in
+`.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`.
+R4 itself remains unscoped: whether leasing one validated link per plan is
+worth building is still an open question this phase does not answer.
 
 ## Projected effect
 
@@ -144,3 +158,56 @@ currently unquantified.
 The write path's 2.2 KB/s — 65% of a full-device run — is the per-byte VPE settle
 behaviour and is a firmware concern. No rule here touches it, and no figure above
 claims it improves.
+
+## Status: Phase 177 amendment
+
+**Phase 177, 2026-09-05.** R1's final paragraph swept the fingerprint
+read-back into the same rule that legitimately excludes the SDP leg, which
+directly contradicted R2's own promise of byte-identical fidelity on a
+failing run: `verify_eprom` returns a bool and one mismatch address, while
+`classify_fingerprint` needs the whole mismatch distribution. Decision `D-1`
+(`.planning/REQUIREMENTS.md`) settled the contradiction in R2's favour, and
+this amendment replaces R1's paragraph **in place** rather than merely
+annotating it, so the destructive reading is not outvoted but absent — a
+planner reading only this seed can no longer regenerate it. R2 is corrected
+so its own gate predicate consults outcomes across all cycles, not the final
+cycle alone, and states that a passing step still reports a synthesized
+`match` fingerprint. **Not touched by this amendment:** R3, R4, the
+projected-effect table, the per-class characteristics section and the
+out-of-scope section above.
+
+## Status: Phase 180 amendment
+
+**Phase 180, 2026-09-08.** R3's live paragraph instructed a future planner to
+build the bit-structured sample described above. Phase 176 measured the
+per-connect cost this rule needed and Phase 180 spent it: at the 64 KiB
+reference size the sample costs 10 connects against the 1 the full sweep it
+would replace already pays, on both measured board classes, at every
+reference size this milestone tests — so the design this paragraph proposed
+is dearer than what it would replace, not cheaper. Decision `D-01`
+(`.planning/REQUIREMENTS.md`, PRUNE-08) and MEAS-01's measurement
+(`176-MEASUREMENT.md` §4a/§4b) are the deciding authority; the full argument
+is `.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`.
+As with Phase 177's amendment to R1, this amendment replaces R3's paragraph
+**in place** rather than merely annotating it, so the destructive reading is
+not outvoted but absent — a planner reading only this seed can no longer
+regenerate it. R4's opening sentence is also corrected in place: its claim
+that the per-connect cost is unmeasured was true when written and is false
+now that MEAS-01 exists, so it now cites the measurement instead. **R3 and
+one sentence of R4 are now amended by this section. Not touched by this
+amendment:** R1, R2, the projected-effect table, the per-class
+characteristics section, the sequencing note and the out-of-scope section
+above.
+
+**Follow-through, gap closure.** 2026-09-08. `180-VERIFICATION.md` found that
+the amendment above still left R3's escalate-on-divergence paragraph and its
+stated-cost paragraph standing beneath the rejection verdict, both written in
+the present tense as live design description — an escalation policy and a
+stride rationale — with no historical framing. They are now removed outright
+rather than annotated, and R3's verdict paragraph no longer enumerates which
+blocks the sample would have used. An annotated retention — a "for the
+historical record" banner in front of the same text — is the exact route
+D-09 rejects: the destructive reading must be absent, not merely outvoted by
+a paragraph beside it. This follow-through does not touch R1, R2, R4, the
+projected-effect table, the per-class characteristics section, the sequencing note,
+or the out-of-scope section, exactly as the amendment above it did not.

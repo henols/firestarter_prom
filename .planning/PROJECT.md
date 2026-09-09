@@ -38,11 +38,161 @@
 **v1.30 shipped:** 2026-08-05 (SDP Surface Retirement & Behavioral Lock Proof — 7 phases (131–134, 136, 136.1, 137), 48 plans, 125 tasks; **55/56 requirements, CLOSE-06 held open by design**; host-only, no firmware change. Retired v1.22's unverifiable standalone `dev sdp <chip> enable|disable` and moved the proof into a six-step `dev test` leg whose oracle is read-back equality against a baseline pattern, never an exit code; hardened `check_mypy_watermark.py` from fail-open to fail-closed and certified `firestarter_app`'s primary `ci` job GREEN for the first time in two months (run `30856059940`, mypy 32 against an unratcheted watermark of 35); landed gh#8's stable-channel `dev` narrowing. **Phase 135 (`write --sdp-relock`) deferred out to Backlog 999.28** by operator decision, number not reused — so v1.30 ships the deletion and the behavioral proof and **withdraws** the deliberate-protection surface with **no replacement** (RELOCK-01…06 left v1 scope, 56 → 50 reqs; RELOCK-07 re-homed to Phase 137). Evidence ceiling honoured throughout: **no AT28C part in inventory, no hardware ran** — emission, plan-derivation and read-back-comparison logic are proven; the causal claim "the lock inhibited the write" is not, and did not gate the close. Seventh consecutive `override_closeout`. **⚠ `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` was never merged to `origin/beta`** — the PR was staged but not opened; v1.31 Phase 138 lands it. See `.planning/MILESTONES.md` §v1.30.)
 
 **v1.31 shipped:** 2026-08-18 (27C Programming-Algorithm Fidelity — 9 phases (138–146), 74 plans, 164 tasks; **45/45 v1 requirements**; firmware-touching, dual-repo lockstep. Implements [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected, not as filed** — two wrong numbers and one inverted premise, all three corrected *publicly and before implementation* (comment `#5233463320`): `0x0B`'s pulse is **500 µs**, not `50000 us`; pulse width is a **database datum**, not a per-protocol constant (re-derived live through the production parser — 170/127/32 chips); and the safe 32-bit delay helper is for the overprogram pulse, not any bare pulse. Delivered: **one shared per-byte pulse-to-verify loop** driven by a `const` PROGMEM `eprom_params_t` table keyed on `protocol_id` (**D-01** — protocol owns *shape*, the database owns the *pulse*), **not** gh#15's three state machines; fixed-width pulses that never grow between attempts; hard-fail at `max_pulses` reporting the failing **address and pulse count**; one shared `eprom_hv_route_mask()` with every **error** exit disabling every HV route through a single-exit wrapper; `write --pulse-us N` bounded 1..65535 and pre-validated before a serial byte, riding the existing wire field with **no new DB field and no second algorithm selector**; plus a host long-write timeout fix and intra-block progress, scoped to the `leonardo` class only — on `SERIAL_ON_IO` boards the emission is compiled out **structurally**, because a buffered progress frame there could displace a later `MSG_ERR_MAX_PULSES` and convert a program failure into a transport timeout. **Bench-validated on real silicon:** three full 65536-byte write→read→verify cycles on a Winbond **W27C512** (`0xda08`), **Leonardo**, shield **Rev 2.0** — three distinct images, nine clean oracle cells, read stability N=3 at one SHA each, write timing consistent to **0.37 s**. A firmware defect this milestone itself introduced (Phase 141 deleted the only `CTRL_VPE_ENABLE` assert) failed the **first** bench cycle on byte 0; it was root-caused by a debug session, fixed, and **stands in the record with its cause** rather than being counted out. **Evidence Ceiling stands: the ~6.25 V program-VCC rail all four vendor algorithms assume is unreachable on every shield revision this project owns** — so this milestone claims **fidelity, not improvement**, with no comparative claim, no control run, and no datasheet-conformance claim in either direction. `0x08` (AM27C020) and `0x0B` (M2716/M2732) are **skipped-with-reason** with the missing parts named, never inferred from `0x07`. Twelve items carry forward with the literal phrase `no v1.31 owner`; **MERGE-05's +96 B leonardo band breach is open and un-adjudicated** with the operator as its named owner. Eighth consecutive `override_closeout` (9 carry-forward items, none originating in v1.31). Closed via **PRs to `beta` in all three repos, not direct merges**, per operator decision — meta tagged `v1.31`, gitlinks re-pinned; **no beta cut yet**, and stable stays operator-gated. See `.planning/MILESTONES.md` §v1.31.)
+## Current Milestone: v1.36 `dev test` Fidelity — Only Run What Can Tell You Something, Report Only What You Know
 
-## Current Milestone: v1.35 — Documentation Consolidation & Wiki Migration
+**Activated:** 2026-09-02 · **Phases continue at 174** (v1.35 ran 167–173; the vacated **150** slot and
+the v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving)
+
+**Goal:** Make `dev test` fail only for reasons that are actually the chip's, run no operation whose
+result is empty by construction, and report only what the run already knows.
+
+**Why now — the community is telling us the tool is wrong, not the chips.** Six `dev test` issues are
+open in `henols/firestarter_prom`, and on three of them the reporter disputes our own triage. On
+[#28](https://github.com/henols/firestarter_prom/issues/28) (m27c512): *"It's because the chip isn't
+erased between writes (obviously)."* On [#31](https://github.com/henols/firestarter_prom/issues/31)
+(m27c1001): *"I believe the bot is incorrect. There seem to be an actual bug in the test."* On
+[#23](https://github.com/henols/firestarter_prom/issues/23) (w27e257): *"Bot is mixing a pass with a
+fail — the first one didn't have VPP correctly hooked up. The second one actually passed."* The first
+two land on an already-filed, already-root-caused defect (Backlog **999.44**); the third is the
+misattribution consequence that same backlog item names third. For a community-facing validation tool
+that files public issues titled `[dev test] <chip> — FAIL`, a harness that blames the part for its own
+faults is the worst defect it can have.
+
+**Target features:**
+
+- **An operation that cannot tell you anything must not run.** Four measured cases, all read from
+  source at HEAD: the fingerprint read-back gate at `chip_test.py:3100` consults op and final-cycle but
+  **never `outcomes`**, so every *passing* run pays two full-device reads to classify a mismatch set
+  that is empty by construction; a full read where an on-device `verify` gives the same coverage ~24%
+  cheaper and early-returns on first mismatch; the read step's second full sweep, replaceable by a
+  bit-structured sample that toggles every address line in both polarities (**MEASURED AND REJECTED,
+  Phase 180** — this clause is left standing, marked, rather than rewritten. PRUNE-08 closed as
+  *measured, not worth doing*: because `EpromOperator._operation_context` connects on entry and
+  disconnects on exit, a region-wise sample costs **10 connects where the full sweep it replaces
+  costs 1** — a net plus-nine connects per read step, 25.18 s on the Uno class against Phase 176's
+  measured per-connect cost, and dearer on Leonardo too. The sample is not cheaper on either board
+  class, so no sampling code shipped and criterion 4 is recorded Not Applicable rather than left
+  silently unaddressed. Full arithmetic and the invalidating condition — R4-01, which would move the
+  read step off one-connect-per-read and make this close recomputable — in
+  `.planning/phases/180-read-step-sampling-conditional-on-phase-176/180-PRUNE-08-CLOSURE.md`); and
+  **32 serial connects
+  for one at28c256 run** (`self.comm = None`, `eprom_operations.py:547`), 12 of them spent on ~3 KB of
+  SDP traffic. The modelled saving is 31.5% across six chip classes, but **speed is the consequence,
+  not the goal** — the rule is that pointless work does not run.
+- **Enforced structurally, not by comment.** A test over `derive_plan` output, the same shape as the
+  existing `test_shipped_ops_never_reach_sdp_arm` sentinel (`tests/test_chip_test_sdp_leg.py:827`), so
+  a future plan cannot reintroduce a no-information operation. It also carries the one load-bearing
+  dependency: dropping the unconditional read-back is safe **only** because a verify follows every
+  write in the same cycle and a near-all-`0xFF` device cannot pass a verify against a generated
+  pattern. A plan emitting a write with no verify behind it must fail that test.
+- **UV parts stop failing for the tool's own blank check** (Backlog 999.44, host half). Pass
+  `FLAG_SKIP_BLANK_CHECK` on `uv-slot` writes. Today run 1 leaves a UV part non-blank and run 2 is
+  refused even though it targets a different, provably blank slot — so a UV part is testable at most
+  once, and only if it arrives blank. The masked slot write is monotone (it only clears 1→0) with a
+  verify immediately behind it, so the skip cannot corrupt. **Correction from research:** `FLAG_SKIP_BLANK_CHECK` fixes the *firmware
+  write-init pre-flight* only — it does not touch the plan's own **standalone `blank-check` step**,
+  which `derive_plan` puts in every UV plan and which still returns `VERDICT_BAD`, still trips
+  `hardware_refused`, still aborts cycle 2, and still yields `[dev test] AM27C020 — FAIL` through
+  `overall_verdict`'s FAIL-dominance. **The success criterion is `overall_verdict == "PASS"` with
+  `run_count == 2`, not "the write step went OK".** The regression test that does not exist today:
+  a UV part holding data outside the target slot must accept a slot write and the run must PASS.
+  (**Mechanism FALSIFIED, Phase 179** — the "still trips `hardware_refused`, still aborts cycle 2"
+  clause above is wrong and is left standing, marked, rather than rewritten. MEASURED: the standalone
+  blank-check sits at index 2, OUTSIDE a `cycle_block_bounds` that is `(3, 6)` for `m27c512`,
+  `am27c020` and `tms27c512`, and `run_plan`'s per-step path has no `hardware_refused` mechanism at
+  all — the cycle-2 abort came from the WRITE step's own firmware refusal. What the blank-check
+  actually did was return `VERDICT_BAD` into a FAIL-dominant `submit.overall_verdict`
+  (`submit.py:164-171`). The bullet's substance stands: both defects still had to be closed.
+  Same falsification recorded at `.planning/REQUIREMENTS.md` UV-02, `.planning/research/PITFALLS.md`
+  Pitfall 5 step 2, and `.planning/research/SUMMARY.md`. **DELIVERED, Phase 179** — closed 2026-09-08
+  on a real ST M27C512 on a Leonardo: `overall_verdict == "PASS"` with `run_count == 2`, and the
+  regression test that "does not exist today" now exists.)
+- **A tool or rig fault is never filed as a chip verdict.** One tool defect currently produces three
+  BAD steps and a submit prompt offering `[dev test] AM27C020 — FAIL` against the chip.
+- **The report states what the run knows** (Backlog 999.36, 13 requirements already drafted as
+  RPT-A1…E3). Populate `chip_id_actual` on a *passing* id check; export the fingerprint's `total`/`bad`/
+  `bad_pct`/`evidence` as additive siblings, the read-step `divergence` metric, and `plan.is_uv`;
+  delete `voltage.vpp_mv`/`vpe_mv` and `banner.locked_steps`, which no code path assigns; wire the two
+  real re-sync events at `serial_comm.py:488-494` and `:504-510` into `transport_health`; make
+  `duration_s` a per-operation cost and add a real wall-clock `elapsed`; bump the schema to **1.8**.
+- **Canonical chip naming** — report the matched database `part_number`, not the operator's raw CLI
+  token, so an issue title names a string that exists in the database.
+
+**The blast-radius gate — CORRECTED 2026-09-02 after research falsified the original claim.** This
+section previously read *"`dedup_fingerprint` must stay byte-identical … Not one field being added,
+filled or deleted is in that hash today."* **That sentence was wrong, and the gate it named does not
+exist.** Three of four researchers falsified it independently **by execution** against `firestarter_app`
+at `0a93999`. It is true of *report fields* and irrelevant to what this milestone actually changes: the
+hash reads **values and plan shape**, not schema keys. Four re-key paths were measured:
+
+| # | Change | Measured effect on `dedup_fingerprint` |
+|---|---|---|
+| 1 | Gating the fingerprint read-back on failure | A *passing* write/verify carries `classification="indeterminate"` (a perfect match falls through `classify_fingerprint`'s four buckets), and the hash contains `f"{op}={verdict}:{cls}"`. **`4dc282a5d596` → `60a031573aab`.** |
+| 2 | Pruning unsupported SDP steps from `Plan.steps` | **`a00791f1c2b4` → `7d1cd4157cfa`** for m27c512/full. Affects **637 of 677** chips carrying six `supported=False` SDP steps. |
+| 3 | Canonical `part_number` naming | `ac.chip` is `parts[0]`. **`a00791f1c2b4` → `a6f6c6354047`.** 732 of 746 part numbers differ from their own lowercase form and every open issue title is lowercase — this re-keys essentially all project history. |
+| 4 | UV blank-check abort (second-order) | A BAD standalone blank-check → `hardware_refused` → cycle 2 never runs → `run_count` collapses to 1 → `repeat_policy_tag` emits the degraded `fast`-shaped discriminator on a run nobody asked to be fast. ⚠ **Mechanism FALSIFIED, Phase 179** — no `hardware_refused` fires for a step outside the cycle block; the cycle-2 abort came from the write step's own firmware refusal, and the blank-check's actual contribution was a `VERDICT_BAD` into a FAIL-dominant `overall_verdict`. The `run_count` collapse and the degraded `repeat_policy_tag` were real; the named cause was not. |
+
+The same read-back change also **flips the promotion ladder**: `disposition='inconclusive' ladder=''` →
+`'suggests: candidate for community-reported' ladder='community-reported'`, because `build_db_diff`
+routes on `has_indeterminate_fingerprint`. A performance change moves chips onto the Phase 114 GRAD-01
+ladder as a side effect.
+
+**And the gate itself is absent.** Every dedup test in `tests/test_diagnostic_report.py` is *relational*
+(`fp(a) == fp(b)`, computed at runtime), so a change to the hash algorithm passes all of them. There is
+exactly **one** frozen expected-hash literal in the suite (`tests/test_diagnostic_report.py:1377`,
+`"a0a50436ae3d"`), and the frozen schema-1.2 fixtures this was supposed to be "asserted against" carry
+hand-written placeholder tokens (`"deadnu11id00"`), not real hashes. `count_agreeing` reads the
+**embedded** hash and never re-hashes, so any re-key is permanent and unrecoverable except by publishing
+an old→new mapping.
+
+**Therefore: build the oracle first, change nothing the oracle has not measured.** The first phase is a
+blast-radius invariance harness — a frozen `(report shape → 12-hex)` table computed against HEAD before
+any change lands, plus a pinned `build_db_diff` ladder output and the measured raw-token→`part_number`
+delta. Each of the four re-keys then becomes a **declared, dated, one-time decision recorded in
+`MILESTONES.md`**, not a silent history fork.
+
+
+**Scope boundaries, decided at activation (operator, 2026-09-02):**
+- **Host app only.** `firestarter_app` changes only; no firmware edit, so no dual-repo lockstep, no
+  golden register traces, no size baseline.
+- **999.44's firmware half is therefore OUT and stays a defect.** The region-scoped
+  `mem_util_blank_check` — and with it the product-level bug where `firestarter write foo.bin -a
+  0x3FF00` is refused on any non-erasable part holding data anywhere — is **not fixed by this
+  milestone** and carries as backlog. The backlog's own analysis rejected the host half *alone* on
+  exactly this ground; it is taken here knowingly, not overlooked.
+- **Community issue replies and closures are not deliverables.** #21, #23, #28, #31, #45 and #50 stay
+  open; this milestone builds the fixes, it does not work the tracker.
+- **Bench is mixed.** Native and unit tests carry what they can; a named, minimal set of hardware legs
+  covers only what nothing else can prove — the UV slot regression above, and R4's per-connect cost,
+  which is **currently unmeasured and must be measured before it is scoped**.
+
+## v1.35 Archive: Documentation Consolidation & Wiki Migration — Shipped 2026-09-02
 
 **Activated:** 2026-08-30 · **Phases continue at 167** (v1.34 ran 160–166; the vacated **150** slot
 and the v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving)
+
+**Closed 2026-09-02 — 29/32 requirements, `override_closeout`.** 7 phases (167–173), 41 plans across
+the five that ran the machinery. Meta tagged `v1.35` at `6e84030b`; `beta` lockstep cut performed and
+channel-verified under the new rulesets; three `.github`-only pull requests merged into three protected
+`main` branches. The wiki is live with 11 pages, both sub-repo `doc/` directories are gone, `main` is
+behind an `enforcement: active` ruleset in all three repositories with `current_user_can_bypass: never`,
+and `git.base_branch` now resolves `beta` so the close procedure survives the protection it added.
+
+**What the goal statement above no longer describes.** It says pages are *"authored in-repo and checked
+against reality"*. **Both halves of that were retired during the milestone.** On 2026-08-30 the operator
+reversed to **wiki-only authoring** — Phase 167 had built and proven the in-repo source, one-command
+publish and drift check, and Phase 168 deleted it — withdrawing WIKI-03 and WIKI-04. Then on 2026-09-02,
+hours after the close, `wiki-check.yml` and every checker under `tools/wiki/` were deleted as
+disproportionate to an 11-page wiki. **No automated wiki guard of any kind now exists.** Wiki pages are
+edited in a web UI with no pull request, no diff, no review and no CI — accepted knowingly, recorded as
+a cost rather than an oversight.
+
+**The milestone-level non-claim: relocation is not verification.** HONEST-01 proved no claim was upgraded
+in the move. It proved nothing about whether any claim is *true*.
+
+**Three record gaps, named not absorbed.** Phases **169** and **170** ran ad hoc — no plans, summaries,
+phase directory or verifier pass. Phase **172** has no `172-VERIFICATION.md`. **FRONT-02** was declined
+outright by the operator; it cannot hold at the same time as FRONT-03.
 
 **Goal:** Make `firestarter_prom` the single documented front door — one simple get-started README per
 repo, all project documentation in the `firestarter_prom` wiki authored in-repo and checked against
@@ -1869,6 +2019,10 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-09-02 — **v1.36 `dev test` Fidelity ACTIVATED**, phases continue at 174. Host-app-only milestone against the `dev test` harness: stop running operations whose result is empty by construction (four measured cases, enforced by a structural test over `derive_plan` output, not a comment), stop failing UV parts for the tool's own whole-device blank check (Backlog 999.44 host half), stop filing a tool or rig fault as a chip verdict, and make the report state what the run already knows (Backlog 999.36's 13 drafted requirements, schema → 1.8) under a `dedup_fingerprint` byte-identity gate. Motivated by three community rebuttals of our own triage on gh#23/#28/#31. **999.44's firmware half — and the product-level `firestarter write -a` refusal it fixes — is knowingly OUT of scope and stays a defect.***
+
+*Previously: 2026-09-02 after the **v1.35** milestone (Documentation Consolidation & Wiki Migration) CLOSED and archived. Shipped 7 phases (167–173), 41 plans, **29/32 v1 requirements**; a documentation and repository-configuration milestone with **no product-code change**. `firestarter_prom` got its first README ever and its wiki became the documentation home — 11 pages live, 12 `doc/` files migrated by copy-then-edit and proven claim-preserving by HONEST-01's token-multiset comparison, **both sub-repo `doc/` directories deleted**, three root-level strays disposed, and the app README cut from 779 lines with its table of contents corrected from advertising three sections that did not exist. Policy is configured rather than merely stated: one tracker, three issue templates live, byte-identical `.github/CONTRIBUTING.md` pointers across all three repos, and `main` behind an `enforcement: active` ruleset everywhere with `current_user_can_bypass: never` — **proven by pushing at it and capturing GitHub's own GH013 refusal**, not by reading configuration back. POLICY-05 was fixed by construction before it could bite: `git.base_branch` repointed to `beta`, which incidentally corrected three fork-point consumers that had been branching every new phase and quick task off the wrong ref. Closeout `override_closeout` for three **record** gaps, not outcome gaps — phases **169**/**170** executed ad hoc with no plans, summaries, phase directory or verifier pass, and phase **172** carrying 9 plans and 26 evidence files but **no `172-VERIFICATION.md`** (its nine ROADMAP checkboxes were flipped at this close, the write `CLOSE-RECORD.md` §1 had assigned and never performed). The three unticked requirements are decisions: **WIKI-03/WIKI-04 withdrawn** when the operator reversed to wiki-only authoring on 2026-08-30, deleting the publish-and-drift-check machinery Phase 167 had just proven; **FRONT-02 declined outright** because it cannot hold alongside FRONT-03. **Two things a later reader should not have to infer.** First, **the guard this milestone built was retired the day it closed** — `wiki-check.yml` and all of `tools/wiki/` deleted 2026-09-02, `MIGRATION-TABLE.md` the only survivor, so HONEST-02 now rests on its stamp half alone and **no automated wiki guard exists**. Second, **the milestone-level non-claim: relocation is not verification** — a document moved intact is not thereby confirmed accurate. Two findings filed at close rather than fixed: **999.49**, the `audit-open acknowledge` writer destroys the artifacts it annotates (it wiped 100 lines of YAML frontmatter from a quick-task summary before the pass was reverted uncommitted, so all 72 open items were disclosed in `STATE.md` by hand instead); and **999.50**, the retirement left two live references to the deleted `tools/wiki/dispatch_mirror.py`, one of which leaves a firmware file declared guarded in `scan_paths.py` and actually unguarded. Prior footer retained below.*
 
 *Last updated: 2026-08-30 — **v1.35 (Documentation Consolidation & Wiki Migration) STARTED.** Phases continue at **167** (v1.34 ran 160–166). A documentation milestone, not a product one: no firmware and no host behaviour changes. `firestarter_prom` — which has **no README at all** today — becomes the project front door, and its wiki becomes the single home for all project documentation. Seven operator decisions taken at activation: all three READMEs become simple get-started pages with **prom as the front door** (accepting a thin PyPI listing, since `firestarter_app/README.md` is the `long_description`); sub-repo READMEs carry **only repo-specific information** and link up; **everything leaves `doc/`** — all 13 files, both directories removed, changing the app sdist for the 3 doc files it currently carries; **relocate and correct only**, so the compatibility matrix, family pages and tutorials carried into 999.12 from the retired 999.14/gh#7 stay deferred; wiki pages are **sourced in `firestarter_prom` and synced**, buying version control, review and a mechanical drift check; **Backlog 999.13 in full**, branch protection included, which forces `/gsd-complete-milestone` off its direct `main` push onto a PR flow or a documented admin bypass; and the two sub-repo wikis are **disabled** — done at activation, `has_wiki=false` on both, verified by API. Starting state measured rather than assumed: app README **779 lines**, fw README 151, 13 `doc/` files ≈ 2724 lines, **no wiki repo initialized anywhere**, Issues already off on both sub-repos (23 open on prom), `firestarter`'s `Protect main` ruleset present but **`enforcement: disabled`** and no ruleset at all on the other two, 6 dead issue links, and an app README TOC advertising three sections (`Id`, `Vpe`, `Hw`) that do not exist. **Operator-gated blocker:** GitHub creates `<repo>.wiki.git` only when the first page is saved in the web UI — no REST endpoint exists and push-to-create was tested and fails — so the operator must create one page at `henols/firestarter_prom/wiki` before anything can be pushed there; all other work is unblocked. The 999.12 honesty constraint is in scope and not optional: relocation must not upgrade a `support_status` or a `PROTOCOL-LEDGER` `UNVERIFIED` bucket into implied support, and the drift check is its mitigation. **Known sequencing hazard accepted, not solved:** Backlog 999.9 renames all three repos and would invalidate every link written here; the operator was shown this and chose to proceed and sweep later. Prior footer retained below.*
 

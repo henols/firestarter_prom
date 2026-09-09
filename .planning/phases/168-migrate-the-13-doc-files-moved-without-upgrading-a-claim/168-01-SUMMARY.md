@@ -7,7 +7,7 @@ tags: [git, wiki, migration-table, honest01, sub-repo-branching]
 requires: []
 provides:
   - "gsd/v1.35-documentation-consolidation-wiki-migration branch in firestarter (at a218b4f5) and firestarter_app (at d56424e1)"
-  - "tools/wiki/MIGRATION-TABLE.md with all 12 page names, titles and pre-deletion SHAs, plus the deferred PY32F071 SHA"
+  - ".planning/v1.35/MIGRATION-TABLE.md with all 12 page names, titles and pre-deletion SHAs, plus the deferred PY32F071 SHA"
   - "evidence/oracle-readable.txt proving the HONEST-01 git-show oracle resolves for all 13 rows"
 affects: [168-02, 168-03, "later 168 plans that delete doc/ or push wiki pages"]
 
@@ -19,7 +19,7 @@ key-files:
   created:
     - .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/oracle-readable.txt
   modified:
-    - tools/wiki/MIGRATION-TABLE.md
+    - .planning/v1.35/MIGRATION-TABLE.md
 
 key-decisions:
   - "Branch base settled by operator: fork-from-current-head (firestarter a218b4f5, firestarter_app d56424e1) — not beta, to preserve every measured line number in 168-RESEARCH.md"
@@ -47,7 +47,7 @@ coverage:
     requirement: "HONEST-01"
     verification:
       - kind: other
-        ref: "grep -c 'TBD' tools/wiki/MIGRATION-TABLE.md (=0); grep -cE '^\\| firestarter(_app)? \\|' (=12); grep -oE '[0-9a-f]{40}' count on those rows (=12)"
+        ref: "grep -c 'TBD' .planning/v1.35/MIGRATION-TABLE.md (=0); grep -cE '^\\| firestarter(_app)? \\|' (=12); grep -oE '[0-9a-f]{40}' count on those rows (=12)"
         status: pass
     human_judgment: false
   - id: D3
@@ -66,7 +66,7 @@ status: complete
 
 # Phase 168 Plan 01: Sub-repo v1.35 Branches and the HONEST-01 Pre-Deletion Oracle Summary
 
-**Created the v1.35 working branches in both sub-repos at the operator-decided base, then turned `tools/wiki/MIGRATION-TABLE.md` into the phase's load-bearing record — all 12 page names/titles/SHAs filled, plus a proven-readable oracle for all 13 rows (12 migrating + 1 deferred) before any `doc/` file is deleted anywhere.**
+**Created the v1.35 working branches in both sub-repos at the operator-decided base, then turned `.planning/v1.35/MIGRATION-TABLE.md` into the phase's load-bearing record — all 12 page names/titles/SHAs filled, plus a proven-readable oracle for all 13 rows (12 migrating + 1 deferred) before any `doc/` file is deleted anywhere.**
 
 ## Performance
 
@@ -78,7 +78,7 @@ status: complete
 
 ## Accomplishments
 - Created `gsd/v1.35-documentation-consolidation-wiki-migration` in `firestarter` (base `a218b4f5273d14f0abd796b21ac104792de01603`, was detached HEAD) and `firestarter_app` (base `d56424e1979edf7245cffb9ec3111c0469f5b23f`, was on `chore/strip-provenance-comments`) — no commits made in either sub-repo for this task, branch-ref creation only, both trees left `porcelain`-clean
-- Filled `tools/wiki/MIGRATION-TABLE.md`'s 12 `TBD` rows with page names, rendered titles, and 40-character pre-deletion SHAs; added the `Pre-deletion SHA` column
+- Filled `.planning/v1.35/MIGRATION-TABLE.md`'s 12 `TBD` rows with page names, rendered titles, and 40-character pre-deletion SHAs; added the `Pre-deletion SHA` column
 - Recorded a pre-deletion SHA for the deferred `PY32F071-FIRMWARE-INSTALL.md` file so "deferred" cannot silently become "lost" when its directory is deleted later in the phase
 - Proved the HONEST-01 `git show <sha>:<path>` oracle resolves to non-empty content for all 13 rows, capturing byte counts as evidence; pinned `Programming-Protocols` at the measured 49560 bytes as a non-vacuity control
 - Repaired the false publish-path prose at the top of `MIGRATION-TABLE.md` (no publish subcommand exists after D-20) without breaking the hyphen-hazard or deferred sections
@@ -93,7 +93,7 @@ Task 1 (branch creation) produced no commit — it is a branch-ref-only action i
 _No plan-metadata commit yet — this SUMMARY and STATE/ROADMAP updates follow in the final commit._
 
 ## Files Created/Modified
-- `tools/wiki/MIGRATION-TABLE.md` - added `Pre-deletion SHA` column; filled all 12 rows with page name/title/SHA; resolved both hyphen hazards in prose; renamed `How-This-Wiki-Is-Published` row to `How-To-Edit-This-Wiki`; added deferred-file SHA; repaired header prose to remove publish-path claims
+- `.planning/v1.35/MIGRATION-TABLE.md` - added `Pre-deletion SHA` column; filled all 12 rows with page name/title/SHA; resolved both hyphen hazards in prose; renamed `How-This-Wiki-Is-Published` row to `How-To-Edit-This-Wiki`; added deferred-file SHA; repaired header prose to remove publish-path claims
 - `.planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/oracle-readable.txt` - 13 `<page> <bytes>` lines proving the git-show oracle resolves for every migrating file plus the deferred one
 
 ## Decisions Made
@@ -128,7 +128,7 @@ None - no external service configuration required. No push to any remote was mad
 
 ## Self-Check: PASSED
 
-- FOUND: tools/wiki/MIGRATION-TABLE.md
+- FOUND: .planning/v1.35/MIGRATION-TABLE.md
 - FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/evidence/oracle-readable.txt
 - FOUND: .planning/phases/168-migrate-the-13-doc-files-moved-without-upgrading-a-claim/168-01-SUMMARY.md
 - FOUND commit: d10bd4b7

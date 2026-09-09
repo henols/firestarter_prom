@@ -1,19 +1,19 @@
 ---
-gsd_state_version: 1.0
-milestone: v1.35
-milestone_name: Documentation Consolidation & Wiki Migration
-current_phase: 173
-current_phase_name: CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
+gsd_state_version: "1.0"
+milestone: v1.36
+milestone_name: "`dev test` Fidelity (PLANNING)"
+current_phase: 181
+current_phase_name: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 status: completed
-stopped_at: Phase 173 complete — all phases complete
-last_updated: "2026-09-02T18:13:07.172Z"
-last_activity: 2026-09-02
-last_activity_desc: Phase 173 COMPLETE — 9/9 plans, verification passed 5/5; beta lockstep cut performed and both channels verified; v1.35 tagged
+stopped_at: "Phase 181 SHIPPED — PRs prom#63, app#61, fw#60 open against beta; awaiting merge"
+last_updated: "2026-09-09T16:57:44.490Z"
+last_activity: 2026-09-09
+last_activity_desc: "Phase 181 COMPLETE 2026-09-09 — 10/10 plans, 9/9 waves, verification PASSED 19/19. Suite 2247 -> 2285, zero failures at every closed wave; regression gate 886/886 over 20 prior-phase files. All 19 FROZEN_HASHES literals byte-identical to app base 04fd982 across the whole phase (0 literal lines changed) — D-16 discharges as ZERO re-keys and RPT-E3s exception clause discharges EMPTY. Seven orchestrator-side corrections: six GSD-provenance comments removed (the recurring shape is rewording a comment a deletion falsified, which is still writing comment prose), and a ruff format --check regression the plan had waived as pre-existing by measuring against the wave-3 tip instead of the phase base. One red gate (wave 6) caught a real cross-module break: a Phase-180 anti-vacuity pin anchored on the literal text of _dispatch_read s reason line, which 181-07 had to change. Verifier found one gap — the firestarter_app gitlink was never advanced, because I told all ten executors to leave it alone on a v1.6-v1.8 convention phase 180 had already superseded; closed at 6de7273 and the fabricated CLAUDE.md citation in 181-10-SUMMARY.md corrected. Code review: 0 critical, 1 warning (WR-01, _is_interactive now dead) filed as a todo. NOT pushed."
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 41
-  completed_plans: 41
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 42
+  completed_plans: 42
   percent: 100
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-30 — v1.35 started)
+See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 173 — CLOSE — Beta Cut Under Protection, Close Procedure & Honesty Ledger
+**Current focus:** Phase 181 — Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,63 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 173
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-02 — Phase 173 complete
+Phase: 181 (Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close) — COMPLETE
+Plan: 10 of 10 complete (all 9 waves gated green)
+Status: Phase 181 shipped — prom#63 / app#61 / fw#60 open against beta, not yet merged
+Last activity: 2026-09-09 — Phase 181 COMPLETE. 10/10 plans, verification PASSED 19/19 after one gap (the unadvanced firestarter_app gitlink, an orchestrator error) was found and closed. Suite 2247 -> 2285 with zero failures at every closed wave; regression gate 886/886. All 19 frozen dedup hashes unmoved. Seven orchestrator-side corrections, six of them GSD-provenance comments. Both repos remain LOCAL.
+
+## Roadmap Summary (v1.36)
+
+**Created:** 2026-09-02, `/gsd-roadmapper` run against `.planning/REQUIREMENTS.md` (46 v1 requirements,
+7 categories, D-1…D-8) and `.planning/research/SUMMARY.md` (4 parallel researchers, HIGH confidence on
+everything measured against `firestarter_app @ 0a93999`). `ROADMAP.md` is a ~5,480-line hand-authored
+file whose tail carries the entire `999.x` Backlog and every archived milestone; the v1.36 section was
+inserted immediately after the `## Milestones` summary list and before the v1.35 archive, leaving every
+Backlog entry and archived-milestone section byte-for-byte intact (verified by diff after insertion).
+
+**Phases:** 8 (**174–181**). Numbering continues from v1.35's 173; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused.
+**Coverage:** 46 requirements, all mapped, 0 orphans, 0 duplicates.
+
+| # | Phase | Requirements | Depends on |
+|---|-------|--------------|------------|
+| 174 | Blast-Radius Invariance Harness | GATE-01…06 (6) | — (first phase, alone) |
+| 175 | Structural Sentinel over `derive_plan` | PRUNE-05, PRUNE-06 (2) | 174 |
+| 176 | Transport Instrumentation + Connect-Cost Measurement *(partially hardware-gated: MEAS-01)* | RPT-C1, RPT-C2, MEAS-01…03 (5) | 174 (∥ 175) |
+| 177 | Evidence-Gated Read-Back | PRUNE-01…04, PRUNE-07 (5) | 174, 175 |
+| 178 | Fault Attribution — the Two-Axis Vocabulary | ATTR-01…06 (6) | 176, 177 |
+| 179 | UV Slot Writes — `FLAG_SKIP_BLANK_CHECK` *(hardware-gated)* | UV-01…03 (3) | 178 |
+| 180 | Read-Step Sampling *(conditional on 176's measurement)* | PRUNE-08 (1) | 176 |
+| 181 | Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close | RPT-A1…A5, RPT-B1/B2, RPT-D1/D2, RPT-E1…E3, RPT-F1/F2, HYG-01…04 (18) | 177, 178, 179, 180 |
+
+**The one hard ordering constraint, honoured exactly as given:** GATE-01…06 is Phase 174, alone, first —
+nothing else may land before it is green, because the milestone's own first substantive change would
+otherwise move `dedup_fingerprint` before anything could prove it. **Two measured constraints, also
+honoured:** Phase 178 (fault attribution) precedes Phase 179 (UV) because UV-02's
+`overall_verdict == "PASS"` criterion cannot be reached until the status/result axis stops a non-blank
+standalone blank-check finding from aborting cycle 2; and Phase 176 (RPT-C1's counters, MEAS-01's bench
+lead time) is scheduled early — parallel with 175 — even though its consumers (178, 180) land later.
+
+**Hardware gating, named exactly per PROJECT.md's scope boundary:** Phase 176 is *partially*
+hardware-gated (MEAS-01 only — real Uno + Leonardo, measured per board class, never blended); Phase 179
+is fully hardware-gated (a real UV part holding data outside the target slot). Every other phase is
+provable in native/unit tests without a board.
+
+**Phase 180 stays a standalone phase despite carrying only one requirement (PRUNE-08).** It is not
+folded into a neighbour: it is the direct, dependent consumer of Phase 176's measurement, and one of its
+two lawful outcomes is "ship nothing, cite the measurement" — a milestone deliverable in its own right
+under this milestone's "measured, not assumed" discipline, not a task that shrinks cleanly into Phase
+177 or 181's scope.
+
+**GATE-06 (the re-key ledger) is owned by Phase 174, not the closing phase**, per the literal instruction
+that the whole Blast-Radius Oracle category is Phase 174's alone. Phase 174 builds the ledger's location
+and required fields before any change exists to declare; Phases 177/178/179/181 each write their own
+entry into it as their declared re-key lands; Phase 181 is the last to touch the ledger and its own
+success criteria assert the ledger — not just the hash — is complete.
+
+**Success criteria throughout are stated in operation counts, never in seconds**, per this project's
+house rule for this milestone: every timing figure available comes from one log, one Leonardo, one 64
+KiB `0x07` part, and the per-connect cost itself does not exist as a number until Phase 176 measures it.
 
 ## Roadmap Summary (v1.35)
 
@@ -298,7 +351,7 @@ already shipped and verified the in-repo source model. Documentation lives **onl
 no in-repo `wiki/` tree, no publish command, no source-vs-published drift check. **WIKI-03 and WIKI-04
 are withdrawn; WIKI-02 is rewritten and WIKI-05 reopened, both reassigned to Phase 168** (now 9
 requirements). Retired: `wiki/` (3 pages), `wiki-publish.yml`, and `wiki.py`'s `publish` / `sidebar` /
-`check`. Survives: `tools/wiki/MIGRATION-TABLE.md` (it sits under `tools/`, not `wiki/`) and
+`check`. Survives: `.planning/v1.35/MIGRATION-TABLE.md` (it sits under `tools/`, not `wiki/`) and
 `wiki.py links`, repointable at a wiki clone. **The unlock for HONEST-02:** `firestarter_prom.wiki.git`
 is a real git repository, so the claim check clones it and asserts against published pages — a
 first-party clone, not the external HTTP probe D-11 rejected. Full record:
@@ -1015,6 +1068,56 @@ not hold (the v1.22 C-5 overclaim class).
 gate-hardening v1.23 left OPEN (fail-open `tools/check_mypy_watermark.py` + 69 hidden inherited
 errors → `firestarter_app`'s primary `ci` job is RED), and 999.15 / gh#8 dev-tools channel gating.
 Plus the owed gh#12 outward follow-up, behind operator wording review.
+
+## Deferred Items — acknowledged at v1.35 milestone close (2026-09-02)
+
+Closeout type: `override_closeout`. **The override is not about this list.** It is driven by three
+record gaps in the milestone's own paperwork — phases **169** and **170** ran ad hoc with no plans,
+summaries, phase directory or verifier pass, and phase **172** has no `172-VERIFICATION.md` despite
+9 plans, 9 summaries and 26 evidence files. See `MILESTONES.md` §v1.35 Known Gaps.
+
+**How these were acknowledged, and why it differs from the documented procedure.**
+`complete-milestone.md` says to acknowledge every item through
+`gsd_run query audit-open acknowledge`. That was attempted at this close on gsd-core **1.12.0** and
+**abandoned after it was found to destroy the artifacts it annotates** — it replaced 100 lines of YAML
+frontmatter in a quick-task summary with a four-line marker, reflowed whole files including the inside
+of a fenced code block, and refused 5 items it had itself manufactured from markdown table rows. The
+entire pass was reverted with `git checkout -- .planning/` and **nothing was committed**. Filed as
+Backlog **999.49**. This section is therefore a **disclosure record only** — no suppression marker was
+written, so all 72 items will resurface at the next `audit-open` scan. That is honest: they are still
+open. It is also what every close from v1.23 onward actually did, which is why `acknowledged.total`
+read `0` going into this one.
+
+**Known verification overrides: 72 newly acknowledged, 0 carried forward from a prior close.**
+
+**Only one of the 72 originates in v1.35** (the Phase 168 fixture-orphan item). The rest are carried
+debt, and the UAT/verification set is substantially the same one acknowledged at each of the last
+eleven closes.
+
+| Category | Item | Status | Deferred At | Milestone |
+|----------|------|--------|-------------|-----------|
+| debug_sessions | `w27c512-devtest-all-bad` | investigating — recorded **NOT REPRODUCIBLE**; the reported gh#41 failure did not reproduce and the session's own one-line status says so | 2026-09-02 | v1.35 |
+| quick_tasks | `260820-a7w-make-the-flash-limit-guards-to-be-the-ac` | unknown to the scanner; the summary's own frontmatter reads `status: complete` — the scanner cannot see it | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 08 — `08-HUMAN-UAT.md` | partial (0 pending scenarios). Residual is the **Uno** leg | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 43 (archived v1.8) — `43-HUMAN-UAT.md` | partial — 2 pending scenarios | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 31 (archived v1.7) — `31-HUMAN-UAT.md` | partial — 4 pending scenarios | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 34 (archived v1.7) — `34-HUMAN-UAT.md` | partial — 3 pending scenarios | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 28 (archived v1.6) — `28-HUMAN-UAT.md` | partial — 1 pending scenario | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 30 (archived v1.6) — `30-HUMAN-UAT.md` | passed — 2 pending scenarios | 2026-09-02 | v1.35 |
+| uat_gaps | Phase 20 (archived v1.4) — `20-HUMAN-UAT.md` | passed — 0 pending scenarios | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 08 — `08-VERIFICATION.md` | human_needed, scope reduced — Leonardo leg superseded by Phase 91's W27C512 PASS; Uno leg genuinely open | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 09 — `09-VERIFICATION.md` | human_needed, scope reduced — item 1 expects a version string that no longer ships | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 84 — `84-VERIFICATION.md` | human_needed, sign-off supported — 3/3 on automated checks; both items ask the operator to accept a deferral as correct | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 31 (archived v1.7) — `31-VERIFICATION.md` | human_needed | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 34 (archived v1.7) — `34-VERIFICATION.md` | human_needed | 2026-09-02 | v1.35 |
+| verification_gaps | Phase 28 (archived v1.6) — `28-VERIFICATION.md` | human_needed | 2026-09-02 | v1.35 |
+| todos | 36 pending (scanner lists 5, reports 31 more) — named: `2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads`, `2026-08-27-safe-state-outputs-on-powerup-and-fault`, `2026-08-27-strip-gsd-provenance-comments-from-source`, `2026-08-30-dev-test-flag-to-auto-file-issue`, `2026-08-30-gate-fingerprint-readback-on-step-failure` | (presence-only) | 2026-09-02 | v1.35 |
+| deferred_items | Phase 79 (1), 98 (2), 102 (1), 106 (1), 111 (2), 121 (1), 133 (1), 153 (1) — 10 items | Nearly all one class: **pre-existing `ruff` I001/UP031 and `mypy` findings in `tools/` files outside the touching plan's scope**, each proven pre-existing by `git stash` and each outside CI's own ruff scope (`firestarter/ tests/`) | 2026-09-02 | v1.35 |
+| deferred_items | Phase 154 — 10 items | The genuine ones are D5/D8 (152 mid-comment and 335 non-`#`-line provenance tokens left unswept, measured), D6 (a mis-classified line-pinned gate) and D9 (the same pre-existing ruff set). **D7 is already marked RESOLVED.** **5 of the 10 are scanner artifacts, not items at all** — four markdown table rows and one `###` sub-heading, which the writer then refuses as unmatched. See Backlog 999.49 defect 3 | 2026-09-02 | v1.35 |
+| deferred_items | Phase 168 — 1 item | **The only item originating in v1.35.** Two orphaned C++ fixtures (`planted_dispatch_missing_hex.cpp`, `planted_dispatch_comment_only_hex.cpp`) left unreferenced when `test_dispatch_mirror.py` was deleted. Tidiness, not a defect; nothing scans for unused fixtures. Now folded into Backlog **999.50** | 2026-09-02 | v1.35 |
+
+**Nothing in this set blocks the v1.35 close, and only one item in it was created by v1.35.** Each is
+carried to the next milestone in the state it was disclosed here.
 
 ## Deferred Items — acknowledged at v1.33 milestone close (2026-08-24)
 
@@ -2779,6 +2882,17 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 172]: D-10 REVERSED at the Task 1 checkpoint:decision gate: amended henols/firestarter's ruleset 4998759 in place (PUT) instead of deleting and recreating it, after measurement showed it already matched the prom canary on every field except enforcement. Its id and 2025-04-22 creation date are preserved. — Deleting and recreating would have destroyed 4998759's identity permanently for zero functional gain, since the incumbent was already equal to the canary apart from enforcement; D-10's own rationale (shedding a dead DeployKey bypass) was voided by D-09's mid-phase revision making DeployKey canonical.
 - [Phase 172]: 172-07: three policy/contributor-policy branches pushed and opened as PRs (firestarter_prom#54, firestarter#58, firestarter_app#57), scope proven server-side .github/-only. No merge (172-08 owns it). — Branches cut from each repo's own fetched origin/main in throwaway worktrees, never the milestone branch, avoiding a 733/531/781-commit drag into a default branch.
 - [Phase 172]: 172-07 Pitfall 5 verdict: the firmware .github-only merge will NOT fire build.yml or cut a release. — Measured from origin/main's own tree: build.yml already excludes .github/** in paths-ignore, and py32f071.yml does not exist on main at all -- both independently sufficient, confirmed via zero check-runs read twice and zero workflow_runs for the branch.
+- [Phase 179]: 179-01: the UV blank-check verdict adjudicated to SKIPPED (never NA, which suppresses the Reason cell; never OK, which collides with m27c512-full-all-ok's frozen hash), keyed on an additive Step.uv_prewrite field set once by derive_plan. — Matches 179-RESEARCH.md's Q1/Q1a recommendation and keeps plan_shapes.json byte-unchanged (execution-time adjudication, not a Step.supported flip).
+- [Phase 179]: 179-01: FLAG_SKIP_BLANK_CHECK is derived from a new structural WriteTarget.current_is_probe_read witness, never from region_policy or a current_source string compare. — Measured: the staged tranche's current_source reads 'probe read (tranche 1/2)', so a string-equality witness would ship green and inert; the structural bool is proven to disagree with region_policy in both directions.
+- [Phase 179]: D-179-1 (Task 1 checkpoint:decision, operator-answered): criterion 4 is satisfied by a SPLIT — a committed firmware-faithful-double regression test (plan 179-03, no skip marker) plus a blocking-human bench wave producing a committed 179-MEASUREMENT.md (plan 179-04), per the Phase 176-05 precedent. — 179-RESEARCH.md Q4 found zero hardware-gated pytest tests anywhere in the repo and no precedent for a fifth ALLOWED_SKIP_REASONS entry; the committed test proves HOST logic, the bench artifact proves HARDWARE, neither alone is criterion 4.
+- [Phase 179]: D-179-2 (Task 1 checkpoint:decision, operator-answered): uv-slot-write-pass is built real-path — _build_real_path_report(chip="m27c512", write_scope="full", operator=<WriteInitPreflightChip seeded outside the top slot>, runs=2) — accepting the coupling to derive_plan/chip_database.json regeneration every other real-path shape already has. — Proves the actual witness, positional flag and adjudicated verdict, which is why UV-01/UV-02 wanted this shape; the hand-specified alternative would prove nothing about them.
+- [Phase 179]: 179-02: uv-slot-write-pass registered across all eight gate-enforced sites in one commit (measured hash 927571e5110f); m27c512-full-blank-check-bad re-baselined to its measured post-179-01 value (e42f1567967a) in the SAME commit, with its LADDER_PINS pair moving community-fail -> community-reported (forced, verified against a live build_db_diff). RESERVED_SHAPE_IDS drawn down to empty, its two read sites repaired so neither goes silently vacuous.
+- [Phase 179]: 179-02: RK-174-04-p179-uv-blank-check-abort declared in a SEPARATE commit (per the D-11 protocol) — after_hash e42f1567967a, before_hash 077a32d1a5c4 untouched, bound in .planning/MILESTONES.md in the same logical step; the cross-tree checker then reported OK on 8 ledger rows and 8 MILESTONES.md rows. (That checker, the ledger fixture and the MILESTONES.md table were RETIRED 2026-09-08 -- CI must not police a .planning record; see the v1.36 section of MILESTONES.md. This entry records what was true when 179-02 ran.) The provenance note is corrected: the triple moves BAD -> SKIPPED, not OK -> BAD as originally seeded, and PITFALLS.md:186-188's cycle-2-abort mechanism is recorded FALSIFIED (the abort measured came from the write step's own firmware refusal, not the blank-check step, which sits outside cycle_block_bounds).
+- [Phase 180]: 180-01: pinned roadmap criterion 3 (read verdict = last full read) and Ruling 1's one-connect premise with structural ast pins + behavioural legs, each with a planted-mutation RED transcript; opened 180-PRUNE-08-CLOSURE.md on the 10-vs-1 connect arithmetic, no modelled figure published
+- [Phase 180]: 180-02: Completed 180-PRUNE-08-CLOSURE.md (named exclusion, criterion 4 N/A, granted standing, R4-01 as invalidating condition) and amended dev-test-adaptive-sequencing.md in place (R3 replaced, R4's now-false sentence corrected, sibling Phase 180 amendment section appended, Phase 177 section left byte-unchanged).
+- [Phase 180]: 180-03: PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines, gated on a precondition that 180-PRUNE-08-CLOSURE.md exist and be committed first (T-180-09 mitigation). Seven-leg green-tree seal run and recorded: 2245 passed / 0 failed (measured, not transcribed), tokenize comment gate 621/0 held, both submodules and chip_database.json clean. ROADMAP.md's Phase 180 section ticked for all three plans, exactly two lines changed. One Rule-3 auto-fix landed first: ruff format --check failed on a 180-01-introduced implicit string concat in test_readback_inventory.py, collapsed to one literal (no semantic change) before the battery ran.
+- [Phase 180]: 180-04 (gap closure): R3's remaining "Escalate to..." and "Cost, stated:" paragraphs removed by absence (not annotation, per D-09), connect-count objection preserved; a dated follow-through paragraph appended to the seed's Phase 180 amendment section restating its own not-touched list in full. WR-01 hardened (connect_route_calls counts every connect-shaped call in read_eprom's whole body, not just the with-header) and WR-02 hardened (_last_ok_assignment_shape pins last_ok's exact assignment shape), each proven with a three-way GREEN/RED/GREEN discrimination against a planted mutant. IN-01 closed (stale line-number citation dropped). test_readback_inventory.py 10 -> 12 passed. REQUIREMENTS.md/ROADMAP.md deliberately untouched (180-05's scope).
+- [Phase 180]: 180-05 (gap closure): IN-02 closed by sharing one `_alternating_read_side_effect(*call_returns)` builder between both read-step verdict legs, replacing their near-identical nested closures with zero assertion lines removed since app anchor 93a1672; the genuinely different divergence-metric closure was left untouched. PRUNE-08 re-flipped to Complete only after every named gap fix measured zero/present/clean (seed fragments at zero, both hardened pins present, the builder present, both trees porcelain-clean) — same precedent 180-03 set, gated on a different precondition. ROADMAP.md's Phase 180 section extended to 5 plans with a Gap closure grouping copying Phase 174's form; both regions outside the section proven cmp-identical against the pinned pre-edit blob. Seven-leg battery re-run green at the measured floor of 2247 (2245 + plan 180-04's two additive legs). One Rule-3 auto-fix landed mid-task: 180-04's WR-02 hardening left 2 new mypy errors (reading .lineno/.col_offset off an ast.AST-typed loop variable, a type typeshed does not declare there) that pushed the app-wide count from the watermarked 35 to 37; narrowed the loop's isinstance check to the four node types it already restricts target extraction to (no behavior change), mypy back to 35/35 — 180-04 had not run this battery leg itself, so the regression was invisible until this plan's seal caught it.
 
 ## Performance Metrics
 
@@ -3174,11 +3288,28 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 172 P06 | 62min | 3 tasks | 3 files |
 | Phase 172 P07 | 15min | 3 tasks | 3 files |
 | Phase 173 P06 | 25min | 3 tasks | 4 files |
+| Phase 179 P01 | 95min | 2 tasks | 5 files |
+| Phase 179 P02 | 40min | 3 tasks | 5 files |
+| Phase 179 P03 | 55min | 2 tasks | 1 files |
+| Phase 180 P01 | 55min | 3 tasks | 5 files |
+| Phase 180 P02 | 20 min | 2 tasks | 4 files |
+| Phase 180 P03 | 30min | 2 tasks | 5 files |
+| Phase 180 P04 | 15min | 2 tasks | 5 files |
+| Phase 180 P05 | 19min | 3 tasks | 7 files |
 
 ## Session
 
-**Last session:** 2026-09-02T17:55:00.000Z
-**Stopped at:** Phase 173 complete — all phases complete
+**Last session:** 2026-09-09T08:45:00.000Z
+**Stopped at:** Phase 181 complete — all phases complete
+**Was (superseded, retained for continuity):** Phase 181 context gathered
+**Was (superseded, retained for continuity):** Phase 180 complete, ready to plan Phase 181
+**Was (superseded, retained for continuity):** Completed 180-04-PLAN.md
+**Was (superseded, retained for continuity):** Completed 180-03-PLAN.md
+**Was (superseded, retained for continuity):** Completed 180-02-PLAN.md
+**Was (superseded, retained for continuity):** Completed 179-03-PLAN.md
+**Was (superseded, retained for continuity):** Completed 179-02-PLAN.md
+**Was (superseded, retained for continuity):** Completed 179-01-PLAN.md
+**Was (superseded, retained for continuity):** Phase 178 complete, ready to plan Phase 179
 **Was (superseded, retained for continuity):** Completed 173-08-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-06-PLAN.md
 **Was (superseded, retained for continuity):** Completed 173-07-PLAN.md
@@ -3229,7 +3360,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/173-close-beta-cut-under-protection-close-procedure-honesty-ledg/173-CONTEXT.md
+**Resume file:** `.planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CONTEXT.md`
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing

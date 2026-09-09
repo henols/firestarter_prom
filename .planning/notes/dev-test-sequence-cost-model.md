@@ -165,7 +165,9 @@ The UV rows are where the imbalance is starkest: a **256-byte** write on a
 
 ## What this note does not establish
 
-- Per-connect cost in seconds (port busy; counts only).
 - Whether `erase` scales with device size.
-- Any rate for an Uno-class board (512 B buffer).
 - Anything about the write path's 2.2 KB/s, which is firmware-side.
+
+Per-connect cost in seconds, and the Uno-class-board rate, were both unestablished when this note
+was written (port busy; counts only). Both are now measured, per board class, never blended, in
+[`176-MEASUREMENT.md`](../phases/176-transport-instrumentation-connect-cost-measurement-partially/176-MEASUREMENT.md).

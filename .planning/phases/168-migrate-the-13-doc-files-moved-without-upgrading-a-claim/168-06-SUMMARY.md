@@ -6,7 +6,7 @@ tags: [link-repair, docstrings, click, wiki-migration, firestarter_app]
 
 requires:
   - phase: 168-01
-    provides: "tools/wiki/MIGRATION-TABLE.md with page names, rendered titles and pre-deletion SHAs"
+    provides: ".planning/v1.35/MIGRATION-TABLE.md with page names, rendered titles and pre-deletion SHAs"
   - phase: 168-05
     provides: "12 documentation pages live on firestarter_prom.wiki.git under their recorded page names"
 provides:

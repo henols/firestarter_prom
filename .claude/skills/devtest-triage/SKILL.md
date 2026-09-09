@@ -327,8 +327,18 @@ Compare every row. This is the checklist the comment must cover:
 State which of these you actually checked. A check you could not perform (datasheet
 section absent) is reported as *unchecked*, never as passing.
 
-Voltage sanity from the report itself — `voltage.vpp_before_mv` / `vpe_before_mv`
-against the datasheet rating — is worth one line when it is out of spec.
+Voltage sanity from the report itself — `voltage.vpp_before_mv` / `vpp_after_mv` /
+`vpe_before_mv` / `vpe_after_mv` against the datasheet rating — is worth one line when it
+is out of spec. These four are REGULATOR RAIL readings, never socket readings: a rig
+whose EPROM socket is unhooked entirely still reads a healthy rail, and a healthy rail
+proves nothing about contact — the report says so itself, in its own
+`rail_reading_disclosure` field, which is worth quoting in the comment when you cite a
+voltage row. As of schema 2.0 the report no longer carries the two standalone
+`voltage.vpp_mv` / `vpe_mv` keys these four before/after fields replaced; a body still
+carrying them is a pre-2.0 report. This skill's own two frozen fixtures under
+`fixtures/` (`dev-test-at28c256-null-identity.md`, `dev-test-at28c256-populated-identity.md`)
+are deliberately such pre-2.0 bodies — their own headers forbid regenerating them from a
+live `to_dict()` output, and that stays true here.
 
 ### 5d. Post the comment
 

@@ -6,7 +6,7 @@ files_reviewed: 4
 files_reviewed_list:
   - tools/wiki/provenance_footers.py
   - .github/workflows/wiki-check.yml
-  - tools/wiki/MIGRATION-TABLE.md
+  - .planning/v1.35/MIGRATION-TABLE.md
   - CLAUDE.md
 findings:
   critical: 2

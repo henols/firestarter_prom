@@ -56,13 +56,13 @@ planner can bind each row to the task that delivers it.
 | Requirement | Wave | Behavior verified | Test Type | Automated Command | File Exists | Status |
 |-------------|------|-------------------|-----------|-------------------|-------------|--------|
 | MIGRATE-01 | late | 12 pages present and reachable on the live wiki | integration | `git clone <wiki.git> wiki-clone && python3 tools/wiki/wiki.py links --source-dir wiki-clone` (asserts 14 pages, all reachable) | ✅ `wiki.py links` | ⬜ pending |
-| MIGRATE-01 | early | Move is auditable per file — no `TBD` left | data | `! grep -q TBD tools/wiki/MIGRATION-TABLE.md` | ❌ W0 (one-line gate) | ⬜ pending |
+| MIGRATE-01 | early | Move is auditable per file — no `TBD` left | data | `! grep -q TBD .planning/v1.35/MIGRATION-TABLE.md` | ❌ W0 (one-line gate) | ⬜ pending |
 | MIGRATE-02 | mid | Both `doc/` dirs gone | smoke | `! test -d firestarter/doc && ! test -d firestarter_app/doc` | ❌ W0 | ⬜ pending |
 | MIGRATE-03 | late | Suite green on the CI floor | full suite | `<venv311>/bin/python -m pytest tests/ -o addopts="" -q` → expect `1976 passed` | ✅ exists | ⬜ pending |
 | MIGRATE-03 | late | Build + install + entry point | integration | `python -m build --sdist --no-isolation && pip install -e . && firestarter --help` | ✅ mirrors `ci.yml:96` | ⬜ pending |
 | MIGRATE-03 | late | sdist doc-delta **reported**, not assumed | evidence | `tar tzf dist/*.tar.gz \| grep -c 'doc/'` before and after → **0 and 0** | ❌ W0 (report-only) | ⬜ pending |
 | MIGRATE-04 | mid | No dead `doc/` link in either sub-repo | source scan | the three `git grep` sweeps in RESEARCH § Repair Surface, minus the D-18 exclusion list, return only excluded paths | ❌ W0 | ⬜ pending |
-| HONEST-01 | mid | Claim multiset preserved per page | one-shot checker | `python3 tools/wiki/<honest1>.py --table tools/wiki/MIGRATION-TABLE.md --wiki-dir wiki-clone --vocab tools/wiki/claim-vocabulary.json` | ❌ W0 | ⬜ pending |
+| HONEST-01 | mid | Claim multiset preserved per page | one-shot checker | `python3 tools/wiki/<honest1>.py --table .planning/v1.35/MIGRATION-TABLE.md --wiki-dir wiki-clone --vocab tools/wiki/claim-vocabulary.json` | ❌ W0 | ⬜ pending |
 | HONEST-01 | mid | **Demonstrated RED** on a weakened claim | negative | same checker against a wiki fixture with one `adapter-required` softened → exit 1, DROPPED bucket non-empty | ❌ W0 | ⬜ pending |
 | HONEST-01 | mid | Vacuous half reported **as vacuous** | output assertion | checker stdout contains the literal zero-counts for `vpp-exceeds-max`, `UNVERIFIED`, `PROTOCOL-LEDGER` | ❌ W0 | ⬜ pending |
 | HONEST-02 | late | Stamp present on every claim-bearing page | checker leg 1 | `python3 tools/wiki/<honest2>.py --wiki-dir wiki-clone --db firestarter_app/firestarter/data/chip_database.json` | ❌ W0 | ⬜ pending |

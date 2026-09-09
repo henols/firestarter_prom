@@ -102,7 +102,7 @@ The remaining findings are mostly good news. The LEGACY-01 grep leg was authored
 | Branch protection | GitHub control plane (repository rulesets, REST API) | — | Not expressible in the repository tree at all; only the API is authoritative |
 | Dead-link enforcement | Meta CI (`.github/workflows/wiki-check.yml`) | — | D-13; it is the only job with all three checkouts plus the wiki clone on one disk |
 | Front-door pointers | Three READMEs | Wiki | D-03; each README links, none restates |
-| Provenance of the new page | `tools/wiki/MIGRATION-TABLE.md` | — | Phase 171 D-06; the Backlog 999.9 rename sweep greps this table |
+| Provenance of the new page | `.planning/v1.35/MIGRATION-TABLE.md` | — | Phase 171 D-06; the Backlog 999.9 rename sweep greps this table |
 
 ## Standard Stack
 

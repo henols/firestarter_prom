@@ -99,7 +99,7 @@ gap it missed.
   Deferred did not become *lost*: its pre-deletion SHA
   (`d56424e1979edf7245cffb9ec3111c0469f5b23f`) is recorded in `MIGRATION-TABLE.md`'s "Deferred,
   not migrating" section, readable today via `git -C firestarter_app show <sha>:doc/PY32F071-FIRMWARE-INSTALL.md`.
-- **Evidence:** `tools/wiki/MIGRATION-TABLE.md`.
+- **Evidence:** `.planning/v1.35/MIGRATION-TABLE.md`.
 
 **8. Four historical records were deliberately not repaired.**
 - **Claim:** MIGRATE-04 requires no file in either sub-repo to link to a dead `doc/` path.

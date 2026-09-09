@@ -31,7 +31,7 @@
 | `tools/wiki/wiki.py` (`sidebar` generator) | codegen | transform | `tools/catalog/codegen.py` `main()` + determinism contract | exact |
 | `tools/wiki/wiki.py` (`links` walker) | validator | transform | `tools/catalog/codegen.py` `validate_catalog` / `--check` | role-match |
 | `tools/wiki/selftest.sh` | test driver | batch | *(none — meta repo has no test harness)* | **none** |
-| `tools/wiki/MIGRATION-TABLE.md` | doc/provenance table | — | *(none — no in-repo provenance table exists)* | **none** |
+| `.planning/v1.35/MIGRATION-TABLE.md` | doc/provenance table | — | *(none — no in-repo provenance table exists)* | **none** |
 | `wiki/Home.md`, `wiki/How-This-Wiki-Is-Published.md` | content | — | `CLAUDE.md` (tone/register only) | weak |
 | `wiki/_Sidebar.md` | generated, committed artifact | transform output | `firestarter/include/messages.h` (committed generated file) | role-match |
 | `.github/workflows/wiki-check.yml` | CI config | event-driven | `.github/workflows/catalog-sync-check.yml` | exact shape / defective content |
@@ -476,7 +476,7 @@ There is no lint or format config in the tracked meta-repo root and no CI format
 | File | Role | Data Flow | Reason |
 |------|------|-----------|--------|
 | `tools/wiki/selftest.sh` | test driver | batch | No test harness of any kind exists in the meta repo. Mechanics (`set -euo pipefail`, `=== banner ===`) come from `sync_to_subrepos.sh` + `CONVENTIONS.md:75-77`; the fixture and exit-code-assertion structure comes from RESEARCH § Code Examples and § Validation Architecture. |
-| `tools/wiki/MIGRATION-TABLE.md` | provenance table | — | No checked-in provenance/mapping table exists in this repo. Shape is defined by D-04 plus Pitfall 4's **rendered-title column** — use RESEARCH, not a codebase analog. |
+| `.planning/v1.35/MIGRATION-TABLE.md` | provenance table | — | No checked-in provenance/mapping table exists in this repo. Shape is defined by D-04 plus Pitfall 4's **rendered-title column** — use RESEARCH, not a codebase analog. |
 | `wiki/Home.md`, `wiki/How-This-Wiki-Is-Published.md` | content | — | No published-documentation page exists in the meta repo (`doc/` lives in the sub-repos and is Phase 168's input, not a pattern source). `CLAUDE.md` is the closest register match. Content is fixed by D-09 and D-12 — Home carries the curated list plus the D-06 beta-vs-released caveat; the second page carries the WIKI-02 authority rule and the overwrite warning. |
 | `wiki-publish.yml` | CI config | event-driven | Deliberately **not created in this phase** (RESEARCH § Recommended Project Structure: "ADDED IN THE GATED TASK, not before the wiki exists"). Its analog when authored is `wiki-check.yml` plus the mandatory `permissions: contents: write` block. |
 

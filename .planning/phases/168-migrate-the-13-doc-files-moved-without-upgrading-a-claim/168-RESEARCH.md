@@ -68,7 +68,7 @@ section, flagged inline.
   Rejected: whole-file normalized diff (drowns in intentional edits); claim-*line* diff (still
   sensitive to reflow and to the link rewrites every page gets).
 
-- **D-02: The pre-deletion snapshot is a git SHA per row in `tools/wiki/MIGRATION-TABLE.md`, not a
+- **D-02: The pre-deletion snapshot is a git SHA per row in `.planning/v1.35/MIGRATION-TABLE.md`, not a
   committed copy of the documents.** Each of the 12 rows records the sub-repo commit immediately
   before its `doc/` file is deleted; the checker reads the source side with
   `git -C <subrepo> show <sha>:doc/<file>`. Zero content duplication, exact, and — decisively —
@@ -134,7 +134,7 @@ section, flagged inline.
   pushing.** No tooling is built or retained for it.
 - **D-20: Retirement is deletion, not dormancy.** Removed: `wiki/` (all 3 files),
   `.github/workflows/wiki-publish.yml`, and `wiki.py`'s `publish`, `sidebar` and `check`
-  subcommands with their argparse entries and selftest legs. Kept: `tools/wiki/MIGRATION-TABLE.md`,
+  subcommands with their argparse entries and selftest legs. Kept: `.planning/v1.35/MIGRATION-TABLE.md`,
   and `wiki.py links` per D-06. `.github/workflows/wiki-check.yml` is repointed at the clone.
 - **D-21: `How-This-Wiki-Is-Published` is live, public and false — it is rewritten in this phase,
   not deleted.**
@@ -517,7 +517,7 @@ git -C /workspaces     grep -n -E '(firestarter(_app)?/)?doc/[A-Za-z0-9_.-]+\.md
 
 **Totals: 30 files, 79 reference lines** (app 23 files / 66 lines; fw 7 files / 13 lines), plus
 **5 intra-corpus lines inside the migrating documents themselves**, plus meta's
-`tools/wiki/MIGRATION-TABLE.md` (13 lines, which are *supposed* to be there).
+`.planning/v1.35/MIGRATION-TABLE.md` (13 lines, which are *supposed* to be there).
 CONTEXT.md's "52 lines across 27 files (app 40 / fw 12)" used a narrower pattern.
 
 ### (a) Repair here
@@ -575,7 +575,7 @@ migrating documents. `protocol-id.md:22` cites `firestarter/doc/PROTOCOLS.md` §
 
 **Meta repo**
 
-`tools/wiki/MIGRATION-TABLE.md:13-24` carries the 12 source paths **by design** (D-02/D-13,
+`.planning/v1.35/MIGRATION-TABLE.md:13-24` carries the 12 source paths **by design** (D-02/D-13,
 Backlog 999.9 sweep target) — keep. But `MIGRATION-TABLE.md:3-7` states "The publish path derives a
 page's name mechanically… `wiki.py publish` does not read this table, and never will" — **false
 after D-20 deletes `publish`**. Repair the prose, keep the table.
@@ -1188,13 +1188,13 @@ failure before a green result is believed*.
 | Req | Behavior | Type | Automated command | Exists? |
 |---|---|---|---|---|
 | MIGRATE-01 | 12 pages present and reachable on the live wiki | integration | `git clone …wiki.git && python3 tools/wiki/wiki.py links --source-dir wiki-clone` (asserts 14 pages, all reachable) | ✅ `wiki.py links` |
-| MIGRATE-01 | Move is auditable per file | data | `MIGRATION-TABLE.md` has 0 `TBD` cells: `! grep -q TBD tools/wiki/MIGRATION-TABLE.md` | ❌ Wave 0 (one-line gate) |
+| MIGRATE-01 | Move is auditable per file | data | `MIGRATION-TABLE.md` has 0 `TBD` cells: `! grep -q TBD .planning/v1.35/MIGRATION-TABLE.md` | ❌ Wave 0 (one-line gate) |
 | MIGRATE-02 | Both `doc/` dirs gone | smoke | `! test -d firestarter/doc && ! test -d firestarter_app/doc` | ❌ Wave 0 |
 | MIGRATE-03 | Suite green on the CI floor | full suite | `<venv311> -m pytest tests/ -o addopts="" -q` → expect **1976 passed** (fw present) | ✅ exists |
 | MIGRATE-03 | Build + install + entry point | integration | `python -m build --sdist --no-isolation && pip install -e . && firestarter --help` | ✅ mirrors `ci.yml:96` |
 | MIGRATE-03 | sdist doc-delta **reported**, not assumed | evidence | `tar tzf dist/*.tar.gz \| grep -c 'doc/'` before and after → **0 and 0** | ❌ Wave 0 (report-only) |
 | MIGRATE-04 | No dead `doc/` link in either sub-repo | source scan | the three `git grep` sweeps in §Repair Surface, minus the D-18 exclusion list, must return only excluded paths | ❌ Wave 0 |
-| HONEST-01 | Claim multiset preserved per page | one-shot checker | `python3 tools/wiki/<honest1>.py --table tools/wiki/MIGRATION-TABLE.md --wiki-dir wiki-clone --vocab tools/wiki/claim-vocabulary.json` | ❌ Wave 0 |
+| HONEST-01 | Claim multiset preserved per page | one-shot checker | `python3 tools/wiki/<honest1>.py --table .planning/v1.35/MIGRATION-TABLE.md --wiki-dir wiki-clone --vocab tools/wiki/claim-vocabulary.json` | ❌ Wave 0 |
 | HONEST-01 | **Demonstrated RED** on a weakened claim | negative | same checker against a wiki fixture with one `adapter-required` softened → exit 1, DROPPED bucket non-empty | ❌ Wave 0 |
 | HONEST-01 | Vacuous half reported as vacuous | output assertion | checker stdout contains the literal zero-counts for `vpp-exceeds-max`, `UNVERIFIED`, `PROTOCOL-LEDGER` | ❌ Wave 0 |
 | HONEST-02 | Stamp present on every claim-bearing page | checker leg 1 | `python3 tools/wiki/<honest2>.py --wiki-dir … --db …` | ❌ Wave 0 |
@@ -1325,7 +1325,7 @@ must run offline, it cannot regenerate the database.
 - PyPI JSON API + sdist downloads for `firestarter` 2.0.7, 3.0.0b33, 3.0.0b34
 
 ### Primary — source files read in full or in the cited ranges
-- `tools/wiki/wiki.py` (542 lines), `tools/wiki/selftest.sh` (12 cases), `tools/wiki/MIGRATION-TABLE.md`
+- `tools/wiki/wiki.py` (542 lines), `tools/wiki/selftest.sh` (12 cases), `.planning/v1.35/MIGRATION-TABLE.md`
 - `.github/workflows/{wiki-check,wiki-publish,catalog-sync-check}.yml`
 - `firestarter_app/.github/workflows/{ci,beta-release,publish}.yml`
 - `firestarter_app/tests/{fw_presence,scan_paths,test_scan_paths_resolve,test_dispatch_mirror,test_py32_packaging}.py`

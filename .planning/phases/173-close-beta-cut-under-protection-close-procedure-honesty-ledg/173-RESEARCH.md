@@ -89,7 +89,7 @@
 - **D-09: the full ledger is internal, at `.planning/v1.35/CLOSE-RECORD.md`, and each migrated
   wiki page carries a generated per-page provenance footer.** One line at the foot of each
   page: relocated from `<repo>/<source path>`, content unchanged, not re-verified.
-  `tools/wiki/MIGRATION-TABLE.md` already holds every field needed, so the footer is
+  `.planning/v1.35/MIGRATION-TABLE.md` already holds every field needed, so the footer is
   **generated from that table, not authored twelve times**.
   — **Reversibility:** costly.
   Rejected: internal only; one `Documentation-Status` page; a line on `Home.md` alone.
@@ -239,7 +239,7 @@ it, do not survive re-measurement. Each is stated with the command and the outpu
 CONTEXT.md §In-scope says "twelve generated per-page provenance footers on the wiki" and §Live state
 says "`MIGRATION-TABLE.md` → 21 data rows". Measured:
 
-`[VERIFIED: tools/wiki/MIGRATION-TABLE.md:10-21, :59-65, :82-85]` — the file has **three** tables.
+`[VERIFIED: .planning/v1.35/MIGRATION-TABLE.md:10-21, :59-65, :82-85]` — the file has **three** tables.
 `/usr/bin/grep -c '^|'` returns **23** pipe-leading lines; 3 header rows + 3 separator rows = 6, so
 **17 data rows**. The main provenance table (`:12-21`) carries exactly **10** rows, verbatim:
 
@@ -279,7 +279,7 @@ deliberately — 6 (provenance-bearing and live) is the only set D-09's wording 
 
 D-10 knows about the table→page failures (`Protocol-Flags`, `Protocol-ID`). The page→table direction
 fails on **three** pages, and CONTEXT.md does not mention it.
-`[VERIFIED: /usr/bin/grep against tools/wiki/MIGRATION-TABLE.md, 2026-09-02]`
+`[VERIFIED: /usr/bin/grep against .planning/v1.35/MIGRATION-TABLE.md, 2026-09-02]`
 
 | Live wiki page | Appears in `MIGRATION-TABLE.md`? |
 |---|---|
@@ -380,7 +380,7 @@ inheriting D-04's wording unexamined.
 | Ruleset rejection probe (POLICY-04) | GitHub receive-stage (server) | local git client | Only the server evaluates rulesets; the client can reject first and mask the result entirely — see Pitfall 1 |
 | Beta lockstep cut (POLICY-04, gated) | GitHub Actions (`beta-*.yml`) | operator | The cut is fired by CI on a push to `beta`; no local step produces it |
 | Close-procedure repoint (POLICY-05) | `.planning/config.json` (tier‑1 config) | `.planning/notes/` + `CLAUDE.md` prose | `git-base-branch.cjs` reads config at tier 1; prose alone changes no behaviour |
-| Provenance footers (D-09) | live wiki repo (`firestarter_prom.wiki.git`) | `tools/wiki/MIGRATION-TABLE.md` as the data source | The wiki is the only working copy; the table is the generator input |
+| Provenance footers (D-09) | live wiki repo (`firestarter_prom.wiki.git`) | `.planning/v1.35/MIGRATION-TABLE.md` as the data source | The wiki is the only working copy; the table is the generator input |
 | Footer guard (D-10) | `tools/wiki/<checker>.py` in meta | `.github/workflows/wiki-check.yml` leg | Checker logic in meta `tools/`; CI only invokes it, exactly as the three existing legs do |
 | Honesty ledger (D-11) | `.planning/v1.35/CLOSE-RECORD.md` | per-page footers | Internal record is the full ledger; footers carry the one non-claim the wiki reader needs |
 | Backlog 999.46 + criterion‑4 sweep | `.planning/ROADMAP.md` | `.planning/todos/pending/` | ROADMAP writes are the orchestrator's; the todo file is the input |
@@ -651,7 +651,7 @@ inputs**, per C-1/C-2).
 
 | Problem | Don't build | Use instead | Why |
 |---|---|---|---|
-| Reading pre-migration source content | A bespoke file-history walker | `git -C <subrepo> show <sha>:<path>` | The convention `MIGRATION-TABLE.md:27-28` documents and `honest02_truth.py` already uses `[VERIFIED: tools/wiki/MIGRATION-TABLE.md:26-29]` |
+| Reading pre-migration source content | A bespoke file-history walker | `git -C <subrepo> show <sha>:<path>` | The convention `MIGRATION-TABLE.md:27-28` documents and `honest02_truth.py` already uses `[VERIFIED: .planning/v1.35/MIGRATION-TABLE.md:26-29]` |
 | A CI harness for the new checker | A new workflow file | A fourth `run:` leg in `wiki-check.yml` | Meta, both sub-repos and a fresh wiki clone are already on disk in that job |
 | Exit-code / output conventions | A new vocabulary | `dispatch_mirror.py`'s `0/1/2` + `ERROR:`→stderr / `OK: <count>`→stdout | Three checkers and three CI legs already depend on this contract |
 | Determining "is this branch protected" | A `gh api` call in a workflow | `gsd_run query git.base-branch --is-protected <branch>` | Already the single resolver; and the two consumers only warn |
@@ -811,7 +811,7 @@ asymmetry CONTEXT.md's Deferred Ideas already names; the ledger should carry it 
 ### Pitfall 7: `MIGRATION-TABLE.md` main-table rows are not all footer-eligible
 
 Two rows have `—` for both source path and SHA (`Home`, `Contributing` — the latter *authored* from
-gh#9, not migrated `[VERIFIED: tools/wiki/MIGRATION-TABLE.md:47-50]`). A generator that iterates
+gh#9, not migrated `[VERIFIED: .planning/v1.35/MIGRATION-TABLE.md:47-50]`). A generator that iterates
 every main-table row will emit a footer saying "relocated from —". Filter on a non-`—` source path.
 
 ---
@@ -1023,7 +1023,7 @@ forward (`172-09-full-suite-final.txt`, `172-09-legacy01-final.txt`) `[VERIFIED:
 |---|---|---|---|
 | App beta PyPI upload depended on `release.published` event delivery, suppressed by the PAT's missing `workflow` scope | `beta-release.yml` calls `publish.yml` directly via `workflow_call` with `needs: github` and `secrets: inherit` | before 2026-08-22 (b32 onward on PyPI) | **D-04's manual dispatch is redundant** — see C-4 |
 | In-repo `wiki/` source tree + `wiki-publish.yml` + `wiki.py publish`/`sidebar`/`check` | Wiki-only authoring: clone-commit-push, no PR, no CI on the edit; `wiki.py links` repointed at a clone | 2026-08-30 (model reversal) `[VERIFIED: .planning/ROADMAP.md:199]` | No publishing tooling exists to reuse; footers go by clone-commit-push |
-| HONEST-01 as a live property of every migrated page | HONEST-01 is a **retired one-shot**; HONEST-02 is the only standing guard | 2026-08-31 editorial rewrites `[VERIFIED: tools/wiki/MIGRATION-TABLE.md:122-125]` | Do **not** re-baseline `MIGRATION-TABLE.md` SHAs to make anything green |
+| HONEST-01 as a live property of every migrated page | HONEST-01 is a **retired one-shot**; HONEST-02 is the only standing guard | 2026-08-31 editorial rewrites `[VERIFIED: .planning/v1.35/MIGRATION-TABLE.md:122-125]` | Do **not** re-baseline `MIGRATION-TABLE.md` SHAs to make anything green |
 | `firestarter` beta cut only proved ARM at `beta` | `py32f071.yml` push filter removed; the loud ARM gate runs on every branch | recorded at `firestarter/.github/workflows/py32f071.yml:13-18` | The unprotected-ref control push fires it; non-publishing |
 | `firestarter` `Protect main` ruleset present but `enforcement: disabled` | All three `active`, three-way identical | 2026-09-01T20:12–21:04 | `4998759`'s `created_at` of 2025-04-22 proves amendment, not recreation |
 
@@ -1118,7 +1118,7 @@ forward (`172-09-full-suite-final.txt`, `172-09-legacy01-final.txt`) `[VERIFIED:
 |---|---|
 | Framework | **None for this phase.** No pytest/jest suite covers `.planning/`, `tools/wiki/` checkers, `.planning/config.json`, or the wiki. Verification is by direct command invocation with captured output, exactly as Phases 171–172 did. |
 | Config file | none — `tools/wiki/` has no `pytest.ini`, `conftest.py` or test directory `[VERIFIED: ls tools/wiki/]` |
-| Quick run command | `python3 tools/wiki/<checker>.py --wiki-dir <clone> --migration-table tools/wiki/MIGRATION-TABLE.md; echo rc=$?` |
+| Quick run command | `python3 tools/wiki/<checker>.py --wiki-dir <clone> --migration-table .planning/v1.35/MIGRATION-TABLE.md; echo rc=$?` |
 | Full suite command | `python3 tools/wiki/wiki.py links --source-dir <clone>` + `python3 tools/wiki/honest02_truth.py --wiki-dir <clone> --db firestarter_app/firestarter/data/chip_database.json --allowlist tools/wiki/claim-allowlist.json` + `python3 tools/wiki/dispatch_mirror.py --app-dir firestarter_app --fw-dir firestarter` + the new checker |
 
 > `tools/wiki/selftest.sh` exists (28 368 B) and is the nearest thing to a suite, but it **mutates
@@ -1215,7 +1215,7 @@ forward (`172-09-full-suite-final.txt`, `172-09-legacy01-final.txt`) `[VERIFIED:
 - `.claude/gsd-core/workflows/execute-phase.md:290`; `quick.md:197`; `pr-branch.md:28`
 - `.claude/gsd-core/workflows/execute-phase/steps/protected-branch.md:9-15`
 - `.claude/gsd-core/references/planning-config.md:35-36, :281, :330-331`
-- `tools/wiki/MIGRATION-TABLE.md` (165 lines, all three tables)
+- `.planning/v1.35/MIGRATION-TABLE.md` (165 lines, all three tables)
 - `tools/wiki/dispatch_mirror.py`, `honest02_truth.py`, `wiki.py`, `honest01_claims.py`
 - `.github/workflows/wiki-check.yml` (125 lines), `.github/workflows/catalog-sync-check.yml:1-20`
 - `firestarter_app/.github/workflows/{release,beta-release,publish,ci}.yml`

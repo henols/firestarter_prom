@@ -6,7 +6,7 @@ tags: [wiki, migration, git-push, honest-stamp, wiki05]
 
 requires:
   - phase: 168-01
-    provides: "tools/wiki/MIGRATION-TABLE.md with page names, rendered titles and pre-deletion SHAs"
+    provides: ".planning/v1.35/MIGRATION-TABLE.md with page names, rendered titles and pre-deletion SHAs"
   - phase: 168-02
     provides: "wiki.py links --source-dir, with the sidebar-containment leg wired in"
   - phase: 168-03

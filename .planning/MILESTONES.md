@@ -1,5 +1,130 @@
 # Milestones
 
+### v1.36 Frozen-Shape Blast Radius (2026-09-03)
+
+**Measured by Phase 174, the milestone's own blast-radius invariance harness, before any behaviour change lands.**
+
+**The declared-re-key protocol and its ledger table were RETIRED on 2026-09-08.** Phase 174 created a `RK-174-` table here and a machine binding between it and `firestarter_app/tests/fixtures/rekey_ledger.py`, enforced from the meta side by `tools/rekey/check_rekey_ledger.py` plus a registered CI workflow. All of it is gone: the checker, the workflow, the app-side ledger fixture and its tests, the table, and the protocol paragraph. Operator ruling — keeping a `.planning` record accurate is GSD's responsibility, not a CI gate's, and GSD must not depend on such a gate. Two measured defects independently condemned it: the app test suite reached out to the meta tree via `Path(__file__).parent.parent.parent` with no skip guard, so app CI on a bare checkout went `13 failed, 13 passed` where the devcontainer showed `26 passed`; and three of the checker's own fail-closed proofs were tautological, because `python3` on a missing script exits `2` exactly as the checker's fail-closed path did, so they passed with their own subject deleted. The two-commit discipline it encoded — land a behaviour change first, re-key the frozen literal in a separate reviewable commit, never overwrite the original value — survives as a **review** rule, asserted in `tests/test_blast_radius_invariance.py`'s own failure message. The measurements below are kept: they are this milestone's evidence and are independent of the retired mechanism. Phases 174-179's archived records still describe the protocol as live, which is what was true when they were written; they are deliberately left unedited. One of those archived artifacts is load-bearing for FUTURE plans and is called out here because of it: the reusable green-tree ritual recorded at `179-PATTERNS.md:454` and `179-RESEARCH.md:508` lists **eight `rc=0` legs**, one of which is `check_rekey_ledger.py`. That ritual is now **seven** legs — ruff check, ruff format, mypy watermark, `snapshot_report_shapes.py --check`, `check_devtest_orchestrator.py`, `check_diagnostic_report_claims.py`, full suite. A phase 180/181 plan that copies the eight-leg version forward would invoke a script that no longer exists. **Line numbers in this section shifted.** Removing the table and the protocol paragraph took 11 lines out of the range that was lines 34-49, so the roughly three dozen line-pinned citations into `MILESTONES.md` from the 174-179 records — `:14-45`, `:36-53`, `:39`, `:41` among them — no longer land where they did, and the ones that named table rows name nothing. They are left as written: a `.planning`-to-`.planning` citation is historical by intent, and rewriting one destroys the evidence of what the record said at the time. Read them against this section's pre-2026-09-08 revision (`git show f81b1e8b^:.planning/MILESTONES.md`), not against the current line numbering. `174-05-PLAN.md:202` additionally carries an `<automated>` verify block that invokes the deleted checker and parses the deleted workflow; it is archived and will not be re-run. **The full-suite floor moved and the old one is superseded.** Deleting `tests/test_rekey_ledger.py` removed exactly 26 test instances, so the app suite's measured count went from 2265 to **2239 passed, 0 failures, 32 snapshots passed** (84.37% coverage against the `--cov-fail-under=70` gate in `ci.yml:90`, measured 2026-09-08). That is **below** the `>= 2242` floor recorded at `179-02-PLAN.md:39` and `:540` and in `179-02-SUMMARY.md:92`. Those are phase-179 green-tree assertions, not standing CI gates — the only standing count-adjacent gate is the coverage floor, which passes with 14 points of headroom — but a phase 180/181 plan that copies `>= 2242` forward would read RED against a healthy tree. **The current floor is 2239.**
+
+`.planning/phases/174-blast-radius-invariance-harness/174-CONTEXT.md` D-12 inherited four before/after hash pairs from an earlier research session against `firestarter_app @ 0a93999`. Phase 174 re-measured every one of them this session, in the py3.11 CI-replica venv, against the actual branch base `firestarter_app @ 49bac1a` — proven content-identical to `0a93999` (one line differs, in `firestarter/__init__.py`, a field `dedup_fingerprint` deliberately excludes). An exhaustive pre-image sweep over the documented 12-step `m27c512/full` plan shape — every verdict × classification assignment, both step layouts, four protocol spellings, roughly 2.1e8 candidate canonical strings — found **zero** report shape that produces either `a00791f1c2b4`, `7d1cd4157cfa` or `a6f6c6354047`.
+
+| Measurement | Old claim (D-12, unreproduced) | Corrected (measured this session) |
+|---|---|---|
+| Read-back gating, `sst27sf512-six-step` | `4dc282a5d596` → `60a031573aab` | reproduces byte-exactly; canonical pre-image recovered |
+| SDP-step pruning, `m27c512/full` | `a00791f1c2b4` → `7d1cd4157cfa` | not reproducible from any m27c512 report shape |
+| Canonical `part_number` naming, `m27c512/full` | `a00791f1c2b4` → `a6f6c6354047` | not reproducible; `6d3afbc52315` → `776846bf2dc8` (`m27c512` → `M27C512`) measured instead |
+
+**Three of the four inherited pairs measured something that cannot be reproduced from any m27c512 report shape expressible in the hash's own input grammar.** The most likely explanation is a transcription or bookkeeping error in the original research session; what matters for this ledger is that no builder committed in this phase can be made to emit the two unreproduced values, so they are recorded here as an unverified prior rather than carried forward as a frozen row. This discrepancy is itself the blast-radius finding this ledger exists to surface, and it belongs in the record on the day the ledger is created.
+
+**Corrections measured by plan 174-03, beyond the three D-12 hash pairs above.** Pre-seeding all six ledger rows surfaced four further corrections to inherited claims, plus one ratified scope widening — recorded here rather than dropped, per this project's standing rule against silently absorbing a measured disagreement. Three further corrections, measured by plans 177-01/177-02 against `177-RESEARCH.md`'s own projections for the read-back-gating change, are appended below the original five in the same table and voice, per the identical standing rule:
+
+| Claim | As inherited | As measured |
+|---|---|---|
+| Count of filed `[dev test]` issues | 27 | **26** — measured by title (the `[dev test]` prefix); the `dev-test` *label* covers only 15 of 26 and is not a usable enumerator |
+| m27c512 canonical-naming pair | `a00791f1c2b4` → `a6f6c6354047` (not reproducible) | `6d3afbc52315` → `776846bf2dc8` (`m27c512` → `M27C512`), both measured this session |
+| UV `run_count` collapse mechanism | fires via `repeat_policy_tag` | fires via the `blank-check` verdict triple (OK → BAD); the collapsed `write`/`verify` steps carry `run_count == 0`, not `1`, so `repeat_policy_tag` never fires |
+| Every filed issue title is lowercase | true | **falsified** — gh#45's raw token is `W27E040`; five of the 26 filed titles (gh#45, #46, #48, #51, #52) are not lowercase |
+| D-06 corpus reproduction boundary (SCOPE correction, not a hash correction — carries no `ledger_id`) | four of the filed hashes reproduce (sst27sf512, m27c512, at28c256, w27e257 named explicitly) | **26 of 26** reproduce — widened by operator ratification (2026-09-03) once the corpus committed each row's step vector as data and a step's `fingerprint` proved to serialise as a bare classification string rather than an object. `SHAPE_IDS` and the four D-06-named builder shapes are unchanged by this widening. |
+| `sst27sf512-six-step-readback-gated` inherited R2 projection (measured by plan 177-01, corrected by plan 177-02) | fingerprint dropped entirely on a pass, projected `after_hash` `60a031573aab` | **falsified** — PRUNE-03 forbids a passing step ever reporting an absent fingerprint, and applying its rule to this shape's dropped classification converges on the SAME value as the tracer's own re-pointed `after_hash` (`7fb88e0b07d6`), collapsing it onto the tracer instead of producing a distinct shape. Re-pointed instead (D-177-3 Option A) to the gate's failing branch — a step whose own cycle failed (verdict `marginal`), keeping its real `indeterminate` classification — now `ff974e416dca`. |
+| `LADDER_PINS` INCONCLUSIVE arm empties once the match bucket lands (RESEARCH.md projection) | `distinct_arms` drops to 3 | **falsified** — measured `distinct_arms=4` immediately after plan 177-01's behaviour commit alone, before any repair. Two of the three INCONCLUSIVE-arm members (`gh47-sst27sf512-pass`, `sst27sf512-six-step`) are hand-specified fixtures whose literal classification strings `classify_fingerprint` never recomputes, so only `at28c256-full-all-ok-sdp` (the one real-path builder in that arm) moved automatically. Plan 177-02's re-pointed `sst27sf512-six-step-readback-gated` restores the arm to four by design, not by coincidence. |
+| `gh47-sst27sf512-pass` projected `after_hash` (RESEARCH.md and this ledger's earlier prose) | `1f812aae49ca` | **falsified as a value to declare** — D-177-6 rules the shape stays inside D-177-3's stated re-pointing scope (the two `sst27sf512-six-step*` builders only); its hand-specified `step_specs` are deliberately not edited, and `FROZEN_HASHES['gh47-sst27sf512-pass']` stays `f9dbc31dcd27`, unmoved. The filed corpus row for issue gh#47 still re-keys under the PRUNE-03 rule applied to its RAW step vector (`f9dbc31dcd27` → `1f812aae49ca`, `177-REKEY-MAPPING.md`) — that is a statement about the historical filed report, independent of whether the registered shape builder moves. |
+
+**What was done about it.** No inherited hash is frozen anywhere in this record or in `firestarter_app/tests/fixtures/report_shapes.py` — every `before_hash` value measured by this phase is produced by a committed builder, and every one was recomputed in the session that seeded it, never transcribed from a prior document. That recompute-never-transcribe rule is what makes RPT-E3's "exactly the change it declared and nothing more" checkable at all, and it is unaffected by the retirement of the ledger table above.
+
+The read-back-gating projection recorded on 2026-09-03 as **`60a031573aab`** (measured by emptying the `write`/`verify` steps' `indeterminate` fingerprint classification on the frozen shape) is **falsified** — see the corrections table above. Plan 177-02 measured that PRUNE-03 forbids a passing step ever reporting an absent fingerprint, and that applying its rule to the dropped-fingerprint projection converges on the SAME value as the measured re-key (`7fb88e0b07d6`) rather than a distinct one. `7fb88e0b07d6` is the measured value; `60a031573aab` was never anything but a projection.
+
+**Filed-corpus re-key (GATE-06), measured by plan 177-01 and declared by plan 177-02.** Applying the PRUNE-01+PRUNE-03 rule (a `write`/`write-partial`/`verify` step with verdict `OK` classifies `match` instead of `indeterminate`) to each of the 26 committed rows in `firestarter_app/tests/fixtures/devtest_issue_corpus.json`'s own recorded step vector re-keys **18 of 26** filed `[dev test]` issues: gh#22, #24, #25, #26, #27, #29, #31, #39, #40, #42, #45, #46, #47, #48, #49, #50, #51, #52. This matches `177-RESEARCH.md`'s projected count and issue list exactly — no correction row is needed for the count itself. `count_agreeing` reads the `dedup_fingerprint` embedded in each filed issue body and never re-hashes, so this re-key is **permanent for the historical corpus**; no migration of an already-filed issue is possible, and `tests/fixtures/devtest_issue_corpus.json` itself is unchanged (it is historical evidence, not a re-hashed derivation). The full old-to-new mapping, one row per re-keyed issue with chip name and both hashes, is published at `.planning/phases/177-evidence-gated-read-back/177-REKEY-MAPPING.md`. gh#39 and gh#40 share a `filed_hash` before this re-key and move TOGETHER after it — the dedup group survives intact, merely re-keyed.
+
+**What this phase measured about itself.** The five new test modules as measured at phase close (dedup_fingerprint/build_db_diff pins, ledger-binding tests, the filed-issue corpus, the part-number delta drift gate — 110 tests; the ledger-binding module was deleted on 2026-09-08, so this count is historical) run together in 7.92 s, against a measured full-suite baseline of **740.92 s**: a 0.58%-of-baseline `derive_plan` sweep and this phase's own new modules both stay far under any threshold that would justify a slow marker. `tests/test_skip_census.py`'s three failures are **pre-existing** — a 180 s child-run timeout cap against the 740.92 s suite, unrelated to anything this phase touched, re-run and re-confirmed unchanged (still exactly three, same cause) at phase close. No file under `firestarter_app/firestarter/` and no file in the `firestarter` firmware submodule was modified by any of this phase's five plans.
+
+**Phase 178 (Fault Attribution) — ATTR-04 measured and held, not merely asserted.** Phase 178 asserted NO re-key from its post-177 anchor (`14d306256076`), and this phase's own frozen corpus is the confirmation: plan 178-03 grew the corpus from 17 to 18 shapes by registering `attr01-status-axis-transport-fault` (hash `93cef8030c40`, a real `derive_plan`/`run_plan` transport fault through the actual re-pointed `(SerialError, HardwareOperationError)` arm), and every one of the 17 inherited `dedup_fingerprint` hashes reproduced byte-unmoved against the 18-shape corpus (`stale_frozen=`, `inherited_drifted=`, `178-03-attr04-seal.txt`). The anchor was left undeclared — recording a non-move as a re-key is a bookkeeping error, not a re-key (D-09) — and the then-current ledger stayed byte-unchanged at 8 rows (`ledger_diff=0`). Three research projections did not survive contact with the codebase and are recorded here rather than silently dropped: **T3** ("an `ERROR`-bearing run is not submittable") is **void** — ATTR-05 forbids suppressing the submit prompt, so `is_submittable` was left byte-unchanged and proven so (`test_is_submittable_is_unchanged_by_the_status_axis`), and the milestone research's run-validity term never lands (D-11). **T4** (a machine-readable non-submittable reason key) is **out of scope** — no ATTR requirement names it, and an unrequested exported field would grow the frozen-key surface this milestone is holding still (D-15). Reviving `classify_fingerprint`'s dead **`FP_TRANSPORT`** bucket is likewise **out of scope** — `_run_cycle_block` hard-codes `runs=1` at `chip_test.py:1622`, every fingerprint-bearing op sits inside the cycle block, and a probe across `sst27sf512`/`at28c256`/`w27e257` confirmed every fingerprint-bearing dispatch receives `runs=1` (D-16); the ROADMAP's dependency on Phase 177's fingerprint gate is real but narrower than it reads — only the reachable `blank/contact` and `match` buckets are consumable, not `transport`.
+
+**HYG-03 (D-18) — `dedup_fingerprint` must NEVER be refactored to hash `to_dict()` or to reflect over dataclass fields.** The function's pre-image is an explicit five-entry allow-list (`chip` | `protocol` | `op=verdict:classification` | `repeat_policy_tag` | `coverage_tag`), built with no reflection over `DiagnosticReport`'s dataclass fields — a field's ABSENCE from that list is the entire exclusion mechanism, not a filter that could later be inverted. `to_dict()` already produces the whole mapping, and a hand-written five-entry list sitting beside it will look like duplication to a future reader tempted to "simplify" it by hashing the serialized mapping directly, or by reflecting over the dataclass's own fields — do not. `count_agreeing` reads the `dedup_fingerprint` embedded in an already-filed issue body and never re-hashes, so a reflective rewrite is **permanent for the historical corpus**: no migration of an already-filed issue is possible. This phase alone is the measurement that makes the temptation concrete rather than hypothetical — Phase 181 added seven exported keys, among them `elapsed`, `is_uv`, `canonical_part_number`, `chip_id_detected`, `divergence` and the four `fingerprint_*` siblings — every one of which would have moved every one of the 19 frozen hashes under a reflective implementation, and instead moved none, because none of them sits inside the five-entry allow-list. The gate that reddens if someone tries the refactor anyway: `test_dedup_fingerprint_hashes_an_explicit_allow_list_and_never_the_serialized_mapping` and its planted-mutant leg `test_a_planted_reflective_body_reddens_the_allow_list_pin` in `tests/test_blast_radius_invariance.py`, plus the pre-existing 19-way `test_dedup_fingerprint_is_frozen` parametrization and the two-commit review rule carried in that oracle's own failure message.
+
+## v1.35 Documentation Consolidation & Wiki Migration (Shipped: 2026-09-02)
+
+**Phases completed:** 7 phases authored (167–173), 7 delivered. **41 plans** across the five that ran the machinery (167: 6 · 168: 13 · 171: 4 · 172: 9 · 173: 9). **Phases 169 and 170 have no plans at all** — they were executed ad hoc; see Known Gaps.
+**Timeline:** 2026-08-30 → 2026-09-02 (4 days)
+**Requirements:** **29/32 Complete** — 2 WITHDRAWN (WIKI-03, WIKI-04), 1 NOT MET by operator decision (FRONT-02). All 32 mapped to exactly one phase, 0 orphans.
+**Closeout type:** `override_closeout` — **not** for any gap in the work's outcome. Three record gaps drive it: phases 169/170 ran outside the machinery, and phase 172 has no `172-VERIFICATION.md`. See Known Gaps.
+**Code:** meta 265 commits, 245 files, +43971/−247 (227 of those files, +42822/−42, are `.planning/`) · firmware **6 commits, 9 files, +480/−452** (`a218b4f` → `4f73c80`) · host app **18 commits, 76 files, +858/−4681** (`cb189a9` → `0a93999`) — the app's net −3823 is the documentation coming out.
+**Close posture:** **MERGED AND PUSHED.** Meta tagged `v1.35` at `6e84030b`; the `beta` lockstep cut performed and channel-verified under the new rulesets; three `.github`-only pull requests merged through the ordinary route into three protected `main` branches (`firestarter_prom#54`, `firestarter#58`, `firestarter_app#57`) between 08:56:58Z and 08:57:06Z on 2026-09-02. No stable release in any repository.
+**Known verification overrides:** **72 newly acknowledged, 0 carried forward from a prior close.** Recorded by disclosure in `STATE.md` §Deferred Items rather than through the `audit-open acknowledge` writer, which was found at this close to destroy the artifacts it annotates — see Backlog **999.49**.
+
+**Delivered:** A single documented front door. `firestarter_prom` had **no README at all**; it now has one,
+and its GitHub wiki is the home for project documentation — 11 pages live, indexed from `Home` and a
+hand-written `_Sidebar`. All 12 migrating `doc/` files moved and **both sub-repo `doc/` directories are
+gone** (fw 3 files, app 10). The two sub-repo READMEs were cut to repo scope, the app's from 779 lines,
+its table of contents corrected from advertising three sections that did not exist. Three root-level
+strays disposed: `things.md` and `SECURITY.md` deleted, `autocomplete.md` published as `Shell-Completion`.
+Policy is now **configured, not merely stated** — one tracker, three issue templates live on the chooser,
+`.github/CONTRIBUTING.md` pointers byte-identical by sha256 across all three repos, and `main` behind an
+`enforcement: active` ruleset in all three requiring a pull request and forbidding direct push, force-push
+and deletion, with `current_user_can_bypass: never`.
+
+**The milestone-level non-claim, stated once here in this milestone's own canonical wording:
+relocation is not verification.** HONEST-01 compared a claim-token multiset between each pre-deletion
+`doc/` source (read via `git show <sha>:<path>`) and its published wiki page, proving **no claim was
+upgraded in the move** — no `support_status` softened, no `PROTOCOL-LEDGER` `UNVERIFIED` bucket quietly
+promoted. That is the whole of what was proven. **Nothing on the wiki was confirmed accurate.** A wrong
+sentence that moved unchanged is still wrong, and is now wrong somewhere more discoverable.
+
+**Key accomplishments:**
+
+1. **The wiki is real and the `doc/` directories are gone** — 12 files migrated by copy-then-edit with a
+   bounded edit set, stamped with provenance footers, re-verified from independent fresh clones rather
+   than the working copy that made the edits. `firestarter/doc/` and `firestarter_app/doc/` both deleted.
+2. **The move was proven claim-preserving, not assumed to be** — HONEST-01's multiset comparison, plus a
+   deliberately weakened-claim RED before the live GREEN, so a passing result meant something.
+3. **Protected `main` proven by rejection, not by configuration read-back** — Phase 173 pushed a true
+   fast-forward empty commit at `main` in all three repositories and captured GitHub's own GH013
+   rule-violation refusal. The pull-request route was then demonstrated four times by actually merging.
+4. **The close procedure was fixed by construction before it could break** — POLICY-03 would have broken
+   the next `/gsd-complete-milestone`, so `git.base_branch` was repointed to `beta` and verified by a
+   *distinguishing* before/after read-back. This incidentally corrected three fork-point consumers that
+   had been branching every new phase and quick task off the wrong ref.
+5. **The authoring model was reversed mid-milestone, and the record says so** — Phase 167 built and
+   shipped in-repo markdown source, one-command publish, and a working drift check; the operator then
+   chose wiki-only authoring for simplicity, and Phase 168 deleted the machinery Phase 167 had just
+   proven. WIKI-03/04 are withdrawn, not failed.
+6. **A test suite that could no longer collect was severed cleanly** — `test_dispatch_mirror.py`'s
+   module-scope `fw_path("doc", "PROTOCOLS.md")` would have aborted the entire app suite at collection
+   the moment `firestarter/doc/` vanished. Found and severed before the deletion, not after.
+
+### Known Gaps
+
+- **FRONT-02 — NOT MET, declined outright by the operator (2026-08-31).** It cannot hold at the same time
+  as FRONT-03; the wiki `Home` page owns the getting-started path instead. Struck through and recorded in
+  `REQUIREMENTS.md`, not silently dropped.
+- **WIKI-03 and WIKI-04 — WITHDRAWN (2026-08-30).** Retired by the authoring reversal after being built
+  and shown working.
+- **Phases 169 (FRONT) and 170 (REPO) were executed ad hoc** — direct commits, no plans, no summaries, no
+  phase directory, no `gsd-verifier` pass. Their requirement marks rest on an after-the-fact, same-agent
+  criterion re-check (`.planning/notes/v135-phases-169-170-executed-ad-hoc.md`), not on the machinery
+  every other phase went through.
+- **Phase 172 has no `172-VERIFICATION.md`.** It ran 9 plans with summaries and 26 evidence files, and its
+  own `evidence/172-09-closing-sweep.txt` was written before any requirement box was flipped — but no
+  independent verifier pass exists, so `init.manager` reads it `phase_complete: false`. Its nine ROADMAP
+  checkboxes were flipped at this close, the write `CLOSE-RECORD.md` §1 had assigned to the orchestrator
+  and never performed.
+- **The automated guard this milestone built was retired the day it closed.** `wiki-check.yml` and every
+  checker under `tools/wiki/` were deleted on 2026-09-02 (`5426d7ef`); `MIGRATION-TABLE.md` is the only
+  survivor. **There is now no automated wiki guard of any kind.** HONEST-02 is a disjunction — a check
+  **or** a stamp — and only the stamp half remains, on six pages. See `CLOSE-RECORD.md` §8.
+- **Two findings filed at close, not fixed:** **999.49** — `gsd-tools query audit-open acknowledge`
+  destroys artifact content it is asked only to annotate (it wiped 100 lines of YAML frontmatter from a
+  quick-task summary; the pass was reverted uncommitted). **999.50** — the retirement left two live
+  references to the deleted `tools/wiki/dispatch_mirror.py`, one of which leaves a firmware file declared
+  guarded in `scan_paths.py` and actually unguarded.
+- **Carried from earlier milestones:** 999.46 (the new rulesets block the stable-release version bump in
+  both sub-repos), 999.47 (`firestarter_prom`'s `Catalog sync check` was already red on `main` before this
+  milestone's merges), 999.9 (the repository rename that will invalidate every link written here —
+  phases 169, 170 and 172 are the recorded re-sweep set).
+
+**Archives:** [`milestones/v1.35-ROADMAP.md`](milestones/v1.35-ROADMAP.md) ·
+[`milestones/v1.35-REQUIREMENTS.md`](milestones/v1.35-REQUIREMENTS.md) ·
+[`v1.35/CLOSE-RECORD.md`](v1.35/CLOSE-RECORD.md) (21-row honesty ledger)
+
 ## v1.34 Pre-Merge Hardware Regression Validation (Closed: 2026-08-29 — EARLY / SCOPE-REDUCED)
 
 **Phases completed:** 7 phases authored (160–166); **4 complete** (160, 161, 165, 166), **1 partial** (162, at 5 of 11 chips), **2 not run** (163 SHIELD, 164 REV0). 28 plans authored, **24 completed** — 160 at 13/13, 161 at 5/5, 162 at 6 summarised of 10 (plan 162-07 executed but never summarised; the sweep stopped mid-plan on operator direction).

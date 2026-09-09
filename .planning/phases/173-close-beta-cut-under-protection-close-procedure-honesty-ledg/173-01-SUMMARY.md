@@ -9,7 +9,7 @@ requires:
     provides: "the three tools/wiki checkers (honest01_claims.py, honest02_truth.py, wiki.py, dispatch_mirror.py) and the wiki-check.yml job this checker will join in plan 173-06"
 provides:
   - "tools/wiki/provenance_footers.py — a bidirectional, stdlib-only checker/generator asserting every migrated wiki page carries a footer matching MIGRATION-TABLE.md's own fields, and every live page has a table row"
-  - "A corrected tools/wiki/MIGRATION-TABLE.md: Post-move edits column, Protocol-Flags/Protocol-ID relocated to the retired table, three previously-unrecorded live pages added as rows"
+  - "A corrected .planning/v1.35/MIGRATION-TABLE.md: Post-move edits column, Protocol-Flags/Protocol-ID relocated to the retired table, three previously-unrecorded live pages added as rows"
   - "Three evidence files proving the checker RED on real inputs before it is trusted (D-10's bar), and safe to publish against"
 affects: [173-05-push-footers, 173-06-wiki-check-leg, 173-08-close-record]
 
@@ -32,7 +32,7 @@ key-files:
     - .planning/phases/173-close-beta-cut-under-protection-close-procedure-honesty-ledg/evidence/173-01-planted-failures.txt
     - .planning/phases/173-close-beta-cut-under-protection-close-procedure-honesty-ledg/evidence/173-01-suite-regression.txt
   modified:
-    - tools/wiki/MIGRATION-TABLE.md
+    - .planning/v1.35/MIGRATION-TABLE.md
 
 key-decisions:
   - "Footer scope is the 6 provenance-bearing, live rows (per RESEARCH C-1), not the 12 CONTEXT.md named — no set of size 12 exists in the data"
@@ -95,7 +95,7 @@ status: complete
 
 ## Accomplishments
 - Built `tools/wiki/provenance_footers.py`: `parse_tables` correctly resets the header per table (fixing the accident `honest01_claims.py` carries), `footer_eligible_rows`/`footer_line` are the single source both the generator and checker read, `check_page_accounting` gates `check_footers` so a table/wiki mismatch and a footer-content defect never arrive as one indistinguishable red, and a `MIN_FOOTER_ROWS` vacuity floor returns exit 2 rather than 0 on a degenerate table.
-- Corrected `tools/wiki/MIGRATION-TABLE.md`: added the `Post-move edits` column so no footer claims unchanged content on a rewritten page, moved `Protocol-Flags`/`Protocol-ID` to the retired table (the two stale rows D-10 predicted), and added rows for the three live pages the table never recorded (`Breaking-Changes`, `Chip-Database-Fields`, `Pin-Maps` — RESEARCH C-2's undiscovered direction).
+- Corrected `.planning/v1.35/MIGRATION-TABLE.md`: added the `Post-move edits` column so no footer claims unchanged content on a rewritten page, moved `Protocol-Flags`/`Protocol-ID` to the retired table (the two stale rows D-10 predicted), and added rows for the three live pages the table never recorded (`Breaking-Changes`, `Chip-Database-Fields`, `Pin-Maps` — RESEARCH C-2's undiscovered direction).
 - Watched the checker fail six distinct ways on real inputs before trusting it: 2 `PAGE MISSING` + 3 `UNRECORDED PAGE` on the table as it stood at HEAD, 6 `FOOTER MISSING` on the corrected table against a footer-free clone, then five planted failures (`FOOTER DRIFTED`, `FOOTER MISSING`, `UNRECORDED PAGE`, exit-2 vacuity, `UNSAFE ROW` path-traversal containment) each restored byte-identically to GREEN.
 - Proved the six footers are safe to publish: all three pre-existing `tools/wiki` checkers plus the new one all exit 0 against one fresh clone, with `honest02_truth.py` leg 1 unmoved at 5 matched/0 missing (RESEARCH Pitfall 2's warning sign did not fire).
 
@@ -111,7 +111,7 @@ Each task was committed atomically:
 
 ## Files Created/Modified
 - `tools/wiki/provenance_footers.py` - the bidirectional checker/generator (created)
-- `tools/wiki/MIGRATION-TABLE.md` - Post-move edits column, retired-table move, three new rows (modified)
+- `.planning/v1.35/MIGRATION-TABLE.md` - Post-move edits column, retired-table move, three new rows (modified)
 - `.planning/phases/173-.../evidence/173-01-tracer-red-green.txt` - Task 1's RED/RED/GREEN sequence
 - `.planning/phases/173-.../evidence/173-01-planted-failures.txt` - Task 2's five planted failures
 - `.planning/phases/173-.../evidence/173-01-suite-regression.txt` - Task 3's four-checker regression proof

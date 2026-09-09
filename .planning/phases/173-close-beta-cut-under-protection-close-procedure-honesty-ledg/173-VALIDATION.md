@@ -21,7 +21,7 @@ created: "2026-09-02"
 |----------|-------|
 | **Framework** | **None.** No pytest/jest suite covers `.planning/`, the `tools/wiki/` checkers, `.planning/config.json`, or the wiki. Verification is by direct command invocation with captured output, exactly as Phases 171–172 did. |
 | **Config file** | none — `tools/wiki/` has no `pytest.ini`, `conftest.py` or test directory |
-| **Quick run command** | `python3 tools/wiki/<checker>.py --wiki-dir <clone> --migration-table tools/wiki/MIGRATION-TABLE.md; echo rc=$?` |
+| **Quick run command** | `python3 tools/wiki/<checker>.py --wiki-dir <clone> --migration-table .planning/v1.35/MIGRATION-TABLE.md; echo rc=$?` |
 | **Full suite command** | `python3 tools/wiki/wiki.py links --source-dir <clone>` + `python3 tools/wiki/honest02_truth.py --wiki-dir <clone> --db firestarter_app/firestarter/data/chip_database.json --allowlist tools/wiki/claim-allowlist.json` + `python3 tools/wiki/dispatch_mirror.py --app-dir firestarter_app --fw-dir firestarter` + the new D-10 checker |
 | **Estimated runtime** | ~40 seconds for the four checkers against one fresh clone; the clone itself dominates |
 

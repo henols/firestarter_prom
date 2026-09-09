@@ -111,7 +111,7 @@ All of the above checked out exactly as the orchestrator's commit message and th
   files**. Breakdowns given per repository, per top-level directory, per `.planning/` subdirectory,
   plus explicit named entries for phases 169, 170, 172 and this phase's own outputs (the four
   upstream reply URLs, the posted-comment transcript, the close-procedure note, the `CLAUDE.md`
-  pointer section, `tools/wiki/MIGRATION-TABLE.md`'s new rows, and 999.46's own workflow
+  pointer section, `.planning/v1.35/MIGRATION-TABLE.md`'s new rows, and 999.46's own workflow
   citations). The evidence file also notes the six published wiki footers live on
   `firestarter_prom.wiki.git`, a fourth surface outside any tracked tree this scan could reach —
   a future sweep needs a wiki clone, not just this repository's working trees.

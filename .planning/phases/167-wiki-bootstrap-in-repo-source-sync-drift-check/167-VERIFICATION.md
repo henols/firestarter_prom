@@ -81,7 +81,7 @@ SUMMARY.md prose:
 
 2. **`PY32F071-FIRMWARE-INSTALL` deferral (`c7b359b0`) — verified complete.** `wiki/Home.md`'s
    "Coming to this wiki" list has exactly 12 entries, `PY32F071-FIRMWARE-INSTALL` absent.
-   `tools/wiki/MIGRATION-TABLE.md` has 12 `TBD` rows (not 13) plus an explicit "Deferred, not
+   `.planning/v1.35/MIGRATION-TABLE.md` has 12 `TBD` rows (not 13) plus an explicit "Deferred, not
    migrating" section naming the file and the reason. `ROADMAP.md` line 290 (Phase 168 criterion 1)
    reads "All 12 migrating files" with the deferral called out inline. The live wiki was
    republished after this commit and, per the check above, is byte-identical to `wiki/` today.
@@ -112,7 +112,7 @@ SUMMARY.md prose:
 | `wiki/Home.md` | hand-authored reachability root | ✓ VERIFIED | present, links `How-This-Wiki-Is-Published`, lists 12 (not 13) future pages, states beta caveat |
 | `wiki/How-This-Wiki-Is-Published.md` | D-12 scaffolding page | ✓ VERIFIED | present, states authority rule, overwrite warning, both publish commands, naming/link-form rules |
 | `wiki/_Sidebar.md` | generated, committed, byte-stable | ✓ VERIFIED | `wiki.py sidebar --check` exits 0 against the real tree this session |
-| `tools/wiki/MIGRATION-TABLE.md` | D-04 provenance shell | ✓ VERIFIED | 12 TBD rows (post-deferral), explicit non-registry statement, deferral section for PY32F071 |
+| `.planning/v1.35/MIGRATION-TABLE.md` | D-04 provenance shell | ✓ VERIFIED | 12 TBD rows (post-deferral), explicit non-registry statement, deferral section for PY32F071 |
 | `.github/workflows/wiki-check.yml` | offline CI check, keyed to `beta`, `contents: read` | ✓ VERIFIED | both jobs (`wiki-check`, `wiki-drift-live`) declare `contents: read`; trigger is `branches: [beta]`, no `main` line; 0 comment lines |
 | `.github/workflows/wiki-publish.yml` | CI publish, keyed to `beta`, `contents: write` | ✓ VERIFIED | `permissions: contents: write` at job level; `branches: [beta]`, no `main`; single `WIKI_TOKEN` job-level env with one `secrets.` line; 0 comment lines; never executed (A1 open, correctly unclaimed) |
 

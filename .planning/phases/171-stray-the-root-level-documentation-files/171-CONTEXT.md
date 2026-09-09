@@ -101,7 +101,7 @@ root reads as maintained documentation, or as a policy the project does not actu
 
 ### Provenance
 
-- **D-06: all three files get rows in `tools/wiki/MIGRATION-TABLE.md`.**
+- **D-06: all three files get rows in `.planning/v1.35/MIGRATION-TABLE.md`.**
   - `Shell-Completion` joins the **main table** as a Phase 171 row: source repo `firestarter_app`,
     source path `firestarter_app/autocomplete.md`, wiki page `Shell-Completion`, rendered title
     `Shell Completion`, pre-deletion SHA `d56424e1979edf7245cffb9ec3111c0469f5b23f`, moved in `171`.
@@ -183,7 +183,7 @@ to the operator because precedent settles them.
 
 ### Wiki mechanics and checks
 
-- `tools/wiki/MIGRATION-TABLE.md` — the provenance table D-06 appends to; also documents the
+- `.planning/v1.35/MIGRATION-TABLE.md` — the provenance table D-06 appends to; also documents the
   clone-commit-push model and the pre-deletion-SHA convention.
 - `tools/wiki/wiki.py` — the `links` subcommand implementing the WIKI-05 reachability, orphan,
   link-form and filename-legality checks. Run it against a wiki clone before pushing.
@@ -212,7 +212,7 @@ to the operator because precedent settles them.
 - **`tools/wiki/wiki.py links`** — already repointable at a wiki clone via `--source-dir`. It is the
   ready-made pre-push check for the new page: orphan detection, sidebar completeness, internal link
   form, filename legality. No new tooling is needed for this phase.
-- **`tools/wiki/MIGRATION-TABLE.md`'s existing "Retired from the wiki" section** — the precedent
+- **`.planning/v1.35/MIGRATION-TABLE.md`'s existing "Retired from the wiki" section** — the precedent
   shape for D-06's new "removed, never published" section. Same columns, same purpose.
 - **The branch-point SHA `d56424e1979edf7245cffb9ec3111c0469f5b23f`** — already cited by every
   Phase 168 `firestarter_app` row, and verified above to be exact for all three of this phase's

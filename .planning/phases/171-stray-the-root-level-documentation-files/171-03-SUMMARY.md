@@ -10,7 +10,7 @@ requires:
     plan: "171-02"
     provides: "things.md, SECURITY.md and autocomplete.md deleted from firestarter_app root, with verified recoverability at d56424e1979edf7245cffb9ec3111c0469f5b23f"
 provides:
-  - "The Shell-Completion main-table row in tools/wiki/MIGRATION-TABLE.md, closing the publish-then-record half of D-06"
+  - "The Shell-Completion main-table row in .planning/v1.35/MIGRATION-TABLE.md, closing the publish-then-record half of D-06"
   - "A new 3-column 'Removed without ever being published' section recording things.md and SECURITY.md, each with a recoverable git-show command"
   - "V-16 evidence proving honest01_claims.parse_migration_table still returns exactly 8 clean SHA-bearing rows"
   - "The Phase 171 out-of-scope ledger (eight items) so a future failure is not misattributed to this phase"
@@ -26,7 +26,7 @@ key-files:
     - ".planning/phases/171-stray-the-root-level-documentation-files/evidence/171-03-migration-table-parse.txt"
     - ".planning/phases/171-stray-the-root-level-documentation-files/evidence/171-03-out-of-scope-ledger.md"
   modified:
-    - "tools/wiki/MIGRATION-TABLE.md"
+    - ".planning/v1.35/MIGRATION-TABLE.md"
 
 key-decisions:
   - "Reworded the SECURITY.md 'What it was' cell to avoid the literal phrase 'security policy' (used 'the path GitHub surfaces under a repository's Security tab' instead), so the plan's own disclosure-phrase grep guard passes without weakening the factual content"
@@ -41,7 +41,7 @@ coverage:
     requirement: "LEGACY-07"
     verification:
       - kind: other
-        ref: "tools/wiki/MIGRATION-TABLE.md:20 — matches the exemplar shape byte-for-byte; grep confirmed in evidence/171-03-migration-table-parse.txt"
+        ref: ".planning/v1.35/MIGRATION-TABLE.md:20 — matches the exemplar shape byte-for-byte; grep confirmed in evidence/171-03-migration-table-parse.txt"
         status: pass
     human_judgment: false
   - id: D2
@@ -49,7 +49,7 @@ coverage:
     requirement: "LEGACY-04, LEGACY-05"
     verification:
       - kind: other
-        ref: "tools/wiki/MIGRATION-TABLE.md:68-80 (## Removed without ever being published)"
+        ref: ".planning/v1.35/MIGRATION-TABLE.md:68-80 (## Removed without ever being published)"
         status: pass
     human_judgment: false
   - id: D3
@@ -65,7 +65,7 @@ coverage:
     requirement: "LEGACY-04, LEGACY-05, LEGACY-07"
     verification:
       - kind: other
-        ref: "git diff HEAD~1 --numstat -- tools/wiki/MIGRATION-TABLE.md -> 14 insertions, 0 deletions (task 1 commit 6e87db0b)"
+        ref: "git diff HEAD~1 --numstat -- .planning/v1.35/MIGRATION-TABLE.md -> 14 insertions, 0 deletions (task 1 commit 6e87db0b)"
         status: pass
     human_judgment: false
   - id: D5
@@ -85,7 +85,7 @@ status: complete
 
 # Phase 171 Plan 03: Record the Migration Table Provenance Summary
 
-**Appended the Shell-Completion main-table row and a new 3-column "Removed without ever being published" section to `tools/wiki/MIGRATION-TABLE.md`, then proved `honest01_claims.parse_migration_table` still parses cleanly to 8 rows and recorded the phase's eight out-of-scope items.**
+**Appended the Shell-Completion main-table row and a new 3-column "Removed without ever being published" section to `.planning/v1.35/MIGRATION-TABLE.md`, then proved `honest01_claims.parse_migration_table` still parses cleanly to 8 rows and recorded the phase's eight out-of-scope items.**
 
 ## Performance
 
@@ -93,7 +93,7 @@ status: complete
 - **Started:** 2026-09-01T09:46:00Z
 - **Completed:** 2026-09-01T10:11:21Z
 - **Tasks:** 2/2 executed, both auto
-- **Files modified:** 1 modified (`tools/wiki/MIGRATION-TABLE.md`), 2 evidence files created
+- **Files modified:** 1 modified (`.planning/v1.35/MIGRATION-TABLE.md`), 2 evidence files created
 
 ## Accomplishments
 
@@ -110,18 +110,18 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Append the Shell-Completion main-table row and add the removed-never-published section** - `6e87db0b` (docs) — `tools/wiki/MIGRATION-TABLE.md` only, 14 insertions, 0 deletions
+1. **Task 1: Append the Shell-Completion main-table row and add the removed-never-published section** - `6e87db0b` (docs) — `.planning/v1.35/MIGRATION-TABLE.md` only, 14 insertions, 0 deletions
 2. **Task 2: Prove honest01's parse is unharmed, and write the out-of-scope ledger** - `24c3297a` (docs) — both evidence files, 77 insertions
 
 ## Files Created/Modified
 
-- `tools/wiki/MIGRATION-TABLE.md` - one main-table row appended (line 20) and a new `## Removed without ever being published` section inserted (heading now at line 68, table rows at lines 76-79, `## Honesty note` heading now at line 81); file is now 159 lines
+- `.planning/v1.35/MIGRATION-TABLE.md` - one main-table row appended (line 20) and a new `## Removed without ever being published` section inserted (heading now at line 68, table rows at lines 76-79, `## Honesty note` heading now at line 81); file is now 159 lines
 - `.planning/phases/171-stray-the-root-level-documentation-files/evidence/171-03-migration-table-parse.txt` - full output of the §C.9 `parse_migration_table` snippet: 8 rows, `Shell-Completion` present, no deletion row leaked through
 - `.planning/phases/171-stray-the-root-level-documentation-files/evidence/171-03-out-of-scope-ledger.md` - the eight recorded-not-fixed items with their measured facts, reasons, and owners
 
 ## Post-edit line numbers for future `.planning/` citations
 
-Any later citation of `tools/wiki/MIGRATION-TABLE.md` should use these post-change numbers rather than the pre-edit ones quoted in `171-PATTERNS.md` (which cited the file at its pre-Task-1 145-line length):
+Any later citation of `.planning/v1.35/MIGRATION-TABLE.md` should use these post-change numbers rather than the pre-edit ones quoted in `171-PATTERNS.md` (which cited the file at its pre-Task-1 145-line length):
 
 - New main-table row (`Shell-Completion`): line 20
 - `## Removed without ever being published` heading: line 68
@@ -171,9 +171,9 @@ None — no external service configuration required. This plan made only local g
 
 ## Self-Check: PASSED
 
-- FOUND: `tools/wiki/MIGRATION-TABLE.md`
+- FOUND: `.planning/v1.35/MIGRATION-TABLE.md`
 - FOUND: `.planning/phases/171-stray-the-root-level-documentation-files/evidence/171-03-migration-table-parse.txt`
 - FOUND: `.planning/phases/171-stray-the-root-level-documentation-files/evidence/171-03-out-of-scope-ledger.md`
 - FOUND: `.planning/phases/171-stray-the-root-level-documentation-files/171-03-SUMMARY.md`
-- FOUND: commit `6e87db0b` (meta, tools/wiki/MIGRATION-TABLE.md)
+- FOUND: commit `6e87db0b` (meta, .planning/v1.35/MIGRATION-TABLE.md)
 - FOUND: commit `24c3297a` (meta, evidence files)
