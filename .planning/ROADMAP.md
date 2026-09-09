@@ -510,7 +510,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 181-08-PLAN.md — Stop the report recovering a number by reading its own prose, and stop two surfaces describing a write that never happened. The detected chip ID becomes a structured `StepResult` field instead of a `cli_handlers.py` prose scrape, with the honesty ceiling stated plainly (on a PASS the firmware echoes the host's own expected id, so the field is an echo, not a read-back); one "did a write actually run" predicate fixes both `slots_remaining`'s off-by-one and the UV ladder false-green
+- [x] 181-08-PLAN.md — Stop the report recovering a number by reading its own prose, and stop two surfaces describing a write that never happened. The detected chip ID becomes a structured `StepResult` field instead of a `cli_handlers.py` prose scrape, with the honesty ceiling stated plainly (on a PASS the firmware echoes the host's own expected id, so the field is an echo, not a read-back); one "did a write actually run" predicate fixes both `slots_remaining`'s off-by-one and the UV ladder false-green
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
