@@ -21,11 +21,19 @@ of new investigations.
   No firmware code regression was found or is implicated — a full source-diff bisect proved
   `firestarter_uno.hex` is compiled-byte-identical across 3.0.0b23/b24/b25 (one version-string
   line differs) and that the b22->b23 code delta never touches the CMD_IDLE decode path.
-- **Fix:** `SerialCommunicator._probe_port` (`firestarter_app/firestarter/serial_comm.py`) gives
-  the setup ack one bounded extra read (2s) when the first response is exactly the generic
-  frame-decode-failure text, before giving up — scoped to this one ambiguous error and to this one
-  hazard-free call site (CMD_FW_VERSION never engages VPP/VPE), so a genuine rejection elsewhere
-  still fails immediately.
+- **Fix:** `SerialCommunicator._probe_port` (`firestarter_app/firestarter/serial_comm.py`) keeps
+  reading past the generic frame-decode-failure text within a bounded wall-clock deadline
+  (`SETUP_ACK_RECOVERY_TIMEOUT_S`, 2.0s), discarding only responses whose text is exactly that
+  generic string and returning the first response that is anything else — scoped to this one
+  ambiguous error and to this one hazard-free call site (CMD_FW_VERSION never engages VPP/VPE),
+  so a genuine rejection elsewhere still fails immediately. **Reworked once, live-hardware-driven:**
+  the first version (a single fixed extra retry) was proven under-built by a live matrix on a
+  real Arduino Uno R3 — `_probe_port`'s existing `fault_inject_outgoing` hook let the interleaved
+  spurious-frame CONDITION be manufactured deterministically without needing the reporter's own
+  noisy environment, separating "reproduce the failure" (needs their hardware) from "reproduce
+  the cause" (doesn't). Two injected spurious frames broke the fixed-retry version exactly as the
+  reporter's own log (which already showed two `Empty input` lines) implied was possible; the
+  deadline-based rework survived two AND a bonus three-frame case, live, on the same board.
 - **Files changed:** firestarter_app/firestarter/serial_comm.py,
   firestarter_app/tests/test_probe_spurious_setup_ack.py
 - **Why not caught:** no gate existed for this class. The existing test suite exercised
@@ -37,12 +45,25 @@ of new investigations.
   PORTD/UART pin-sharing hazard class this bug's spurious frame most plausibly originates from
   (already documented twice elsewhere in this codebase — `PREFIX_REGEX`'s rightmost-match design
   and `rurp_set_communication_mode()`'s boot-transition drain) has no native/CI equivalent at all.
-- **Recurrence guard:** regression test
+  A raw-byte capture on real Uno hardware caught a reproducible stray boot byte (8/8 trials,
+  same value) independent of any injection, corroborating that this hazard class is real and not
+  merely theoretical — but a first pass at "verify on real hardware" that only ran the NATURAL,
+  non-adversarial probe (41/41 clean) would have reported false confidence had the coordinator
+  not pushed for deliberate fault injection to separate the failure from its cause.
+- **Recurrence guard:** regression tests
   `firestarter_app/tests/test_probe_spurious_setup_ack.py::test_probe_port_recovers_from_spurious_empty_input_ahead_of_real_ack`
-  (RED against the unmodified code, GREEN after the fix) plus its negative-control sibling
-  `test_probe_port_still_fails_on_a_genuine_unrecoverable_error`, which pins that the fix does not
-  broaden `_probe_port`'s tolerance beyond the one ambiguous error text. If a future firmware
-  change ever splits `MSG_ERR_EMPTY_INPUT` into distinct message IDs per failure cause (noted as a
-  reasonable future enhancement, not done this session), this KB entry and the retry's text-match
-  scoping should be revisited together.
+  and `::test_probe_port_recovers_from_two_spurious_empty_input_frames_ahead_of_real_ack` (the
+  second one RED against the original fixed-retry fix, GREEN after the deadline rework — it is
+  the one that actually pins the bound-vs-count distinction), plus the negative-control sibling
+  `test_probe_port_still_fails_on_a_genuine_unrecoverable_error`, which confirms the fix does not
+  broaden `_probe_port`'s tolerance beyond the one ambiguous error text and stays bounded rather
+  than hanging. If a future firmware change ever splits `MSG_ERR_EMPTY_INPUT` into distinct
+  message IDs per failure cause (a reasonable future enhancement, not done this session), this KB
+  entry and the retry's text-match scoping should be revisited together. **Process lesson worth
+  reusing on a future "verify a host-side fix against a flaky hardware interaction" session:**
+  if the target device already exposes an outgoing/incoming fault-injection seam (as
+  `fault_inject_outgoing` did here), prefer manufacturing the CONDITION deterministically over
+  waiting for or asking for the reporter's exact noisy environment — the two are often separable,
+  and a live A/B/C(/D) matrix through the seam is strictly better evidence than either a
+  `_FakeSerial`-only test or a natural-conditions non-reproduction.
 ---
