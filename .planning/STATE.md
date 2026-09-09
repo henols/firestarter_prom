@@ -5,7 +5,7 @@ milestone_name: "`dev test` Fidelity (PLANNING)"
 current_phase: 181
 current_phase_name: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
 status: completed
-stopped_at: "Phase 181 COMPLETE — verified 19/19; all 8 v1.36 phases complete"
+stopped_at: "Phase 181 SHIPPED — PRs prom#63, app#61, fw#60 open against beta; awaiting merge"
 last_updated: "2026-09-09T16:57:44.490Z"
 last_activity: 2026-09-09
 last_activity_desc: "Phase 181 COMPLETE 2026-09-09 — 10/10 plans, 9/9 waves, verification PASSED 19/19. Suite 2247 -> 2285, zero failures at every closed wave; regression gate 886/886 over 20 prior-phase files. All 19 FROZEN_HASHES literals byte-identical to app base 04fd982 across the whole phase (0 literal lines changed) — D-16 discharges as ZERO re-keys and RPT-E3s exception clause discharges EMPTY. Seven orchestrator-side corrections: six GSD-provenance comments removed (the recurring shape is rewording a comment a deletion falsified, which is still writing comment prose), and a ruff format --check regression the plan had waived as pre-existing by measuring against the wave-3 tip instead of the phase base. One red gate (wave 6) caught a real cross-module break: a Phase-180 anti-vacuity pin anchored on the literal text of _dispatch_read s reason line, which 181-07 had to change. Verifier found one gap — the firestarter_app gitlink was never advanced, because I told all ten executors to leave it alone on a v1.6-v1.8 convention phase 180 had already superseded; closed at 6de7273 and the fabricated CLAUDE.md citation in 181-10-SUMMARY.md corrected. Code review: 0 critical, 1 warning (WR-01, _is_interactive now dead) filed as a todo. NOT pushed."
@@ -237,7 +237,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 181 (Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close) — COMPLETE
 Plan: 10 of 10 complete (all 9 waves gated green)
-Status: Phase 181 complete and verified 19/19 — all 8 v1.36 phases complete; nothing pushed
+Status: Phase 181 shipped — prom#63 / app#61 / fw#60 open against beta, not yet merged
 Last activity: 2026-09-09 — Phase 181 COMPLETE. 10/10 plans, verification PASSED 19/19 after one gap (the unadvanced firestarter_app gitlink, an orchestrator error) was found and closed. Suite 2247 -> 2285 with zero failures at every closed wave; regression gate 886/886. All 19 frozen dedup hashes unmoved. Seven orchestrator-side corrections, six of them GSD-provenance comments. Both repos remain LOCAL.
 
 ## Roadmap Summary (v1.36)
