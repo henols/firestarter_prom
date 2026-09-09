@@ -25,3 +25,40 @@ rc=0
 == 5 no installer invoked
 pip_install_invoked=false
 note=the bound is a source edit only; the installed 6.0.0 release already satisfies both the old and the new specifier, so nothing was reinstalled.
+
+== 6 HYG-02 -- runtime dependency set pin (tests/test_runtime_dependencies.py)
+runtime_distribution_count=6
+runtime_distributions=click,packaging,pyserial,requests,rich,tqdm
+pin_at_head=GREEN
+pin_at_planted_seventh=RED
+pin_at_planted_removal=RED
+pin_at_empty_expected=RED
+fixture_files_written=0
+non_stdlib_imports_in_module=pytest
+command=./.venv311/bin/python -m pytest tests/test_runtime_dependencies.py -o addopts="" -q -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0
+rootdir: /workspaces/firestarter_app
+configfile: pyproject.toml
+plugins: syrupy-6.0.0, cov-7.1.0
+collected 4 items
+
+tests/test_runtime_dependencies.py ....                                  [100%]
+
+============================== 4 passed in 0.05s ===============================
+rc=0
+
+== 7 module cleanliness legs
+command=./usr/bin/grep -qF 'import tomllib' tests/test_runtime_dependencies.py; ! /usr/bin/grep -qE '^import (toml|tomli)$' ...; ! /usr/bin/grep -qE '^from (toml|tomli) ' ...
+result=PASS (stdlib tomllib only, no toml/tomli)
+command=AST import walk over the module
+non_stdlib_imports=none (module source length 5262 bytes, > 800 guard)
+command=tokenize.COMMENT count over the module
+comment_tokens=0
+command=ruff check tests/test_runtime_dependencies.py && ruff format --check tests/test_runtime_dependencies.py
+All checks passed! / 1 file already formatted (after one auto-applied import-order fix, no content change)
+
+== 8 porcelain legs (run after both commits landed)
+git -C /workspaces/firestarter status --porcelain -> (empty)
+git -C /workspaces/firestarter_app status --porcelain firestarter/ -> (empty)
+git -C /workspaces/firestarter_app status --porcelain -> (empty)
