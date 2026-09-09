@@ -1,11 +1,12 @@
 ---
 phase: 181-report-fidelity-schema-2-0-canonical-naming-hygiene-close
-verified: 2026-09-09T16:52:31Z
+verified: 2026-09-09T17:30:00Z
 status: passed
 score: 19/19 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 covered_files:
+  - .claude/skills/devtest-triage/SKILL.md
   - .planning/MILESTONES.md
   - .planning/REQUIREMENTS.md
   - .planning/ROADMAP.md
@@ -31,7 +32,54 @@ covered_files:
   - .planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-10-SUMMARY.md
   - .planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CLOSURE.md
   - .planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CONTEXT.md
-covered_digest: "v1:sha256:6b09f292c73dd1745b364247bb1c3323a19eddb71d5589c14abb79de0811468e"
+  - firestarter_app/firestarter/chip_test.py
+  - firestarter_app/firestarter/cli_handlers.py
+  - firestarter_app/firestarter/diagnostic_report.py
+  - firestarter_app/firestarter/submit.py
+  - firestarter_app/pyproject.toml
+  - firestarter_app/tests/fixtures/plan_shapes.json
+  - firestarter_app/tests/fixtures/reports/at28c256-full-all-ok-sdp.json
+  - firestarter_app/tests/fixtures/reports/attr01-status-axis-transport-fault.json
+  - firestarter_app/tests/fixtures/reports/gh20-at28c256-fail.json
+  - firestarter_app/tests/fixtures/reports/gh23-w27e257-fail.json
+  - firestarter_app/tests/fixtures/reports/gh28-m27c512-fail.json
+  - firestarter_app/tests/fixtures/reports/gh47-sst27sf512-pass.json
+  - firestarter_app/tests/fixtures/reports/m27c512-full-all-ok.json
+  - firestarter_app/tests/fixtures/reports/m27c512-full-blank-check-bad.json
+  - firestarter_app/tests/fixtures/reports/m27c512-full-canonical-name.json
+  - firestarter_app/tests/fixtures/reports/m27c512-full-comma-joined-name.json
+  - firestarter_app/tests/fixtures/reports/m27c512-full-runs-1.json
+  - firestarter_app/tests/fixtures/reports/prune03-synthesized-fingerprint-match.json
+  - firestarter_app/tests/fixtures/reports/sst27sf512-full-all-ok.json
+  - firestarter_app/tests/fixtures/reports/sst27sf512-six-step-readback-gated.json
+  - firestarter_app/tests/fixtures/reports/sst27sf512-six-step.json
+  - firestarter_app/tests/fixtures/reports/synthetic-arm4-empty-results.json
+  - firestarter_app/tests/fixtures/reports/synthetic-arm4-no-ok.json
+  - firestarter_app/tests/fixtures/reports/uv-slot-write-pass.json
+  - firestarter_app/tests/fixtures/reports/w27e257-full-all-ok.json
+  - firestarter_app/tests/plan_corpus.py
+  - firestarter_app/tests/test_blast_radius_invariance.py
+  - firestarter_app/tests/test_canonical_part_number.py
+  - firestarter_app/tests/test_check_devtest_orchestrator.py
+  - firestarter_app/tests/test_chip_test.py
+  - firestarter_app/tests/test_chip_test_blank_check_order.py
+  - firestarter_app/tests/test_chip_test_cycle.py
+  - firestarter_app/tests/test_chip_test_sdp_leg.py
+  - firestarter_app/tests/test_chip_test_timing.py
+  - firestarter_app/tests/test_derive_plan_no_drop_sweep.py
+  - firestarter_app/tests/test_derive_plan_structural_sentinel.py
+  - firestarter_app/tests/test_dev_test_cmd.py
+  - firestarter_app/tests/test_diagnostic_report.py
+  - firestarter_app/tests/test_erase_flag_invariants.py
+  - firestarter_app/tests/test_plan_shapes_drift.py
+  - firestarter_app/tests/test_provenance.py
+  - firestarter_app/tests/test_readback_inventory.py
+  - firestarter_app/tests/test_runtime_dependencies.py
+  - firestarter_app/tests/test_submit.py
+  - firestarter_app/tests/test_voltage_field_census.py
+  - firestarter_app/tools/check_devtest_orchestrator.py
+  - firestarter_app/tools/measure_plan_shapes.py
+covered_digest: "v1:sha256:47bb47ac41ae242ddb55925213d1313f50598272349303d9bc56c89136e67c0d"
 re_verification:
   previous_status: gaps_found
   previous_score: 18/19
@@ -39,6 +87,19 @@ re_verification:
     - "The phase's app-repo work is committed and reachable from the meta repo's own tracked submodule pointer, consistent with every prior phase's closing practice in this milestone. Closed post-verification by commit 6e7a7f0f (\"fix(181): advance the firestarter_app gitlink through phase 181\"), which advances the meta-tracked firestarter_app gitlink from 04fd982 to 6de7273, matching app HEAD. The false CLAUDE.md citation in 181-10-SUMMARY.md was independently corrected by commit 36095c27, which re-attributes the leave-it-alone instruction to the orchestrator's dispatch prompt (a stale v1.6-v1.8 carry-forward) rather than to CLAUDE.md."
   gaps_remaining: []
   regressions: []
+post_verification_reviews:
+  - reviewed: 2026-09-09T17:30:00Z
+    trigger: "verification.status read stale after covered content changed post re-verify; coordinator requested a ruling rather than a silent digest refresh"
+    changes_reviewed:
+      - change: ".planning/REQUIREMENTS.md commit 5a1373f9 -- D-5 decision-table row amended in place (SKILL.md:375 anchor retracted as falsified; original claim left visible per the .planning citation-repair rule)"
+        verdict: "immaterial -- confined to the D-1..D-8 decisions table; independently diffed (1 line changed) and confirmed all 18 requirement checkboxes and all 18 traceability rows unaffected; D-5 is not one of the 19 must-haves"
+      - change: ".planning/ROADMAP.md -- Phase 181 checkbox flipped to [x] (completed 2026-09-09) by phase.complete"
+        verdict: "immaterial -- the phase-level roadmap checkbox is not one of the 19 must-haves; independently diffed, exactly one line changed"
+      - change: "meta merge 5207c1ce (origin/beta / v1.35's PR #59 inward) and app-side merge to 0ef0563 (3.0.0b37, plus the concurrent probe-fix session's 3 patches landing under new SHAs via PR #60)"
+        verdict: "immaterial to the 19 must-haves -- independently confirmed 6de7273 (the commit this verification checked) is an ancestor of 0ef0563 with zero rewrite; the only file the app-side merge changed is firestarter/__init__.py (version string 3.0.0b36 -> 3.0.0b37); re-ran ruff check/format (clean), the 19 FROZEN_HASHES literals (byte-identical, md5 555a6d76... unmoved), tests/test_blast_radius_invariance.py + test_voltage_field_census.py + test_canonical_part_number.py + test_diagnostic_report.py + test_check_devtest_orchestrator.py (229 passed), and the full suite (2285 passed, 0 failed) -- all independently re-run against 0ef0563, not accepted from the coordinator's report"
+    covered_files_scope_ruling: "Agreed with the coordinator's own concern: covered_files previously listed only .planning/ artifacts, so the fingerprint could not have detected a change confined to firestarter_app source (per #4155's 'changed impl file' instruction, which the initial run under-applied). covered_files now includes the 47 firestarter_app implementation/test files this phase's 10 plans actually touched (union of files_modified across all plans, cross-checked against `git diff --name-only 04fd982..6de7273`, excluding the two files documented as the concurrent /gsd-debug session's unrelated work) plus .claude/skills/devtest-triage/SKILL.md. covered_digest recomputed by the verifier via verification.fingerprint over this expanded set -- not hand-written."
+    result: "No must-have re-opened. Score and status unchanged at 19/19 passed."
+
 ---
 
 # Phase 181: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close Verification Report
@@ -193,6 +254,41 @@ part of any 181-XX plan (`8b3d8f9`, `31f3455`, `b2546da`, all touching
 `firestarter_app/firestarter/serial_comm.py` and a new `test_probe_spurious_setup_ack.py`). This is
 correctly and consistently documented across 181-01/02/04's SUMMARYs as a concurrent, unrelated
 `/gsd-debug` session sharing the working tree — not this phase's work, not a gap in it.
+
+### Post-verification content-drift review (round 2)
+
+`verification.status` read `stale` a second time after the fingerprint's covered content changed
+further. Reviewed each change against the live tree rather than accepting the coordinator's account:
+
+- **`.planning/REQUIREMENTS.md` (commit `5a1373f9`):** diffed directly — exactly one line changed, the
+  D-5 row in the milestone's Decisions table (`D-1`..`D-8`), amended in place to retract a falsified
+  `SKILL.md:375` anchor while leaving the original claim visible. All 18 requirement checkboxes and all
+  18 traceability rows (RPT-*/HYG-*) are unaffected — confirmed by direct grep, not by re-reading the
+  commit message. D-5 is not one of this phase's 19 must-haves.
+- **`.planning/ROADMAP.md`:** diffed directly — exactly one line changed, the Phase 181 top-level
+  checkbox flipping to `[x] (completed 2026-09-09)` via `phase.complete`. Not a must-have.
+- **Inward `--no-ff` merges pre-ship** (meta `5207c1ce` bringing in `origin/beta`'s v1.35 close; app
+  advancing to `0ef0563` for `3.0.0b37`, re-pinned in the meta repo by `fa7080d1`): confirmed
+  `6de7273` — the app commit this verification actually checked — is an ancestor of `0ef0563` with no
+  rewrite (`git merge-base --is-ancestor` true). `git diff 6de7273..0ef0563 --stat` in the app repo
+  shows exactly one file changed, `firestarter/__init__.py` (a version-string bump,
+  `3.0.0b36` → `3.0.0b37`) — nothing touching any of the 19 must-haves. Independently re-ran, against
+  `0ef0563`, not against the coordinator's report: `ruff check`/`ruff format --check` (both clean), the
+  19 `FROZEN_HASHES` literals (byte-identical to app base `04fd982`, md5 `555a6d76…` unmoved),
+  `test_blast_radius_invariance.py` + `test_voltage_field_census.py` + `test_canonical_part_number.py`
+  + `test_diagnostic_report.py` + `test_check_devtest_orchestrator.py` (229 passed), and the full
+  suite (`2285 passed, 0 failed`, matching the coordinator's figure exactly). Meta repo porcelain is
+  clean and the gitlink now reads `0ef0563`, matching app HEAD.
+- **`covered_files` scope:** agreed with the coordinator's own concern. The prior fingerprint listed
+  only `.planning/` artifacts, so it could not have noticed a change confined to `firestarter_app`
+  source — an under-application of the "changed impl file" instruction. `covered_files` now includes
+  the 47 `firestarter_app` implementation/test files this phase's 10 plans actually touched (the union
+  of every plan's `files_modified`, cross-checked against `git diff --name-only 04fd982..6de7273`,
+  excluding the two files already documented as the concurrent `/gsd-debug` session's unrelated work)
+  plus `.claude/skills/devtest-triage/SKILL.md`. `covered_digest` was recomputed via
+  `verification.fingerprint` over this expanded set, not hand-written.
+
+No must-have was re-opened by this round. Score and status stand at 19/19 passed.
 
 ### Gaps Summary
 
