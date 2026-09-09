@@ -14,6 +14,8 @@ files:
   - firestarter_app/firestarter/database.py:382
   - firestarter_app/firestarter/database.py:446-485
 resolves_phase: 181
+resolved: 2026-09-09 (resolved by plan 181-05's RPT-F1 -- proposed solution superseded, not implemented as written)
+status: resolved
 ---
 
 ## Problem
@@ -76,3 +78,21 @@ hash on the raw token, recording why.
 
 Also in scope: update the app tests to the canonical spellings, so the suite stops
 sanctioning the lowercase form.
+
+## RESOLUTION (2026-09-09)
+
+**Resolved by this phase, not implemented as written.** RPT-F1 (plan `181-05`) is this todo itself,
+but its own proposed solution above -- put the canonical name **into** `AutoCapture.chip` -- is
+**superseded** by D-2's additive decision: `auto_capture.canonical_part_number` is a new, separate
+field carrying the matched database `part_number`; `ac.chip` keeps the operator's raw token
+unchanged, so `dedup_fingerprint`'s first hashed component (which reads `ac.chip`) never re-keys.
+Both open sub-questions this todo left for the planner are answered: "what the exact name means for
+a multi-alias row" is D-01's token-match rule (the alias that case-insensitively equals the
+operator's raw token; first alias when none matches); "whether to strip the parenthetical mode
+annotation" is D-02's answer -- no, the selected alias keeps the mode annotation verbatim, because
+paren-stripping collides distinct DALLAS rows. The "also in scope" test-sweep ask (updating the app
+test suite to canonical spellings) is **refused with a measurement**, D-04: a sweep would rewrite
+`chip="m27c512"` to `chip="M27C512"`, which produces the exact hash Phase 174 froze as
+`m27c512-full-canonical-name` specifically to catch a `parts[0]` normalization -- colliding two
+frozen shapes and re-keying the milestone's own oracle. What changed instead: assertions on
+`build_title()` output and on the rendered headings, per D-04's own scope statement.

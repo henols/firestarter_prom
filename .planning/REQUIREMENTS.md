@@ -81,22 +81,22 @@ own comment says so. This is the gh#23 gap.
 
 Reuses 999.36's drafted IDs. **RPT-E1 is changed** by D-3.
 
-- [ ] **RPT-A1**: `chip_id_actual` is populated with the verified id on a **passing** id check, not only on a mismatch. No companion provenance key, no qualifier string.
-- [ ] **RPT-A2**: `steps[].fingerprint` gains `total`, `bad`, `bad_pct` and `evidence` as **additive siblings**; `classification` keeps its existing key.
-- [ ] **RPT-A3**: `steps[].divergence` is exported — `None` only when no divergence was computed.
-- [ ] **RPT-A4**: `plan.is_uv` reaches the report as a top-level boolean, read off the single `derive_plan` decision, never re-derived.
-- [ ] **RPT-A5**: The detected chip ID becomes a `StepResult` field rather than being recovered by scraping prose (`cli_handlers.py:2172-2179`).
-- [ ] **RPT-B1**: `voltage.vpp_mv` and `voltage.vpe_mv` are deleted from the dataclass, `_voltage_dict()` and the schema. That no code path assigns them is proven by **test**, not asserted.
-- [ ] **RPT-B2**: `banner.locked_steps` is deleted; the N-of-M banner itself is kept. `Plan.locked_destructive` is adjudicated separately per D-7.
+- [x] **RPT-A1**: `chip_id_actual` is populated with the verified id on a **passing** id check, not only on a mismatch. No companion provenance key, no qualifier string.
+- [x] **RPT-A2**: `steps[].fingerprint` gains `total`, `bad`, `bad_pct` and `evidence` as **additive siblings**; `classification` keeps its existing key.
+- [x] **RPT-A3**: `steps[].divergence` is exported — `None` only when no divergence was computed.
+- [x] **RPT-A4**: `plan.is_uv` reaches the report as a top-level boolean, read off the single `derive_plan` decision, never re-derived.
+- [x] **RPT-A5**: The detected chip ID becomes a `StepResult` field rather than being recovered by scraping prose (`cli_handlers.py:2172-2179`).
+- [x] **RPT-B1**: `voltage.vpp_mv` and `voltage.vpe_mv` are deleted from the dataclass, `_voltage_dict()` and the schema. That no code path assigns them is proven by **test**, not asserted.
+- [x] **RPT-B2**: `banner.locked_steps` is deleted; the N-of-M banner itself is kept. `Plan.locked_destructive` is adjudicated separately per D-7.
 - [x] **RPT-C1**: The two re-sync events at `serial_comm.py:488-494` and `:504-510`, `_decode_id_frame` returning `None`, and `get_response`'s timeout each increment a real counter reachable by the report.
 - [x] **RPT-C2**: `transport_health` reports those real counts. `NOT_MEASURED` remains **only** for a counter genuinely not wired, and `_is_transport_suspect`'s present-AND-elevated rule is unchanged — absent data still cannot fabricate suspicion.
-- [ ] **RPT-D1**: `duration_s` is the **per-operation** cost — `_aggregate_cycle_results` (`chip_test.py:1280`) stops summing across cycles. Its meaning must not vary with `run_count`, so a `--fast` value is directly comparable to a default run's.
-- [ ] **RPT-D2**: A real wall-clock `elapsed` for the whole command is added to `to_dict()`, and the render-only `steps total` sum-of-sums row is removed.
-- [ ] **RPT-E1**: `schema_version` becomes **`2.0`** (D-3).
-- [ ] **RPT-E2**: Deletions are forward-only — the frozen schema-1.2 fixtures keep parsing unchanged, asserted by test.
-- [ ] **RPT-E3**: `dedup_fingerprint` is byte-identical for every pre-existing report shape **except** the re-keys declared under GATE-06, each of which is asserted to be exactly the change it declared and nothing more.
-- [ ] **RPT-F1**: `auto_capture.canonical_part_number` carries the matched database `part_number` and is used for the issue title and body; `ac.chip` keeps the operator's raw token (D-2). A rule states which alias a title shows when `part_number` is a comma-joined list.
-- [ ] **RPT-F2**: `.claude/skills/devtest-triage/SKILL.md` is updated in the same commit as RPT-B1 (D-5).
+- [x] **RPT-D1**: `duration_s` is the **per-operation** cost — `_aggregate_cycle_results` (`chip_test.py:1280`) stops summing across cycles. Its meaning must not vary with `run_count`, so a `--fast` value is directly comparable to a default run's.
+- [x] **RPT-D2**: A real wall-clock `elapsed` for the whole command is added to `to_dict()`, and the render-only `steps total` sum-of-sums row is removed.
+- [x] **RPT-E1**: `schema_version` becomes **`2.0`** (D-3).
+- [x] **RPT-E2**: Deletions are forward-only — the frozen schema-1.2 fixtures keep parsing unchanged, asserted by test.
+- [x] **RPT-E3**: `dedup_fingerprint` is byte-identical for every pre-existing report shape **except** the re-keys declared under GATE-06, each of which is asserted to be exactly the change it declared and nothing more.
+- [x] **RPT-F1**: `auto_capture.canonical_part_number` carries the matched database `part_number` and is used for the issue title and body; `ac.chip` keeps the operator's raw token (D-2). A rule states which alias a title shows when `part_number` is a comma-joined list.
+- [x] **RPT-F2**: `.claude/skills/devtest-triage/SKILL.md` is updated in the same commit as RPT-B1 (D-5).
 
 ### Measurement
 
@@ -106,10 +106,10 @@ Reuses 999.36's drafted IDs. **RPT-E1 is changed** by D-3.
 
 ### Hygiene
 
-- [ ] **HYG-01**: `syrupy` is bounded `>=5.0,<7`. It is pinned unbounded today; PyPI now serves 6.0.0, whose headline change is native Amber serialization of stdlib dataclasses — and `Plan`, `Step`, `Fingerprint` and the report classes are all dataclasses.
-- [ ] **HYG-02**: No new runtime dependency is added. The shipped set stays `pyserial, requests, tqdm, click, rich, packaging`.
-- [ ] **HYG-03**: A decision is recorded that `dedup_fingerprint` must **not** be refactored to hash `to_dict()`. It is the tempting cleanup and it would make every additive field re-key every historical report — the precise failure this milestone forbids.
-- [ ] **HYG-04**: Any new `dev_test` helper is registered in `tools/check_devtest_orchestrator.py:152-164`, which silently does not scan what is not listed.
+- [x] **HYG-01**: `syrupy` is bounded `>=5.0,<7`. It is pinned unbounded today; PyPI now serves 6.0.0, whose headline change is native Amber serialization of stdlib dataclasses — and `Plan`, `Step`, `Fingerprint` and the report classes are all dataclasses.
+- [x] **HYG-02**: No new runtime dependency is added. The shipped set stays `pyserial, requests, tqdm, click, rich, packaging`.
+- [x] **HYG-03**: A decision is recorded that `dedup_fingerprint` must **not** be refactored to hash `to_dict()`. It is the tempting cleanup and it would make every additive field re-key every historical report — the precise failure this milestone forbids.
+- [x] **HYG-04**: Any new `dev_test` helper is registered in `tools/check_devtest_orchestrator.py:152-164`, which silently does not scan what is not listed.
 
 ---
 
@@ -173,24 +173,24 @@ Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
 | UV-02 | Phase 179 | Complete |
 | UV-03 | Phase 179 | Complete |
 | PRUNE-08 | Phase 180 | Complete |
-| RPT-A1 | Phase 181 | Pending |
-| RPT-A2 | Phase 181 | Pending |
-| RPT-A3 | Phase 181 | Pending |
-| RPT-A4 | Phase 181 | Pending |
-| RPT-A5 | Phase 181 | Pending |
-| RPT-B1 | Phase 181 | Pending |
-| RPT-B2 | Phase 181 | Pending |
-| RPT-D1 | Phase 181 | Pending |
-| RPT-D2 | Phase 181 | Pending |
-| RPT-E1 | Phase 181 | Pending |
-| RPT-E2 | Phase 181 | Pending |
-| RPT-E3 | Phase 181 | Pending |
-| RPT-F1 | Phase 181 | Pending |
-| RPT-F2 | Phase 181 | Pending |
-| HYG-01 | Phase 181 | Pending |
-| HYG-02 | Phase 181 | Pending |
-| HYG-03 | Phase 181 | Pending |
-| HYG-04 | Phase 181 | Pending |
+| RPT-A1 | Phase 181 | Complete |
+| RPT-A2 | Phase 181 | Complete |
+| RPT-A3 | Phase 181 | Complete |
+| RPT-A4 | Phase 181 | Complete |
+| RPT-A5 | Phase 181 | Complete |
+| RPT-B1 | Phase 181 | Complete |
+| RPT-B2 | Phase 181 | Complete |
+| RPT-D1 | Phase 181 | Complete |
+| RPT-D2 | Phase 181 | Complete |
+| RPT-E1 | Phase 181 | Complete |
+| RPT-E2 | Phase 181 | Complete |
+| RPT-E3 | Phase 181 | Complete |
+| RPT-F1 | Phase 181 | Complete |
+| RPT-F2 | Phase 181 | Complete |
+| HYG-01 | Phase 181 | Complete |
+| HYG-02 | Phase 181 | Complete |
+| HYG-03 | Phase 181 | Complete |
+| HYG-04 | Phase 181 | Complete |
 
 **Coverage:**
 

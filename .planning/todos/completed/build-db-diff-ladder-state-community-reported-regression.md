@@ -3,8 +3,10 @@ title: "`build_db_diff`'s `ladder_state` no longer reaches `community-reported` 
 date: 2026-08-05
 priority: low
 blocked_by: nothing technical — deferred as a scope-discipline decision, not a dependency. The fix touches `diagnostic_report.py`/`classify_fingerprint`, both outside every Phase 137 plan's declared file scope.
-resolves_phase: none (found by v1.30 Phase 134, confirmed-and-deferred by 134-06, dispositioned by Phase 137 plan 137-04 — no phase fixes the underlying code)
+resolves_phase: 177 (closed by plan 181-10, verified in code -- zero implementation)
 owner: henols
+resolved: 2026-09-09 (verified fixed by Phase 177's D-4/D-6 match bucket; closed by plan 181-10 with zero implementation)
+status: resolved
 ---
 
 # `build_db_diff`'s `ladder_state` regression — a real, still-open finding this milestone only recorded
@@ -58,3 +60,14 @@ named, with an owner, instead of disappearing at close.
 - `.planning/v1.30-OPERATOR-BATCH.md` §C item C-1 — the operator-facing record of this disposition.
 - `.planning/phases/137-close-honesty-ledger-claim-gate-gh12-followup/137-DECISION.md` — the Phase
   137 artifact recording this disposition as part of the milestone's own close.
+
+## RESOLUTION (2026-09-09)
+
+**Already fixed, by Phase 177 -- verified in code, not reimplemented.** `FP_MATCH = "match"` exists
+at `firestarter/chip_test.py:143`, the "perfect match" bucket this todo's "What is owed" section
+asked for, and `build_db_diff`'s fourth arm (`firestarter/diagnostic_report.py:425`) reaches
+`_LADDER_COMMUNITY_REPORTED` for a genuinely-passing chip. Phase 177's D-4/D-6 `match` bucket (the
+read-back-gating classification work) closed this exact gap; nobody closed this todo when it
+landed. Plan `181-10` performed **zero implementation** here -- it verified the fix is present and
+moved the todo to `completed/`. This is a bookkeeping close, not a code change, and is recorded as
+such rather than credited to Phase 181's own work.

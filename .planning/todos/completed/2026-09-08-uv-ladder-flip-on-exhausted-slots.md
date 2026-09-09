@@ -4,6 +4,8 @@ date: 2026-09-08
 priority: medium
 blocked_by: nothing technical — the fix is a "no write actually ran" guard in build_db_diff, not a UV special case; filed as a residual by Phase 179 rather than fixed in-phase because the underlying hole is PRE-EXISTING and reachable today on any non-UV refused write, and Phase 179's scope was UV-01/02/03, not a general ladder-fold audit.
 resolves_phase: 181
+resolved: 2026-09-09 (plan 181-08's shared "did a write actually run" predicate, `_write_step_was_refused`)
+status: resolved
 ---
 
 # UV run with exhausted slots: the ladder flip (T-179-05)
@@ -57,3 +59,15 @@ this is picked up, is a "no write actually ran" guard in `build_db_diff` (site:
 `diagnostic_report.py:403-405`) that distinguishes a `SKIPPED` write step backed by a real pass
 elsewhere in the run from a `SKIPPED` write step backed by nothing — not a UV-specific carve-out,
 since the same guard closes the pre-existing non-UV gap too.
+
+## RESOLUTION (2026-09-09)
+
+Fixed by plan `181-08`. `chip_test._write_step_was_refused(results)` is exactly the "no write
+actually ran" guard this todo asked for: true iff `results` carries a write-op (`OP_WRITE`/
+`OP_WRITE_PARTIAL`) result whose verdict is `SKIPPED`, with `NA` deliberately excluded so an
+unsupported-write part's disposition never moves. `build_db_diff`'s fourth arm now consults it as an
+extra disqualifying condition, computed beside `run_errored`. A full 19-shape before/after census
+found exactly 5 flips, all M27C512 shapes whose `write` step genuinely reads `SKIPPED` (every UV
+slot exhausted) — moving from candidate/community-reported to no-change/"", closing this exact
+defect. Not a UV special case, per this todo's own framing: the same guard closes the pre-existing
+non-UV gap identically. Full census: `.planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/evidence/181-08-write-refused-predicate.txt`.

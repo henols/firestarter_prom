@@ -4,6 +4,8 @@ date: 2026-09-08
 priority: medium
 blocked_by: nothing technical — the fix is a one-line index adjustment plus a decision about whether the field means "before this run" or "after this run"; filed as a residual because it was surfaced by Phase 179's bench measurement rather than authored by it, and the field predates the phase.
 resolves_phase: 181
+resolved: 2026-09-09 (plan 181-08 -- fix applied at the disclosure point, not the resolver)
+status: resolved
 ---
 
 # `slots_remaining` off-by-one at target-resolution time (T-179-07)
@@ -71,3 +73,18 @@ target resolves to a known `slot_index`, and assert the emitted `slots_remaining
 post-run expectation. The existing `tests/test_chip_test_uv_slot_write.py` module is the natural
 home — it already constructs the UV slot-write path end to end against a firmware-faithful double,
 so the leg costs no new fixture.
+
+## RESOLUTION (2026-09-09)
+
+Fixed by plan `181-08`, using Option 1 from this todo's own "two candidate fixes" analysis above
+("field means after this run"). The fix is deliberately NOT the one-line resolver change this todo
+proposed: `WriteTarget.slots_remaining`'s resolve-time expression
+(`slots_total - slot_index`, `chip_test.py:3014`) is left byte-unchanged, because the resolver does
+not yet know whether the write it is about to attempt will actually run. Instead,
+`_write_coverage_line` — the one place that holds both the resolved count and the run's own outcome
+— subtracts one from the resolved count when the write actually ran, and reports the resolved count
+unreduced when the write was refused (sharing the `_write_step_was_refused` predicate with the
+sibling ladder-flip fix, T-179-05). Tests:
+`tests/test_chip_test_cycle.py::test_slots_remaining_line_reports_after_this_run_when_the_write_ran`,
+`::test_slots_remaining_line_reports_the_resolved_count_when_the_write_was_refused`. Evidence:
+`.planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/evidence/181-08-write-refused-predicate.txt`.

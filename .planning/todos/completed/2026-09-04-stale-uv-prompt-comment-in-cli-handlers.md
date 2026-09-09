@@ -3,7 +3,9 @@ title: Stale UV-prompt design-history comment at `cli_handlers.py:2295-2303` des
 date: 2026-09-04
 priority: medium
 blocked_by: nothing technical; deferred by Phase 175's test-only boundary — the phase is test-only and `cli_handlers.py` is product code, so this phase could not touch it without invalidating its own zero-production-diff claim. Phase 179 re-examined this todo (Q8) and found a SECOND, independent blocker: the stale sentences begin mid-line and end mid-line inside the `# ALWAYS WRITES` paragraph, so a comment-preserving edit would require REWRITING two retained comment lines — and the standing operator rule forbids writing any `#` comment into source, ever, with no plan able to override it. The only zero-comment-added fix is deleting the WHOLE `ALWAYS WRITES` paragraph, which would also delete still-accurate prose about the AT28C family, the full-device write and report persistence. This needs the operator's call on which cost to pay (rewrite two lines vs. delete accurate prose); Phase 179 deliberately paid neither. See the "Q8 mid-line boundary finding (Phase 179)" section below for the measured line numbers.
-resolves_phase: none
+resolves_phase: 181
+resolved: 2026-09-09 (plan 181-04 -- whole ALWAYS WRITES paragraph deleted outright)
+status: resolved
 ---
 
 # Stale UV-prompt design-history comment at `cli_handlers.py:2295-2303`
@@ -108,3 +110,18 @@ the zero-comment rule to fix a stale one), or delete accurate prose along with t
 (loses correct documentation to remove incorrect documentation). Phase 179 deliberately paid neither
 cost and left `cli_handlers.py` byte-unchanged — confirmed across the whole phase by
 `git diff 835baba..HEAD --name-only -- firestarter/cli_handlers.py` reporting zero files.
+
+## RESOLUTION (2026-09-09)
+
+Fixed by plan `181-04`, which deleted the whole `# ALWAYS WRITES` paragraph outright rather than
+rewriting it — the fix option Phase 179's Q8 finding above declined to choose. That finding
+established the block could not be edited without rewriting two retained comment lines (2331 and
+2339, which begin/end mid-sentence shared with still-accurate prose), forbidden by this project's
+standing no-`#`-comments rule. A pure deletion of the whole paragraph is not a rewrite and cannot
+exceed the comment-census baseline. The two blockers this todo recorded dissolve together: D-09
+deletes `_resolve_write_scope` and its docstring in the same phase (removing the other half of the
+contradiction this comment created), and Phase 175's test-only-boundary deferral no longer applies
+because this phase is not making a zero-production-diff claim. The still-accurate AT28C-family,
+full-device-write and report-persistence prose this todo's own filing confirmed correct is not
+recoverable from the deleted comment; it is derivable from the code, which is where this project's
+rule says it belongs.

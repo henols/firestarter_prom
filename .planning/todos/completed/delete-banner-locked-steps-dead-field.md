@@ -2,11 +2,12 @@
 id: delete-banner-locked-steps-dead-field
 title: Delete banner.locked_steps and Plan.locked_destructive — provably unreachable since Phase 121, and the code says so
 captured: 2026-08-23
-status: pending
+status: resolved
 type: cleanup
 priority: low
 source: /gsd-explore 2026-08-23 (devtest-report-known-but-unstated-fields.md)
 resolves_phase: 181
+resolved: 2026-09-09 (plan 181-04's RPT-B2 deletion)
 ---
 
 # Delete `banner.locked_steps` / `Plan.locked_destructive`
@@ -66,3 +67,12 @@ or `resolve_chip` refuses a step (RESEARCH C-6). Only the always-empty list goes
 Independent of the rest of Backlog **999.36** — it touches no timing semantics
 and populates nothing. It can land alone, or ride 999.36's deletion task if that
 phase is planned first. Do not do it twice.
+
+## RESOLUTION (2026-09-09)
+
+Fixed by plan `181-04` (RPT-B2, D-08 adjudicated at the fullest depth). `banner.locked_steps`,
+`Plan.locked_destructive` and `write_scope="none"` are all deleted, along with
+`_resolve_write_scope`, per the operator's own choice to go deeper than this todo's narrower
+request. The N-of-M banner itself is kept, unconditionally rendering as this todo's "Fix" section
+asked. Not in `dedup_fingerprint`'s pre-image, so no re-key; the frozen schema-1.2 fixtures in
+`.claude/skills/devtest-triage/fixtures/` were left forward-only-parseable, unchanged.
