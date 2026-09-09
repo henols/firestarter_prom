@@ -485,7 +485,7 @@ Plans:
 
 Plans:
 
-- [ ] 181-01-PLAN.md — The tracer: one additive key travels the whole stack and proves the mechanism every later plan depends on — an additive report key cannot re-key a filed report. `plan.is_uv` reaches `to_dict()` as a top-level boolean read off the single `derive_plan` decision, `SCHEMA_VERSION` moves to `2.0` in the same commit as its literal assertions, both frozen 1.2/1.4 `devtest-triage` fixtures still parse forward-only, and RPT-E3 re-anchors from the retired `RK-174-` ledger to the 19 absolute `FROZEN_HASHES` literals with its exception clause discharged EMPTY
+- [x] 181-01-PLAN.md — The tracer: one additive key travels the whole stack and proves the mechanism every later plan depends on — an additive report key cannot re-key a filed report. `plan.is_uv` reaches `to_dict()` as a top-level boolean read off the single `derive_plan` decision, `SCHEMA_VERSION` moves to `2.0` in the same commit as its literal assertions, both frozen 1.2/1.4 `devtest-triage` fixtures still parse forward-only, and RPT-E3 re-anchors from the retired `RK-174-` ledger to the 19 absolute `FROZEN_HASHES` literals with its exception clause discharged EMPTY
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
