@@ -31,7 +31,7 @@ covered_files:
   - .planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-10-SUMMARY.md
   - .planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CLOSURE.md
   - .planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CONTEXT.md
-covered_digest: "v1:sha256:ab4ceec4ed49e139c165e9cfecb38d0975481bcc2ad8429fea0f15788c39da92"
+covered_digest: "v1:sha256:6b09f292c73dd1745b364247bb1c3323a19eddb71d5589c14abb79de0811468e"
 re_verification:
   previous_status: gaps_found
   previous_score: 18/19
