@@ -223,6 +223,15 @@ The mechanism every remaining plan in this phase depends on -- an additive repor
 
 **Blocker for the phase, not for this plan:** the whole-repo porcelain state depends on an unrelated concurrent session's work-in-progress on `serial_comm.py` completing (committing or reverting) before any later plan in this phase runs a whole-repo porcelain leg of its own. This plan's own work is fully committed and does not depend on that session resolving.
 
+## Self-Check: PASSED
+
+- All three evidence transcripts, `diagnostic_report.py`, `test_blast_radius_invariance.py`, and `test_diagnostic_report.py` confirmed present on disk with `[ -f ]`.
+- All six commit hashes (`4336561`, `2fe0cc6`, `90a5472` in `firestarter_app`; `dd3b53bb`, `30602deb`, `4349e613` in the meta repo) confirmed present via `git log --oneline --all`.
+- `tests/test_blast_radius_invariance.py -o addopts="" -q` re-run: `103 passed`.
+- `tests/test_diagnostic_report.py -o addopts="" -q` re-run: `77 passed` (matches pre-plan baseline exactly).
+- All plan-level `<verification>` items re-confirmed: 19/19 frozen hashes byte-identical; `to_dict()` fourteen keys with `is_uv` reading `self.plan.is_uv`; `SCHEMA_VERSION` `2.0` with no `"1.8"` literal in the pin module; `tools/snapshot_report_shapes.py --check` exits 0; both frozen devtest-triage fixtures parse under 2.0 unmodified; the key-list pin observed RED in both drift directions plus the empty-list control; `tokenize` comment counts at ceiling (214/183/0, none exceeded).
+- Porcelain: firmware submodule clean; this plan's own files clean when scoped; whole-app-repo leg reads dirty due to the documented unrelated concurrent session (see "Known Environmental Condition" above) -- not a failure of this plan's own work.
+
 ---
 *Phase: 181-report-fidelity-schema-2-0-canonical-naming-hygiene-close*
 *Completed: 2026-09-09*
