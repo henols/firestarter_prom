@@ -1,0 +1,27 @@
+== 1 syrupy specifier bound (HYG-01)
+syrupy_specifier=>=5.0,<7
+syrupy_installed=6.0.0
+specifier_accepts_installed=true
+specifier_accepts_7_0_0=false
+runtime_dependencies_changed=0
+
+== 2 boundary measured on both sides (packaging.specifiers.SpecifierSet)
+command=./.venv311/bin/python -c 'import tomllib,pathlib;from importlib.metadata import version;from packaging.specifiers import SpecifierSet;d=tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"));ex=d["project"]["optional-dependencies"]["test"];hits=[e for e in ex if e.split(">")[0].split("<")[0].split("=")[0].strip()=="syrupy"];assert len(hits)==1,hits;spec=SpecifierSet(hits[0].split("syrupy",1)[1]);inst=version("syrupy");print("syrupy_installed="+inst);print("specifier="+str(spec));assert inst in spec,(inst,str(spec));assert "7.0.0" not in spec,str(spec);print("boundary_ok=true")'
+syrupy_installed=6.0.0
+specifier=<7,>=5.0
+boundary_ok=true
+rc=0
+
+== 3 snapshot suite -- tools/snapshot_report_shapes.py --check
+command=./.venv311/bin/python tools/snapshot_report_shapes.py --check
+OK: 19 snapshot(s) under /workspaces/firestarter_app/tests/fixtures/reports match a fresh regeneration
+rc=0
+
+== 4 runtime dependency list unchanged (byte check via tomllib)
+command=./.venv311/bin/python -c 'import tomllib,pathlib;d=tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"));names=sorted(e.split(">")[0].split("<")[0].split("=")[0].strip() for e in d["project"]["dependencies"]);print("runtime="+",".join(names));assert names==["click","packaging","pyserial","requests","rich","tqdm"],names'
+runtime=click,packaging,pyserial,requests,rich,tqdm
+rc=0
+
+== 5 no installer invoked
+pip_install_invoked=false
+note=the bound is a source edit only; the installed 6.0.0 release already satisfies both the old and the new specifier, so nothing was reinstalled.
