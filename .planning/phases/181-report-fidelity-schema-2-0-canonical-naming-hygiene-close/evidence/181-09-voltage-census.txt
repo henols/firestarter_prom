@@ -1,0 +1,78 @@
+Plan 181-09 -- D-12's voltage-field census (RPT-B1)
+=====================================================
+
+Section 1 -- Task 1's deletion, measured
+------------------------------------------
+census_assignment_sites=0
+census_emit_sites=0
+census_surviving_rail_sites=4
+census_enclosing_functions=1
+textual_hits_package_and_tests=115
+false_positive_modules=ic_layout.py, test_check_dispatch_invariants.py, test_chip_resolver.py, test_diff_db_gate.py, test_eprom_database.py, test_extra_chips_supplement.py, test_sdp_capability.py, test_variant_decode_evidence_stability.py, test_wire_dict_equivalence.py
+census_at_head=GREEN
+census_at_planted_assignment=RED
+empty_expected_set=RED
+fixture_files_written=0
+
+Detail
+------
+The census over `firestarter/diagnostic_report.py` and `firestarter/cli_handlers.py`
+finds ZERO assignment sites whose target is an `ast.Attribute` named `vpp_mv` or
+`vpe_mv` on any object -- the positive claim `test_no_code_path_assigns_the_deleted_
+rail_fields` asserts directly. The same census over the SAME two modules finds the
+four surviving before/after names (`vpp_before_mv`, `vpp_after_mv`, `vpe_before_mv`,
+`vpe_after_mv`) assigned exactly once each, all four attributed to `_sampler` --
+`_make_sampler`'s inner closure in `cli_handlers.py` -- confirming the census is
+finding real sites, not passing on an empty tree (`census_enclosing_functions=1`:
+one distinct enclosing function name across all four survivor sites).
+
+The emit-site half: `_dict_literal_keys()` walks every `ast.Dict` literal in
+`diagnostic_report.py` (not only `_voltage_dict()`'s own) and finds neither deleted
+name among any dict-literal string key in the module.
+
+`textual_hits_package_and_tests=115`: a plain substring count of `"vpp_mv"` +
+`"vpe_mv"` across every `.py` file under `firestarter/` and `tests/`, EXCLUDING this
+census module itself and the six modules the census's own AST walk already scans or
+whose self-reference would inflate the count meaninglessly
+(`diagnostic_report.py`, `cli_handlers.py`, `test_voltage_field_census.py`,
+`test_blast_radius_invariance.py`, `test_diagnostic_report.py`,
+`test_dev_test_cmd.py`, `test_parse_devtest_issue.py` -- the last four carry the
+deleted names as historical prose, forward-only parse-input JSON literals, or
+now-corrected docstring text, not as assignment targets). Even after excluding all
+seven self-referential modules, 115 textual hits remain versus the census's own 0
+assignment sites for the deleted names -- a materially larger count, exactly as
+`test_a_textual_scan_would_return_false_positives_a_census_does_not` asserts. Nine
+of those hits land in modules carrying the DATABASE's `vpp_mv` field (a chip-record
+dict key, never a report attribute): `ic_layout.py`,
+`test_check_dispatch_invariants.py`, `test_chip_resolver.py`, `test_diff_db_gate.py`,
+`test_eprom_database.py`, `test_extra_chips_supplement.py`, `test_sdp_capability.py`,
+`test_variant_decode_evidence_stability.py`, `test_wire_dict_equivalence.py` -- the
+false-positive class a textual scan cannot avoid. (`tools/check_devtest_
+orchestrator.py`'s wire-dict key set is a tenth member of the same class, outside
+this census's `firestarter/`+`tests/` scan scope but named in the module's own
+docstring and in CONTEXT.md's D-12 measurement.)
+
+`census_at_planted_assignment=RED`: a single in-memory `str.replace` inserting
+`report.vpp_mv = vpp` immediately after the real `report.vpp_before_mv = vpp`
+assignment line (anchor-uniqueness asserted first: occurs exactly once in the
+unmutated source) reddens the positive claim -- the mutant's census reports a
+non-zero site for `vpp_mv`, and asserting the positive claim against that mutant
+raises `AssertionError`. No fixture file was written; the mutation existed only in
+process memory for the duration of the test.
+
+`empty_expected_set=RED`: a separate, explicitly named vacuity leg
+(`test_an_empty_expected_site_set_fails_rather_than_passing_vacuously`) asserts the
+real, non-empty survivor-site set against an empty expected set and confirms that
+raises `AssertionError` -- an accidentally-empty expectation could not have passed
+this census silently.
+
+pytest tail
+-----------
+$ ./.venv311/bin/python -m pytest tests/test_voltage_field_census.py -o addopts="" -v
+tests/test_voltage_field_census.py::test_no_code_path_assigns_the_deleted_rail_fields PASSED [ 25%]
+tests/test_voltage_field_census.py::test_a_planted_assignment_reddens_the_census PASSED [ 50%]
+tests/test_voltage_field_census.py::test_an_empty_expected_site_set_fails_rather_than_passing_vacuously PASSED [ 75%]
+tests/test_voltage_field_census.py::test_a_textual_scan_would_return_false_positives_a_census_does_not PASSED [100%]
+4 passed in 0.60s
+
+<!-- gsd:write-continue -->
