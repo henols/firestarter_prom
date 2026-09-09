@@ -4676,6 +4676,100 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 
 ## Backlog
 
+> ### Backlog review — 2026-09-09 (`/gsd-review-backlog`, third full pass)
+>
+> Ran with **no active milestone**: v1.36 closed and hand-archived 2026-09-09, `STATE.md` `status: complete`,
+> next step `/gsd-new-milestone`. Promotion was therefore **not** performed, on the same reasoning the
+> 2026-08-21 pass recorded — renumbering into phases 182+ today creates phases owned by no milestone.
+> **Review-only + bookkeeping + shortlist. Nothing was removed.**
+>
+> **Every disposition below was verified against live source or the live GitHub API at review time**, never
+> re-read from a prior pass's prose.
+>
+> **Retired as shipped (3):**
+> - **999.36** (`dev test` report honesty) — **fully shipped by v1.36**. All fourteen RPT-* requirements read
+>   `Complete` in [`v1.36-REQUIREMENTS.md`](milestones/v1.36-REQUIREMENTS.md), and the source agrees:
+>   `SCHEMA_VERSION = "2.0"`, `vpp_mv`/`vpe_mv` and `locked_steps`/`Plan.locked_destructive` gone,
+>   `chip_id_actual` / `divergence` / `is_uv` / `fingerprint_{total,bad,bad_pct,evidence}` exported, `elapsed`
+>   added beside a per-operation `duration_s`.
+> - **999.13** (protect `main` + centralize issues) — shipped by v1.35 Phases 172–173; **gh#6 is CLOSED**.
+>   The stub still read `(BACKLOG — gh#6)`.
+> - **999.34** (GSD provenance sweep) — promoted 2026-08-22 → v1.33 Phase 154 and shipped; only its stale stub
+>   directory survived.
+>
+> **Rewritten because measurement moved the scope (5):**
+> - **999.43** is now **R4 alone, and R4 is no longer unquantified.** v1.36 closed R1 as measured-empty
+>   (PRUNE-04), shipped R2 (PRUNE-01/02/03) and **declined R3 on measurement** (PRUNE-08, "measured, not worth
+>   doing"). MEAS-01 measured what R4 was waiting on: **2.518 s per connect Uno-class, 2.607 s Leonardo-class,
+>   of which 2.500 s is a board-independent structural floor** — 99.3 % and 95.9 % of the cost respectively.
+>   At the structurally-validated 22 connects (sst27sf512) to 32 (at28c256) that is **≈50–80 s per run**, the
+>   largest remaining non-write saving in the tool, and it needs no firmware flash.
+> - **999.44** is **half shipped**: the host half (b) landed as v1.36 Phase 179 (`FLAG_SKIP_BLANK_CHECK` on a
+>   monotone masked target, `chip_test.py:3290`). The **firmware half (a) is untouched** — `mem_util_blank_check`
+>   still hard-resets `handle->address = 0` and scans to `mem_size` — so the product-level bug is exactly as
+>   filed: `firestarter write -a 0x3FF00` on a non-erasable part holding any data is still refused.
+> - **999.37**'s stated blocker is **lifted**: it said to sequence 999.36's Class C first "or this investigation
+>   has no instrumentation to stand on", and v1.36 Phase 176 shipped exactly those counters (RPT-C1/C2). It is
+>   now actionable, and **gh#62 carries fresh field evidence** — a user transcript showing `ERROR: Empty input`
+>   twice on **every** connect, before any operation runs.
+> - **999.45** has **shrunk to one line.** The uncommitted rename is gone: `tools/build_db.py` reads
+>   `_AT28C_DIP24_NAMES` at `:545`/`:564` and both docstrings agree with it, so half (a) is moot. Only half (b)
+>   survives — `test_numeric_schema_source_scan.py:40` still cites `build_db.py:594` for a symbol that lives at
+>   545. Quick-shaped now, not phase-shaped.
+> - **999.39** is **narrowed, not retired.** Tested directly at app `3.0.0b38` against the live `uno` on
+>   `/dev/ttyACM1`: with `FIRESTARTER_CONFIG_DIR` set, a serial-touching `fw` probe wrote its `config.json` into
+>   the override directory and left `~/.firestarter/config.json`'s mtime **unchanged**. The main `remember_port`
+>   path is therefore clean; whatever leaked in v1.34 is on a path this test does not exercise (`fw --install`
+>   or the `dev test` submit flow). Not reproducible ≠ fixed — but the next attempt starts from here.
+>
+> **Filed this pass (4) — the GitHub import was 6 weeks stale.** The last sweep of `henols/firestarter_prom`
+> was 2026-07-27. Of the eleven issues opened since, `dev test` reports are handled by the triage skill and
+> gh#36/#37 were captured as 999.32/999.33, but **two non-`dev test` issues had no stub at all**, and two v1.36
+> close residuals lived only in a close record:
+> - **999.51 ← gh#60** — no warning that JP5 must be cut before an 8 Mbit EPROM operation. *"Guess who fried
+>   chips."* Safety, CLI-side.
+> - **999.52 ← gh#62** — `erase AE29F2008` refuses with `Not supported`; the same die erases fine when addressed
+>   as `SST39SF020`.
+> - **999.53** — v1.36's own open **WR-01**: `_is_interactive` became dead code and two tests named `..._on_a_tty`
+>   pass for the wrong reason. Disclosed in the close record's honesty ledger and nowhere else.
+> - **999.54** — the replies **owed** on gh#23 / gh#28 / gh#31. v1.36 was scoped around those three disputes
+>   ("on three of them the reporter disputes the tool's own triage") and closed without answering any of them;
+>   the reporter's last words, 2026-08-09, are *"I believe the bot is incorrect."*
+>
+> **Re-verified still live, unchanged (6):** 999.15 (`-D DEV_TOOLS` still in the shared `[env]` block at
+> [`platformio.ini:24`](../firestarter/platformio.ini#L24)) · 999.26 + 999.27 (`requires-python = ">=3.9"` /
+> `target-version = "py39"` against mypy `python_version = "3.10"`) · 999.30 (`progress.close()` with no
+> snap-to-total, [`eprom_operations.py:611`](../firestarter_app/firestarter/eprom_operations.py#L611)) ·
+> 999.31 (`0x07` and `0x08` still `energy_cap_us = 0`, [`eprom_params.cpp:31-33`](../firestarter/src/proms/eprom_params.cpp#L31-L33)) ·
+> 999.41 (baseline still records the pre-fix uno 22952 / uno328pb 23000 / leonardo 25098) ·
+> 999.47 (`Catalog sync check` run `33447867312` on `main` is still the newest run, still `failure`, no green
+> run since 2026-08-31) · 999.50 (`PROTOCOLS.md:11` and `tests/scan_paths.py:114` both still name the deleted
+> `tools/wiki/dispatch_mirror.py`).
+>
+> **Bookkeeping applied:** deleted the three stale stub directories for shipped/promoted items (999.13, 999.34,
+> 999.36 — same handling as 999.4–999.7 and the 2026-08-21 five). New items follow the post-999.36 convention
+> and are **ROADMAP entries only, no stub directory**.
+>
+> **➡ Next-milestone shortlist (operator ruling, 2026-09-09). SUPERSEDES the 2026-08-21 four-cluster shortlist.**
+> Two clusters, tagged `**➡ SHORTLISTED 2026-09-09**` on each member:
+> 1. **`dev test` speed + community close-out** — 999.43 (R4 only) · 999.54 (gh#23/#28/#31 replies) ·
+>    999.52 (gh#62) · 999.51 (gh#60). Host-only throughout; **no firmware flash**, which is load-bearing because
+>    leonardo has had 0 B flash *and* 0 B RAM headroom since v1.32 Phase 153.
+> 2. **Hygiene close-out** — 999.41 · 999.47 · 999.50 · 999.45 · 999.53. Small, mechanical, no external clock.
+>
+> **⚠ Explicitly NOT shortlisted, and it is the one item with a clock: 999.26 + 999.27.** The toolchain pair was
+> put to the operator this pass with its deadline stated and was **not selected**. **Python 3.10 EOLs
+> 2026-10-31 — seven weeks from this review.** Recorded here, not silently dropped: whoever runs
+> `/gsd-new-milestone` next should re-decide this deliberately rather than inherit the omission.
+>
+> **Parked, unchanged:** 999.1 (absorbed by v1.26 — do not promote standalone), 999.2, 999.3, 999.8, 999.9,
+> 999.11, 999.12 (residual content scope only, see its rewritten stub), 999.15, 999.17, 999.20, 999.28, 999.29,
+> 999.32, 999.33, 999.35, 999.37, 999.38, 999.39, 999.40, 999.42, 999.44, 999.46.
+>
+> **Outside this review's scope but noted:** `.planning/todos/pending/` now holds **37 items** (was 25 at the
+> 2026-08-21 pass, still 0 done) — a parallel queue `/gsd-review-backlog` does not touch. It has grown by 12
+> across three milestones with nothing draining it.
+
 > ### Backlog review — 2026-08-21 (`/gsd-review-backlog`, second full pass)
 >
 > Ran with **no active milestone**: v1.32 closed and archived 2026-08-21, `STATE.md` `status: milestone-complete`,
@@ -4904,7 +4998,32 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
-### Phase 999.12: Move documentation from app + firmware repos into the project Wiki (BACKLOG — gh#5)
+### Phase 999.12: Move documentation from app + firmware repos into the project Wiki (⚠ PARTIALLY SHIPPED by v1.35 — relocation DONE, content NOT authored — gh#5 still OPEN)
+
+**⚠ Status corrected 2026-09-09 (backlog review). The move happened; the content did not.** v1.35 Documentation
+Consolidation & Wiki Migration shipped 2026-09-02: `firestarter_prom` became the front door, both sub-repo
+`doc/` directories were emptied and removed, and the wiki became the single home for project documentation.
+**[gh#5](https://github.com/henols/firestarter_prom/issues/5) is still OPEN** (last touched 2026-09-02), and
+correctly so — v1.35's own scope note is explicit that *"nothing new is authored: this milestone relocates and
+corrects."*
+
+**What therefore remains in this stub is exactly the content inherited from the retired 999.14 / gh#7**, none
+of which v1.35 wrote: the searchable **compatibility matrix**, the **family pages**, the **task-oriented
+tutorials**, and the README/metadata keywords. The programming-algorithm documentation half is the closest to
+done, since `PROTOCOLS.md` and `PROTOCOL-LEDGER.{md,json}` are the named upstreams to copy from rather than
+re-author.
+
+**The honesty constraint below is now MORE binding, not less, and its guard was retired the same week.** The
+mitigation this stub demanded — "either a periodic check that the Wiki's device/matrix pages still agree with
+`chip_database.json` + `PROTOCOL-LEDGER.json`, or an explicit staleness disclaimer" — has no implementation:
+`wiki-check.yml` and every checker under `tools/wiki/` were **retired 2026-09-02** (`5426d7ef`) as
+disproportionate to a 12-page wiki, leaving **no automated wiki guard at all**. Any milestone that authors the
+matrix or family pages therefore inherits the drift problem with nothing watching it, and must decide the
+disclaimer-or-checker question itself. Related: **999.50**, the two claims of a guard that no longer exists.
+
+**gh#7's upstream action is DISCHARGED:** [gh#7](https://github.com/henols/firestarter_prom/issues/7) is now
+**CLOSED** — confirmed against the live issue list this pass. The reply this stub said was owed is no longer owed.
+
 
 **Goal:** [Captured from GitHub] Move all relevant documentation out of the app and firmware repos into the Wiki of the central project repo.
 **Requirements:** TBD
@@ -4925,7 +5044,29 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
-### Phase 999.13: Protect `main` branches + centralize issue tracking (BACKLOG — gh#6)
+### Phase 999.13: Protect `main` branches + centralize issue tracking (✅ SHIPPED 2026-09-02 → v1.35 Phases 172–173 — gh#6 CLOSED)
+
+**✅ RETIRED — SHIPPED (backlog review 2026-09-09).** Both halves landed in **v1.35 Documentation
+Consolidation & Wiki Migration**, and **[gh#6](https://github.com/henols/firestarter_prom/issues/6) is CLOSED**
+— confirmed against the live issue list this pass, where it no longer appears among the 24 open issues.
+
+- **Branch protection:** all three repositories carry an active `Protect main` ruleset — pull request required,
+  no direct push, no force-push, no deletion, `current_user_can_bypass: never`. Recorded in this repo's own
+  `CLAUDE.md` and in [`notes/v135-close-procedure-under-protection.md`](notes/v135-close-procedure-under-protection.md).
+- **The close-procedure consequence this stub predicted was real and is handled:** `/gsd-complete-milestone`
+  no longer pushes `main` directly, and this project's close targets `beta` (`git.base_branch`), so the beta
+  lockstep cut is not blocked.
+- **Issue centralization:** in force; `firestarter_prom` is the sole tracker.
+
+**Two live consequences were spun out rather than left inside this stub, and both are still open:**
+**999.46** (the rulesets block the stable-release version bump in both sub-repos — the next stable release
+fails at the version-bump step) and **999.47** (`Catalog sync check` red on `firestarter_prom`'s `main`).
+Retiring this item does **not** retire those.
+
+**Absorbed 999.16 / gh#9 remains partially owed:** [gh#9](https://github.com/henols/firestarter_prom/issues/9)
+(`Repository Structure and Contribution Guide`) is **still OPEN**, last touched 2026-09-02. The end-state it
+describes is now configured, so what it needs is a closing reply or a close-as-done, not implementation.
+
 
 **Goal:** [Captured from GitHub] Make `henols/firestarter_prom` the single issue tracker (issues disabled in the app + firmware repos, both linking to it, existing open issues migrated/cross-referenced first), and put all three repos' `main` behind rulesets: no direct pushes, PR required, no force-push, no deletion, admins included absent a documented emergency bypass, required status checks + resolved conversations where applicable. Approval count may stay 0 for a single-maintainer workflow provided a PR is still mandatory.
 **Requirements:** TBD
@@ -4934,11 +5075,11 @@ Plans:
 
 **Absorbed 999.16 / gh#9 (backlog review 2026-07-27):** the contribution-guide stub was retired into this one — gh#9 is a pinned reference issue describing the end-state this issue configures, not separate work. Its content becomes this phase's **docs step**: state that `firestarter_prom` is the central repo (roadmap, feature requests, bug reports, release + documentation planning, cross-repo coordination) and the only one with Issues enabled; that `firestarter_app` (Python app) and `firestarter` (AVR firmware) have Issues disabled and point reports at `firestarter_prom/issues`; and that PRs go to the repo containing the changed code. Update READMEs, descriptions, issue templates, support links and badges accordingly. **Sequencing:** the guide text must be written *after* — or jointly with — 999.9 (gh#2), which renames all three repos and would immediately invalidate it. gh#9 stays open on GitHub as the pinned orientation issue.
 
-**Triage note (2026-07-27):** The issue-centralization half is already in force in practice (this import found all 17 issues living in `firestarter_prom`). The branch-protection half **changes the GSD close procedure** — `/gsd-complete-milestone` merged and pushed `main`/`beta` directly through v1.21; under PR-only `main` that becomes a PR flow or a documented admin bypass. Also note this repo's milestone convention pushes to `beta`, not `main` (`feedback_branching`), so protection must not block the beta lockstep cut.
+**Triage note (2026-07-27):** The issue-centralization half is already in force in practice (this import found all 17 issues living in `firestarter_prom`). The branch-protection half **changes the GSD close procedure** — `/gsd-complete-milestone` merged and pushed `main`/`beta` directly through v1.21; under PR-only `main` that becomes a PR flow or a documented admin bypass. Also note this repo's milestone convention pushes to `beta`, not `main` (`feedback_branching`), so protection must not block the beta lockstep cut. *(Both predictions held — see the retirement block at the top of this stub.)*
 
 Plans:
 
-- [ ] TBD (promote with /gsd-review-backlog when ready)
+- [x] Shipped as **v1.35 Phases 172–173** (closed 2026-09-02). Residuals live on as **999.46** and **999.47**; gh#9 still owes a closing reply.
 
 <!-- Phase 999.14 (Generated device/algorithm documentation site, gh#7) was RETIRED into 999.12
      at the third backlog-review pass on 2026-07-27. The two stubs proposed competing destinations
@@ -5374,7 +5515,34 @@ Plans:
 
 ---
 
-### Phase 999.36: `dev test` report — fill what is known, delete what is dead, and make `duration_s` an operation cost (BACKLOG — filed 2026-08-23 by operator report + `/gsd-explore` sweep)
+### Phase 999.36: `dev test` report — fill what is known, delete what is dead, and make `duration_s` an operation cost (✅ SHIPPED 2026-09-09 → v1.36 Phase 181 — filed 2026-08-23 by operator report + `/gsd-explore` sweep)
+
+**✅ RETIRED — SHIPPED IN FULL (backlog review 2026-09-09).** Every requirement drafted below was carried into
+**v1.36 `dev test` Fidelity** and closed. All fourteen `RPT-*` rows read `Complete` in
+[`v1.36-REQUIREMENTS.md`](milestones/v1.36-REQUIREMENTS.md), and the shipped source was read directly rather
+than trusted from the ledger:
+
+| Drafted here | Shipped as | Verified in source |
+|---|---|---|
+| RPT-A1 `chip_id_actual` populated | RPT-A1, Phase 181 | `cli_handlers.py:2234-2244` reads it structurally off the id step |
+| RPT-A2 fingerprint siblings | RPT-A2, Phase 181 | `fingerprint_total` / `_bad` / `_bad_pct` / `_evidence` emitted beside an unchanged `fingerprint` key |
+| RPT-A3 `divergence` exported | RPT-A3, Phase 181 | `diagnostic_report.py:922` |
+| RPT-A4 `plan.is_uv` exported | RPT-A4, Phase 181 | `diagnostic_report.py:1007` |
+| RPT-B1 delete `vpp_mv`/`vpe_mv` | RPT-B1, Phase 181 | no assignment and no key remains; only a historical note at `:511` |
+| RPT-B2 delete `locked_steps` | RPT-B2, Phase 181 | `locked_steps` and `Plan.locked_destructive` both absent from the app |
+| RPT-C1/C2 real transport counters | RPT-C1/C2, Phase 176 | `resync_body_truncated` / `resync_length_missing` wired from `firestarter.transport_counters` |
+| RPT-D1 per-operation `duration_s` | RPT-D1, Phase 181 | cross-cycle summing removed |
+| RPT-D2 real `elapsed`, drop sum-of-sums | RPT-D2, Phase 181 | `elapsed` in `to_dict()` at `:996`, rendered at `:1104` |
+| RPT-E1 schema bump | RPT-E1, Phase 181 | `SCHEMA_VERSION = "2.0"` — **2.0, not the 1.8 drafted here**, per v1.36's D-3: three deleted keys make a major number the honest label |
+| RPT-E2 forward-only deletion | RPT-E2, Phase 181 | frozen schema-1.2 fixtures still parse |
+| RPT-E3 dedup byte-identity | GATE-01…06 + RPT-E3 | **the gate this stub assumed existed did not.** v1.36 research falsified the "not one field is in that hash" premise by execution: the hash reads values and plan shape, and four v1.36 code paths measurably re-key it. Phase 174 built the frozen-hash oracle first; the re-key was then taken **deliberately and once** (D-4/D-6), not avoided |
+
+**The one claim in this stub that was wrong, recorded so it is not repeated:** the "THE CONSTRAINT THAT MAKES
+THIS CHEAP" paragraph asserted `dedup_fingerprint` stays byte-identical because no touched field is in the
+hash. That reasoning was **falsified against `firestarter_app @ 0a93999`** — the hash is computed over values
+and plan shape, not over a schema key list, so field-membership was never the right test. The stub's
+conclusion happened to be defensible for its own field set; its *reason* was not.
+
 
 **Goal:** Make the `dev test` report state what the run already knows. Three defects were reported by the operator and all three confirmed; the sweep that followed found **four more instances of the same class**. Every field below was read from source at schema 1.7, not inferred.
 
@@ -5418,9 +5586,27 @@ Plans:
 
 Plans:
 
-- [ ] TBD (promote with /gsd-review-backlog)
+- [x] Shipped as **v1.36 Phases 176 + 181** (`dev test` Fidelity, closed 2026-09-09). See the disposition table at the top of this stub for the requirement-by-requirement mapping.
 
-### Phase 999.37: 64 KiB `Empty input` occurrences during `dev test` — unexplained, NOT covered by the v1.34 blank-check fix (BACKLOG — filed 2026-08-29 at the v1.34 close)
+### Phase 999.37: 64 KiB `Empty input` occurrences during `dev test` — unexplained, NOT covered by the v1.34 blank-check fix (BACKLOG — **blocker LIFTED 2026-09-09**; filed 2026-08-29 at the v1.34 close)
+
+**✅ The instrumentation this item was blocked on now exists (backlog review 2026-09-09).** This stub's closing
+instruction was *"Sequence 999.36 first, or at least its Class C, or this investigation has no instrumentation
+to stand on."* v1.36 Phase 176 shipped exactly that: the two `serial_comm.py` re-sync detection sites are now
+**real counters** (`resync_length_missing`, `resync_body_truncated`) reaching the report through
+`firestarter.transport_counters`, alongside `timeouts` and `probe_timeouts` (RPT-C1/C2, both `Complete`).
+v1.36 Phase 178 additionally gave a transport fault a **status distinct from the chip's verdict**, so a
+recurrence should now be attributable rather than filed as `[dev test] <chip> — FAIL`. **This item is
+actionable; it was not before.**
+
+**Fresh field evidence arrived 2026-09-09, and it is stronger than the original observation.**
+[gh#62](https://github.com/henols/firestarter_prom/issues/62) carries a user transcript in which `ERROR: Empty
+input` appears **twice on every single connect**, before any operation runs — on `erase`, on a second `erase`,
+and on `blank`, all three times, on a part unrelated to the 64 KiB cluster this stub was filed for. That is a
+reproducible occurrence in someone else's hands, which the Phase 162 sweep occurrences were not. Start there.
+Cross-link **999.52** (the gh#62 erase defect itself) and **999.40** (the `0xA4` overload that makes both
+reports hard to read).
+
 
 **Goal:** Explain, or affirmatively rule out, the `ERROR: Empty input` (`MSG_ERR_EMPTY_INPUT`, 164/0xA4) text that appeared during the Phase 162 chip sweep on **64 KiB** parts, at differing steps and without changing any step verdict: `CHIP__v133__w27c512`, `CHIP__v133__w27e512`, the superseded `CHIP__control__w27e512`, and `CHIP__v133__sst27sf512`.
 
@@ -5438,7 +5624,26 @@ Plans:
 
 **Standing operational rule while this is open, and the reason it is dangerous to "fix" naively:** do **not** correct the pot down toward 12.0 V against the firmware's own reading. The on-board ADC reads roughly 7.5 % high, so a firmware-chasing correction drives the real rail toward ~11.2 V — making the rig worse while looking like a fix. Set any target from a multimeter reading, never from the firmware's `vpp` figure.
 
-### Phase 999.39: App writes `~/.firestarter/config.json` despite `FIRESTARTER_CONFIG_DIR` (BACKLOG — filed 2026-08-29 at the v1.34 close)
+### Phase 999.39: App writes `~/.firestarter/config.json` despite `FIRESTARTER_CONFIG_DIR` (BACKLOG — **narrowed 2026-09-09, not reproduced on the main write path**; filed 2026-08-29 at the v1.34 close)
+
+**⚠ Narrowed by direct test 2026-09-09 (backlog review). Not reproducible ≠ fixed.** Tested at app
+`3.0.0b38` against the live `uno` on `/dev/ttyACM1`: with `FIRESTARTER_CONFIG_DIR` pointed at a fresh temporary
+directory, a serial-touching `firestarter fw` probe (which connects, identifies the board and exercises
+`remember_port`) wrote its `config.json` **into the override directory**, and `~/.firestarter/config.json`'s
+mtime was **unchanged** across both that run and a preceding `--help` / `list` pair. `get_config_dir()` resolves
+the variable correctly at [`config.py:30`](../firestarter_app/firestarter/config.py#L30).
+
+**What this does and does not establish.** The main config write path — `remember_port` → `set_value` →
+`_save_config` — honours the override today. It does **not** clear `ConfigManager`, because the three v1.34
+recurrences (cells A1, A2, A3/B2) happened during **bench runs**, and the two paths this test never exercised
+are exactly the ones those runs used: `fw --install` (a firmware flash) and the `dev test` submit flow. Both
+should be tested before this item is retired — and the leak signature is **mtime-only, content byte-identical**,
+so a diff will not show it and only a stat comparison will.
+
+**Operational note unchanged and still important: do NOT delete `~/.firestarter/`.** A saved port there makes
+`test_no_programmer_found_*` fail, which is an environment artifact rather than a regression — and deleting the
+directory mid-investigation destroys the evidence of what is writing to it.
+
 
 **Goal:** Make `FIRESTARTER_CONFIG_DIR` actually contain every config write. It does not today.
 
@@ -5457,6 +5662,11 @@ Plans:
 **Cost, stated so it is not rediscovered:** `include/messages.h` is **codegen-generated and id-only** — never hand-edit it. The change is an entry in the meta repo's `firestarter/tools/catalog/messages.toml` plus a `codegen.py` regeneration for both cpp and python targets, then the emit-site split. Both sides of the protocol constant surface move together.
 
 ### Phase 999.41: Re-record `size_baseline.json` at v1.33 land time (+16 B, three targets) (BACKLOG — filed 2026-08-29 at the v1.34 close)
+
+**➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.** **Re-verified live:**
+`firestarter/scripts/baseline/size_baseline.json`'s `avr_targets` still record **uno 22952 / uno328pb 23000 /
+leonardo 25098** — the pre-fix figures, byte-unchanged through v1.34, v1.35 and v1.36. RAM likewise
+1434 / 1440 / 1875. The re-record is owed exactly as filed.
 
 **Goal:** Return `firestarter/scripts/baseline/size_baseline.json`'s default-mode gate to green after the v1.34 blank-check fix, using the severance pattern.
 
@@ -5504,7 +5714,52 @@ and running, not photographed and reverse-engineered.
 
 **Two things that make a resumption cheaper than a restart.** The rig procedure, arm provenance, pinned images and gate tooling all exist and are proven on silicon (`.planning/v1.34/PROCEDURE.md`, `arms-provenance.json`, `images/`, `tools/`). And **the arm images do not contain the v1.34 blank-check fix** — so if this item resumes against the same pinned images, expect blank-check to fail at ~98 % on the three 512 KiB parts (W27E040, W29C040, SST39SF040) on **both** arms; that is the known, explained, pre-existing defect of 999.37's sibling, not a new finding. Re-pinning both arms to carry the fix is the alternative and **invalidates every row already recorded**, which is why v1.34 did not do it.
 
-### Phase 999.43: `dev test` adaptive, evidence-gated sequencing — 31% faster, no diagnostic loss (BACKLOG — filed 2026-08-30 from `/gsd-explore`)
+### Phase 999.43: `dev test` session reuse (R4) — one validated link per plan (BACKLOG — **REDUCED TO R4 ALONE 2026-09-09**; R1/R2/R3 all closed by v1.36; filed 2026-08-30 from `/gsd-explore`)
+
+**➡ SHORTLISTED 2026-09-09 — cluster 1, `dev test` speed + community close-out.** Operator ruling this pass.
+
+**Three of the four rules are gone, and the fourth is no longer unquantified.** v1.36 `dev test` Fidelity
+disposed of R1, R2 and R3 by measurement, not by assumption:
+
+| Rule | v1.36 disposition | Requirement |
+|---|---|---|
+| **R1** — never read what you can verify | **Closed as measured-empty inside the engine.** Exactly two `operator.read_eprom` sites exist and neither is a whole-device read-to-compare; the fingerprint read-back is explicitly excluded from the rule (D-1) | PRUNE-04 |
+| **R2** — diagnose on failure only | **SHIPPED.** A passing run performs **zero** fingerprint read-backs; the gate consults outcomes across all cycles, and a passing write/verify still reports a *synthesized* fingerprint (`bad=0`, classified `match`) so nothing is lost | PRUNE-01/02/03 |
+| **R3** — sample for a rate, sweep for a map | **DECLINED on measurement** — "measured, not worth doing", the outcome the requirement named as a success. R3 was then removed from the seed by absence | PRUNE-08 |
+| **R4** — one session per plan | **DEFERRED, and it is what remains** | R4-01 (v2) |
+
+**R4's payoff is now MEASURED, and it is large.** This stub's own honesty ledger said "its per-connect cost in
+seconds is unmeasured (the port was busy), so **R4's payoff is absent from every projection above**". v1.36
+Phase 176 measured it on real hardware, per board class, never blended
+([`176-MEASUREMENT.md`](milestones/v1.36-phases/176-transport-instrumentation-connect-cost-measurement-partially/176-MEASUREMENT.md)):
+
+| Board class | Median per connect | Structural floor | Remainder |
+|---|---|---|---|
+| Uno-class (512 B buffer, `/dev/ttyACM1`) | **2.518 s** | 2.500 s | 0.018 s |
+| Leonardo-class (1024 B buffer, `/dev/ttyACM0`) | **2.607 s** | 2.500 s | 0.107 s |
+
+Ten samples per class, `probe_timeouts: 0` on both, both sockets confirmed empty. **The board-independent
+structural floor is 2.500 s — 99.3 % of the Uno-class cost and 95.9 % of the Leonardo-class cost.** Against
+the connect counts this stub already validated structurally (13 predicted / 13 observed on a `--fast` log;
+**22** for sst27sf512 and **32** for at28c256), R4 is worth roughly **50–80 s per run**, and the at28c256 SDP
+leg alone still spends **12 connects on ~3 KB of traffic**.
+
+**Why it is host-only, which decides whether it can be scoped at all.** No firmware flash and no flash budget —
+leonardo has had **0 B flash and 0 B RAM** headroom since v1.32 Phase 153. Note R4-02 is already ruled **out of
+scope**: folding the VPP and VPE sampler reads needs two distinct firmware commands, so the seed's −2 connects
+must not be counted toward any projection.
+
+**The objection that must be answered in the plan, stated in v1.36's own words:** `run_plan`'s non-fatal-step
+guarantee means **a shared link poisons every later step unless the lease is invalidated on any `SerialError`**.
+`EpromOperator.comm` being torn down after every call is what currently makes each step independent. Lease
+invalidation is the whole design risk, not the connect count.
+
+**Nothing else from the original four-rule scope survives** — the per-class characteristics, the UV/SRAM/flash4
+carve-outs and the `--fast` re-keying discipline are all either shipped or moot. The seed
+[`dev-test-adaptive-sequencing.md`](seeds/dev-test-adaptive-sequencing.md) was amended by PRUNE-07 and the cost
+model [`dev-test-sequence-cost-model.md`](notes/dev-test-sequence-cost-model.md) had its "does not establish"
+list closed for per-connect cost; read both at their current state, not as this stub originally described them.
+
 
 **Goal:** Stop `dev test` paying **worst-case diagnostic cost on every run**. Make each expensive diagnostic conditional on a cheap oracle failing, so a passing run skips work whose output is empty by construction and a failing run keeps byte-identical fidelity. Modelled at **31.5% across six chip classes, 55–60% on UV parts, 30% (≈ 4 minutes) on W29C040.**
 
@@ -5522,7 +5777,29 @@ and running, not photographed and reverse-engineered.
 
 **Sequencing.** **R2 is separable and worth ~24% on its own** — filed as todo [`2026-08-30-gate-fingerprint-readback-on-step-failure.md`](todos/pending/2026-08-30-gate-fingerprint-readback-on-step-failure.md) so it can land without the rest. R1 and R3 are engine changes with real test surface. R4 is the largest structural change and the only one whose payoff is currently unquantified. **Not for v1.35**, which is documentation-only and touches no product code.
 
-### Phase 999.44: Write-init blank check is whole-device — non-blank UV EPROMs cannot be written at all (BACKLOG — filed 2026-08-30 from `/gsd-explore`, operator bench report)
+### Phase 999.44: Write-init blank check is whole-device — non-blank UV EPROMs cannot be written at all (⚠ HALF SHIPPED — host half (b) landed in v1.36 Phase 179; **firmware half (a) STILL LIVE**; filed 2026-08-30 from `/gsd-explore`, operator bench report)
+
+**⚠ Status corrected 2026-09-09 (backlog review), measured in both repositories.**
+
+- **Half (b), host — SHIPPED.** v1.36 Phase 179 passes `FLAG_SKIP_BLANK_CHECK` on a monotone masked write
+  target ([`chip_test.py:3290`](../firestarter_app/firestarter/chip_test.py#L3290)), and the bench run that
+  sealed it passed on the first and only attempt: UV-01/02/03 all `Complete`, a UV part holding data outside
+  the target slot now reaches `overall_verdict == "PASS"` with `run_count == 2`.
+- **Half (a), firmware — UNTOUCHED.** v1.36 was host-only by construction ("no firmware edit, so no dual-repo
+  lockstep"), and `mem_util_blank_check` still hard-resets `handle->address = 0` and scans to
+  `handle->mem_size` — verified at
+  [`memory.cpp:450-459`](../firestarter/src/proms/memory.cpp#L450-L459). It has no region concept.
+
+**So the product-level bug is exactly as filed and is now the whole of this item.** `firestarter write foo.bin
+-a 0x3FF00` against a non-erasable part holding any data is still refused on account of a byte at `0x000000`.
+Only `dev test`'s own UV slot path escapes, because only it passes the skip flag. The blast-radius paragraph
+below is unchanged for consequence (1); consequences (2) and (3) are discharged.
+
+**Do not reach for `-b` as the workaround when scoping this.** `build_flags`' `if not blank_check` is the only
+thing that sets `FLAG_SKIP_BLANK_CHECK` from the CLI, and the standing operator finding is that `write -b`
+skips the **erase** as well, corrupting non-blank chips while still reporting success. The fix is the
+region-scoped firmware check, not a documented flag.
+
 
 **Goal:** Make a partial write's pre-flight blank check apply to **the region being written**, not the whole device, and let a masked monotone-clearing write opt out of it entirely. Today a single non-`0xFF` byte anywhere on a non-erasable part makes the **entire part unwritable**, including into a provably blank slot 262 KB away.
 
@@ -5540,7 +5817,29 @@ and running, not photographed and reverse-engineered.
 
 **Test surface.** Firmware-touching → dual-repo lockstep, golden register traces and the size baseline all in play. The native trace stubs record no time and miss register-write elision, so a trace diff cannot carry this alone. **The regression test that matters is the one that did not exist:** a UV part with data outside the target slot must accept a slot write. Nothing in the suite covers a non-blank non-erasable part, which is exactly why this shipped.
 
-### Phase 999.45: Unattributed `_AT28C_DIP24_NAMES` rename in `build_db.py`, and the twice-stale docstring citation it exposed (BACKLOG — filed 2026-09-02 during v1.35 Phase 172, product code out of scope)
+### Phase 999.45: ~~Unattributed `_AT28C_DIP24_NAMES` rename~~ — **half (a) MOOT**; the twice-stale docstring citation remains (BACKLOG — filed 2026-09-02 during v1.35 Phase 172, product code out of scope)
+
+**⚠ SHRUNK TO ONE LINE 2026-09-09 (backlog review), measured.** The uncommitted rename is **gone** — both
+sub-repository working trees are porcelain-clean and `tools/build_db.py` reads `_AT28C_DIP24_NAMES` at
+[`:545`](../firestarter_app/tools/build_db.py#L545) (definition) and
+[`:564`](../firestarter_app/tools/build_db.py#L564) (its only use), i.e. the underscore this stub recommended
+reverting to. Both docstrings that name the symbol now **agree with the source**, so half (a) — settle the
+rename, make the docstrings agree — needs no work and no human ratification.
+
+**What survives is half (b) alone, and it is a single stale citation.**
+[`test_numeric_schema_source_scan.py:40`](../firestarter_app/tests/test_numeric_schema_source_scan.py#L40)
+still reads ``on `_AT28C_DIP24_NAMES` (build_db.py:594)``. The definition is at **545**; line 594 is an
+unrelated stderr message. The recommendation stands unchanged and is the reason this is not simply re-pinned:
+**de-pin it** — cite the symbol and its enclosing scope ("a local inside `main()`'s manufacturer loop"), which
+survives any line shift, rather than replacing `594` with `545` and resetting the same clock that has now
+expired twice.
+
+**This is `/gsd-quick`-shaped now, not phase-shaped** — one docstring line in one test file, no assertion
+moves, no regenerated `chip_database.json`. Scope it with the other citation-hygiene work in cluster 2 rather
+than as its own phase.
+
+**➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.**
+
 
 **Goal:** Dispose of an uncommitted, unattributed rename sitting in `firestarter_app/tools/build_db.py`, and repair the two test docstrings that cite the renamed symbol — one of which was already citing a line number that has been wrong for two milestones.
 
@@ -5593,6 +5892,11 @@ and running, not photographed and reverse-engineered.
 ---
 
 ### Phase 999.47: `firestarter_prom`'s default branch was already red on `Catalog sync check` before Phase 172's merges (BACKLOG — filed 2026-09-02 during v1.35 Phase 173, catalog content out of scope)
+
+**➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.** **Re-verified live against the GitHub API:** run
+`33447867312` (2026-08-31, `main`, `failure`) is **still the newest `Catalog sync check` run in the
+repository** — no run of any conclusion has happened since, on any branch. The default branch has now been red
+on this check for **9 days and two milestone closes**.
 
 **Goal:** Get `firestarter_prom`'s `Catalog sync check` workflow passing on `main` again.
 
@@ -5787,6 +6091,13 @@ Plans:
 
 ### Phase 999.50: The wiki-checker retirement left two live claims of a guard that no longer exists — one firmware file is declared guarded but is not (BACKLOG — filed 2026-09-02 at the v1.35 milestone close)
 
+**➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.** **Re-verified live in both repositories:**
+`firestarter/PROTOCOLS.md:11` still states the claims region "is machine-read by `tools/wiki/dispatch_mirror.py`",
+and `firestarter_app/tests/scan_paths.py:114` still names that deleted file as the guard for
+`test/native/avr/test_dispatch/test_configure_memory.cpp`. Both orphaned controls
+(`tests/fixtures/planted_dispatch_comment_only_hex.cpp`, `planted_dispatch_missing_hex.cpp`) are also still
+present, each still citing the deleted `test_dispatch_mirror.py` in its own header.
+
 **Goal:** Make the repositories stop asserting that `tools/wiki/dispatch_mirror.py` guards them, now that it does not exist.
 
 **Cause.** On 2026-09-02 the operator retired `wiki-check.yml` and every checker under `tools/wiki/` (`5426d7ef`) as disproportionate to an 11-page wiki; `MIGRATION-TABLE.md` is the only survivor. Two references to the deleted `dispatch_mirror.py` were left behind in tracked, live source. Neither is in `.planning/`, so neither is covered by the historical-by-intent exemption.
@@ -5802,6 +6113,202 @@ Plans:
 **Chosen fix.** Decide once whether the three-way dispatch invariant is worth keeping. If yes, restore a checker somewhere that runs and repoint both references at it. If no — the position the retirement implies — delete the claim sentence from `PROTOCOLS.md` and either drop the `scan_paths.py` entry or rekey it to a guard that exists, so the inventory stops overstating coverage. Fold in the two orphaned `firestarter_app/tests/fixtures/planted_dispatch_*.cpp` controls already deferred from Phase 168, whose only consumer was the deleted `test_dispatch_mirror.py`.
 
 **Test surface.** What would have to be proven: `git grep -n 'dispatch_mirror' -- . ':(exclude).planning/'` returns nothing in any of the three repositories, or returns only references to a checker that exists and runs; and no `ScanPathEntry` names a guard file that is absent.
+
+---
+
+### Phase 999.51: No warning that JP5 must be cut before an 8 Mbit EPROM operation — a user destroyed chips (BACKLOG — gh#60, filed 2026-09-09 by backlog review)
+
+**➡ SHORTLISTED 2026-09-09 — cluster 1, `dev test` speed + community close-out.**
+
+**Goal:** [Captured from GitHub] Warn, and refuse to proceed without confirmation, before any operation on an
+8 Mbit EPROM (A19 on pin 1) on a shield whose JP5 has not been cut. The reporter's words: *"there is no warning
+that, in order to safely deal with 8MBit EPROMs, you need to cut JP5, or you'll fry the chip. Guess who fried
+chips."*
+
+**Severity: this is the only backlog item with destroyed hardware behind it.** It is a safety gate, not an
+ergonomics request, and the reporter asked for it to be *deliberately* obstructive — *"because I know I'll get
+complacent, if it's not somewhat annoying, and can't be confirmed for me."* An auto-acknowledged warning would
+not satisfy the request.
+
+**The constraint the reporter already identified, and it is the whole design problem:** *"I don't believe you
+can check if JP5 is cut systematically."* If the jumper state is unreadable, the gate cannot be conditional on
+measurement — it must be an unconditional prompt on the affected part class, which makes **which parts trigger
+it** the load-bearing question. Answer that from the database (pin count, size, and the A19-on-pin-1 pinout
+family) rather than from a hand-kept part list.
+
+**Two questions the issue leaves open and scoping must answer:** the reporter asks *"Just writing, or reading
+too? Not sure when the VPP is on"* — settle it from the shield schematic and the protocol's VPP path, not from
+inference. And decide the interaction with `--force` and with non-interactive use: a confirmation prompt that
+`dev test`, CI or a piped invocation auto-answers is not a gate. Note the standing precedent that
+`--auto`/`--chain` auto-approve human-verify gates, so "there is a prompt" is not by itself a mitigation.
+
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#60`](https://github.com/henols/firestarter_prom/issues/60) —
+2026-09-04, label `enhancement`, 0 comments. Type: safety feature. Scope: host CLI; likely a database-derived
+part-class predicate plus a confirmation gate. **Not captured by the 2026-07-27 GitHub import, which predates
+it.**
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+---
+
+### Phase 999.52: `erase AE29F2008` refuses with `Not supported` — the refusal is deliberate, its wording is not, and the user routed around it onto a wrong chip identity (BACKLOG — gh#62, filed 2026-09-09 by backlog review)
+
+**➡ SHORTLISTED 2026-09-09 — cluster 1, `dev test` speed + community close-out.**
+
+**Goal:** [Captured from GitHub] `firestarter erase AE29F2008` fails with `ERROR: Not supported` /
+`Programmer error during init: Not supported`, and the same for `AT29C020` and `W29C020C`. The reporter found
+that the part *"seems to have no trouble erasing if treated as SST39F020"* — `erase SST39SF020 --force`
+succeeded in 0.14 s, and a subsequent `blank AE29F2008` came back clean over the full `0x40000`.
+
+**The mechanism is identified, and the refusal is BY DESIGN — read this before treating it as a plain bug.**
+Traced end to end at review time:
+
+1. **The part is correctly identified.** The DB record for `AE29F2008` (vendor `ASD`) declares
+   `chip_id_value: 0xDA45`, and the reporter's own `--force` run reports the die answering **`0xda45`**. The
+   database is not misidentifying this chip.
+2. **It is `algorithm 5`** (`PROTO_FLASH_5V_PAGE`, "flash4"), `pinout DIP32_SST39SF040`, 262144 B, with
+   `protect_off_before` / `protect_on_after` true and `infoic_page_size_raw: 128`. `SST39SF020` — the identity
+   the reporter forced — is **`algorithm 6`** (`PROTO_FLASH_NOR_UNLOCK`), `chip_id_value: 0xBFB6`.
+3. **The host clears `FLAG_CAN_ERASE` for protocol `0x05` on purpose.** `chip_test.py:319-324` states the
+   reason outright: `convert_to_programmer()` clears the flag "because setting it would route a **12V
+   bulk-erase onto a 5V-only part** (Pitfall 6)". The op-inclusion rule is
+   `can_erase and protocol != _PROTOCOL_FLASH4`.
+4. **The firmware then refuses, exactly as designed.** `eprom_erase` at
+   [`eprom_operations.cpp:34-40`](../firestarter/src/eprom_operations.cpp#L34-L40) emits
+   `MSG_ERR_NOT_SUPPORTED` (`0xA5`) when `FLAG_CAN_ERASE` is unset. The refusal precedes the main phase, which
+   is why it surfaces as an error "during **init**".
+
+**Therefore the defect is not the refusal — it is that the refusal teaches the user to bypass a safety gate.**
+`Not supported` names no cause and offers no alternative, so a capable user reasonably concluded the tool was
+incomplete and re-ran the operation under a **different chip's identity with `--force`**, which is precisely
+the unsafe path the gate exists to prevent. It happened to work on this die; the next person's may not be a
+NOR part that tolerates an alg-6 sector-erase sequence. **A safety refusal whose wording drives users around
+it is a defect in the refusal, not in the user.**
+
+**Scoping must decide two things, and they are separable:**
+- **(a) The message.** Make a flash4 erase refusal say why — a page-write part self-erases per page during the
+  write, so `erase` is unnecessary rather than unavailable — and say what to do instead (`write` directly).
+  Cheap, host-side, and it removes the incentive to forge an identity. Note `MSG_ERR_NOT_SUPPORTED` is a shared
+  id and `messages.h` is **codegen-generated and id-only** — any new id is a `messages.toml` + `codegen.py`
+  change in this meta repo, both targets together.
+- **(b) Whether the classification is right for THIS part.** An ASD-branded 0xDA45 die that accepts an alg-6
+  chip-erase and blank-checks clean afterwards is evidence worth taking seriously against its flash4
+  assignment. **The database is GENERATED — if this is wrong, the fix is in `build_db.py`'s decode, never a
+  hand-edit of `chip_database.json`.** The `devtest-rootcause` skill owns this half.
+
+**A live dead-code finding fell out of the same trace:** `configure_flash_5v_page`'s `CMD_ERASE` arm
+([`flash_5v_page.cpp:47-49`](../firestarter/src/proms/flash_5v_page.cpp#L47-L49)) installs
+`flash_5v_page_erase_execute`, but the host clears `FLAG_CAN_ERASE` for every protocol-`0x05` part, so
+`eprom_erase` refuses before that main handler can ever run. **The arm is structurally unreachable under the
+current host** — same shape as `MSG_ERR_PULSE_TOO_WIDE`'s unreachability in **999.31**. Decide whether it is
+dead weight on a target with zero flash headroom, or a deliberate provision awaiting a host change.
+
+**Also carries fresh evidence for two other items.** The transcript shows `ERROR: Empty input` **twice on every
+connect** — before any operation — on `erase`, on the forced `erase`, and on `blank`. That is a reproducible
+occurrence of **999.37**'s unexplained `0xA4` in someone else's hands, and a plain demonstration of **999.40**'s
+overload defect: three different transport conditions all print "Empty input".
+
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#62`](https://github.com/henols/firestarter_prom/issues/62) —
+2026-09-09, no labels, 0 comments. Type: defect + safety-wording. **Not captured by the 2026-07-27 GitHub
+import, which predates it.** Note **gh#61** (`[dev test] AE29F2008 — PASS`) is the same part passing validation
+the day before — a `dev test` PASS does not exercise `erase` on a flash4 part, since the erase step is excluded
+by the same rule.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+---
+
+### Phase 999.53: v1.36's open `WR-01` — `_is_interactive` is dead code and two tests named `..._on_a_tty` pass for the wrong reason (BACKLOG — filed 2026-09-09 by backlog review, from the v1.36 close record)
+
+**➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.**
+
+**Goal:** Remove `_is_interactive` and repair the two tests that believe they gate TTY behaviour.
+
+**Filed because it lived in exactly one place and would otherwise be lost.** v1.36 disclosed it in its close
+record's honesty ledger — *"`WR-01` is open. `_is_interactive` became dead code when 181-04 removed its only
+caller, and two tests named `..._on_a_tty` patch it believing they gate TTY behaviour. They pass for the wrong
+reason."* — and nowhere else: not in `.planning/todos/pending/`, not in `REQUIREMENTS.md`'s open rows, not in
+the ROADMAP. A close-record honesty ledger is a disclosure, not a queue; without this stub the finding is
+discoverable only by re-reading `.planning/v1.36/CLOSE-RECORD.md` §8.
+
+**Why v1.36 did not do it, stated in its own terms:** *"The repair spans ~14 call sites plus an allow-list
+entry, so it is filed rather than run as an unasked refactor at close."* That reasoning holds — it is real
+work, not a one-liner — which is what makes it backlog-shaped rather than a todo.
+
+**The part that matters more than the dead function.** Two tests passing for the wrong reason are worse than
+the dead code: they assert TTY-gated behaviour that nothing gates any more, so **the coverage they appear to
+provide does not exist**, and nothing goes red to say so. Same failure class as **999.50**'s
+declared-but-absent guard and the standing observation that host-side source-scanning gates fail open. Whoever
+takes this should fix the tests first and the symbol second.
+
+**Bounded by the close record's own measurement:** the security audit confirmed it bears on **none of the 36
+threats**, so there is no safety pressure — this is correctness-of-test-coverage work.
+
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`.planning/v1.36/CLOSE-RECORD.md`](v1.36/CLOSE-RECORD.md) §8, honesty ledger. Host-only.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+---
+
+### Phase 999.54: The three `dev test` disputes v1.36 was scoped around are still unanswered on GitHub (BACKLOG — filed 2026-09-09 by backlog review)
+
+**➡ SHORTLISTED 2026-09-09 — cluster 1, `dev test` speed + community close-out.**
+
+**Goal:** Reply to [gh#23](https://github.com/henols/firestarter_prom/issues/23),
+[gh#28](https://github.com/henols/firestarter_prom/issues/28) and
+[gh#31](https://github.com/henols/firestarter_prom/issues/31) with what v1.36 changed, and ask for the
+re-run that would settle each.
+
+**Why this is filed as its own item.** v1.36's stated reason for existing was these three issues — *"Six `dev
+test` issues are open in `henols/firestarter_prom`, and on three of them (gh#23, #28, #31) **the reporter
+disputes the tool's own triage**"* — and the milestone closed 2026-09-09 having shipped the machinery that
+answers them while **posting nothing to any of the three**. Verified against the live API this pass: the most
+recent comment on each is the reporter's own, all dated **2026-08-09**, and the last words on the record are
+*"Bot is mixing a pass with a fail"* (gh#23) and *"I believe the bot is incorrect. There seem to be an actual
+bug in the test"* (gh#31). All three remain OPEN.
+
+**The reporter was right, and v1.36 proved it — that is what makes the silence costly.** Each dispute now has
+a concrete answer:
+
+- **gh#23** — *"mixing a pass with a fail — the first one didn't have VPP correctly hooked up."* That is a **rig
+  fault reported as a chip verdict**, exactly the misattribution v1.36 Phase 178 built the two-axis
+  status/verdict vocabulary to end. The reporter diagnosed the tool's defect before the project did.
+- **gh#28 / gh#31** — the m27c512 and m27c1001 disputes sit on the UV write path that Phase 179 changed
+  (`FLAG_SKIP_BLANK_CHECK` on a monotone masked slot write), and on the report fields Phase 181 filled. A
+  report filed before v1.36 cannot be compared against one filed after without saying so.
+
+**Two mechanical facts a reply must carry, or the re-run is wasted:** reports are now **schema 2.0** and
+several v1.36 changes **deliberately re-keyed `dedup_fingerprint`** (D-4/D-6), so a fresh run will not group
+with the old one — that is intended, and a reporter who is not told will read it as a new bug. And
+`fw_board_identity` has been populated since v1.32 Phase 147, so a fresh run is attributable to a firmware
+version where these three are not.
+
+**Precedent for the shape of this work:** v1.32 Phase 152's OUT-02 comments on gh#21/#32 — say what changed,
+say what it does and does not fix, ask for an attributable re-run. Do not close any of the three on our own
+reading; the reporter's dispute is the open question.
+
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** Backlog review 2026-09-09, comparing
+[`v1.36-ROADMAP.md`](milestones/v1.36-ROADMAP.md)'s stated motivation against the live issue threads. Type:
+community close-out. Outward-facing — **operator wording review before anything is posted**, per the standing
+gate on upstream replies.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
 
 ---
 
