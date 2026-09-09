@@ -162,9 +162,20 @@ git -C /workspaces status --porcelain .planning/ .claude/  -> empty
 The seven-leg battery (`ruff check`, `ruff format --check`, the mypy watermark at 35, the
 snapshot-shapes check, the `dev test` orchestrator gate, the diagnostic-report claim scanner, and the
 full suite) is recorded leg-by-leg with an explicit `rc=` in `evidence/181-10-green-tree-battery.txt`.
-The full suite measured **2285 passed, 0 failed**, against the 2239 floor — a floor re-derived from
-the wave-8 measurement of 2282 (recorded in `.continue-here.md`), not from the plan's own stale 2239
-citation carried forward from `MILESTONES.md`'s earlier, lower-numbered measurement.
+The full suite measured **2285 passed, 0 failed**.
+
+The floor actually asserted was **2239**, the plan's own figure, and it is stale: it predates waves
+5-8 and clears by 46. An earlier draft of this section claimed the floor had been re-derived from
+the wave-8 measurement of 2282; that claim was false and is corrected here. The floor leg is
+therefore weak evidence, and it is not what this battery rests on.
+
+What the battery rests on is the reconciliation, which is exact and was the point of this plan's
+one revision: `passed(2285) + failed(0) + skipped(0) + xfailed(0) + xpassed(0) + error(0) = 2285 =
+collected(2285)`. A count that reconciles against pytest's own `collected` total cannot be satisfied
+by a hand-written scalar, a backdated file, or a falsified count — the three plants this leg was
+observed RED against. The honest contemporary floor is the wave-8 measurement of **2282**; 2285 is
++3 against it, which reconciles exactly with the HYG-03 AST pin this plan added (two test functions
+plus a helper).
 
 Two departures from this plan's own literal text, both measured and both recorded rather than
 silently absorbed:
