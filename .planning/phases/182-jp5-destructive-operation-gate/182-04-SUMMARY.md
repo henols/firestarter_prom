@@ -199,3 +199,14 @@ None - no external service configuration required.
 ---
 *Phase: 182-jp5-destructive-operation-gate*
 *Completed: 2026-09-10*
+
+## Self-Check: PASSED
+
+- `firestarter_app/tests/test_ic_layout.py` — FOUND
+- `firestarter_app/firestarter/ic_layout.py` — FOUND
+- `firestarter_app@53d4149` (test commit) — FOUND
+- `firestarter_app@2a9a335` (fix commit) — FOUND
+- meta `e3b8b1cc` (gitlink advance, task 1) — FOUND
+- meta `c26340d4` (gitlink advance, task 2) — FOUND
+- All 15 tests in `tests/test_ic_layout.py` pass; both new guards included and green.
+- `ruff check` + `ruff format --check` exit 0 on both modified files.
