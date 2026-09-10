@@ -300,7 +300,7 @@ Plans:
 
 **Wave 4** *(the record close-out)*
 
-- [ ] 182-07-PLAN.md — SAFE-02/03/04 (D-05, D-09, D-15): record the D-05 resolution and correct SAFE-01/02/04 in `REQUIREMENTS.md`; file backlog items 999.55–999.59; re-point the split todo's `resolves_phase`
+- [x] 182-07-PLAN.md — SAFE-02/03/04 (D-05, D-09, D-15): record the D-05 resolution and correct SAFE-01/02/04 in `REQUIREMENTS.md`; file backlog items 999.55–999.59; re-point the split todo's `resolves_phase`
 
 ### Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification
 
