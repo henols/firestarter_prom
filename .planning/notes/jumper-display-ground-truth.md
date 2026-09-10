@@ -97,12 +97,12 @@ which socket pin can the shield energize to the `VPE` rail?*
 
 | Revision family | JP4 physical state | Socket pin reachable by VPE via Q8 (`P1_VPP_ENABLE`) | Also reachable via other switches | Settled? |
 |---|---|---|---|---|
-| **Rev 0 / Rev 1** | JP4 and JP5 do not exist on these boards | Rev 0's equivalent strap is **JP3** (`W27C010/AT27C010 needs p1 VPE/VPP (32 pin)`), selecting the pin-1 position of a 32- vs 28-pin seated chip | socket 24 (`/OE`) via Q6; socket 26 (A9) via Q7 | **PROBE-PENDING** — Rev 0's own schematic blob is `cfe6139f`, not `d2a7f691` (the origin/rev2.0 blob that carries JP4/JP5 a Rev 0 board never had); not read this session. `v1.7-SHIELD-REVS.md` already records the whole Rev 0 jumper set as untraced. Probe: unpowered, no chip seated — continuity from the operator's modified Rev 0 JP3 pads to socket pins 1 and 3. |
+| **Rev 0 / Rev 1** | JP4 and JP5 do not exist on these boards | Rev 0's equivalent strap is **JP3** (`W27C010/AT27C010 needs p1 VPE/VPP (32 pin)`), selecting the pin-1 position of a 32- vs 28-pin seated chip | socket 24 (`/OE`) via Q6; socket 26 (A9) via Q7 | **PROBE-PENDING** — Rev 0's own schematic blob is `cfe6139f`, not `d2a7f691` (the origin/rev2.0 blob that carries JP4/JP5 a Rev 0 board never had); not read this session. `v1.7-SHIELD-REVS.md` already records the whole Rev 0 jumper set as untraced. Probe: unpowered, no chip seated — continuity from the operator's modified Rev 0 JP3 pads to socket pins 1 and 3. **Still open after Plan 06 (2026-09-10):** the modified Rev 0 board was not brought to the bench this session (only the Rev 2.2 board was); the probe above remains the closing action. |
 | **Rev 2.0 / Rev 2.1** (JP4 = 1×02, 2 pads) | Open | socket **1** only | socket 24, socket 26 | SETTLED — the 2-pad footprint means one pole at most, and open means none |
-| | Closed | socket **1** *and* whichever socket pin the single fitted pole reaches | socket 24, socket 26 | **PROBE-PENDING** — no Rev 2.0/2.1 schematic or PCB is committed (Phase 31 Finding E). The silkscreen ("Closed for 28 pin ROMs") and Rev 0's JP3 semantics both point to socket 3; a third pole to socket 25 is newly added at Rev 2.2 per D-10, not present on these revisions — but that destination is *inferred*, not measured. Probe: unpowered Rev 2.0 board, no chip seated — continuity from each of JP4's two pads to socket pins 1, 3 and 25. |
+| | Closed | socket **1** *and* whichever socket pin the single fitted pole reaches | socket 24, socket 26 | **PROBE-PENDING** — no Rev 2.0/2.1 schematic or PCB is committed (Phase 31 Finding E). The silkscreen ("Closed for 28 pin ROMs") and Rev 0's JP3 semantics both point to socket 3; a third pole to socket 25 is newly added at Rev 2.2 per D-10, not present on these revisions — but that destination is *inferred*, not measured. Probe: unpowered Rev 2.0 board, no chip seated — continuity from each of JP4's two pads to socket pins 1, 3 and 25. **Still open after Plan 06 (2026-09-10):** the Rev 2.0 board was not brought to the bench this session (only the Rev 2.2 board was); the probe above remains the closing action, and the inferred socket-pin-3 destination stays an inference on this board family. |
 | **Rev 2.2 / Rev 2.3** (JP4 = 3 pads in an L) | No jumper (32-pin mode) | socket **1** only | socket 24, socket 26 | SETTLED (schematic + PCB + Rev 2.2 drill file agree) |
-| | Jumper across the corner pad and the pad +2.54 mm in +X (28-pin mode) | socket **1** and socket **3** | socket 24, socket 26 | SETTLED electrically. **PROBE-PENDING residual:** which physical direction is "+X" as the operator sees the silkscreen. Probe: unpowered Rev 2.2 board — continuity from each of the three JP4 pads to socket pins 1, 3 and 25, recorded against the pad's position relative to the `JP4` silkscreen legend. |
-| | Jumper across the corner pad and the pad +2.54 mm in −Y (24-pin mode) | socket **1** and socket **25** | socket 24, socket 26 | SETTLED electrically, same residual as above |
+| | Jumper across the corner pad and the pad +2.54 mm in +X (28-pin mode) | socket **1** and socket **3** | socket 24, socket 26 | **SETTLED — measured 2026-09-10 (Plan 06).** Operator continuity probe on the Rev 2.2 board: the pole toward the ZIF socket (board +X) reaches socket pin 3. In operator-visible terms, this is **the socket-facing pole** — the pad nearer the ZIF socket as the operator sights the board. See `evidence/182-06-bench-readings.md` Task 2a. |
+| | Jumper across the corner pad and the pad +2.54 mm in −Y (24-pin mode) | socket **1** and socket **25** | socket 24, socket 26 | **SETTLED — measured 2026-09-10 (Plan 06).** Same probe: the pole toward the board periphery (away from the ZIF socket) reaches socket pin 25. In operator-visible terms, this is **the periphery-facing pole**. See `evidence/182-06-bench-readings.md` Task 2a. |
 
 **Reading the table for the two questions that motivated it:**
 
@@ -209,15 +209,39 @@ VPP line high for a VPP-on-P1 part unless `using_p1_as_vpp` — without it, ever
 P1. `read` still boosts the regulator at init (`eprom_generic_init` runs unconditionally before
 the per-command switch) but at address 0, so `Q8` is off during that window.
 
-**Assumption A1 (flagged, unresolved).** The claim that the `VPE` rail sits at roughly VCC when
-`CTRL_VPP_REGULATOR_ENABLE` is clear is **inferred** from the boost topology (`U1` is a MIC2288
-boost converter; a disabled boost passes VIN through its inductor and the `D1` Schottky to `VPE`)
-— it is not measured, and no committed artefact states it. It is what makes "reading is safe" true
-rather than merely "reading asserts a bit whose voltage we did not check." **Probe:** with the
-regulator disabled, measure `VPE` at `J6` pin 4 and socket pin 1 while reading a
-`DIP32_SST39SF040`-class part above address `0x40000` — that part already has A18 on socket pin 1
-today, so the measurement needs no code change. **Consequence if boosted:** `read`, `verify` and
-`blank` join the damage-capable set and the gate's scope (D-06) widens. Named for Plan 06.
+**Assumption A1 — A1 CONFIRMED (measured 2026-09-10, Plan 06).** The claim that the `VPE` rail
+sits at roughly VCC when `CTRL_VPP_REGULATOR_ENABLE` is clear was **inferred** from the boost
+topology (`U1` is a MIC2288 boost converter; a disabled boost passes VIN through its inductor and
+the `D1` Schottky to `VPE`) — it was not measured, and no committed artefact stated it. It is what
+makes "reading is safe" true rather than merely "reading asserts a bit whose voltage we did not
+check." **Probe:** with the regulator disabled, measure `VPE` at `J6` pin 4 and socket pin 1 while
+reading a `DIP32_SST39SF040`-class part above address `0x40000` — that part already has A18 on
+socket pin 1 today, so the measurement needs no code change. **Consequence if boosted:** `read`,
+`verify` and `blank` join the damage-capable set and the gate's scope (D-06) widens. Named for
+Plan 06.
+
+**Result (Plan 06, 2026-09-10).** Operator DMM reading: `J6` pin 4 (`VPE`), referenced to `J5`
+pin 1 (`GND`), board powered and idle, no operation running — **4.9 V DC**, on the operator's
+Rev 2.2 board. Decision threshold: at or below ~6 V confirms (logic-level rail); at or above
+~11 V falsifies (programming rail). 4.9 V sits decisively in the confirming band. **A1 CONFIRMED
+— the gate's scope of `write` and `erase` now rests on a measurement rather than an inference.**
+`DAMAGE_CAPABLE_OPERATIONS` stays `{write, erase}`; Task 3's conditional widening to
+`read`/`verify`/`blank` does not fire; no code changed in `firestarter_app` or `firestarter`. Full
+reading detail (probe point, `J6`'s other three pins, and the Schottky-drop reasoning for why
+4.9 V is the expected confirming value) is in
+`evidence/182-06-bench-readings.md` Task 1.
+
+**JP5 premise, also measured this session.** The gate's warranted-on-this-board premise was
+checked alongside A1: JP5 pad A ↔ pad B reads continuous (factory-bridged, not cut) and `J6`
+pin 3 → socket pin 1 also reads continuous, confirming the `Q8` collector → JP5 → socket pin 1
+strap end-to-end. JP5 is intact on the operator's Rev 2.2 board, so the hazard the gate exists
+for is real on this specific board — measured, not assumed. See
+`evidence/182-06-bench-readings.md` Task 2b.
+
+**Board restoration, as left at session end.** The operator was asked to return JP4 to its
+starting position when the bench session ended. That request was **not confirmed** before the
+session closed. Last known state: JP4 jumper off, board still connected, socket empty. Recorded
+here as requested-but-unconfirmed, not as restored.
 
 ### The structural remainder this gate does not cover
 
