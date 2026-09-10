@@ -52,9 +52,13 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
       onto pin 24, but puts A19 on the same physical line pin 1 already was — it relocates the hazard, it does
       not remove it, so the retirement branch of D-05 does not fire. Trace: `182-05-SUMMARY.md`,
       `.planning/notes/jumper-display-ground-truth.md` § "Which operations energize socket pin 1".
-- [ ] **SAFE-03**: Which operations the gate covers is settled from the shield schematics and the protocol's
-      VPP path — not inferred — and the answer is recorded with its evidence. The reporter's own open
-      question ("just writing, or reading too?") is answered in the artifact.
+- [x] **SAFE-03** — **CONFIRMED 2026-09-10 (182-06 bench probe)**: Which operations the gate covers is settled
+      from the shield schematics and the protocol's VPP path — not inferred — and the answer is recorded with
+      its evidence. The reporter's own open question ("just writing, or reading too?") is answered in the
+      artifact: writing and erasing, not reading, verifying or blank-checking. The one inferred link in that
+      trace — assumption A1, the VPE rail level with the boost regulator disabled — was measured at 4.9 V
+      (decisively below the ~6 V logic-level threshold), confirming rather than widening the scope. Trace:
+      `182-05-SUMMARY.md`, `182-06-SUMMARY.md`, `.planning/notes/jumper-display-ground-truth.md`.
 - [x] **SAFE-04** — **CONFIRMED REQUIRED 2026-09-10 (D-05 resolved)**: The gate cannot be auto-answered. A
       non-interactive invocation, a piped stdin, `dev test`, and `--auto`/`--chain` each either refuse the
       affected operation or require an explicit, separate acknowledgement flag — never a default-yes. Same
@@ -166,7 +170,7 @@ Deferred, tracked, not in this roadmap.
 |-------------|-------|--------|
 | SAFE-01 | Phase 182 | Complete |
 | SAFE-02 | Phase 182 | Complete |
-| SAFE-03 | Phase 182 | Pending — trace recorded (182-05), assumption A1 (VPE rail level) unmeasured until Plan 06's bench probe runs |
+| SAFE-03 | Phase 182 | Complete — trace recorded (182-05), assumption A1 measured CONFIRMED at 4.9V (182-06) |
 | SAFE-04 | Phase 182 | Complete |
 | SAFE-05 | Phase 182 | Complete |
 | SAFE-06 | Phase 183 | Pending |

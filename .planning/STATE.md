@@ -235,13 +235,17 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 182 (JP5 Destructive-Operation Gate) — EXECUTING
-Plan: 6 of 7 have a SUMMARY (182-01/02/03/04/05/07 complete; 182-06 — the autonomous:false operator
-bench-probe plan for SAFE-03's assumption A1 — has NOT run; plans execute by dependency wave, not
-strict numeric order)
-Status: Ready to execute 182-06 (awaiting operator bench session) or close the phase once it lands
-Last activity: 2026-09-10 — Completed 182-07-PLAN.md (D-05 resolved: gate confirmed required, not
-retired; SAFE-01/02/04 corrected; six backlog stubs filed; split todo re-pointed to 999.58)
+Phase: 182 (JP5 Destructive-Operation Gate) — PLANS COMPLETE
+Plan: 7 of 7 have a SUMMARY (182-01/02/03/04/05/06/07 complete; plans execute by dependency wave,
+not strict numeric order)
+Status: Phase 182 plans complete. SAFE-03 marked Complete in REQUIREMENTS.md. Ready for
+phase-level verification / /gsd-verify-work.
+Last activity: 2026-09-10 — Completed 182-06-PLAN.md Task 3: assumption A1 measured CONFIRMED
+(4.9V at J6 pin 4, regulator disabled); DAMAGE_CAPABLE_OPERATIONS stays {write, erase} — no code
+changed; Rev 2.2 JP4 PROBE-PENDING cell closed (socket-facing pole -> pin 3, periphery-facing pole
+-> pin 25); D-14 bench falsification survived (hw_revision invariant across JP4 position); JP5
+confirmed intact on the operator's board. Tasks 1-2 were an operator bench session recorded
+earlier the same day.
 
 ## Roadmap Summary (v1.37)
 
@@ -2939,11 +2943,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 182]: Coverage-matrix golden regenerated via scratch output/ledger seeded from the committed .planning/v1.3-defect-coverage-ids.json, never writing to that tracked file (precedent: commit 6e4b31a, 148-05).
 - [Phase 182]: Two pre-existing pinned test expectations were corrected as Rule 1 deviations, both stale as a direct consequence of this plan's authorized chip_database.json regeneration.
 - [Phase 182]: D-05 resolved: the JP5/A19 gate ships, confirmed required not retired, against the operator's stated expectation. — The pin-map fix relocates the hazard onto A19 (Rev 2.x control bit 0x08 = CTRL_VPP_P1_ENABLE = CTRL_ADDRESS_LINE_18); it does not remove it.
+- [Phase 182]: 182-06 assumption A1 measured CONFIRMED — VPE rail read 4.9V at J6 pin 4 (regulator disabled, referenced to J5 pin 1 GND, Rev 2.2 board idle), decisively below the ~6V logic-level threshold. DAMAGE_CAPABLE_OPERATIONS stays {write, erase}; no firestarter_app or firestarter code changed. Rev 2.2's JP4 PROBE-PENDING cell closed by continuity probe: the socket-facing pole reaches socket pin 3, the periphery-facing pole reaches socket pin 25. D-14's retraction survived its bench falsification (hw_revision's physical field read Rev 2.0-class at every JP4 position), with the limit that the firmware reports a bucket, not the raw ADC count. JP5 confirmed intact (bridged, not cut) on the operator's board. Rev 2.0/2.1 and Rev 0/1 PROBE-PENDING cells remain open — those boards were not on the bench this session. SAFE-03 marked Complete in REQUIREMENTS.md.
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
+| Phase 182 P06 | 1 task (Task 3 only) | ~15min | A1 CONFIRMED at 4.9V, gate scope unchanged, 2 record files folded |
 | Phase 154 P06 | 2 tasks | ~35min | 1 source file swept (34 comment blocks, 33->0 hits), 4 meta files |
 | Phase 154 P11 | 3 tasks | ~115min | 26 app-test files (139->84 hits, 63 line edits) + the D7 gate retarget; 1976 passed / 0 failed in a clean clone |
 | Phase 98 P04 | 35min | 3 tasks | 2 files |
@@ -3351,8 +3357,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-10T16:32:26.028Z
-**Stopped at:** Completed 182-07-PLAN.md
+**Last session:** 2026-09-10T18:00:00.000Z
+**Stopped at:** Completed 182-06-PLAN.md (Task 3 — A1 confirmed, gate scope unchanged; Tasks 1-2 were a prior operator bench session)
+**Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 181 context gathered
 **Was (superseded, retained for continuity):** Phase 180 complete, ready to plan Phase 181

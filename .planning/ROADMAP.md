@@ -292,7 +292,7 @@ Plans:
 **Wave 2** *(the generator fix; the operator bench session runs in parallel)*
 
 - [x] 182-02-PLAN.md — SAFE-01 (D-02, D-03): dispatch the 32-pin 0x08 cluster on `variant_lo` keeping the size threshold as the residual arm; retire `MAX_27C020_SIZE` and its self-comparing parity arm; bring `DECODE-NOTES.md` current
-- [ ] 182-06-PLAN.md — SAFE-03 (D-12, D-14) — **`autonomous: false`**: operator DMM reading of the `VPE` rail at `J6` pin 4 (assumption A1, the premise the gate's scope rests on), JP4 continuity probes, and the `hw_revision` falsification; no firmware change
+- [x] 182-06-PLAN.md — SAFE-03 (D-12, D-14) — **`autonomous: false`**: operator DMM reading of the `VPE` rail at `J6` pin 4 (assumption A1, the premise the gate's scope rests on), JP4 continuity probes, and the `hw_revision` falsification; no firmware change
 
 **Wave 3** *(the regeneration — the `diff_db` rule must land before it)*
 
