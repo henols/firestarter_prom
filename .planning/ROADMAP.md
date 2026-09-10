@@ -263,9 +263,43 @@ something it is not.
 
 **Depends on:** — (first phase)
 
+**Plans:** 7 plans
+
+> **Criterion 4 note (measured 2026-09-10 during planning):** the literal command above answers the wrong
+> question in this devcontainer. A stale gitignored copy of the symbol survives at
+> `firestarter_app/build/lib/firestarter/ic_layout.py`, and PATH `grep` here is ugrep which honours
+> `.gitignore` — so the same command reads GREEN with PATH grep and RED with `/usr/bin/grep`, both for
+> reasons unrelated to the deletion. Plan 04 satisfies the criterion through two scoped, tool-independent
+> forms instead: `git -C firestarter_app grep -n '_get_rev2_2_jumper_settings_data' -- '*.py'` and
+> `/usr/bin/grep -rn --exclude-dir=build --exclude-dir=__pycache__`.
+
+> **D-05 resolved against the operator's expectation (2026-09-10).** D-05 made the gate conditional on this
+> phase's SAFE-03 trace. The trace found that the pin-map fix *relocates* the hazard rather than removing it:
+> on Rev 2.x the firmware maps logical `CTRL_ADDRESS_LINE_18` onto the same physical bit as
+> `CTRL_VPP_P1_ENABLE` (0x08), and socket pin 1 is bus line 21 — inside the address mask. So after the fix
+> VPP correctly moves to socket pin 24 but A19 lands on the pin-1 line. **The gate ships**, scoped to `write`
+> and `erase` per D-06; SAFE-02 and SAFE-04 are confirmed required, not retired.
+
 Plans:
 
-- [ ] TBD (run `/gsd-plan-phase 182`)
+**Wave 1** *(file-disjoint — the gate, the SAFE-05 deletion and the schematic record share no file)*
+
+- [ ] 182-01-PLAN.md — SAFE-01/02/04 (D-01, D-06, D-07): tracer — the `DIP32_27C801` pin map, the `jp5_gate` policy module, the operator-layer refusal and the two CLI prompts, wired end-to-end and proved derived from `pinouts.json`
+- [ ] 182-04-PLAN.md — SAFE-05 (D-08): guard the deletion RED-first, then delete `_get_rev2_2_jumper_settings_data` and its commented call site
+- [ ] 182-05-PLAN.md — SAFE-03 (D-10…D-14): the VPP-destination table and the gh#60 operations answer in `notes/jumper-display-ground-truth.md`; every JP4 claim corrected and the R41-couples-to-JP4 claim retracted in `v1.7-SHIELD-REVS.md`
+
+**Wave 2** *(the generator fix; the operator bench session runs in parallel)*
+
+- [ ] 182-02-PLAN.md — SAFE-01 (D-02, D-03): dispatch the 32-pin 0x08 cluster on `variant_lo` keeping the size threshold as the residual arm; retire `MAX_27C020_SIZE` and its self-comparing parity arm; bring `DECODE-NOTES.md` current
+- [ ] 182-06-PLAN.md — SAFE-03 (D-12, D-14) — **`autonomous: false`**: operator DMM reading of the `VPE` rail at `J6` pin 4 (assumption A1, the premise the gate's scope rests on), JP4 continuity probes, and the `hw_revision` falsification; no firmware change
+
+**Wave 3** *(the regeneration — the `diff_db` rule must land before it)*
+
+- [ ] 182-03-PLAN.md — SAFE-01 (D-04): the `RULE_PHASE182_A19_PINOUT` root-cause rule, the `build_db.py` re-run proving exactly 8 changed rows, and the third `wire_dict` delta layer beside the byte-unchanged golden
+
+**Wave 4** *(the record close-out)*
+
+- [ ] 182-07-PLAN.md — SAFE-02/03/04 (D-05, D-09, D-15): record the D-05 resolution and correct SAFE-01/02/04 in `REQUIREMENTS.md`; file backlog items 999.55–999.59; re-point the split todo's `resolves_phase`
 
 ### Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification
 
