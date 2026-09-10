@@ -6777,6 +6777,100 @@ acceptable there — the same disclosure `test_cmd_frame_max_parity` already has
 
 ---
 
+### Phase 999.61: `dev write-cycle` inherits the JP5 gate's fail-closed default with no confirm path and no test — the 8 gated parts are permanently refused there (BACKLOG — filed 2026-09-10 during v1.37 Phase 182, from `182-REVIEW.md` WR-02)
+
+**Goal:** Turn `dev write-cycle`'s new permanent refusal on the 8 JP5-gated parts into a recorded
+decision with a test behind it — either by wiring the same confirm-or-refuse UX the top-level
+`write`/`erase` commands got, or by documenting and pinning the permanent block as intended.
+
+**Measured 2026-09-10 (Phase 182 code review WR-02, independently re-traced by the phase verifier).**
+`EpromOperator.write_cycle_eprom` (`firestarter_app/firestarter/eprom_operations.py:1147`) calls
+`self.erase_eprom(...)` at `:1185` and `self.write_eprom(...)` at `:1190` without passing
+`pin1_hazard_acknowledged`, so both silently take the parameter's new default of `False`.
+`cli_handlers.dev_write_cycle` (`firestarter_app/firestarter/cli_handlers.py:1575-1641`, reaching
+`write_cycle_eprom` at `:1589`) never calls `jp5_gate.confirm_or_refuse` — unlike `write`
+(`cli_handlers.py:753`) and `erase` (`:873`), which both call it and then pass
+`pin1_hazard_acknowledged=True` (`:772`, `:881`). Net effect: `dev write-cycle` is refused
+unconditionally on the 8 `DIP32_27C801` rows (AM27C080, AM27LV080, AT27C080, M27C801×2, MX27C8000,
+MX27C8000A, UPD27C8001) with **no escape** — no prompt is ever shown, and `-f/--force` was never wired
+to this parameter by design.
+
+**The direction is fail-safe; what is missing is that it was never decided.** The refusal points the
+way every `SAFE-0x` requirement points, and the unconditional operator-layer guard firing for *every*
+caller of `write_eprom`/`erase_eprom` is the deliberate design — `SAFE-04` names `dev test` as a
+command that must refuse in exactly this way, and `chip_test.py` hits the identical unescapable
+refusal for the identical, required reason. `dev write-cycle` specifically was **not** named the way
+`dev test` was: its permanent block is an unplanned side effect, and no test anywhere in the suite
+exercises the interaction, so the behavior change was never verified in either direction. Phase 182's
+verifier ruled this an acceptable, separately-tracked follow-up rather than a phase-goal defect
+(`182-VERIFICATION.md`, Anti-Patterns table) and recommended filing it before `/gsd-ship`; this entry
+is that filing.
+
+**Chosen fix:** Not decided. Two named options: (a) wire `jp5_gate.confirm_or_refuse` into
+`dev_write_cycle` — and audit any other CLI path that reaches `write_eprom`/`erase_eprom` — so a bench
+operator who has physically cut JP5 gets the same confirm-or-refuse UX the top-level commands give; or
+(b) declare the permanent block intended, state it in `dev write-cycle`'s `--help` text, and pin it
+with a test.
+
+**Test surface.** What would have to be proven: a test that drives `dev write-cycle` on a
+`DIP32_27C801` part and asserts the chosen behavior — either that `confirm_or_refuse` is called and a
+TTY-accept reaches `write_cycle_eprom` with `pin1_hazard_acknowledged=True`, or that the refusal is
+raised deliberately and is stated in the command's help text. Adjacent: `182-REVIEW.md`'s `IN-01` (no
+end-to-end TTY-accept test through the CLI into the operator layer for `write`/`erase`) — the same
+test file would naturally cover both, but `IN-01` is **not** filed here.
+
+---
+
+### Phase 999.62: The JP5 gate's two layers disagree about a chip with no resolvable `bus-config` — a latent, unescapable, JP5-mislabeled refusal (BACKLOG — filed 2026-09-10 during v1.37 Phase 182, from `182-REVIEW.md` WR-01)
+
+**Not 999.53.** That item is v1.36's own `WR-01` (`_is_interactive` became dead code); this is v1.37
+Phase 182's `WR-01`. Same finding label, different milestone, unrelated defect.
+
+**Goal:** Make `jp5_gate`'s CLI layer and operator layer apply one deliberately-chosen policy to "no
+evidence at all", instead of two independent readings of the same falsy `bus_config`.
+
+**Measured 2026-09-10.** For a `bus_config` carrying no `"bus"` key (`None` or `{}`) the two layers
+fail opposite ways:
+
+- `is_affected` (`firestarter_app/firestarter/jp5_gate.py:58-66`) calls `socket_pin1_address_bit`
+  (`:41-55`), which returns `None` for a falsy `bus_config` — so `is_affected(None)` is `False` and
+  `confirm_or_refuse` (`:116-154`, called from `cli_handlers.py:753`/`:873`) returns `True`
+  immediately, printing no hazard text and showing no prompt.
+- `require_acknowledged` (`:83-106`) treats the same input oppositely: `if not bus_config or not
+  bus_config.get("bus"): raise Pin1HazardRefusedError(...)` at `:98`, unconditionally, regardless of
+  `acknowledged` — deliberate per its own docstring ("absent evidence cannot prove socket pin 1 is
+  safe") and covered by `test_require_acknowledged_no_bus_key_raises_fail_closed`.
+
+Net effect for such a chip: the CLI silently decides "not affected", passes
+`pin1_hazard_acknowledged=True` (`cli_handlers.py:772`/`:881`), and `write_eprom`/`erase_eprom` raise
+anyway — with the generic "no bus configuration is available" message rather than the JP5-specific
+`hazard_text`, and with no escape, since no prompt was ever shown and `-f` does not help by design.
+
+**Latent, not live — but structurally reachable.** Confirmed independently by both the reviewer and
+the phase verifier: no row of the currently-shipped 746 reaches it, since every `pinout` value
+resolves against `pinouts.json`'s 16 keys. The path in is the generator: `resolve_pinout_key`
+(`firestarter_app/tools/build_db.py:185`) can return a key that is not a member of
+`VALID_PINOUT_KEYS`, and the only response is a `WARN:` to stderr at `:279-280` — the caller's
+fail-safe skip at `:576-579` fires only on `pinout_key is None`, so a non-`None` invalid key **is
+emitted**. A future DB regen with a typo'd pinout key, or a `classify`/`resolve_pinout_key` branch
+added without the matching `pinouts.json` entry, would trip this silently, and the resulting bug
+report would look like a JP5/A19 problem on a chip with no relationship to A19 at all.
+
+**Chosen fix:** Not decided. The review named two: (a) have `confirm_or_refuse` refuse on "no evidence
+at all" the same way its off-TTY path already refuses, with a distinct "cannot determine socket pin 1
+safety" message, so the CLI-visible behavior matches the operator-layer contract; or (b) route both
+layers through one classification helper (an `Affected | NotAffected | Unknown` result) so the
+missing-evidence policy is chosen once and applied identically. Related: **999.57** — a fail-closed
+`build_db.py` assertion that refused to emit an unresolvable row would remove the upstream half of
+this item's reachability, though not the layer disagreement itself.
+
+**Test surface.** What would have to be proven: `confirm_or_refuse(chip, None, "write")` and
+`require_acknowledged(chip, None, "write", acknowledged=True)` reach the same verdict for the same
+input, and a CLI-level test showing that the operator sees a message naming missing bus evidence
+rather than a JP5/A19 hazard.
+
+---
+
 ## v1.20 — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis (SHIPPED 2026-07-02)
 
 **Milestone goal:** Delete the vestigial `mem_type`/`type` backward-compat dispatch axis so Firestarter trusts *only* the real protocol (`handle->protocol` / `algorithm`) end to end — firmware, wire, and host. The fallback is already dead code for every DB chip (all carry `algorithm`); this is a legibility/safety cleanup, not a behavior change for real chips. Accepted consequence: user-override DB entries lacking `algorithm` will no longer work (must specify a protocol).
