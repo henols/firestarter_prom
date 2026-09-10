@@ -86,3 +86,37 @@ corner with a selectable pole along each axis. The diagonal position could only 
 poles to each other — connecting a 28-pin part's pin 1 to a 24-pin part's pin 21 with neither
 carrying VPP — so it has no function and was never drilled. That is the whole mechanical content
 of the Rev 2.1 → Rev 2.2 change: one added hole, 109 → 110 board-wide.
+
+## Task 2b — JP5 is intact on this board
+
+Operator continuity probes, same unpowered session.
+
+| Check | Result | What it establishes |
+|---|---|---|
+| JP5 pad A ↔ pad B | **continuous** | JP5 is still factory-bridged on this Rev 2.2 — not cut |
+| `J6` pin 3 → socket pin 1 | **continuous** | the same strap proven end-to-end: `Q8` collector → JP5 → socket pin 1 |
+
+**Why this was worth measuring.** The gate Phase 182 ships assumes JP5 ships bridged and is intact
+on the operator's board. Had it come back cut, the gate would be refusing `write` and `erase` on a
+shield that is not in fact exposed, and D-06's scope would have needed rethinking. It is intact, so
+the hazard is real on this specific board and the gate is warranted on it — measured, not assumed.
+
+The second check also confirms from the copper what the schematic trace claimed: `J6` pin 3, `Q8`'s
+collector and JP5's A side are one node, and the bridged JP5 carries it to socket pin 1.
+
+## Task 2c — the D-14 falsification: `hw_revision` across JP4 positions
+
+**Method.** The firmware's `hw_get_version` reports two fields: `physical`, from a live
+`rurp_get_physical_hardware_revision()` ADC read, and `effective`, the EEPROM override
+(`src/hardware_operations.cpp`). The two are independent, so an EEPROM override cannot mask a
+change in the physical reading — the test is not vacuous. This board carries an override set to
+`Rev 2.0-class`, which is the correct broad bucket for a Rev 2.2 (`REVISION_2_0 = 2` covers
+2.0/2.1/2.2), not a mis-set value.
+
+Claude's reads over USB, one per position, on the operator's word. No polling loop.
+Port identity verified this session: `/dev/ttyACM0`, `controller: leonardo`, firmware `3.0.0b22`.
+
+| JP4 position | `physical` | `effective` (override) |
+|---|---|---|
+| as found at session start | `Rev 2.0-class` | `Rev 2.0-class` |
+| jumper on the **socket-facing** pole (socket pin 3, 28-pin) | `Rev 2.0-class` | `Rev 2.0-class` |
