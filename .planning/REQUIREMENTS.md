@@ -44,7 +44,7 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
 - [ ] **SAFE-04**: The gate cannot be auto-answered. A non-interactive invocation, a piped stdin, `dev test`,
       and `--auto`/`--chain` each either refuse the affected operation or require an explicit, separate
       acknowledgement flag — never a default-yes.
-- [ ] **SAFE-05**: `_get_rev2_2_jumper_settings_data` and its commented-out call site are deleted, so no code
+- [x] **SAFE-05**: `_get_rev2_2_jumper_settings_data` and its commented-out call site are deleted, so no code
       path can render JP5 as an operator-settable config header. (`todos/pending/delete-jp5-dead-renderer.md`)
 - [ ] **SAFE-06**: A refusal to erase a flash4 (`0x05`) part states its cause and its alternative — the part
       self-erases per page during the write, so `erase` is unnecessary rather than unavailable — instead of a
@@ -147,7 +147,7 @@ Deferred, tracked, not in this roadmap.
 | SAFE-02 | Phase 182 | Pending |
 | SAFE-03 | Phase 182 | Pending |
 | SAFE-04 | Phase 182 | Pending |
-| SAFE-05 | Phase 182 | Pending |
+| SAFE-05 | Phase 182 | Complete |
 | SAFE-06 | Phase 183 | Pending |
 | SAFE-07 | Phase 183 | Pending |
 | SAFE-08 | Phase 183 | Pending |
