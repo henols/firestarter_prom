@@ -2,6 +2,7 @@
 title: "Fix JP4 labels + Rev-2 revision block in info jumper display"
 date: 2026-07-02
 priority: medium
+resolves_phase: 182
 ---
 
 # Fix JP4 labels + Rev-2 revision block in `info` jumper display

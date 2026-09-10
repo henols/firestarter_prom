@@ -6,6 +6,7 @@ status: pending
 type: cleanup
 priority: low
 source: /gsd-explore 2026-07-10 (jumper-display-ground-truth.md)
+resolves_phase: 182
 ---
 
 # Delete `_get_rev2_2_jumper_settings_data` (JP5 dead code)

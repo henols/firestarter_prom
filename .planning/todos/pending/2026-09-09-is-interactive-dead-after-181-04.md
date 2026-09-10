@@ -1,7 +1,7 @@
 ---
 created: 2026-09-09
 source: 181-REVIEW.md WR-01
-resolves_phase:
+resolves_phase: 185
 severity: warning
 ---
 
