@@ -126,7 +126,7 @@ this reading is beta's).
 > **Writing and erasing. Not reading, not verifying, not blank-checking, not `id`.**
 
 Socket pin 1 is energized to the `VPE` rail only through `Q8`, and `Q8` is gated by
-`P1_VPP_ENABLE` — physical control bit `0x08`. `firestarter/include/rurp_pinout.h:144` aliases
+`P1_VPP_ENABLE` — physical control bit `0x08`. `firestarter/include/rurp_pinout.h:149` aliases
 `CTRL_ADDRESS_LINE_18_REV2` to `CTRL_VPP_P1_ENABLE_REV2` (`0x08`), and
 `firestarter/include/rurp_hw_rev_utils.h:18-26` maps both logical
 `CTRL_ADDRESS_LINE_18` and `CTRL_VPP_P1_ENABLE` onto that same physical bit on every Rev 2.x
