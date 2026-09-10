@@ -1,20 +1,16 @@
 ---
 gsd_state_version: "1.0"
-milestone: v1.36
-milestone_name: "`dev test` Fidelity (PLANNING)"
-current_phase: 181
-current_phase_name: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
-status: complete
-stopped_at: "v1.36 CLOSED 2026-09-09 — 8 phases, 42 plans, 46/46 requirements; merged to beta in all three repos (app 3.0.0b38, fw 3.0.0b26). NOT tagged, by operator decision."
-last_updated: "2026-09-09T16:57:44.490Z"
-last_activity: 2026-09-09
-last_activity_desc: "v1.36 `dev test` Fidelity CLOSED 2026-09-09. 8 phases (174-181), 42 plans, 46/46 requirements. Merged to beta with MERGE COMMITS not squashes (prom#63/297eeea, app#61/b868264, fw#60/85c4761) so the meta gitlinks stay reachable from beta; sub-repos merged first and both gitlinks verified reachable before the meta PR. Pre-releases cut automatically: app 3.0.0b38 (also on PyPI, wheel+sdist, 33s after the release — the v1.21 manual-dispatch note is STALE), fw 3.0.0b26. NOT tagged, by operator decision. App suite 2285 passed/0 failed (2247 at milestone start); regression gate 886/886; security 36/36 closed, threats_open 0; verification passed 19/19 after one gap. The gap was an ORCHESTRATOR error: all ten executor prompts said leave the firestarter_app gitlink alone, a v1.6-v1.8 convention phase 180 had already superseded. Zero of 19 frozen dedup hashes moved across the whole milestone — the invariant it was built around. Archive is HAND-written: .planning/v1.36/CLOSE-RECORD.md, milestones/v1.36-{ROADMAP,REQUIREMENTS}.md, MILESTONES.md close entry. milestone.complete was NOT run. Open: WR-01 (_is_interactive dead, two ..._on_a_tty tests pass for the wrong reason) filed as a todo. Phase dirs 174-181 still in .planning/phases/ — /gsd-cleanup archives those separately."
+milestone: v1.37
+milestone_name: Operator Safety, Answered Reports & Claim Hygiene
+status: planning
+last_updated: "2026-09-10T05:05:21.459Z"
+last_activity: 2026-09-10
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 42
-  completed_plans: 42
-  percent: 100
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -235,10 +231,43 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: — (v1.36 closed; no milestone active)
+Phase: Not started (defining requirements)
 Plan: —
-Status: v1.36 CLOSED 2026-09-09 — merged to beta, not tagged. Awaiting next milestone.
-Last activity: 2026-09-09 — v1.36 `dev test` Fidelity closed and archived by hand. 8 phases, 42 plans, 46/46 requirements, 0 of 19 frozen hashes moved. Merged to beta in all three repos; app 3.0.0b38 on PyPI, fw 3.0.0b26. Not tagged.
+Status: Defining requirements
+Last activity: 2026-09-10 — Milestone v1.37 started
+
+## Roadmap Summary (v1.37)
+
+**Created:** 2026-09-10, hand-authored against `.planning/REQUIREMENTS.md` (28 v1 requirements, 4
+categories, D-1…D-7). **No roadmapper subagent and no research phase were run**, deliberately: `ROADMAP.md`
+is a ~6,300-line hand-authored file carrying the entire `999.x` Backlog and every archived milestone, and
+every fact this milestone rests on was verified against live source, the live GitHub API or the in-repo
+schematic record during the 2026-09-09 backlog review. The v1.37 section was spliced immediately after the
+`## Milestones` summary list and before the v1.36 section; the splice measured **210 insertions / 1
+deletion**, the single deletion being the deliberate relabel of v1.36's own header from `(PLANNING)` to its
+closed state.
+
+**Phases:** 6 (**182–187**). Numbering continues from v1.36's 181; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused.
+**Coverage:** 28 requirements, all mapped, 0 orphans, 0 duplicates.
+
+| # | Phase | Requirements | Depends on |
+|---|-------|--------------|------------|
+| 182 | JP5 Destructive-Operation Gate | SAFE-01…05 (5) | — (first phase) |
+| 183 | Flash4 Erase Refusal & the AE29F2008 Classification | SAFE-06…09 (4) | — (∥ 182) |
+| 184 | Guards That Exist | CLAIM-01, 02, 03, 09 (4) | — (∥) |
+| 185 | Records and Checks That Are Current | CLAIM-04…08 (5) | — (∥) |
+| 186 | The Python Floor, Before the EOL | FLOOR-01…03 (3) | — (∥; external deadline 2026-10-31) |
+| 187 | Answered Reports | REPLY-01…07 (7) | **182, 183** |
+
+**The one hard ordering constraint:** Phase 187 runs last — every reply describes what 182 and 183 actually
+shipped, so a reply written earlier would describe an intention. Everything else is parallelizable.
+
+**Bench: none.** First milestone since v1.33 with no hardware-gated leg. CLAIM-04 needs a cold `pio run`
+(a build, not a flash); SAFE-03's answer comes from the schematics, not from measurement.
+
+**Deliberately excluded (D-1):** 999.43 R4 session reuse, against a measured 50–80 s/run payoff. Stays
+shortlisted for v1.38.
 
 ## Roadmap Summary (v1.36)
 

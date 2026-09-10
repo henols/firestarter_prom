@@ -52,6 +52,8 @@
   **Known gaps carried, not hidden:** the evidence ceiling (accepted debt); **`leonardo` MERGE-05 flash headroom is 0 B** at `+724 B` against BASE-01, exactly the four-term allowance, and **separately the Caterina USB-bootloader cliff at 28672 B has 1042 B left and is UNGUARDED** — `board_upload.maximum_size` does not enforce it, so nothing in the build stops a future change silently overwriting the bootloader region (a split-or-trimmed-build phase was raised and deliberately deferred; it is on no roadmap); the protection-class counting ambiguity, stated rather than collapsed (Method A 664/82 vs Method B 665/81, with Phase 151's published 406/111/39 reproducing under neither — only 665/81 plus the method-invariant `no_mechanism` 405 / `not_implemented` 40 are citable); the 20 ms `t_EC` wait being an Atmel-family maximum applied to a multi-vendor 84-row bucket, with **no** native test able to prove the wall-clock wait is honoured (the stubs never stub `delay()`); and one already-published part-name misattribution (W29C020 vs W29C040) that this project's own discipline forbids editing in place. Seven todos were filed by this milestone's own work. Full detail in `.planning/MILESTONES.md` §v1.32 + [`.planning/milestones/v1.32-ROADMAP.md`](milestones/v1.32-ROADMAP.md); honesty ledger at [`152-LEDGER.md`](phases/152-outward-facing-close-operator-gated/152-LEDGER.md); erase-policy record at [`153-RECORD.md`](phases/153-write-path-erase-policy/153-RECORD.md); merge record at [`152-MERGE-RECORD.md`](phases/152-outward-facing-close-operator-gated/152-MERGE-RECORD.md).
   **Milestone-level non-claim, in this milestone's own canonical wording: no AT28C part was tested, at any point, by any phase — protocol `0x0D` stays UNVERIFIED in PROTOCOL-LEDGER exactly as it stood at the open, and every write-path change v1.32 shipped is software-proven and unvalidated on silicon.**
 
+- ◆ **v1.37 Operator Safety, Answered Reports & Claim Hygiene** — Phases 182–187 (**ACTIVATED 2026-09-10**; host-first, firmware touched only at the edges — one `.md`, one baseline JSON plus fixtures, and at most one generated message id). Stops the project withholding what it already knows: a JP5 destructive-operation gate for the hazard that cost a user real chips ([gh#60](https://github.com/henols/firestarter_prom/issues/60)); a flash4 erase refusal that names its cause instead of teaching users to forge a chip identity with `--force` ([gh#62](https://github.com/henols/firestarter_prom/issues/62)); the replies owed on gh#23/#28/#31 since 2026-08-09; and the repository's own false claims — a deleted guard still named as live, a three-milestone-stale size baseline, a citation pointing 49 lines off, two tests asserting coverage that no longer exists, and `Catalog sync check` red on `main`. Plus the one item with an external clock: the Python floor, before 3.10 EOLs 2026-10-31. **Deliberately excluded (D-1): 999.43 R4 session reuse**, against a measured 50–80 s/run payoff — see the milestone section for why.
+
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
 
@@ -166,7 +168,214 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 </details>
 
-## v1.36 — `dev test` Fidelity (PLANNING)
+## v1.37 — Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
+
+**Milestone goal:** Stop the project withholding what it already knows — from the operator about to destroy
+a chip, from the reporter who has been waiting a month for an answer, and from the maintainer reading a
+guard that no longer exists.
+
+**Why now.** Three signals arrived within a week and they are the same defect wearing three coats. A user
+**destroyed chips** ([gh#60](https://github.com/henols/firestarter_prom/issues/60), 2026-09-04) for want of
+a warning this project could already have given — the hardware fact has been in-repo since 2026-07-10, in
+[`notes/jumper-display-ground-truth.md`](notes/jumper-display-ground-truth.md): **JP5 is `A19_CUT`, a
+bridged solder jumper**, and JP4 (`P1_VPP_JMP`) routes VPP to socket pin 1. A user was **taught to bypass a
+safety gate** ([gh#62](https://github.com/henols/firestarter_prom/issues/62), 2026-09-09): `erase
+AE29F2008` refuses with a bare `Not supported` — a *correct* refusal, since flash4 clears `FLAG_CAN_ERASE`
+so a 12 V bulk erase cannot reach a 5 V-only part — and the reporter, told nothing, re-ran the operation
+under **a different chip's identity with `--force`**. And **three reporters are still waiting**: v1.36
+shipped the machinery that answers gh#23, #28 and #31 and, per its own declared scope note, did not work the
+tracker.
+
+**In every case the information existed and was not said.** That is equally true inside the repository — a
+file naming a guard that was deleted, a baseline recording figures three milestones stale, two tests
+asserting coverage that no longer exists. The tool's honesty and the repo's honesty are one discipline,
+which is why they ship together.
+
+**What this milestone deliberately does NOT take, with its payoff measured.** **999.43 R4 (session reuse) is
+out (D-1)** — v1.36 Phase 176 measured per-connect cost at **2.518 s Uno-class / 2.607 s Leonardo-class**,
+**2.500 s of it a board-independent structural floor**, worth **50–80 s per `dev test` run** at the 22–32
+connects a run makes. It is excluded because its failure mode — a leased link poisoned by one `SerialError`
+silently corrupting every later step, against `run_plan`'s non-fatal-step guarantee — is the largest risk
+available, and this milestone is about correctness of what the tool says, not throughput. The measurement
+does not expire; 999.43 stays shortlisted for v1.38.
+
+**The one hard ordering constraint.** **Phase 187 (Answered Reports) runs last**, because every reply
+describes what Phases 182–183 actually shipped. A reply written earlier would describe an intention.
+
+**Bench: none.** No phase needs a board. CLAIM-04's re-record needs a cold `pio run` (a build, not a flash),
+and SAFE-03's answer comes from the shield schematics and the firmware VPP path, not from measurement. This
+is the first milestone since v1.33 with no hardware-gated leg.
+
+**Scope discipline.** Firmware is touched at the edges only: `PROTOCOLS.md` (CLAIM-01),
+`size_baseline.json` plus its test fixtures (CLAIM-04/05), and — only if D-3 resolves that way — one
+`messages.toml` id (SAFE-07). No protocol change, no dual-repo behavioural lockstep, no golden register
+traces. **Leonardo has 0 B flash and 0 B RAM headroom** since v1.32 Phase 153, which is exactly why SAFE-07
+prices the zero-firmware-byte alternative rather than defaulting to a new id.
+
+**Decisions settled at activation (D-1…D-7, operator, 2026-09-10) — not re-litigated by any phase.** R4 is
+out against its measurement (D-1); FLOOR is in on its deadline, not its theme (D-2); the refusal's message
+mechanism is priced before it is chosen (D-3); the SAFE predicate is database-derived, never a hand list
+(D-4); outward-facing replies stay behind operator wording review and must not run under `--auto`/`--chain`
+(D-5); a chip-classification correction lands in `build_db.py`, never in the generated database (D-6); and
+the baseline re-record uses fixture severance, with "tests byte-unchanged" forbidden as an acceptance
+criterion because it is unsatisfiable (D-7). Full text: `.planning/REQUIREMENTS.md` § Decisions.
+
+**Phase numbering:** Continues from v1.36's Phase 181 → v1.37 starts at **Phase 182**. The vacated **150**
+slot and the v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving.
+
+**Branch model:** Per standing policy (`.planning/config.json` `git.branching_strategy: milestone`,
+`git.base_branch: beta`) — forks off `beta`, closes back to `beta`, not `main`.
+
+**Key context:** Requirements `.planning/REQUIREMENTS.md` (28 v1 requirements, 4 categories, D-1…D-7). No
+research phase was run: every fact this milestone rests on was verified against live source, the live
+GitHub API or the in-repo schematic record during the 2026-09-09 backlog review, and is cited at the point
+of use.
+
+### Phases
+
+- [ ] **Phase 182: JP5 Destructive-Operation Gate** - Warn and refuse before an operation that can destroy an 8 Mbit part on a shield whose JP5 is intact, and delete the renderer that would describe JP5 wrongly.
+- [ ] **Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification** - Make a correct refusal explain itself, so nobody is taught to route around it with a forged identity.
+- [ ] **Phase 184: Guards That Exist** - Stop three repositories naming a checker that was deleted, and make a guard that does not exist impossible to declare silently.
+- [ ] **Phase 185: Records and Checks That Are Current** - The size baseline, the citation, the dead symbol and the red workflow — four records that describe a tree that no longer exists.
+- [ ] **Phase 186: The Python Floor, Before the EOL** - Settle the advertised floor against the type-checker while there is still slack before 2026-10-31.
+- [ ] **Phase 187: Answered Reports** *(runs last — describes what shipped)* - Reply to every reporter this milestone owes, ask for the re-runs that would settle the disputes, and close nothing unilaterally.
+
+## Phase Details
+
+### Phase 182: JP5 Destructive-Operation Gate
+
+**Goal**: An operator cannot begin an operation that would put VPP onto socket pin 1 of a part that expects
+A19 there without being told, in the terminal, that JP5 must be cut — and no code path can describe JP5 as
+something it is not.
+
+**Requirements**: SAFE-01, SAFE-02, SAFE-03, SAFE-04, SAFE-05
+
+**Success criteria**:
+1. Running an affected operation on an affected part stops before touching the bus and states the hazard;
+   declining aborts with no operation performed.
+2. The affected-part set is computed from the database's pin maps — a test adds a part carrying an affected
+   pin map and it appears in the set with no source edit.
+3. A non-interactive invocation (no TTY, piped stdin, `--auto`/`--chain`) does not proceed by default on an
+   affected part; whatever acknowledgement exists is explicit and separate.
+4. `grep -rn '_get_rev2_2_jumper_settings_data' firestarter_app/` returns nothing.
+5. The phase record answers the reporter's own question — which operations energize pin 1 — citing the
+   schematic and the firmware VPP path rather than inferring it.
+
+**Depends on:** — (first phase)
+
+Plans:
+
+- [ ] TBD (run `/gsd-plan-phase 182`)
+
+### Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification
+
+**Goal**: A refusal that is right for a reason says the reason, and the open question behind gh#62 — whether
+this part is classified correctly at all — gets a recorded answer instead of an assumption.
+
+**Requirements**: SAFE-06, SAFE-07, SAFE-08, SAFE-09
+
+**Success criteria**:
+1. `firestarter erase AE29F2008` names the cause (a page-write part self-erases during the write) and the
+   alternative (`write` directly) — not a bare `Not supported`.
+2. Both candidate mechanisms carry a measured firmware-flash figure, and the choice cites those figures.
+3. `configure_flash_5v_page`'s unreachable `CMD_ERASE` arm is removed, or kept with the reason recorded —
+   the phase record states which and why.
+4. The classification question has a datasheet-grounded answer; if it changes anything, the
+   `chip_database.json` diff is the output of a `build_db.py` re-run, never a hand edit.
+
+**Depends on:** — (independent of 182)
+
+Plans:
+
+- [ ] TBD (run `/gsd-plan-phase 183`)
+
+### Phase 184: Guards That Exist
+
+**Goal**: No repository claims a guard it does not have, and the next such claim fails closed instead of
+going unnoticed.
+
+**Requirements**: CLAIM-01, CLAIM-02, CLAIM-03, CLAIM-09
+
+**Success criteria**:
+1. `git grep -n 'dispatch_mirror' -- . ':(exclude).planning'` returns nothing in all three repositories.
+2. A test fails when a `ScanPathEntry` names a guard file that is absent — proven by planting one, observed
+   red, then removed.
+3. The two orphaned `planted_dispatch_*` fixtures are deleted or re-pointed at a consumer that exists.
+4. Whether the three-way dispatch invariant is worth re-guarding is decided and recorded; "retire it" is an
+   acceptable answer, "unaddressed" is not.
+
+**Depends on:** — (independent)
+
+Plans:
+
+- [ ] TBD (run `/gsd-plan-phase 184`)
+
+### Phase 185: Records and Checks That Are Current
+
+**Goal**: Four records stop describing a tree that no longer exists.
+
+**Requirements**: CLAIM-04, CLAIM-05, CLAIM-06, CLAIM-07, CLAIM-08
+
+**Success criteria**:
+1. `check_size_baseline.py` in default mode exits 0 against a fresh cold rebuild of all three AVR targets.
+2. `git diff` over the frozen `captured_build_v158_*` fixture paths is empty, and no new MERGE-05 exemption
+   was authored.
+3. The `test_numeric_schema_source_scan.py` docstring cites the symbol and its enclosing scope, with no line
+   number left to go stale.
+4. `_is_interactive` is gone, and no test name claims TTY gating that the test does not perform.
+5. `gh run list --repo henols/firestarter_prom --workflow 'Catalog sync check'` shows the newest run on
+   `main` as `success`, and the phase record names what was actually wrong.
+
+**Depends on:** — (independent; CLAIM-09's guard from 184 does not gate this)
+
+Plans:
+
+- [ ] TBD (run `/gsd-plan-phase 185`)
+
+### Phase 186: The Python Floor, Before the EOL
+
+**Goal**: The advertised Python floor and the type-checker stop disagreeing, decided ahead of the deadline
+rather than under it.
+
+**Requirements**: FLOOR-01, FLOOR-02, FLOOR-03
+
+**Success criteria**:
+1. `requires-python`, `target-version` and mypy's `python_version` agree, in one direction chosen
+   deliberately.
+2. The app's CI type-check passes at the chosen floor — measured in a py3.11 environment, not in the
+   devcontainer's 3.12, which masks app CI.
+3. The reasoning is recorded somewhere a future reader will find it, not only in a commit message.
+4. Landed before **2026-10-31**.
+
+**Depends on:** — (independent; the only phase with an external deadline)
+
+Plans:
+
+- [ ] TBD (run `/gsd-plan-phase 186`)
+
+### Phase 187: Answered Reports
+
+**Goal**: Every reporter this project owes an answer gets one, describing what actually shipped, and nothing
+is closed on our own reading.
+
+**Requirements**: REPLY-01, REPLY-02, REPLY-03, REPLY-04, REPLY-05, REPLY-06, REPLY-07
+
+**Success criteria**:
+1. gh#23, #28, #31, #60 and #62 each carry a reply from this milestone naming what changed and what a fresh
+   run would show.
+2. Every reply that requests a re-run states that reports are `schema_version` 2.0 and that v1.36
+   deliberately re-keyed `dedup_fingerprint`, so a non-grouping fresh run is expected.
+3. gh#23, #28 and #31 remain OPEN — no unilateral close.
+4. gh#9 carries a closing reply or is closed as done.
+5. Every posted wording was approved by the operator first; the phase did not run under `--auto`/`--chain`.
+
+**Depends on:** Phase 182, Phase 183 (the replies describe what those shipped)
+
+Plans:
+
+- [ ] TBD (run `/gsd-plan-phase 187`)
+
+## v1.36 — `dev test` Fidelity (CLOSED 2026-09-09 — 46/46 requirements; merged to `beta` in all three repos, NOT tagged by operator decision)
 
 **Milestone goal:** Make `dev test` fail only for reasons that are actually the chip's, run no operation
 whose result is empty by construction, and report only what the run already knows. Host-only —
@@ -4733,8 +4942,10 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 > - **999.53** — v1.36's own open **WR-01**: `_is_interactive` became dead code and two tests named `..._on_a_tty`
 >   pass for the wrong reason. Disclosed in the close record's honesty ledger and nowhere else.
 > - **999.54** — the replies **owed** on gh#23 / gh#28 / gh#31. v1.36 was scoped around those three disputes
->   ("on three of them the reporter disputes the tool's own triage") and closed without answering any of them;
->   the reporter's last words, 2026-08-09, are *"I believe the bot is incorrect."*
+>   ("on three of them the reporter disputes the tool's own triage") and closed without answering any of them
+>   — a **declared** exclusion, not an oversight (its scope note says "this milestone builds the fixes, it
+>   does not work the tracker"), but an owed reply all the same. The reporter's last words, 2026-08-09, are
+>   *"I believe the bot is incorrect."*
 >
 > **Re-verified still live, unchanged (6):** 999.15 (`-D DEV_TOOLS` still in the shared `[env]` block at
 > [`platformio.ini:24`](../firestarter/platformio.ini#L24)) · 999.26 + 999.27 (`requires-python = ">=3.9"` /
@@ -5282,6 +5493,8 @@ Plans:
 
 ### Phase 999.26: Restore type-level enforcement of the advertised Python 3.9 floor (BACKLOG — filed 2026-08-03 by Phase 131 D-13)
 
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 186: The Python Floor, Before the EOL** (FLOOR-01…03). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
+
 **➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 1, toolchain deadline).** **Re-verified live:** `firestarter_app/pyproject.toml` still carries `requires-python = ">=3.9"` (:12) and `target-version = "py39"` (:110) against mypy `python_version = "3.10"` (:155) — the D-13 gap is exactly as filed. Scope jointly with **999.27**, whose 2026-10-31 deadline forces the same file open.
 
 **Goal:** After Phase 131 sets `[tool.mypy] python_version = "3.10"` in `firestarter_app/pyproject.toml`,
@@ -5299,6 +5512,8 @@ superseding REQUIREMENTS.md's Out-of-Scope row "Filing the py3.9-drop backlog it
 deliberately left this unfiled.
 
 ### Phase 999.27: mypy minimum-target treadmill — Python 3.10 EOLs 2026-10-31 (BACKLOG — filed 2026-08-03 by Phase 131 D-13)
+
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 186: The Python Floor, Before the EOL** (FLOOR-01…03). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
 
 **➡ NEXT-MILESTONE CANDIDATE — HIGHEST TIME PRESSURE IN THE BACKLOG (backlog review 2026-08-21 — cluster 1, toolchain deadline).** This is the **only** backlog item with a hard external date: **Python 3.10 EOLs 2026-10-31, ~10 weeks from this review.** Every other item is paced by us; this one is not. Scope jointly with 999.26 — they are the same file and the same decision.
 
@@ -5663,6 +5878,8 @@ directory mid-investigation destroys the evidence of what is writing to it.
 
 ### Phase 999.41: Re-record `size_baseline.json` at v1.33 land time (+16 B, three targets) (BACKLOG — filed 2026-08-29 at the v1.34 close)
 
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 185: Records and Checks That Are Current** (CLAIM-04, CLAIM-05). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
+
 **➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.** **Re-verified live:**
 `firestarter/scripts/baseline/size_baseline.json`'s `avr_targets` still record **uno 22952 / uno328pb 23000 /
 leonardo 25098** — the pre-fix figures, byte-unchanged through v1.34, v1.35 and v1.36. RAM likewise
@@ -5819,6 +6036,8 @@ region-scoped firmware check, not a documented flag.
 
 ### Phase 999.45: ~~Unattributed `_AT28C_DIP24_NAMES` rename~~ — **half (a) MOOT**; the twice-stale docstring citation remains (BACKLOG — filed 2026-09-02 during v1.35 Phase 172, product code out of scope)
 
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 185: Records and Checks That Are Current** (CLAIM-06). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
+
 **⚠ SHRUNK TO ONE LINE 2026-09-09 (backlog review), measured.** The uncommitted rename is **gone** — both
 sub-repository working trees are porcelain-clean and `tools/build_db.py` reads `_AT28C_DIP24_NAMES` at
 [`:545`](../firestarter_app/tools/build_db.py#L545) (definition) and
@@ -5892,6 +6111,8 @@ than as its own phase.
 ---
 
 ### Phase 999.47: `firestarter_prom`'s default branch was already red on `Catalog sync check` before Phase 172's merges (BACKLOG — filed 2026-09-02 during v1.35 Phase 173, catalog content out of scope)
+
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 185: Records and Checks That Are Current** (CLAIM-08). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
 
 **➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.** **Re-verified live against the GitHub API:** run
 `33447867312` (2026-08-31, `main`, `failure`) is **still the newest `Catalog sync check` run in the
@@ -6091,6 +6312,8 @@ Plans:
 
 ### Phase 999.50: The wiki-checker retirement left two live claims of a guard that no longer exists — one firmware file is declared guarded but is not (BACKLOG — filed 2026-09-02 at the v1.35 milestone close)
 
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 184: Guards That Exist** (CLAIM-01, 02, 03). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
+
 **➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.** **Re-verified live in both repositories:**
 `firestarter/PROTOCOLS.md:11` still states the claims region "is machine-read by `tools/wiki/dispatch_mirror.py`",
 and `firestarter_app/tests/scan_paths.py:114` still names that deleted file as the guard for
@@ -6117,6 +6340,8 @@ present, each still citing the deleted `test_dispatch_mirror.py` in its own head
 ---
 
 ### Phase 999.51: No warning that JP5 must be cut before an 8 Mbit EPROM operation — a user destroyed chips (BACKLOG — gh#60, filed 2026-09-09 by backlog review)
+
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 182: JP5 Destructive-Operation Gate** (SAFE-01…05). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
 
 **➡ SHORTLISTED 2026-09-09 — cluster 1, `dev test` speed + community close-out.**
 
@@ -6156,6 +6381,8 @@ Plans:
 ---
 
 ### Phase 999.52: `erase AE29F2008` refuses with `Not supported` — the refusal is deliberate, its wording is not, and the user routed around it onto a wrong chip identity (BACKLOG — gh#62, filed 2026-09-09 by backlog review)
+
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification** (SAFE-06…09). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
 
 **➡ SHORTLISTED 2026-09-09 — cluster 1, `dev test` speed + community close-out.**
 
@@ -6228,16 +6455,24 @@ Plans:
 
 ### Phase 999.53: v1.36's open `WR-01` — `_is_interactive` is dead code and two tests named `..._on_a_tty` pass for the wrong reason (BACKLOG — filed 2026-09-09 by backlog review, from the v1.36 close record)
 
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 185: Records and Checks That Are Current** (CLAIM-07). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
+
 **➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.**
 
 **Goal:** Remove `_is_interactive` and repair the two tests that believe they gate TTY behaviour.
 
-**Filed because it lived in exactly one place and would otherwise be lost.** v1.36 disclosed it in its close
-record's honesty ledger — *"`WR-01` is open. `_is_interactive` became dead code when 181-04 removed its only
-caller, and two tests named `..._on_a_tty` patch it believing they gate TTY behaviour. They pass for the wrong
-reason."* — and nowhere else: not in `.planning/todos/pending/`, not in `REQUIREMENTS.md`'s open rows, not in
-the ROADMAP. A close-record honesty ledger is a disclosure, not a queue; without this stub the finding is
-discoverable only by re-reading `.planning/v1.36/CLOSE-RECORD.md` §8.
+**⚠ Correction 2026-09-10: this stub's original filing claimed the finding existed "nowhere else." That was
+wrong.** [`todos/pending/2026-09-09-is-interactive-dead-after-181-04.md`](todos/pending/2026-09-09-is-interactive-dead-after-181-04.md)
+was filed the same day, carries `source: 181-REVIEW.md WR-01`, and holds the measured evidence — an AST scan
+over `firestarter/` and `tools/` finding one definition and **zero** call sites, against a live call at
+`cli_handlers.py:2401` at the phase base `04fd982`. The todo is the better record; this stub is the roadmap
+handle. Read the todo before planning.
+
+**Why a backlog entry as well as a todo.** v1.36 disclosed it in its close record's honesty ledger — *"`WR-01`
+is open. `_is_interactive` became dead code when 181-04 removed its only caller, and two tests named
+`..._on_a_tty` patch it believing they gate TTY behaviour. They pass for the wrong reason."* — and the todo
+queue currently holds **37 items with 0 done**, so a todo alone is not a scheduling mechanism in this
+project.
 
 **Why v1.36 did not do it, stated in its own terms:** *"The repair spans ~14 call sites plus an allow-list
 entry, so it is filed rather than run as an unasked refactor at close."* That reasoning holds — it is real
@@ -6264,6 +6499,8 @@ Plans:
 
 ### Phase 999.54: The three `dev test` disputes v1.36 was scoped around are still unanswered on GitHub (BACKLOG — filed 2026-09-09 by backlog review)
 
+**✅ PROMOTED 2026-09-10 → v1.37 Phase 187: Answered Reports** (REPLY-01…07). This stub is no longer pending backlog; the milestone section above is authoritative for scope and success criteria.
+
 **➡ SHORTLISTED 2026-09-09 — cluster 1, `dev test` speed + community close-out.**
 
 **Goal:** Reply to [gh#23](https://github.com/henols/firestarter_prom/issues/23),
@@ -6274,7 +6511,15 @@ re-run that would settle each.
 **Why this is filed as its own item.** v1.36's stated reason for existing was these three issues — *"Six `dev
 test` issues are open in `henols/firestarter_prom`, and on three of them (gh#23, #28, #31) **the reporter
 disputes the tool's own triage**"* — and the milestone closed 2026-09-09 having shipped the machinery that
-answers them while **posting nothing to any of the three**. Verified against the live API this pass: the most
+answers them while **posting nothing to any of the three**.
+
+**⚠ In fairness, that silence was declared, not accidental — added 2026-09-10.** v1.36's own PROJECT.md scope
+note reads: *"Community issue replies and closures are not deliverables. #21, #23, #28, #31, #45 and #50 stay
+open; this milestone builds the fixes, it does not work the tracker."* The gap is real and is exactly what
+this item exists to close, but it was a stated exclusion rather than an oversight, and nothing here should be
+read as accusing that milestone of forgetting.
+
+Verified against the live API at filing: the most
 recent comment on each is the reporter's own, all dated **2026-08-09**, and the last words on the record are
 *"Bot is mixing a pass with a fail"* (gh#23) and *"I believe the bot is incorrect. There seem to be an actual
 bug in the test"* (gh#31). All three remain OPEN.

@@ -38,7 +38,73 @@
 **v1.30 shipped:** 2026-08-05 (SDP Surface Retirement & Behavioral Lock Proof — 7 phases (131–134, 136, 136.1, 137), 48 plans, 125 tasks; **55/56 requirements, CLOSE-06 held open by design**; host-only, no firmware change. Retired v1.22's unverifiable standalone `dev sdp <chip> enable|disable` and moved the proof into a six-step `dev test` leg whose oracle is read-back equality against a baseline pattern, never an exit code; hardened `check_mypy_watermark.py` from fail-open to fail-closed and certified `firestarter_app`'s primary `ci` job GREEN for the first time in two months (run `30856059940`, mypy 32 against an unratcheted watermark of 35); landed gh#8's stable-channel `dev` narrowing. **Phase 135 (`write --sdp-relock`) deferred out to Backlog 999.28** by operator decision, number not reused — so v1.30 ships the deletion and the behavioral proof and **withdraws** the deliberate-protection surface with **no replacement** (RELOCK-01…06 left v1 scope, 56 → 50 reqs; RELOCK-07 re-homed to Phase 137). Evidence ceiling honoured throughout: **no AT28C part in inventory, no hardware ran** — emission, plan-derivation and read-back-comparison logic are proven; the causal claim "the lock inhibited the write" is not, and did not gate the close. Seventh consecutive `override_closeout`. **⚠ `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` was never merged to `origin/beta`** — the PR was staged but not opened; v1.31 Phase 138 lands it. See `.planning/MILESTONES.md` §v1.30.)
 
 **v1.31 shipped:** 2026-08-18 (27C Programming-Algorithm Fidelity — 9 phases (138–146), 74 plans, 164 tasks; **45/45 v1 requirements**; firmware-touching, dual-repo lockstep. Implements [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected, not as filed** — two wrong numbers and one inverted premise, all three corrected *publicly and before implementation* (comment `#5233463320`): `0x0B`'s pulse is **500 µs**, not `50000 us`; pulse width is a **database datum**, not a per-protocol constant (re-derived live through the production parser — 170/127/32 chips); and the safe 32-bit delay helper is for the overprogram pulse, not any bare pulse. Delivered: **one shared per-byte pulse-to-verify loop** driven by a `const` PROGMEM `eprom_params_t` table keyed on `protocol_id` (**D-01** — protocol owns *shape*, the database owns the *pulse*), **not** gh#15's three state machines; fixed-width pulses that never grow between attempts; hard-fail at `max_pulses` reporting the failing **address and pulse count**; one shared `eprom_hv_route_mask()` with every **error** exit disabling every HV route through a single-exit wrapper; `write --pulse-us N` bounded 1..65535 and pre-validated before a serial byte, riding the existing wire field with **no new DB field and no second algorithm selector**; plus a host long-write timeout fix and intra-block progress, scoped to the `leonardo` class only — on `SERIAL_ON_IO` boards the emission is compiled out **structurally**, because a buffered progress frame there could displace a later `MSG_ERR_MAX_PULSES` and convert a program failure into a transport timeout. **Bench-validated on real silicon:** three full 65536-byte write→read→verify cycles on a Winbond **W27C512** (`0xda08`), **Leonardo**, shield **Rev 2.0** — three distinct images, nine clean oracle cells, read stability N=3 at one SHA each, write timing consistent to **0.37 s**. A firmware defect this milestone itself introduced (Phase 141 deleted the only `CTRL_VPE_ENABLE` assert) failed the **first** bench cycle on byte 0; it was root-caused by a debug session, fixed, and **stands in the record with its cause** rather than being counted out. **Evidence Ceiling stands: the ~6.25 V program-VCC rail all four vendor algorithms assume is unreachable on every shield revision this project owns** — so this milestone claims **fidelity, not improvement**, with no comparative claim, no control run, and no datasheet-conformance claim in either direction. `0x08` (AM27C020) and `0x0B` (M2716/M2732) are **skipped-with-reason** with the missing parts named, never inferred from `0x07`. Twelve items carry forward with the literal phrase `no v1.31 owner`; **MERGE-05's +96 B leonardo band breach is open and un-adjudicated** with the operator as its named owner. Eighth consecutive `override_closeout` (9 carry-forward items, none originating in v1.31). Closed via **PRs to `beta` in all three repos, not direct merges**, per operator decision — meta tagged `v1.31`, gitlinks re-pinned; **no beta cut yet**, and stable stays operator-gated. See `.planning/MILESTONES.md` §v1.31.)
-## Current Milestone: v1.36 `dev test` Fidelity — Only Run What Can Tell You Something, Report Only What You Know
+## Current Milestone: v1.37 Operator Safety, Answered Reports & Claim Hygiene
+
+**Activated:** 2026-09-10 · **Phases continue at 182** (v1.36 ran 174–181; the vacated **150** slot and
+the v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving)
+
+**Goal:** Stop the project withholding what it already knows — from the operator about to destroy a chip,
+from the reporter who has been waiting a month for an answer, and from the maintainer reading a guard that
+no longer exists.
+
+**Why now.** Three separate signals arrived within a week of each other and they are the same defect wearing
+three coats:
+
+- **A user destroyed chips** ([gh#60](https://github.com/henols/firestarter_prom/issues/60), 2026-09-04) for
+  want of a warning this project could already have given. The hardware fact has been established in-repo
+  since 2026-07-10 — [`notes/jumper-display-ground-truth.md`](notes/jumper-display-ground-truth.md) records
+  **JP5 = `A19_CUT`, a bridged solder jumper** (not an operator-settable header), and JP4 = `P1_VPP_JMP`
+  routing VPP to socket pin 1. Nothing in the tool says so at the moment it matters.
+- **A user was taught to bypass a safety gate** ([gh#62](https://github.com/henols/firestarter_prom/issues/62),
+  2026-09-09). `erase AE29F2008` refuses with a bare `Not supported`; the refusal is *correct* — flash4 clears
+  `FLAG_CAN_ERASE` so a 12 V bulk erase cannot reach a 5 V-only part — but it explains nothing, so the
+  reporter re-ran the operation under **a different chip's identity with `--force`**. That is precisely the
+  path the gate exists to prevent, and the refusal's wording is what sent them down it.
+- **Three reporters are still waiting.** v1.36 shipped the machinery that answers gh#23, #28 and #31 and, by
+  its own declared scope note, did not work the tracker. The fixes exist; the replies do not.
+
+**The through-line, stated once so no phase re-derives it:** in every case the information existed and was
+not said. That is also true inside the repository — a file declaring a guard that was deleted, a baseline
+recording figures three milestones stale, two tests asserting coverage that no longer exists. The tool's
+honesty and the repo's honesty are the same discipline, which is why they ship together here.
+
+### Four strands
+
+| Strand | Scope | Backlog |
+|---|---|---|
+| **SAFE** — refusals and warnings that teach | A destructive-operation gate for parts whose pin map puts VPP on socket pin 1 while the chip expects A19 there; a flash4 erase refusal that names its cause and its alternative | 999.51, 999.52 |
+| **REPLY** — answer the reporters | gh#23 / #28 / #31 (what v1.36 changed, and the re-run that would settle each) plus gh#62's own answer | 999.54 |
+| **CLAIM** — things the repo says that are not true | The deleted `dispatch_mirror.py` still named as a live guard in two repositories; `size_baseline.json` still recording pre-fix figures; a docstring citing `build_db.py:594` for a symbol at 545; `_is_interactive` dead with two tests asserting through it; `Catalog sync check` red on `main` since 2026-08-31 | 999.50, 999.41, 999.45, 999.53, 999.47 |
+| **FLOOR** — the one item with an external clock | `requires-python = ">=3.9"` and `target-version = "py39"` against mypy `python_version = "3.10"` — **Python 3.10 EOLs 2026-10-31, inside this milestone's window** | 999.26, 999.27 |
+
+### Decisions taken at activation (operator, 2026-09-10)
+
+| ID | Decision | Consequence |
+|---|---|---|
+| **D-1** | **999.43 R4 (session reuse) is deliberately OUT**, against a measured payoff. | The payoff is real and large — 2.518 s/connect Uno-class, 2.607 s Leonardo-class, 2.500 s of it a board-independent structural floor, so 50–80 s per `dev test` run. It is excluded because its failure mode (a leased link poisoned by one `SerialError` silently corrupting every later step, against `run_plan`'s non-fatal-step guarantee) is the largest risk available, and this milestone is about correctness of what the tool says, not throughput. It stays **shortlisted for v1.38** and its measurement does not expire. |
+| **D-2** | The FLOOR strand is in **because the deadline lands mid-milestone**, not because it is related. | It is the only backlog item paced by something other than us. Deferring it again means doing it under the deadline rather than ahead of it. It is scoped as one small phase and is independent of every other strand. |
+| **D-3** | Whether the flash4 erase refusal takes a **new message id** is a plan-time decision with a measured cost, not a default. | `include/messages.h` is codegen-generated and id-only — a new id is a `messages.toml` entry plus a `codegen.py` regeneration for both targets, and it costs firmware flash on boards at **0 B headroom** (leonardo, since v1.32 Phase 153). The zero-firmware-byte alternative — keep `MSG_ERR_NOT_SUPPORTED` and give the host the explanatory text — must be priced against it before either is chosen. |
+| **D-4** | The SAFE gate's part predicate is **derived from the database**, never a hand-kept part list. | The pin-map → VPP-on-pin-1 mapping already exists and is counted (291 chips across `DIP28_27256`, `DIP28_2764`, `DIP32_STD`, `DIP32_27C020`). A hand list silently omits the next part added. |
+| **D-5** | Every outward-facing reply stays behind **operator wording review** before posting. | Standing gate on upstream communication. Note `--auto`/`--chain` auto-approve human-verify gates, so `autonomous: false` is not self-protecting — the phase must not be run in those modes. |
+| **D-6** | If the gh#62 investigation concludes AE29F2008 is **misclassified**, the fix is in `build_db.py`'s decode. | `chip_database.json` is GENERATED. A hand edit would be silently reverted by the next regeneration and would not fix the other parts sharing the decode path. |
+| **D-7** | `999.41`'s re-record uses the **fixture-severance pattern**, and no acceptance criterion may say "tests byte-unchanged". | `test_check_size_baseline.py` hard-codes 22952 / 23000 / 25098 in roughly six places and feeds frozen `captured_build_v158_*.log` fixtures. Re-capturing in place destroys the arms that deliberately depend on pre-change figures; a byte-unchanged criterion is unsatisfiable by construction. |
+
+### What this milestone does NOT do
+
+- **It does not make `dev test` faster.** D-1 above. Any timing improvement observed is incidental.
+- **It does not claim the JP5 hazard is eliminated.** The jumper state is not readable by the tool — the
+  reporter said so and the schematics agree — so the deliverable is a warning and a refusal-to-proceed, not
+  a detection. A user who confirms falsely still destroys the chip.
+- **It does not re-open the three-way dispatch invariant.** 999.50 asks only that the repositories stop
+  claiming a guard that was deleted. Whether that invariant is worth re-guarding is a separate decision this
+  milestone surfaces and does not take.
+- **It does not close gh#23 / #28 / #31.** The reporters' disputes are the open question; the deliverable is
+  an honest reply and a request for an attributable re-run, not a unilateral close.
+- **It touches firmware only at the edges.** One `.md` (`PROTOCOLS.md`), one baseline JSON plus its test
+  fixtures, and — only if D-3 goes that way — one generated message id. No protocol change, no dual-repo
+  behavioural lockstep, no golden register traces.
+
+## v1.36 Archive: `dev test` Fidelity — Only Run What Can Tell You Something, Report Only What You Know — Shipped 2026-09-09
 
 **Activated:** 2026-09-02 · **Phases continue at 174** (v1.35 ran 167–173; the vacated **150** slot and
 the v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving)
