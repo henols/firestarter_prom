@@ -33,17 +33,38 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
 ### SAFE — refusals and warnings that teach
 
 - [x] **SAFE-01**: The set of parts at risk from an intact JP5 — those whose pin map puts A19 on socket pin 1
-      where the shield may still route VPP — is derived from the chip database and its pin maps, not from a
-      list written by hand. Adding a new part to the database cannot silently omit it from the gate.
-- [ ] **SAFE-02**: Before an affected operation on an affected part, the operator is told, in the terminal,
-      that JP5 must be cut on Rev 2.x shields for this part and why (`JP5 = A19_CUT`; JP4 routes VPP to
-      socket pin 1), and the operation does not proceed without explicit confirmation.
+      where the shield may still route VPP — is achieved by CORRECTING the pin map so this requirement's own
+      words are literally true, not by deriving a synthetic predicate around a database that was wrong.
+      Measured 2026-09-10: no pin map in `pinouts.json` declared A19 at all, and all eight 1 MB rows sat on
+      `DIP32_STD` (19 address lines, `vpp-pin: [1]`). An address-line-shortfall test, a size threshold, and the
+      291-row VPP-on-pin-1 set were considered and rejected (D-01; `182-01-SUMMARY.md`, `182-02-SUMMARY.md`).
+      The set is derived from the chip database and its pin maps, not a hand-written list — proved by
+      `test_jp5_gate.py::test_synthetic_pin_map_with_pin1_at_index19_appears_in_the_affected_set` — so adding a
+      new part to the database cannot silently omit it from the gate.
+- [x] **SAFE-02** — **CONFIRMED REQUIRED 2026-09-10 (D-05 resolved)**: Before an affected operation on an
+      affected part, the operator is told, in the terminal, that JP5 must be cut on Rev 2.x shields for this
+      part and why (`JP5 = A19_CUT`; JP5 routes VPP to socket pin 1), and the operation does not proceed
+      without explicit confirmation. D-05 resolution: the operator's stated expectation was that the pin-map
+      fix would supersede this requirement; the SAFE-03 trace found the opposite — the outcome is against that
+      expectation. On
+      Rev 2.x, control bit `0x08` is both `CTRL_VPP_P1_ENABLE` and `CTRL_ADDRESS_LINE_18`, and socket pin 1 is
+      bus line 21, inside the address mask a write/erase drives on every byte. The fix moves VPP off pin 1 and
+      onto pin 24, but puts A19 on the same physical line pin 1 already was — it relocates the hazard, it does
+      not remove it, so the retirement branch of D-05 does not fire. Trace: `182-05-SUMMARY.md`,
+      `.planning/notes/jumper-display-ground-truth.md` § "Which operations energize socket pin 1".
 - [ ] **SAFE-03**: Which operations the gate covers is settled from the shield schematics and the protocol's
       VPP path — not inferred — and the answer is recorded with its evidence. The reporter's own open
       question ("just writing, or reading too?") is answered in the artifact.
-- [ ] **SAFE-04**: The gate cannot be auto-answered. A non-interactive invocation, a piped stdin, `dev test`,
-      and `--auto`/`--chain` each either refuse the affected operation or require an explicit, separate
-      acknowledgement flag — never a default-yes.
+- [x] **SAFE-04** — **CONFIRMED REQUIRED 2026-09-10 (D-05 resolved)**: The gate cannot be auto-answered. A
+      non-interactive invocation, a piped stdin, `dev test`, and `--auto`/`--chain` each either refuse the
+      affected operation or require an explicit, separate acknowledgement flag — never a default-yes. Same
+      D-05 trace and reasoning as SAFE-02, against the same stated operator expectation. `--auto`/`--chain` have no
+      firestarter CLI counterpart (measured: no match in `firestarter_app/firestarter/`) — they are GSD
+      execution-mode flags, and a GSD run in those modes invokes the CLI non-interactively, so the non-TTY
+      refusal satisfies this clause for them, not any flag handling. **Option B taken on `_is_interactive`:**
+      the gate (`jp5_gate.py`) carries its own injectable `isatty_fn`, per the `submit.py` pattern, and never
+      calls or imports `cli_handlers._is_interactive` — CLAIM-07 needs no amendment and Phase 185 removes that
+      symbol as planned.
 - [x] **SAFE-05**: `_get_rev2_2_jumper_settings_data` and its commented-out call site are deleted, so no code
       path can render JP5 as an operator-settable config header. (`todos/pending/delete-jp5-dead-renderer.md`)
 - [ ] **SAFE-06**: A refusal to erase a flash4 (`0x05`) part states its cause and its alternative — the part
@@ -144,9 +165,9 @@ Deferred, tracked, not in this roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SAFE-01 | Phase 182 | Complete |
-| SAFE-02 | Phase 182 | Pending |
-| SAFE-03 | Phase 182 | Pending |
-| SAFE-04 | Phase 182 | Pending |
+| SAFE-02 | Phase 182 | Complete |
+| SAFE-03 | Phase 182 | Pending — trace recorded (182-05), assumption A1 (VPE rail level) unmeasured until Plan 06's bench probe runs |
+| SAFE-04 | Phase 182 | Complete |
 | SAFE-05 | Phase 182 | Complete |
 | SAFE-06 | Phase 183 | Pending |
 | SAFE-07 | Phase 183 | Pending |
