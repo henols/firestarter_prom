@@ -287,7 +287,7 @@ Plans:
 
 - [x] 182-01-PLAN.md — SAFE-01/02/04 (D-01, D-06, D-07): tracer — the `DIP32_27C801` pin map, the `jp5_gate` policy module, the operator-layer refusal and the two CLI prompts, wired end-to-end and proved derived from `pinouts.json`
 - [x] 182-04-PLAN.md — SAFE-05 (D-08): guard the deletion RED-first, then delete `_get_rev2_2_jumper_settings_data` and its commented call site
-- [ ] 182-05-PLAN.md — SAFE-03 (D-10…D-14): the VPP-destination table and the gh#60 operations answer in `notes/jumper-display-ground-truth.md`; every JP4 claim corrected and the R41-couples-to-JP4 claim retracted in `v1.7-SHIELD-REVS.md`
+- [x] 182-05-PLAN.md — SAFE-03 (D-10…D-14): the VPP-destination table and the gh#60 operations answer in `notes/jumper-display-ground-truth.md`; every JP4 claim corrected and the R41-couples-to-JP4 claim retracted in `v1.7-SHIELD-REVS.md`
 
 **Wave 2** *(the generator fix; the operator bench session runs in parallel)*
 
