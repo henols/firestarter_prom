@@ -120,3 +120,19 @@ Port identity verified this session: `/dev/ttyACM0`, `controller: leonardo`, fir
 |---|---|---|
 | as found at session start | `Rev 2.0-class` | `Rev 2.0-class` |
 | jumper on the **socket-facing** pole (socket pin 3, 28-pin) | `Rev 2.0-class` | `Rev 2.0-class` |
+| jumper on the **periphery-facing** pole (socket pin 25, 24-pin) | `Rev 2.0-class` | `Rev 2.0-class` |
+| **no jumper fitted** | `Rev 2.0-class` | `Rev 2.0-class` |
+
+**Verdict: D-14's retraction survives its bench falsification attempt.** The reported physical
+revision is invariant across every position JP4 supports, including no jumper at all — the position
+that would show the largest swing if JP4 sat anywhere in the detect divider. This is consistent
+with the schematic and PCB finding that R41 sits between Arduino A3 and GND and touches no JP4 pin,
+and therefore that the `hw_revision` detect band is independent of JP4 position.
+
+**What this does and does not prove — stated precisely.** `firestarter hw` reports a *bucket*
+(`Rev 2.0-class` spans revisions 2.0/2.1/2.2), not the raw ADC count, and no command on this
+firmware exposes the raw count. So the measurement establishes that **JP4 position does not move
+the reported revision**, which is the operationally relevant claim and the one D-14's retraction is
+used for. It does not, and cannot on this firmware, establish that the A3 voltage is literally
+unchanged to the LSB — a sub-band shift would be invisible here. Recorded as a failed falsification
+of a schematic-derived claim, not as an independent measurement of the divider.
