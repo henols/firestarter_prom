@@ -3,9 +3,11 @@
 > **Audit trail only.** Do not use as input to planning, research, or execution agents.
 > Decisions are captured in CONTEXT.md — this log preserves the alternatives considered.
 
-**Date:** 2026-09-10
 **Phase:** 182-jp5-destructive-operation-gate
-**Areas discussed:** Affected-part predicate, Operation coverage, Escape hatch & non-interactive, Jumper-display cleanup scope
+**Date:** 2026-09-10 (session 1); 2026-09-10 (session 2 — JP4 correction)
+**Areas discussed:** *Session 1* — Affected-part predicate, Operation coverage, Escape hatch &
+non-interactive, Jumper-display cleanup scope. *Session 2* — SAFE-03 trace scope, SHIELD-REVS
+repair.
 
 ---
 
@@ -171,3 +173,168 @@ here; its JP4-label and Rev-2-block items move to the new phase, whose number do
   rewrite) — needs inserting into `ROADMAP.md` before Phase 187, which must stay last.
 - Two `REQUIREMENTS.md` edits arising from this discussion: SAFE-01's wording, and marking
   SAFE-02/SAFE-04 conditional on the SAFE-03 trace.
+
+---
+
+# Session 2 — 2026-09-10 — the JP4 correction
+
+Re-entered `/gsd-discuss-phase 182` with an operator correction supplied inline:
+
+> *"the rev 2.2 silk screen is wrong (mayby corrected on 2.3) the jp4 is 3 pins instead of a 2 pin
+> that 2.0 and 2.1 have. The second jummper setting can route the vpp to pin 21 (24 pin) and this
+> will enable to be able to program some old legacy EPROMs like 2516, but earlier revisions don
+> have this feature"*
+
+CONTEXT.md already existed; the **Update it** branch was taken without prompting, since the
+invocation was itself an explicit update.
+
+## Pre-discussion verification
+
+The correction contradicted `.planning/v1.7-SHIELD-REVS.md`, which places the JP4 footprint change
+at Rev 2.3 and records Rev 2.1 → Rev 2.2 as *"no change (JP4 1x2 vertical header preserved per
+shared schematic blob)"*. Four independent checks were run before any option was offered:
+
+| Check | Result |
+|---|---|
+| Rev 2.2's own `W27C512Programmer-top-pos.csv` | `"JP4","P1_VPP_JMP","PinHeader_2x02_P2.54mm_Vertical"` |
+| Rev 2.1's own `W27C512Programmer-top-pos.csv` | `"JP4","P1_VPP_JMP","PinHeader_1x02_P2.54mm_Vertical"` |
+| `RelativelyUniversalROMProgrammer.kicad_sch:22555` | `Description "Jumper, 3-pole, both open"`, pins 1/2/3 |
+| upstream commit `7c8f262` | *"2716 / TMS2532 support"* — the capability the third pole serves |
+| Operator photo `evidence/shield-rev2.2-jp4-jp5-jp6-jp9.jpg` | silkscreen reads *"Open … Closed …"* — two-state text on a three-pole part |
+
+**The operator was correct on both counts.** The record's error has the same cause as the
+already-resolved R41 4k7-vs-10k error: Rev 2.2 has no committed schematic (Phase 31 Finding E), so
+both times it was inferred from Rev 2.1's shared blob while Rev 2.2's own artefacts sat in the
+same directory.
+
+Rev 2.3's silkscreen could **not** be checked — the only Rev 2.3 image upstream ships is a fab
+render with no instructional text. Recorded as open.
+
+## Area selection
+
+Three areas were offered: *SAFE-03 trace scope*, *The mirrored hazard*, *SHIELD-REVS repair*.
+The operator selected the first and third. The second was dispositioned by Claude and recorded
+(see D-15.2) rather than dropped.
+
+---
+
+## SAFE-03 trace scope
+
+### Q1 — What does the trace cover?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| VPP-destination table | Revision family × JP4 state → which socket pin carries VPP. ~9 cells; answers gh#60; resolves the standing "DIP24 JP3/JP4 guidance unconfirmed" defect as a by-product. Recommended. | ✓ |
+| Pin 1 only, JP4 states as a caveat | Trace which operations assert `P1_VPP_ENABLE`; name JP4's states without tabulating destinations. Leaves "can the shield reach VPP for an 8 Mbit part" unanswered. | |
+| Full per-pin-map reachability matrix | Destination table plus a reachability verdict for all 15 pin maps. Pulls the deferred D-07 audit back in. | |
+
+**User's choice:** VPP-destination table.
+
+### Q2 — What evidence settles it for Rev 2.2?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Desk trace + operator continuity probe | Rev 2.3 schematic for the 3-pole net, Rev 2.2 gerbers/CSV for the footprint, then a DMM confirmation on the operator's Rev 2.2 board. The only method that has not yet produced a wrong Rev 2.2 answer. Recommended. | ✓ |
+| Desk trace only | No operator time; accepts the same inference-from-adjacent-revision method that produced both known Rev 2.2 errors. | |
+| Desk trace, probe only if ambiguous | Middle cost — but both prior errors were cases where the desk trace looked unambiguous and was wrong. | |
+
+**User's choice:** Desk trace + continuity probe.
+
+### Q3 — Where does the table live?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Extend `jumper-display-ground-truth.md` | Add the table and fix that file's wrong JP4 row in place. One home for jumper ground truth — where the D-09 phase already looks and Phase 187 can cite. Recommended. | ✓ |
+| New standalone `.planning/notes/` trace note | Cleaner separation between display defects and electrical routing; a second file to keep in sync. | |
+| Inline in Phase 182 `SUMMARY.md` | Cheapest, but archived at milestone close while Phase 187 and D-09 still need to cite it. | |
+
+**User's choice:** Extend `jumper-display-ground-truth.md`.
+**Note:** that file's JP4 row currently reads *"VPP to socket pin 1 only"* and *"Footprint changes
+to 3-pole 2x2 selector at Rev 2.3"* — both halves wrong for Rev 2.2, so it needed correcting
+regardless of where the table landed.
+
+### Q4 — What does the DIP24 unreachable-VPP finding oblige?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Record + file a backlog item | Table states it; a backlog item captures "tool offers writes it cannot physically perform on some revisions". No host behaviour change in 182. Recommended. | ✓ |
+| Record in the table only | Lightest; risks the finding sitting in a note nobody re-reads once gh#60 is answered. | |
+| In scope — fold into the gate | Widens the phase and makes D-05's "does a gate ship at all" harder to answer from the trace. | |
+
+**User's choice:** Record + backlog item.
+
+---
+
+## SHIELD-REVS repair
+
+Two further consequences were surfaced before the questions:
+
+- **§6 capability rows** list Rev 2.1, 2.2 and 2.3 as all supporting "24-pin legacy DIP UV-EPROM"
+  and call Rev 2.3's capability set *"unchanged from Rev 2.1/2.2"* — but if the third pole is what
+  makes 24-pin VPP reachable, there is a capability delta at 2.1 → 2.2 the record denies.
+- **§"JP4 Caveat"** bases the `hw_revision` detect model on R41's lower terminal connecting to a
+  JP4 pin, while openly saying *"consult upstream schematic … for the exact wiring"* — i.e. never
+  traced. In the current schematic R41 sits at x≈281 and JP4 at x≈178, different regions.
+
+### Q1 — How far does the repair go?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Every JP4 claim the trace settles | ~10 spots (§1 r19, §3 r44/r45, §4 r58, §5 r73/r74, §6 r89/r91, §7 r132, §Detect r175, §JP4 Caveat), using the destination table as evidence. Recommended. | ✓ |
+| Footprint-attribution rows only | Fix where the change is dated; knowingly leave the capability rows and the JP4 Caveat stating things the trace just disproved. | |
+| Errata note only, defer edits to D-09 | Tightest phase; leaves ten wrong cells in place for however long D-09 takes. | |
+
+**User's choice:** Every JP4 claim the trace settles.
+
+### Q2 — How is §6's 24-pin capability row corrected?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Revision-qualify the 24-pin row only | Read-only on Rev 0/2.0/2.1, programmable on Rev 2.2+; correct the "unchanged" note; leave other families' rows alone. Recommended. | ✓ |
+| Split every row into read vs program | Most honest table, but it is the full reachability matrix under another name. | |
+| Footnote pointing at the destination table | Cheapest; the cells stay wrong at a glance. | |
+
+**User's choice:** Revision-qualify the 24-pin row only.
+
+### Q3 — Does Phase 182 resolve the untraced R41↔JP4 coupling?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Resolve in the trace, characterize only | Desk-trace the coupling; read `hw_revision` at each JP4 position while the board is open — operator moves the jumper, Claude drives the board over USB. Recorded, not fixed; no firmware change. Recommended. | ✓ |
+| Flag as untraced, file a todo | Keeps the phase off anything firmware-adjacent; leaves the detect model resting on an assumption beside a proven-wrong claim. | |
+| Out of scope entirely | Cleanest boundary; the repair would edit rows around the caveat while leaving its premise unexamined. | |
+
+**User's choice:** Resolve in the trace, characterize only.
+
+### Q4 — How is the correction marked?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Inline convention + systemic-cause note | Correct each cell in the file's existing bold/dated/evidence-cited style, plus one note naming the failure mode (Rev 2.2 twice inferred from Rev 2.1's blob). Recommended. | ✓ |
+| Inline convention only | Records what was wrong but not why it recurs. | |
+| Errata block at the top | Auditable as a set; departs from the file's convention and splits each fact from its row. | |
+
+**User's choice:** Inline convention + systemic-cause note.
+
+---
+
+## Claude's Discretion (session 2)
+
+- The exact shape of the VPP-destination table — column order, how a JP4 state is named, whether
+  Rev 0 gets its own row or a "JP4/JP5 not present" sentinel.
+- **Disposition of the unselected area.** The mirrored hazard (JP4 in the 24-pin position with a
+  28/32-pin part seated) is **named in the destination table but not gated**, and gets a backlog
+  item. Rationale: the tool can read JP4 no better than JP5, so gating it needs the same D-05
+  evidence decision the phase has not yet made. Recorded at the operator's instruction rather than
+  dropped. Session 1's discretion item on where the trace lives is **superseded** by D-12.
+
+## Deferred Ideas (session 2)
+
+- 2516 / 2716 / 2532 programming support as a capability — new capability, own phase.
+- Backlog: the tool offers writes it cannot physically perform (`DIP24_2716` / `DIP24_2532`
+  declare `vpp-pin: [21]`, unreachable on Rev 0/2.0/2.1).
+- Backlog: the mirrored hazard, per the discretion note above.
+- Open question: was the Rev 2.3 silkscreen corrected? Needs an upstream question to Anders or a
+  photograph from someone holding a Rev 2.3 board. Matters to D-09, not to Phase 182.
+- The D-09 phase inherits a larger job: three JP4 states per revision, and it must not reproduce
+  the Rev 2.2 silkscreen's Open/Closed sentence.

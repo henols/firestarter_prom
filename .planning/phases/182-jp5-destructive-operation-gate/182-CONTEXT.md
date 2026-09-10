@@ -1,6 +1,7 @@
 # Phase 182: JP5 Destructive-Operation Gate - Context
 
 **Gathered:** 2026-09-10
+**Updated:** 2026-09-10 — operator correction to JP4's revision attribution; see D-10…D-15
 **Status:** Ready for planning
 
 <domain>
@@ -15,7 +16,10 @@ operator-facing warning is still owed for the part the tool cannot see — the J
 `firestarter_app/firestarter/data/pinouts.json` (one new layout), the regenerated
 `chip_database.json`, retirement of `MAX_27C020_SIZE` and its self-comparing parity test, the
 SAFE-03 schematic/VPP-path trace, deletion of the dead JP5 renderer (SAFE-05), and — **only if the
-trace requires it** — a damage-scoped confirmation gate.
+trace requires it** — a damage-scoped confirmation gate. Per D-11…D-14 the SAFE-03 trace takes the
+form of a per-revision × per-JP4-state **VPP-destination table** written into
+`.planning/notes/jumper-display-ground-truth.md`, and the phase corrects every JP4 claim that table
+settles in `.planning/v1.7-SHIELD-REVS.md`.
 
 **Out of scope:** detecting JP5's physical state (impossible — it is a solder jumper); the shield
 photographs, per-revision jumper tables and the `firestarter info` jumper-block rewrite (their own
@@ -110,12 +114,86 @@ phase, decided D-06); any firmware change; the wider pin-map audit (D-07).
   Not Phase 182.
   — **Reversibility:** reversible.
 
+### The JP4 correction — the trace's second axis
+
+- **D-10:** The operator's **Rev 2.2** board carries a **3-pole JP4**, not the 2-pin header the
+  project record claims, and the third pole routes VPP to a 24-pin part's **pin 21** (the
+  2516/2716/2532 class). Earlier revisions have no such capability. Verified 2026-09-10 against
+  four independent sources: Rev 2.2's own `W27C512Programmer-top-pos.csv` says
+  `JP4 … PinHeader_2x02` where Rev 2.1's says `PinHeader_1x02`; the schematic symbol is literally
+  `Description: "Jumper, 3-pole, both open"` with pins 1/2/3; upstream commit `7c8f262`
+  ("2716 / TMS2532 support") is the capability the pole exists for; and the operator's photograph
+  shows the Rev 2.2 silkscreen still reading *"Open for 32 pin ROMs, Closed for 28 pin ROMs"* —
+  **two-state language on a three-pole part, i.e. the silkscreen is wrong on this board.** Whether
+  Rev 2.3's silkscreen was corrected is **unresolved**: the only Rev 2.3 image upstream ships is a
+  fab render carrying no instructional text.
+  — **Reversibility:** reversible (a finding, not a change).
+
+- **D-11:** SAFE-03's trace is therefore a **VPP-destination table**, not a pin-1-only trace:
+  revision family (Rev 0 / Rev 2.0–2.1 / Rev 2.2+) × JP4 state → **which socket pin actually
+  carries VPP**. Two alternatives were rejected: pin-1-only-with-a-JP4-caveat (leaves the
+  `<specifics>` question — can the shield reach VPP at all for an 8 Mbit part — unanswered, which
+  is the question gh#60 deserves); and a full per-pin-map reachability matrix (that is the
+  deferred D-07 audit under another name). The table resolves
+  `jumper-display-ground-truth.md`'s standing defect 4 ("24-pin VPP maps get no JP3/JP4
+  guidance — unconfirmed") as a by-product.
+  — **Reversibility:** reversible.
+
+- **D-12:** The table is settled by **desk trace plus an operator continuity probe on the Rev 2.2
+  board**. Desk-trace-only was rejected: there is no committed Rev 2.2 schematic (Phase 31 Finding
+  E), and inferring Rev 2.2 from Rev 2.1's shared blob has now produced **two** wrong answers —
+  R41 4k7-vs-10k, and JP4's footprint — while Rev 2.2's own gerbers and pick-and-place CSV sat in
+  the same directory. The table lives in `.planning/notes/jumper-display-ground-truth.md`, whose
+  JP4 row is corrected in place; one home for jumper ground truth, which is where the D-09 phase
+  will already be looking and which Phase 187 can cite for gh#60.
+  — **Reversibility:** reversible.
+
+- **D-13:** Phase 182 corrects **every JP4 claim in `.planning/v1.7-SHIELD-REVS.md` that the trace
+  settles** — §1 row 19, §3 rows 44/45, §4 row 58, §5 rows 73/74, §6 rows 89/91, §7 row 132,
+  §"Detect" line 175, and §"JP4 Caveat". §6's capability column conflates *can read* with *can
+  program*: the **24-pin legacy UV-EPROM row is revision-qualified** (read-only on Rev 0/2.0/2.1,
+  programmable on Rev 2.2+) and the "capability set unchanged from Rev 2.1/2.2" note is corrected;
+  other families' rows are left alone, consistent with rejecting the full matrix in D-11.
+  Corrections use the file's **existing inline dated/evidence-cited convention** (the style in
+  which the R41 error was recorded), plus **one note naming the systemic cause** — Rev 2.2 has now
+  twice been inferred from Rev 2.1's shared schematic blob while Rev 2.2's own artefacts sat
+  beside it.
+  — **Reversibility:** reversible.
+
+- **D-14:** The §"JP4 Caveat" claim that R41's lower terminal couples to a JP4 pin — the premise of
+  the whole `hw_revision` detect model, and **self-declared untraced** (*"consult upstream
+  schematic … for the exact wiring"*) — is resolved in this phase, **characterize-only**:
+  desk-trace whether the coupling exists at all (in the current schematic R41 sits at x≈281 and
+  JP4 at x≈178, different regions), and read `hw_revision` at each JP4 position on the bench while
+  the Rev 2.2 board is already open — **operator moves the jumper, Claude drives the board over
+  USB**. **No firmware change in Phase 182**; the milestone touches firmware at the edges only. If
+  the detect band turns out to move with JP4 position, that is recorded as a defect, not fixed
+  here.
+  — **Reversibility:** reversible.
+
+- **D-15:** Two findings are **recorded and backlogged, never gated** in this phase:
+  1. **DIP24 unreachable VPP.** `DIP24_2716` and `DIP24_2532` already declare `vpp-pin: [21]`,
+     which Rev 0/2.0/2.1 cannot reach — so the tool offers writes it cannot physically perform on
+     those revisions.
+  2. **The mirrored hazard.** JP4 in the 24-pin position with a 28- or 32-pin part seated puts VPP
+     onto whatever that part carries at that socket position — structurally the JP5/A19 hazard,
+     newly reachable at Rev 2.2+.
+
+  Neither changes host behaviour in Phase 182, because the tool can read JP4 no better than it can
+  read JP5, so gating either needs the same D-05 evidence decision. **Item 2 was offered as a
+  discussion area and not selected; this disposition is Claude's recorded call, made at the
+  operator's instruction to record rather than drop it.**
+  — **Reversibility:** reversible.
+
 ### Claude's Discretion
 
 - The name of the new 32-pin layout key. `DIP32_27C801` follows the established
   `DIP32_27C020` / `DIP32_SST39SF040` convention (exemplar part number); the planner may settle it.
-- Whether the SAFE-03 trace is written as a standalone note under `.planning/notes/` or inline in
-  the phase `SUMMARY.md`. It must be citable by Phase 187's gh#60 reply either way.
+- ~~Whether the SAFE-03 trace is written as a standalone note or inline in `SUMMARY.md`.~~
+  **Settled by D-12** — it extends `.planning/notes/jumper-display-ground-truth.md`.
+- The exact shape of the VPP-destination table (D-11) — column order, how a JP4 state is named,
+  whether Rev 0 gets its own row or a "JP4/JP5 not present" sentinel. It must be readable by the
+  D-09 phase and citable by Phase 187.
 - How the retired `MAX_27C020_SIZE` parity arm is disposed — deleted outright, or replaced by a
   test that asserts something real about the 32-pin dispatch.
 
@@ -131,8 +209,12 @@ Both todos carrying `resolves_phase: 182` were folded, one of them **split**:
   (`.planning/todos/pending/fix-jp4-labels-and-rev2-revision-block.md`) — **split**. Its item 3
   (delete the dead renderer) is SAFE-05 and lands here. Its items 1 and 2 (JP4's meaningless
   `"28pin"`/`"32pin"` labels; relabelling the Rev-2 block from `"2.0 & 2.1"` to cover 2.0–2.3)
-  move to the Phase D-09 `info` rewrite, because the photographs now show JP4's own silkscreen
-  already states the condition the rewrite must reproduce — *"Only for ROMs with VPP on P1."*
+  move to the Phase D-09 `info` rewrite. **Corrected 2026-09-10 (D-10):** the earlier note here
+  said the rewrite should reproduce JP4's own silkscreen. Split that sentence in two — the
+  parenthetical *"Only for ROMs with VPP on P1"* is still the standard to write to, but the clause
+  beside it, *"Open for 32 pin ROMs, Closed for 28 pin ROMs"*, is **two-state language on a
+  three-pole jumper and must not be reproduced**. On Rev 2.2+ the `"28pin"`/`"32pin"` labels are
+  not merely meaningless, they are wrong: JP4 has a third position those labels cannot express.
   **The todo's `resolves_phase: 182` tag needs re-pointing once the D-09 phase has a number.**
 
 </decisions>
@@ -151,8 +233,12 @@ Both todos carrying `resolves_phase: 182` were folded, one of them **split**:
   hardware. Note the JP5 instruction is **unconditional** — it does not say "cut if VPP is
   asserted".
 - `.planning/phases/182-jp5-destructive-operation-gate/evidence/shield-rev2.2-jp4-jp5-jp6-jp9.jpg` —
-  **Rev 2.2 board.** Same JP4/JP5 silkscreen, plus JP6/JP7 (`5V`/`5V_REG`), JP8 (`VPE`), JP9 and
-  TP1 — jumpers absent from the current `info` renderer entirely.
+  **Rev 2.2 board.** Carries the *same silkscreen text* as Rev 2 — *"JP4: Open for 32 pin ROMs,
+  Closed for 28 pin ROMs"* — but that text is **wrong on this board**: Rev 2.2's JP4 is a 3-pole
+  selector (D-10), and two-state Open/Closed language cannot describe it. Do **not** reproduce
+  this sentence in any operator-facing text. Also shows JP6/JP7 (`5V`/`5V_REG`), JP8 (`VPE`), JP9
+  and TP1 — jumpers absent from the current `info` renderer entirely — and the socket's three
+  seating positions (`32 Pins` / `28 Pins` / `24 pins`, each with its own `Pin1→` marker).
 - `.planning/phases/182-jp5-destructive-operation-gate/evidence/shield-rev0-modified-jp1-jp2-jp3.jpg` —
   **Modified Rev 0 board.** Carries the JP1/JP2/JP3 table: `24pin → B to 5V` · `28pin → A to 5V, B
   to A13` · `32pin → B to A13, A to A17*` · `VPP alt → Pin1 VPP to C* or D*` · `* = If needed`.
@@ -168,6 +254,30 @@ Both todos carrying `resolves_phase: 182` were folded, one of them **split**:
   jumper actually routes" and §"Chip-population impact".
 - `.planning/v1.7-SHIELD-REVS.md` — per-revision electrical deltas. Note **JP4/JP5 do not exist on
   a Rev 0 board** and must not be searched for there.
+
+### JP4 revision attribution — the evidence that overturns the project record (D-10)
+
+**Read these before trusting any JP4 statement in `.planning/v1.7-SHIELD-REVS.md`.**
+
+- `.planning/v1.7/upstream-rurp/hardware/Rev2.2/W27C512Programmer-top-pos.csv` — Rev 2.2's **own**
+  pick-and-place file: `"JP4","P1_VPP_JMP","PinHeader_2x02_P2.54mm_Vertical"`. This is the decisive
+  artefact; it sits in the same directory as the gerbers the record cites.
+- `.planning/v1.7/upstream-rurp/hardware/Rev2.1/W27C512Programmer-top-pos.csv` — Rev 2.1's, for
+  contrast: `"JP4","P1_VPP_JMP","PinHeader_1x02_P2.54mm_Vertical"`. The change is at **2.1 → 2.2**.
+- `.planning/v1.7/upstream-rurp/hardware/RelativelyUniversalROMProgrammer.kicad_sch:22555-22620` —
+  the JP4 symbol: `Description "Jumper, 3-pole, both open"`, pins 1/2/3, at (177.8, 69.85). Its
+  outer poles wire to (171.45, 69.85) and (184.15, 69.85); the common pole to the junction at
+  (177.8, 73.66). **The desk trace starts here.**
+- upstream `firestarter/.planning/v1.7/upstream-rurp` commits `7c8f262` ("2716 / TMS2532 support",
+  2025-08-17 — *"ROM pin count must now be specified … this will turn on the VCC drivers"*) and
+  `9178d84` ("Improve 2716 support", 2025-11-28) — what the third pole exists for.
+- `.planning/v1.7/upstream-rurp/hardware/RelativelyUniversalROMProgrammerRev2.3.jpg` — Rev 2.3 fab
+  render. Shows a 2×2 JP4 pad grid; carries **no instructional silkscreen**, which is why "was the
+  Rev 2.3 silkscreen corrected?" stays open.
+- `firestarter_app/firestarter/data/pinouts.json` — `DIP24_2716` and `DIP24_2532` both declare
+  `vpp-pin: [21]`, matching the operator's account of the third pole exactly. `DIP24_2732` differs
+  (`vpp-pin: [20]`) and the `DIP24_2532` comment already flags 21-vs-20 as a
+  "12-25V-to-wrong-pin hardware-damage path".
 
 ### Generator and database
 
@@ -267,6 +377,19 @@ Both todos carrying `resolves_phase: 182` were folded, one of them **split**:
   `VPE Enable (P24)`, `A9 VPE Enable` and `VPE_TO_VPP`. If the shield cannot deliver VPP to
   wherever the 27C801 wants it, these parts may be **read-only on this hardware** — which is
   itself the honest answer gh#60 deserves, and it changes what the new layout can claim.
+  **D-11 makes this a cell in the VPP-destination table rather than a standalone question:** the
+  8 Mbit part and the 24-pin part are the same question — *can the shield put VPP where this pin
+  map says it lives, on this revision, in this JP4 position?* — and one table answers both.
+
+- **VPP reach is revision- and jumper-dependent, and the pin maps have always said so.** The
+  database already names a `vpp-pin` the hardware may or may not be able to reach: `DIP24_2716`
+  and `DIP24_2532` have declared `vpp-pin: [21]` all along, and only Rev 2.2's third JP4 pole
+  makes it reachable. That is precedent for how to phrase the 8 Mbit answer.
+
+- **The hardware's own silkscreen can be wrong.** JP4's *"Only for ROMs with VPP on P1"* was cited
+  above as the standard for operator-facing text — and it still is — but the sentence beside it on
+  the very same board (*"Open for 32 pin ROMs, Closed for 28 pin ROMs"*) is **two-state language
+  on a three-pole jumper**. Check silkscreen against the artefacts, not the other way round.
 - **The evidence photographs are 900×1600 / ~250 KB each**, downscaled from ~15 MB originals
   (44 MB total, too large for the meta repo). Silkscreen legibility was verified after
   downscaling. Originals remain outside `.planning/` at `/workspaces/tmp/` and are **not
@@ -298,6 +421,25 @@ Both todos carrying `resolves_phase: 182` were folded, one of them **split**:
   not mutate requirements): SAFE-01's wording should reflect that the predicate is achieved by
   correcting the pin map rather than by deriving around it, and SAFE-02/SAFE-04 should be marked
   **conditional on the SAFE-03 trace** per D-05.
+
+### From the JP4 correction (D-10…D-15)
+
+- **2516 / 2716 / 2532 programming support as a capability.** Rev 2.2+ can physically deliver VPP
+  to a 24-pin part's pin 21; whether the host tool should therefore *offer* to program these parts
+  is a new capability and belongs in its own phase. Explicitly redirected during discussion.
+- **Backlog item — the tool offers writes it cannot physically perform.** `DIP24_2716` /
+  `DIP24_2532` declare `vpp-pin: [21]`, unreachable on Rev 0/2.0/2.1. To be filed during this
+  phase per D-15.1; no host behaviour change here.
+- **Backlog item — the mirrored hazard.** JP4 in the 24-pin position with a 28/32-pin part seated
+  routes VPP onto that part's pin at the same socket position: the JP5/A19 hazard's mirror image,
+  newly reachable at Rev 2.2+. To be filed per D-15.2. Was offered as a discussion area and not
+  selected; gating it would need the same D-05 evidence decision, so it is recorded, not built.
+- **Was the Rev 2.3 silkscreen corrected?** Unresolved — the operator has no Rev 2.3 board and the
+  only upstream Rev 2.3 image is a fab render with no instructional text. It matters to the D-09
+  wiki/`info` phase, not to Phase 182. Needs either an upstream question to Anders or a
+  photograph from someone holding a Rev 2.3.
+- **The D-09 phase inherits a bigger job than when it was scoped.** Its jumper tables must now
+  carry three JP4 states per revision, and must not reproduce the Rev 2.2 silkscreen sentence.
 
 ### Reviewed Todos (not folded)
 
