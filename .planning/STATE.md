@@ -5,15 +5,15 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 182
 current_phase_name: JP5 Destructive-Operation Gate
 status: executing
-stopped_at: Completed 182-05-PLAN.md
-last_updated: "2026-09-10T15:00:12.295Z"
+stopped_at: Completed 182-02-PLAN.md
+last_updated: "2026-09-10T15:24:59.446Z"
 last_activity: 2026-09-10
 last_activity_desc: "Phase 182 plan 04 complete: SAFE-05 dead JP5 renderer deleted, guarded RED-first"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 182 (JP5 Destructive-Operation Gate) — EXECUTING
-Plan: 4 of 7 (182-05 complete; plans execute by dependency wave, not strict numeric order — 02/03/06/07 remain)
+Plan: 5 of 7 (182-01/04/05/02 complete; plans execute by dependency wave, not strict numeric order — 03/06/07 remain)
 Status: Ready to execute
-Last activity: 2026-09-10 — Completed 182-05-PLAN.md (SAFE-03: VPP-destination table, gh#60 answered, R41/JP4 claim retracted)
+Last activity: 2026-09-10 — Completed 182-02-PLAN.md (D-02: resolve_pinout_key 32-pin variant_lo dispatch fix, D-03: MAX_27C020_SIZE retired)
 
 ## Roadmap Summary (v1.37)
 
@@ -2930,6 +2930,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 182]: 182-04 (SAFE-05): deleted `_get_rev2_2_jumper_settings_data` and its commented call site, guarded by a hasattr deletion test (observed RED first) and a positive survivor test for the live `_get_rev2_jumper_settings_data`. Two plan-text deviations recorded: the plan's `get_chip_layout` does not exist (used `build_specifications`), and Task 2's literal `git grep '*.py'` acceptance criterion can never print nothing once the guard test exists (it necessarily names the string) — verified against the production package (`firestarter/*.py`) instead, which prints nothing. `firestarter info` still prints JP4 = Closed for the eight 8 Mbit parts (still on DIP32_STD pending Plan 02's generator fix) — jumper-display-ground-truth.md's confirmed defect 1, D-09's scope, not a Phase 182 regression.
 - [Phase 182]: JP4 is not a VPP source: socket pin 1 is its common pole; its two poles export whatever socket pin 1 carries to socket pin 3 or socket pin 25. The footprint change (1x2->2x2, 3-pole) is at Rev 2.1->Rev 2.2, settled by Rev 2.2's own pick-and-place CSV and gerber drill file.
 - [Phase 182]: The R41-couples-to-JP4 claim in v1.7-SHIELD-REVS.md is retracted as measured false: R41's GND pin routes directly to GND, ~29mm from JP4 in a different board region. The hw_revision detect band is independent of JP4 position.
+- [Phase 182]: D-02: 32-pin proto_id==0x08 dispatch forks on variant_lo (0x03->DIP32_27C801, 0x02->DIP32_STD, residual size arm otherwise); measured 8-row blast radius — Fork stays inside proto_id==0x08 test (protocol 0x10 Intel-flash unaffected); mem_size threshold survives as fall-through so SST37VF040 stays on DIP32_STD
+- [Phase 182]: D-03: MAX_27C020_SIZE and its self-comparing parity test deleted outright (no firmware counterpart exists) — Confirmed empty git -C firestarter grep -n MAX_27C020; boundary lives on as build_db.py's module-local _PGM_ON_PIN31_MAX_SIZE
 
 ## Performance Metrics
 
@@ -3336,11 +3338,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 182 P01 | 55min | 3 tasks | 6 files |
 | Phase 182 P04 | 18min | 2 tasks | 2 files |
 | Phase 182 P05 | 55min | 2 tasks | 2 files |
+| Phase 182 P02 | 45min | 3 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-09-10T15:00:11.733Z
-**Stopped at:** Completed 182-05-PLAN.md
+**Last session:** 2026-09-10T15:24:51.022Z
+**Stopped at:** Completed 182-02-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 181 context gathered
 **Was (superseded, retained for continuity):** Phase 180 complete, ready to plan Phase 181
