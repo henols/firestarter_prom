@@ -51,3 +51,38 @@ drop collapses toward zero, so the rail settles just under VIN. 4.9 V is that va
 with `CTRL_VPP_REGULATOR_ENABLE` clear the rail is at logic level, so a `read` on an affected part
 drives socket pin 1 with a logic level, not a programming voltage. `DAMAGE_CAPABLE_OPERATIONS`
 stays `{write, erase}`. Task 3's conditional widening to `read`/`verify`/`blank` does **not** fire.
+
+## Task 2a — JP4 continuity, Rev 2.2
+
+Operator continuity probes, board unpowered, no chip seated, JP4 jumper removed for the test
+(its starting position noted for restoration). Readings reported by the operator; Claude took none.
+
+**Result — every prediction held, and the orientation is now measured rather than inferred:**
+
+| JP4 pad | Operator's description | Board coord (PCB, +Y down) | Continuous to | Predicted? |
+|---|---|---|---|---|
+| Common | the pad with a neighbour on two sides at right angles | `(91.44, 81.79)` | socket pin **1** | yes |
+| Pole toward the ZIF socket | "the pole facing the zif socket" | `(93.98, 81.79)` — board **+X** | socket pin **3** | **orientation newly measured** |
+| Pole toward the board periphery | "the pole facing to the edge" | `(91.44, 84.33)` — board **+Y** | socket pin **25** | **orientation newly measured** |
+| — | unpopulated position | `(93.98, 84.33)` — diagonal from common | — | yes, not drilled |
+
+Negative legs, all as predicted: the two poles are **not** continuous to each other, and neither pole
+is continuous to socket pin 1.
+
+**This closes the Rev 2.2 PROBE-PENDING cell** in the VPP-destination table
+(`.planning/notes/jumper-display-ground-truth.md`), which read: *"SETTLED electrically.
+PROBE-PENDING residual: which physical direction is '+X' as the operator sees the silkscreen."*
+It is now answered without reference to the silkscreen at all: **board +X is the direction of the
+ZIF socket**, and that pole is the 28-pin destination (socket pin 3). The perpendicular pole, which
+points away from the socket toward the board periphery, is the 24-pin destination (socket pin 25).
+
+Consistency check against the layout: the socket `U5` sits at X 100.71 and beyond, JP4's common at
+X 91.44 — so board +X is unambiguously socket-ward, and the operator's sighting and the netlist
+agree with no residual ambiguity. `U5` pin 1 is at `(100.71, 76.33)`, pin 3 at `(105.79, 76.33)`,
+pin 25 at `(118.49, 61.09)`.
+
+**Why the fourth position is not drilled, now confirmed from both ends.** The common occupies one
+corner with a selectable pole along each axis. The diagonal position could only bridge the two
+poles to each other — connecting a 28-pin part's pin 1 to a 24-pin part's pin 21 with neither
+carrying VPP — so it has no function and was never drilled. That is the whole mechanical content
+of the Rev 2.1 → Rev 2.2 change: one added hole, 109 → 110 board-wide.
