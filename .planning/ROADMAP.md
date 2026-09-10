@@ -233,7 +233,7 @@ of use.
 
 ### Phases
 
-- [ ] **Phase 182: JP5 Destructive-Operation Gate** - Warn and refuse before an operation that can destroy an 8 Mbit part on a shield whose JP5 is intact, and delete the renderer that would describe JP5 wrongly.
+- [x] **Phase 182: JP5 Destructive-Operation Gate** - Warn and refuse before an operation that can destroy an 8 Mbit part on a shield whose JP5 is intact, and delete the renderer that would describe JP5 wrongly. (completed 2026-09-10)
 - [ ] **Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification** - Make a correct refusal explain itself, so nobody is taught to route around it with a forged identity.
 - [ ] **Phase 184: Guards That Exist** - Stop three repositories naming a checker that was deleted, and make a guard that does not exist impossible to declare silently.
 - [ ] **Phase 185: Records and Checks That Are Current** - The size baseline, the citation, the dead symbol and the red workflow — four records that describe a tree that no longer exists.
@@ -264,7 +264,7 @@ something it is not.
 
 **Depends on:** — (first phase)
 
-**Plans:** 7 plans
+**Plans:** 7/7 plans complete
 
 > **Criterion 4 note (measured 2026-09-10 during planning):** the literal command above answers the wrong
 > question in this devcontainer. A stale gitignored copy of the symbol survives at
