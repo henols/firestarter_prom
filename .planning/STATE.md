@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
 milestone: v1.37
-milestone_name: Operator Safety, Answered Reports & Claim Hygiene
+milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 182
 current_phase_name: JP5 Destructive-Operation Gate
 status: executing
-stopped_at: "Phase 182 planned — 7 plans in 4 waves; D-05 resolved to \"gate ships\" on the SAFE-03 trace; 5/5 requirements and 15/15 decisions covered"
-last_updated: "2026-09-10T14:05:44.229Z"
+stopped_at: Completed 182-01-PLAN.md
+last_updated: "2026-09-10T14:31:59.690Z"
 last_activity: 2026-09-10
 last_activity_desc: Phase 182 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -236,8 +236,8 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 182 (JP5 Destructive-Operation Gate) — EXECUTING
-Plan: 1 of 7
-Status: Executing Phase 182
+Plan: 2 of 7
+Status: Ready to execute
 Last activity: 2026-09-10 — Phase 182 execution started
 
 ## Roadmap Summary (v1.37)
@@ -2926,6 +2926,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 180]: 180-03: PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines, gated on a precondition that 180-PRUNE-08-CLOSURE.md exist and be committed first (T-180-09 mitigation). Seven-leg green-tree seal run and recorded: 2245 passed / 0 failed (measured, not transcribed), tokenize comment gate 621/0 held, both submodules and chip_database.json clean. ROADMAP.md's Phase 180 section ticked for all three plans, exactly two lines changed. One Rule-3 auto-fix landed first: ruff format --check failed on a 180-01-introduced implicit string concat in test_readback_inventory.py, collapsed to one literal (no semantic change) before the battery ran.
 - [Phase 180]: 180-04 (gap closure): R3's remaining "Escalate to..." and "Cost, stated:" paragraphs removed by absence (not annotation, per D-09), connect-count objection preserved; a dated follow-through paragraph appended to the seed's Phase 180 amendment section restating its own not-touched list in full. WR-01 hardened (connect_route_calls counts every connect-shaped call in read_eprom's whole body, not just the with-header) and WR-02 hardened (_last_ok_assignment_shape pins last_ok's exact assignment shape), each proven with a three-way GREEN/RED/GREEN discrimination against a planted mutant. IN-01 closed (stale line-number citation dropped). test_readback_inventory.py 10 -> 12 passed. REQUIREMENTS.md/ROADMAP.md deliberately untouched (180-05's scope).
 - [Phase 180]: 180-05 (gap closure): IN-02 closed by sharing one `_alternating_read_side_effect(*call_returns)` builder between both read-step verdict legs, replacing their near-identical nested closures with zero assertion lines removed since app anchor 93a1672; the genuinely different divergence-metric closure was left untouched. PRUNE-08 re-flipped to Complete only after every named gap fix measured zero/present/clean (seed fragments at zero, both hardened pins present, the builder present, both trees porcelain-clean) — same precedent 180-03 set, gated on a different precondition. ROADMAP.md's Phase 180 section extended to 5 plans with a Gap closure grouping copying Phase 174's form; both regions outside the section proven cmp-identical against the pinned pre-edit blob. Seven-leg battery re-run green at the measured floor of 2247 (2245 + plan 180-04's two additive legs). One Rule-3 auto-fix landed mid-task: 180-04's WR-02 hardening left 2 new mypy errors (reading .lineno/.col_offset off an ast.AST-typed loop variable, a type typeshed does not declare there) that pushed the app-wide count from the watermarked 35 to 37; narrowed the loop's isinstance check to the four node types it already restricts target extraction to (no behavior change), mypy back to 35/35 — 180-04 had not run this battery leg itself, so the regression was invisible until this plan's seal caught it.
+- [Phase 182]: 182-01: gate ships (D-05) scoped to write/erase; GATED_ADDRESS_BIT>=19; Option B on _is_interactive; chip_database.json rows still pending Plan 02's generator fix
 
 ## Performance Metrics
 
@@ -3329,11 +3330,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 180 P03 | 30min | 2 tasks | 5 files |
 | Phase 180 P04 | 15min | 2 tasks | 5 files |
 | Phase 180 P05 | 19min | 3 tasks | 7 files |
+| Phase 182 P01 | 55min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-09-10T12:00:00.000Z
-**Stopped at:** Phase 182 context updated — JP4 revision correction (D-10…D-15)
+**Last session:** 2026-09-10T14:31:59.399Z
+**Stopped at:** Completed 182-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 181 context gathered
 **Was (superseded, retained for continuity):** Phase 180 complete, ready to plan Phase 181
 **Was (superseded, retained for continuity):** Completed 180-04-PLAN.md
@@ -3393,7 +3395,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/182-jp5-destructive-operation-gate/182-CONTEXT.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing

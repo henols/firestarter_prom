@@ -251,6 +251,7 @@ something it is not.
 **Requirements**: SAFE-01, SAFE-02, SAFE-03, SAFE-04, SAFE-05
 
 **Success criteria**:
+
 1. Running an affected operation on an affected part stops before touching the bus and states the hazard;
    declining aborts with no operation performed.
 2. The affected-part set is computed from the database's pin maps — a test adds a part carrying an affected
@@ -284,7 +285,7 @@ Plans:
 
 **Wave 1** *(file-disjoint — the gate, the SAFE-05 deletion and the schematic record share no file)*
 
-- [ ] 182-01-PLAN.md — SAFE-01/02/04 (D-01, D-06, D-07): tracer — the `DIP32_27C801` pin map, the `jp5_gate` policy module, the operator-layer refusal and the two CLI prompts, wired end-to-end and proved derived from `pinouts.json`
+- [x] 182-01-PLAN.md — SAFE-01/02/04 (D-01, D-06, D-07): tracer — the `DIP32_27C801` pin map, the `jp5_gate` policy module, the operator-layer refusal and the two CLI prompts, wired end-to-end and proved derived from `pinouts.json`
 - [ ] 182-04-PLAN.md — SAFE-05 (D-08): guard the deletion RED-first, then delete `_get_rev2_2_jumper_settings_data` and its commented call site
 - [ ] 182-05-PLAN.md — SAFE-03 (D-10…D-14): the VPP-destination table and the gh#60 operations answer in `notes/jumper-display-ground-truth.md`; every JP4 claim corrected and the R41-couples-to-JP4 claim retracted in `v1.7-SHIELD-REVS.md`
 
@@ -309,6 +310,7 @@ this part is classified correctly at all — gets a recorded answer instead of a
 **Requirements**: SAFE-06, SAFE-07, SAFE-08, SAFE-09
 
 **Success criteria**:
+
 1. `firestarter erase AE29F2008` names the cause (a page-write part self-erases during the write) and the
    alternative (`write` directly) — not a bare `Not supported`.
 2. Both candidate mechanisms carry a measured firmware-flash figure, and the choice cites those figures.
@@ -331,6 +333,7 @@ going unnoticed.
 **Requirements**: CLAIM-01, CLAIM-02, CLAIM-03, CLAIM-09
 
 **Success criteria**:
+
 1. `git grep -n 'dispatch_mirror' -- . ':(exclude).planning'` returns nothing in all three repositories.
 2. A test fails when a `ScanPathEntry` names a guard file that is absent — proven by planting one, observed
    red, then removed.
@@ -351,6 +354,7 @@ Plans:
 **Requirements**: CLAIM-04, CLAIM-05, CLAIM-06, CLAIM-07, CLAIM-08
 
 **Success criteria**:
+
 1. `check_size_baseline.py` in default mode exits 0 against a fresh cold rebuild of all three AVR targets.
 2. `git diff` over the frozen `captured_build_v158_*` fixture paths is empty, and no new MERGE-05 exemption
    was authored.
@@ -374,6 +378,7 @@ rather than under it.
 **Requirements**: FLOOR-01, FLOOR-02, FLOOR-03
 
 **Success criteria**:
+
 1. `requires-python`, `target-version` and mypy's `python_version` agree, in one direction chosen
    deliberately.
 2. The app's CI type-check passes at the chosen floor — measured in a py3.11 environment, not in the
@@ -395,6 +400,7 @@ is closed on our own reading.
 **Requirements**: REPLY-01, REPLY-02, REPLY-03, REPLY-04, REPLY-05, REPLY-06, REPLY-07
 
 **Success criteria**:
+
 1. gh#23, #28, #31, #60 and #62 each carry a reply from this milestone naming what changed and what a fresh
    run would show.
 2. Every reply that requests a re-run states that reports are `schema_version` 2.0 and that v1.36
@@ -5269,7 +5275,6 @@ disclaimer-or-checker question itself. Related: **999.50**, the two claims of a 
 **gh#7's upstream action is DISCHARGED:** [gh#7](https://github.com/henols/firestarter_prom/issues/7) is now
 **CLOSED** — confirmed against the live issue list this pass. The reply this stub said was owed is no longer owed.
 
-
 **Goal:** [Captured from GitHub] Move all relevant documentation out of the app and firmware repos into the Wiki of the central project repo.
 **Requirements:** TBD
 **Plans:** 0 plans
@@ -5311,7 +5316,6 @@ Retiring this item does **not** retire those.
 **Absorbed 999.16 / gh#9 remains partially owed:** [gh#9](https://github.com/henols/firestarter_prom/issues/9)
 (`Repository Structure and Contribution Guide`) is **still OPEN**, last touched 2026-09-02. The end-state it
 describes is now configured, so what it needs is a closing reply or a close-as-done, not implementation.
-
 
 **Goal:** [Captured from GitHub] Make `henols/firestarter_prom` the single issue tracker (issues disabled in the app + firmware repos, both linking to it, existing open issues migrated/cross-referenced first), and put all three repos' `main` behind rulesets: no direct pushes, PR required, no force-push, no deletion, admins included absent a documented emergency bypass, required status checks + resolved conversations where applicable. Approval count may stay 0 for a single-maintainer workflow provided a PR is still mandatory.
 **Requirements:** TBD
@@ -5792,7 +5796,6 @@ hash. That reasoning was **falsified against `firestarter_app @ 0a93999`** — t
 and plan shape, not over a schema key list, so field-membership was never the right test. The stub's
 conclusion happened to be defensible for its own field set; its *reason* was not.
 
-
 **Goal:** Make the `dev test` report state what the run already knows. Three defects were reported by the operator and all three confirmed; the sweep that followed found **four more instances of the same class**. Every field below was read from source at schema 1.7, not inferred.
 
 **The operator's two rules, which resolve every case without further adjudication (2026-08-22/23):** (1) **a field nothing populates gets deleted** — not documented, not sentinel-filled, deleted; (2) **a field that can carry real data gets populated with real data** — no provenance decoration, no confidence qualifier, no companion `"firmware-confirmed-equal"` key. `chip_id_actual: 0xDA08` is the whole answer. And the corollary, stated directly: the long comments explaining *why* a value is withheld are themselves the defect — "that is totally pointless since all the data is there for us to read." The truth is in the protocol and the chip type, not in an essay above the `None`.
@@ -5856,7 +5859,6 @@ reproducible occurrence in someone else's hands, which the Phase 162 sweep occur
 Cross-link **999.52** (the gh#62 erase defect itself) and **999.40** (the `0xA4` overload that makes both
 reports hard to read).
 
-
 **Goal:** Explain, or affirmatively rule out, the `ERROR: Empty input` (`MSG_ERR_EMPTY_INPUT`, 164/0xA4) text that appeared during the Phase 162 chip sweep on **64 KiB** parts, at differing steps and without changing any step verdict: `CHIP__v133__w27c512`, `CHIP__v133__w27e512`, the superseded `CHIP__control__w27e512`, and `CHIP__v133__sst27sf512`.
 
 **Why this is its own item and not closed by the v1.34 fix.** The v1.34 debug session root-caused a *different*, deterministic instance of the same error id on a 512 KiB part (`.planning/debug/resolved/blank-check-empty-input-98pct.md`) — standalone blank-check emitting `MSG_DATA_PROGRESS` per chunk without consuming the host ack. That fault triggers on **cumulative TX volume of roughly 4–5 KB**, proven by instrumentation (17 B/chunk→251 chunks, ~25 B→176, ~57 B→92). A 64 KiB part at the then-current 2048 B chunk is **32 chunks ≈ 544 B** — an order of magnitude under the threshold. **These occurrences cannot be that bug.** Phase 162-07's original reading of the whole cluster as "intermittent, arm-independent frame corruption" is superseded for the 512 KiB case only; for these it stands as an unexplained, unreproduced observation.
@@ -5892,7 +5894,6 @@ so a diff will not show it and only a stat comparison will.
 **Operational note unchanged and still important: do NOT delete `~/.firestarter/`.** A saved port there makes
 `test_no_programmer_found_*` fail, which is an environment artifact rather than a regression — and deleting the
 directory mid-investigation destroys the evidence of what is writing to it.
-
 
 **Goal:** Make `FIRESTARTER_CONFIG_DIR` actually contain every config write. It does not today.
 
@@ -6011,7 +6012,6 @@ carve-outs and the `--fast` re-keying discipline are all either shipped or moot.
 model [`dev-test-sequence-cost-model.md`](notes/dev-test-sequence-cost-model.md) had its "does not establish"
 list closed for per-connect cost; read both at their current state, not as this stub originally described them.
 
-
 **Goal:** Stop `dev test` paying **worst-case diagnostic cost on every run**. Make each expensive diagnostic conditional on a cheap oracle failing, so a passing run skips work whose output is empty by construction and a failing run keeps byte-identical fidelity. Modelled at **31.5% across six chip classes, 55–60% on UV parts, 30% (≈ 4 minutes) on W29C040.**
 
 **Origin:** operator question during `/gsd-explore` 2026-08-30 — *"there are so many reads, what's the point of doing it that way?"* — against a pasted `dev test sst27sf512 --fast` log. Design in [`.planning/seeds/dev-test-adaptive-sequencing.md`](seeds/dev-test-adaptive-sequencing.md); measurements and the four waste patterns in [`.planning/notes/dev-test-sequence-cost-model.md`](notes/dev-test-sequence-cost-model.md); executable model beside it as `dev-test-sequence-cost-model.py`.
@@ -6050,7 +6050,6 @@ below is unchanged for consequence (1); consequences (2) and (3) are discharged.
 thing that sets `FLAG_SKIP_BLANK_CHECK` from the CLI, and the standing operator finding is that `write -b`
 skips the **erase** as well, corrupting non-blank chips while still reporting success. The fix is the
 region-scoped firmware check, not a documented flag.
-
 
 **Goal:** Make a partial write's pre-flight blank check apply to **the region being written**, not the whole device, and let a masked monotone-clearing write opt out of it entirely. Today a single non-`0xFF` byte anywhere on a non-erasable part makes the **entire part unwritable**, including into a provably blank slot 262 KB away.
 
@@ -6092,7 +6091,6 @@ moves, no regenerated `chip_database.json`. Scope it with the other citation-hyg
 than as its own phase.
 
 **➡ SHORTLISTED 2026-09-09 — cluster 2, hygiene close-out.**
-
 
 **Goal:** Dispose of an uncommitted, unattributed rename sitting in `firestarter_app/tools/build_db.py`, and repair the two test docstrings that cite the renamed symbol — one of which was already citing a line number that has been wrong for two milestones.
 
@@ -6451,6 +6449,7 @@ NOR part that tolerates an alg-6 sector-erase sequence. **A safety refusal whose
 it is a defect in the refusal, not in the user.**
 
 **Scoping must decide two things, and they are separable:**
+
 - **(a) The message.** Make a flash4 erase refusal say why — a page-write part self-erases per page during the
   write, so `erase` is unnecessary rather than unavailable — and say what to do instead (`write` directly).
   Cheap, host-side, and it removes the incentive to forge an identity. Note `MSG_ERR_NOT_SUPPORTED` is a shared
