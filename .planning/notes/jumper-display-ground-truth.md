@@ -30,12 +30,62 @@ itself.
 | JP1 | 0/1 | Socket A13-position pin: **A13 vs VCC** | "24pin ROM VCC" — VCC position for 24-pin chips |
 | JP2 | 0/1 | Socket A17-position pin: **A17 vs +5V** | ">=SST39SF020 & 28C512 need A17" |
 | JP3 | 0/1 | `P1_VPP_ENABLE` net → **pin-1 position of a 32-pin vs 28-pin seated chip** | "W27C010/AT27C010 needs p1 VPE/VPP (32 pin)" |
-| JP4 | 2.0/2.1/2.2/2.3 | `P1_VPP_JMP` — **corrected 2026-09-10 (Phase 182):** socket pin 1 is JP4's **COMMON pole** (pin C), not a destination — JP4 carries no VPP of its own. Its two selectable poles **export** whatever socket pin 1 carries: to socket pin 3 (pole A, a 28-pin part's pin 1) or socket pin 25 (pole B, a 24-pin part's pin 21, reachable only on Rev 2.2+). Superseded the prior single-destination claim; see "VPP destination per revision and JP4 state" below. | Footprint changes 1×2 → 3-pole 2×2 selector at **Rev 2.1 → Rev 2.2** — **corrected 2026-09-10 (Phase 182)**, previously misattributed to Rev 2.2 → Rev 2.3. Settled by Rev 2.2's own `Rev2.2/W27C512Programmer-top-pos.csv` (`PinHeader_2x02_P2.54mm_Vertical`) against Rev 2.1's `Rev2.1/W27C512Programmer-top-pos.csv` (`PinHeader_1x02_P2.54mm_Vertical`), and each revision's own gerber drill file (three component drills for Rev 2.2, two for Rev 2.1). |
+| JP4 | 2.0/2.1/2.2/2.3 | `P1_VPP_JMP` — **corrected 2026-09-10 (Phase 182):** socket pin 1 is JP4's **COMMON pole** (pin C), not a destination — JP4 carries no VPP of its own. Its two selectable poles **export** whatever socket pin 1 carries: to socket pin 3 (pole A, a 28-pin part's pin 1) or socket pin 25 (pole B, a 24-pin part's pin 21, reachable only on Rev 2.2+). Superseded the prior single-destination claim; see "VPP destination per revision and JP4 state" below. | Footprint changes 1×2 → 3-pole selector at **Rev 2.1 → Rev 2.2**. The KiCad footprint is named `PinHeader_2x02_P2.54mm_Vertical`, but **only 3 of its 4 positions are ever drilled** — 3 pads on a 2×2 grid with one position unpopulated, which is what the board physically shows and why "2×2" alone is a misleading way to describe it (see "JP4's physical pad geometry" below) — **corrected 2026-09-10 (Phase 182)**, previously misattributed to Rev 2.2 → Rev 2.3. Settled by Rev 2.2's own `Rev2.2/W27C512Programmer-top-pos.csv` (`PinHeader_2x02_P2.54mm_Vertical`) against Rev 2.1's `Rev2.1/W27C512Programmer-top-pos.csv` (`PinHeader_1x02_P2.54mm_Vertical`), and each revision's own gerber drill file (three component drills for Rev 2.2, two for Rev 2.1). |
 | JP5 | 2.x | **`A19_CUT` — a bridged solder jumper, not a user-config header.** Measured topology (Phase 182): pole A (pin 1) is `Q8` (MMBT3906) collector, whose emitter is the `VPE` rail, gated by `P1_VPP_ENABLE` through `R25`/`Q5`; pole B (pin 2) is socket pin 1. KiCad footprint `SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm` — **bridged by default**. | The host's JP5 renderer concept is wrong |
 
 Key principle that falls out: **JP3/JP4 correctness is a function of WHERE the
 pin map puts VPP (pin-1 or not), never of pin count.** JP1/JP2 are
 socket-width adapters and genuinely are pin-count functions.
+
+### JP4's physical pad geometry, and which side each jumper is on
+
+**Added 2026-09-10 (Phase 182), prompted by the operator's own sight of the board.** Two facts that
+the pick-and-place CSV alone does not convey, and whose absence made the record read wrongly.
+
+**1. JP4 is 3 pads on a 2×2 grid, one position unpopulated — not a 4-pin 2×2 header.** The KiCad
+footprint is named `PinHeader_2x02_P2.54mm_Vertical`, which is what the pos-CSV reports and what
+entered this project's records as "2×2". Only three of its four grid positions are ever drilled.
+Rev 2.2's own gerber drill file (`Rev2.2-gerbers.zip → W27C512Programmer-PTH.drl`, tool `T2`,
+⌀1.0 mm plated component drill) places them at:
+
+| Board coordinate (mm) | Grid position |
+|---|---|
+| `X91.44 Y-81.788` | drilled |
+| `X91.44 Y-84.328` | drilled |
+| `X93.98 Y-81.788` | drilled |
+| `X93.98 Y-84.328` | **not drilled** |
+
+Three corners of a 2.54 mm square with the fourth (+X, −Y in board coordinates) absent. Rev 2.1's
+own drill file has only two, at a single X: `X90.932 Y-81.534` and `X90.932 Y-84.074` — a plain
+1×2. Total ⌀1.0 mm component drills across the whole board go **109 → 110** between the two
+revisions: exactly one hole added, every other hole identical. That single added hole is the third
+pole.
+
+**Still open:** which corner is the missing one *as the operator sees the `JP4` silkscreen legend*.
+The drill file gives it in board coordinates only; converting that to "the pad up and to the right
+of the legend" needs a sighting, and that sighting is one of the probes in the VPP-destination
+table above.
+
+**2. JP4 is on the top side; JP5 through JP9 are all on the bottom.** Read from the Rev 2.2 and
+Rev 2.1 gerber bundles:
+
+| | Side | Layer evidence (Rev 2.2 gerbers) | Type |
+|---|---|---|---|
+| JP4 `P1_VPP_JMP` | **Top** | designator on `F_Silkscreen`; pads on `F_Mask` **and** `B_Mask` (through-hole); `top` in the pos-CSV | pin header — the VPP selector |
+| JP5 `A19_CUT` | **Bottom** | `B_Silkscreen` + `B_Mask` only; absent from every front layer | bridged solder jumper |
+| JP6, JP8, JP9 "Bodge point" | **Bottom** | `B_Silkscreen` + `B_Mask` only | bridged solder jumpers |
+| JP7 "Tin foil socket" | **Bottom** | `B_Silkscreen` + `B_Mask` only | **open** solder jumper |
+
+All six exist on Rev 2.1, Rev 2.2 **and** Rev 2.3 — none of JP5–JP9 is a later addition, and the
+front silkscreen carries only `JP4`, which is why a front-layer search finds no JP5. This is also
+why the Rev 2.2 evidence photograph can show JP4, JP5, JP6 and JP9 together: it is the **back** of
+the board, where JP4's through-hole pads land alongside the five solder jumpers.
+
+Types and values are from the Rev 2.3 schematic
+(`.planning/v1.7/upstream-rurp/hardware/RelativelyUniversalROMProgrammer.kicad_sch`, `(rev "2.3")`
+— the only committed schematic that carries these designators); their presence on Rev 2.1 and
+Rev 2.2 is from those revisions' own gerber bundles, per the read-Rev-2.2's-own-artefacts rule in
+`.planning/v1.7-SHIELD-REVS.md`.
 
 ## VPP destination per revision and JP4 state (Phase 182 trace)
 
