@@ -6590,6 +6590,193 @@ Plans:
 
 ---
 
+### Phase 999.55: DIP24 unreachable VPP — offering writes the shield cannot physically perform (D-15.1) (BACKLOG — filed 2026-09-10 during v1.37 Phase 182)
+
+**Goal:** Decide whether the host should warn or refuse *before* chip selection is complete, for a
+24-pin part whose VPP pin is unreachable on the attached shield revision — rather than relying solely
+on the post-connection refusal that already exists.
+
+**Measured 2026-09-10.** `DIP24_2716` and `DIP24_2532` both declare `vpp-pin: [21]` (physical socket
+pin 21), which resolves to wire-level `vpp-pin: 11` via `EpromDatabase.get_bus_config`. A 24-pin part
+bottom-aligned in the 32-pin socket puts its pin 21 at socket pin 25 — exactly JP4's third pole, added
+at Rev 2.2. On Rev 0, Rev 2.0 and Rev 2.1 (2-pin JP4, no third pole) that pin is physically
+unreachable. Cited: the VPP-destination table in `.planning/notes/jumper-display-ground-truth.md`.
+
+**This is NOT an unguarded hazard — say precisely what is left over.** `CAP-02`
+(`firestarter/serial_comm.py:766-806`, commit `344905f`) already refuses the connection outright —
+`HardwareRevisionUnsupportedError`, fail-closed on absent evidence — for exactly these two parts on
+any hardware revision outside `(REVISION_2_2, REVISION_2_3)`, keyed structurally on wire-level
+`vpp-pin == 11`, not a hand-kept part list. This fires in `_probe_port`, shared by every chip
+operation, so `read` is refused alongside `write` even though `read` needs no VPP at all — a
+conservative over-refusal, not a hazard. The predicate already generalizes: a future 24-pin part
+sharing this VPP placement is caught the same way, no gate edit required.
+
+**What genuinely remains.** The database and `firestarter list`/`search`/`info` still present these
+two parts as ordinary supported entries with no revision caveat — a user discovers the incompatibility
+only after selecting the chip and attempting to connect, not at selection time. Whether that residual
+UX gap is worth closing, and whether `_probe_port`'s connection-level refusal should be narrowed to
+skip VPP-independent operations like `read`/`id`, are both open questions this stub records rather
+than answers.
+
+**Chosen fix:** None yet — recorded as a scoping question for a future phase.
+
+**Test surface.** What would have to be proven: `firestarter list`/`search`/`info` output for
+`DIP24_2716`/`DIP24_2532` names the Rev 2.2+ requirement before a connection is attempted, and (if the
+over-refusal is judged worth narrowing) a `read` on either part succeeds on pre-Rev-2.2 hardware while
+`write`/`erase` still refuse.
+
+---
+
+### Phase 999.56: The mirrored JP4 hazard — a 28/32-pin part reading whatever sits at socket pin 25 (D-15.2) (BACKLOG — filed 2026-09-10 during v1.37 Phase 182)
+
+**Goal:** Decide whether JP4 seated in the 24-pin position with a 28- or 32-pin part in the socket —
+routing VPP onto whatever that part carries at socket pin 25 — needs its own gate.
+
+**Measured 2026-09-10.** Structurally the JP5/A19 hazard's mirror image: JP4 has three positions
+(24-pin / 28-pin / 32-pin) at Rev 2.2+, and if the operator leaves it in the 24-pin position while a
+28- or 32-pin part is seated, VPP routes to socket pin 25 regardless of what that pin actually carries
+on the larger part. Newly reachable at Rev 2.2 and later — JP4 had only two positions before.
+
+**Why this is not gated here.** The tool can read JP4's physical position no better than it can read
+JP5's — gating this needs the same D-05 evidence decision this phase made for JP5, against a trace
+that has not been done for JP4's three positions and which parts they put at risk. **This disposition
+is Claude's recorded call, made at the operator's instruction to record rather than drop it** — item 2
+was offered as a discussion area during Phase 182's context-gathering and not selected for this
+phase's scope.
+
+**Chosen fix:** None — the D-05-shaped evidence decision (does a trace confirm damage capability, and
+if so what operations) has not been made for this hazard. A future phase would need to run that trace
+before deciding whether a gate ships.
+
+**Test surface.** What would have to be proven: a VPP-destination trace for JP4's 24-pin position with
+a 28/32-pin part seated, analogous to `182-05-SUMMARY.md`'s JP5/A19 trace — which socket pin actually
+carries VPP, which operations energize it, and whether the exposure is damage-capable.
+
+---
+
+### Phase 999.57: A fail-closed generator assertion — `size_bytes` must fit the address lines its layout declares (BACKLOG — filed 2026-09-10 during v1.37 Phase 182)
+
+**Goal:** Add a `build_db.py` assertion that every row's `size_bytes` fits the address-line count its
+resolved `pinout` layout declares, so a mismatch like the 8 Mbit defect this phase fixed is caught at
+generation time rather than discovered by an operator.
+
+**Measured 2026-09-10 — three classes of the same defect shape, one now fixed, two still open:**
+
+1. **The 8 Mbit rows Phase 182 fixed.** Eight rows (`AM27C080`, `AM27LV080`, `AT27C080`, `M27C801` ×2,
+   `MX27C8000`, `MX27C8000A`, `UPD27C8001`) were 1 MB parts on `DIP32_STD`, which declares 19 address
+   lines (A0–A18) — one line short. `DIP32_27C801` is now the first 1 MB row that would satisfy this
+   assertion, so it can be written today without a known failure among the corrected rows.
+2. **`AT27C011`, `D27011`, `D27C011`** — 128 KB parts on `DIP28_2764`, which supplies only 14 address
+   lines, addressing 16 KB. Not a damage path (their pin 1 genuinely is VPP), but they can address only
+   a sixteenth of their declared size.
+3. **18 rows on `DIP32_28C512_EEPROM`** (`AT28C010`, `AT28C040`, `AT28MC040`, `CAT28C040`, `WE512K8`
+   and others) — up to 512 KB against 16 address lines.
+
+**Chosen fix:** Not built here — a fail-closed `build_db.py` assertion comparing each resolved row's
+`size_bytes` against `2 ** len(address-bus-pins)` for its `pinout` layout, failing the generation run
+on any row that does not fit.
+
+**Test surface.** What would have to be proven: running the assertion against the current
+`chip_database.json` (post-Phase-182) passes for the eight corrected rows and fails loudly, by design,
+for classes 2 and 3 above until those are separately corrected or explicitly exempted with a recorded
+reason.
+
+---
+
+### Phase 999.58: The D-09 phase — shield photographs, per-revision jumper tables, and the `info` jumper-block rewrite (BACKLOG — filed 2026-09-10 during v1.37 Phase 182, D-09)
+
+**Goal:** Publish shield photographs and per-revision jumper configuration tables to the
+`firestarter_prom` wiki, and rewrite `firestarter info`'s jumper block to derive its display
+per-pin-map rather than from the current pin-count heuristic — corrected JP4 labels, and an explicit
+"this jumper does not matter for this chip" line where applicable.
+
+**Why this is a backlog stub, not a phase inserted into v1.37.** Phase 187 (Answered Reports) must
+run last in this milestone, because every reply it sends describes what shipped — inserting a new
+phase would have to slot before it, and that is a milestone-scope decision for the operator, not a
+planner's to make unilaterally. Filed here so the job is not lost.
+
+**Three things Phase 182 learned that enlarge this job, measured 2026-09-10:**
+
+1. The jumper tables must now carry **three** JP4 states per revision (24-pin / 28-pin / 32-pin at
+   Rev 2.2+), not two — JP4 gained a third pole at Rev 2.2 (D-10).
+2. The Rev 2.2 silkscreen's own sentence — *"Open for 32 pin ROMs, Closed for 28 pin ROMs"* — must
+   **not** be reproduced anywhere in the rewrite: it is two-state language on a three-pole jumper, and
+   is wrong on the board that carries it.
+3. `firestarter info` still prints `JP4 = Closed` for the eight corrected 8 Mbit parts after Phase 182,
+   because `has_vpp_pin_on_map` tests only key presence and the new `DIP32_27C801` layout declares
+   `vpp-pin: [24]` — confirmed defect 1 in `jumper-display-ground-truth.md`. This is not a Phase 182
+   regression; the pin-count-keyed derivation in `ic_layout.py` was always out of that phase's scope.
+
+**Evidence photographs need re-exporting before publication.** The operator-photographed evidence this
+phase produced (Rev 2, Rev 2.2, Modified Rev 0) is downscaled to ~250 KB each for the meta repo;
+the ~15 MB originals live outside `.planning/` at `/workspaces/tmp/`, preserved by no commit. They need
+re-exporting at publication resolution before that directory is cleared.
+
+**Chosen fix:** Not built here — this is the phase-sized job itself, filed as a stub pending an
+operator decision on where it slots in the roadmap.
+
+**Test surface.** What would have to be proven: the wiki carries a jumper table per shield revision
+with all applicable JP4/JP5 states, none reproducing the retired two-state sentence; and
+`firestarter info` prints the correct JP4 state for the eight corrected 8 Mbit parts and every other
+chip whose pin map determines jumper relevance.
+
+---
+
+### Phase 999.59: The A18-on-socket-pin-1 structural remainder — 255 `DIP32_SST39SF040` rows, deliberately not gated (BACKLOG — filed 2026-09-10 during v1.37 Phase 182)
+
+**Goal:** Resolve whether the 255 shipped rows on `DIP32_SST39SF040` — which place A18 on socket pin 1,
+structurally the same position the eight corrected 8 Mbit rows were in — need a gate, by running the
+one measurement this stub identifies as missing.
+
+**Measured 2026-09-10.** 255 rows across four algorithms: **25** on algorithm 5 (protocol `0x05`,
+5V flash-page write), **190** on algorithm 6 (protocol `0x06`), **20** on algorithm 14, **20** on
+algorithm 41. Deliberately **not gated** by Phase 182 — the SAFE-03 trace established damage
+capability for the held-boosted-rail EPROM write path (protocol `0x08`) only, and D-06 forbids gating
+on inference from a structurally-similar-looking case.
+
+**The specific unresolved question, so this item is actionable:** does a protocol-`0x05` page write —
+which asserts the regulator and the drop together with `CTRL_VPE_ENABLE` — hold a boosted rail while
+the address drives socket pin 1, the way protocol `0x08`'s write does? That measurement has not been
+made for protocol `0x05`. Protocol `0x06`, by contrast, is **measured** to never enable the regulator
+at all, and is therefore genuinely safe regardless of what sits on socket pin 1 — its 190 rows need no
+further work.
+
+**Chosen fix:** None — a trace of protocol `0x05`'s VPE/regulator behavior, analogous to
+`182-05-SUMMARY.md`'s SAFE-03 trace for protocol `0x08`, would settle whether the 25 algorithm-5 rows
+need a gate. The 190 algorithm-6, and the algorithm-14/41 rows (pending their own protocol trace), are
+not assumed either way here.
+
+**Test surface.** What would have to be proven: a firmware-cited trace of protocol `0x05`'s VPE-enable
+and regulator-enable sequence, analogous to the SAFE-03 six-link chain, settling whether a `0x05` write
+on a `DIP32_SST39SF040` row drives a boosted rail through socket pin 1.
+
+---
+
+### Phase 999.60: Sibling parity tests assert hardcoded Python literals instead of firmware-tree-read values (BACKLOG — filed 2026-09-10 during v1.37 Phase 182, from Plan 02's sibling-parity audit)
+
+**Goal:** Close the same "drift undetected until manually updated" defect shape `MAX_27C020_SIZE`
+had, for the two further assertions Phase 182 Plan 02 found carrying it.
+
+**Measured during 182-02 (recorded, not fixed, per that plan's instruction).**
+`test_revision_byte_values_match_firmware_enum` (no `@requires_fw` decorator at all) and
+`test_ctrl_values_match_firmware` (`@requires_fw`) both assert hardcoded Python literals rather than a
+value read from the live firmware header — the same defect *shape* `MAX_27C020_SIZE` had. **Lower
+severity than `MAX_27C020_SIZE`:** both cite firmware defines that DO currently exist (verified:
+`rurp_shield.h REVISION_2_3=5`; `rurp_pinout.h` `CTRL_*` values match), so this is a silent-drift risk,
+not `MAX_27C020_SIZE`'s vacuous self-comparison against nothing. `test_cmd_frame_max_parity`'s
+hardcoded `512` is a separately and explicitly disclosed/accepted decision (D-07 of a prior milestone),
+not part of this item.
+
+**Chosen fix:** Not decided — flagged during 182-02 as a Plan 07 / future-audit backlog candidate;
+neither assertion was rewritten in Phase 182.
+
+**Test surface.** What would have to be proven: each assertion reads its comparison value from the
+live firmware header (the `@requires_fw` pattern already used elsewhere in this suite) rather than a
+hardcoded Python literal, or carries an explicit, recorded rationale for why a literal comparison is
+acceptable there — the same disclosure `test_cmd_frame_max_parity` already has.
+
+---
+
 ## v1.20 — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis (SHIPPED 2026-07-02)
 
 **Milestone goal:** Delete the vestigial `mem_type`/`type` backward-compat dispatch axis so Firestarter trusts *only* the real protocol (`handle->protocol` / `algorithm`) end to end — firmware, wire, and host. The fallback is already dead code for every DB chip (all carry `algorithm`); this is a legibility/safety cleanup, not a behavior change for real chips. Accepted consequence: user-override DB entries lacking `algorithm` will no longer work (must specify a protocol).
