@@ -32,7 +32,7 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
 
 ### SAFE — refusals and warnings that teach
 
-- [ ] **SAFE-01**: The set of parts at risk from an intact JP5 — those whose pin map puts A19 on socket pin 1
+- [x] **SAFE-01**: The set of parts at risk from an intact JP5 — those whose pin map puts A19 on socket pin 1
       where the shield may still route VPP — is derived from the chip database and its pin maps, not from a
       list written by hand. Adding a new part to the database cannot silently omit it from the gate.
 - [ ] **SAFE-02**: Before an affected operation on an affected part, the operator is told, in the terminal,
@@ -143,7 +143,7 @@ Deferred, tracked, not in this roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SAFE-01 | Phase 182 | Pending |
+| SAFE-01 | Phase 182 | Complete |
 | SAFE-02 | Phase 182 | Pending |
 | SAFE-03 | Phase 182 | Pending |
 | SAFE-04 | Phase 182 | Pending |
@@ -173,6 +173,7 @@ Deferred, tracked, not in this roadmap.
 | REPLY-07 | Phase 187 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 28 total
 - Mapped to phases: 28
 - Unmapped: 0 ✓

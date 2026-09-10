@@ -5,15 +5,15 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 182
 current_phase_name: JP5 Destructive-Operation Gate
 status: executing
-stopped_at: Completed 182-02-PLAN.md
-last_updated: "2026-09-10T15:24:59.446Z"
+stopped_at: Completed 182-03-PLAN.md
+last_updated: "2026-09-10T16:18:41.546Z"
 last_activity: 2026-09-10
 last_activity_desc: "Phase 182 plan 04 complete: SAFE-05 dead JP5 renderer deleted, guarded RED-first"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 182 (JP5 Destructive-Operation Gate) — EXECUTING
-Plan: 5 of 7 (182-01/04/05/02 complete; plans execute by dependency wave, not strict numeric order — 03/06/07 remain)
+Plan: 6 of 7 (182-01/04/05/02 complete; plans execute by dependency wave, not strict numeric order — 03/06/07 remain)
 Status: Ready to execute
 Last activity: 2026-09-10 — Completed 182-02-PLAN.md (D-02: resolve_pinout_key 32-pin variant_lo dispatch fix, D-03: MAX_27C020_SIZE retired)
 
@@ -2932,6 +2932,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 182]: The R41-couples-to-JP4 claim in v1.7-SHIELD-REVS.md is retracted as measured false: R41's GND pin routes directly to GND, ~29mm from JP4 in a different board region. The hw_revision detect band is independent of JP4 position.
 - [Phase 182]: D-02: 32-pin proto_id==0x08 dispatch forks on variant_lo (0x03->DIP32_27C801, 0x02->DIP32_STD, residual size arm otherwise); measured 8-row blast radius — Fork stays inside proto_id==0x08 test (protocol 0x10 Intel-flash unaffected); mem_size threshold survives as fall-through so SST37VF040 stays on DIP32_STD
 - [Phase 182]: D-03: MAX_27C020_SIZE and its self-comparing parity test deleted outright (no firmware counterpart exists) — Confirmed empty git -C firestarter grep -n MAX_27C020; boundary lives on as build_db.py's module-local _PGM_ON_PIN31_MAX_SIZE
+- [Phase 182]: RULE_PHASE182_A19_PINOUT is scoped by both pinout value (DIP32_27C801) and a 7-entry part_number frozenset, so a future DIP32_27C801 row outside the eight named parts escalates to UNEXPLAINED rather than being silently absorbed.
+- [Phase 182]: Coverage-matrix golden regenerated via scratch output/ledger seeded from the committed .planning/v1.3-defect-coverage-ids.json, never writing to that tracked file (precedent: commit 6e4b31a, 148-05).
+- [Phase 182]: Two pre-existing pinned test expectations were corrected as Rule 1 deviations, both stale as a direct consequence of this plan's authorized chip_database.json regeneration.
 
 ## Performance Metrics
 
@@ -3339,11 +3342,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 182 P04 | 18min | 2 tasks | 2 files |
 | Phase 182 P05 | 55min | 2 tasks | 2 files |
 | Phase 182 P02 | 45min | 3 tasks | 5 files |
+| Phase 182-jp5-destructive-operation-gate P03 | 70min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-09-10T15:24:51.022Z
-**Stopped at:** Completed 182-02-PLAN.md
+**Last session:** 2026-09-10T16:18:41.280Z
+**Stopped at:** Completed 182-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 181 context gathered
 **Was (superseded, retained for continuity):** Phase 180 complete, ready to plan Phase 181

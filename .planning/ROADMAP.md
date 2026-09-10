@@ -296,7 +296,7 @@ Plans:
 
 **Wave 3** *(the regeneration — the `diff_db` rule must land before it)*
 
-- [ ] 182-03-PLAN.md — SAFE-01 (D-04): the `RULE_PHASE182_A19_PINOUT` root-cause rule, the `build_db.py` re-run proving exactly 8 changed rows, and the third `wire_dict` delta layer beside the byte-unchanged golden
+- [x] 182-03-PLAN.md — SAFE-01 (D-04): the `RULE_PHASE182_A19_PINOUT` root-cause rule, the `build_db.py` re-run proving exactly 8 changed rows, and the third `wire_dict` delta layer beside the byte-unchanged golden
 
 **Wave 4** *(the record close-out)*
 
