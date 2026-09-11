@@ -4,15 +4,15 @@ milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 184
 current_phase_name: Guards That Exist
-status: planning
-stopped_at: Phase 184 context gathered
-last_updated: "2026-09-11T11:54:28.269Z"
+status: planned
+stopped_at: Phase 184 planned
+last_updated: "2026-09-11T12:46:59.620Z"
 last_activity: 2026-09-11
 last_activity_desc: "Phase 183 complete (2026-09-11), verified 18/18, transitioned to Phase 184. SAFE-06: host pre-connect flash4 erase refusal shipped in firestarter_app (flash4_erase_gate.py, fails OPEN, one line naming the part, exit 1 or 0 under --ignore-unsupported); the cause and the alternative were deliberately NOT printed and are relocated to Phase 187's REPLY-03 - SAFE-06, the phase Goal and criteria 1 and 2 were all amended on the record to say so. SAFE-07: three mechanisms priced, M1 measured +12 B flash on every AVR target, M2/M3 structural zeros; M3 chosen on D-02 pre-connect grounds, NOT on the flash figures. SAFE-08: the 12 V bulk-erase path deleted at all four sites in flash_5v_page.cpp with the eprom_erase backstop byte-unchanged; native case count 184 -> 185 on both CI envs; measured shrink uno -234 B, uno328pb -238 B, leonardo -284 B, reproduced independently by the orchestrator. size_baseline.json deliberately NOT re-recorded - the default-mode gate is RED and --policy merge05 is GREEN with no new exemption, both of which are Phase 185's inputs. SAFE-09: equivalence-based AE29F2008 verdict recorded (classification CORRECT and the gh#62 reporter also correct); chip_database.json byte-unchanged, no build_db.py rule; backlog 999.63-999.66 filed. Code review 0 critical / 3 warning / 2 info: WR-01 (a false universal claim about CTRL_VPE_ENABLE) fixed, WR-02 kept by adjudication, WR-03 deferred because removing the unused include would invalidate the just-recorded flash figures."
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 13
+  total_plans: 18
   completed_plans: 13
   percent: 33
 ---
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 183 — Flash4 Erase Refusal & the AE29F2008 Classification
+**Current focus:** Phase 184 — Guards That Exist
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,11 +235,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 184 — Guards That Exist
+Phase: 184 (Guards That Exist) — READY TO EXECUTE
 Plan: Not started
-not strict numeric order)
-Status: Ready to plan
-phase-level verification / /gsd-verify-work.
+Status: Ready to execute
 Last activity: 2026-09-11 — Phase 183 complete, verified 18/18 (SAFE-06..09); transitioned to Phase 184
 
 ## Roadmap Summary (v1.37)

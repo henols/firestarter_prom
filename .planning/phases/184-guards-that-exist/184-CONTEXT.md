@@ -194,12 +194,12 @@ This phase delivers four things and nothing else:
 The operator deferred four decisions with "You decide" / "No preference". These are Claude's calls,
 recorded above with their reasoning, and a planner may revisit them on evidence:
 
-- **D-02 + D-03** (what happens to the surviving provenance citations, and the criterion amendment)
-- **D-13 + D-15** (guard-removes-the-entry, and the floor re-anchor — the operator's "you decide"
+- D-02 + D-03 (what happens to the surviving provenance citations, and the criterion amendment)
+- D-13 + D-15 (guard-removes-the-entry, and the floor re-anchor — the operator's "you decide"
   covered the floor question; D-13 was offered as one of its options and composes with D-15)
-- **D-11** (answered "No preference"; the orchestrator's recommendation was taken)
-- **D-16** (record-don't-adjudicate)
-- **D-04** and **D-07**/**D-08** were decided by the orchestrator as mechanical consequences of
+- D-11 (answered "No preference"; the orchestrator's recommendation was taken)
+- D-16 (record-don't-adjudicate)
+- D-04 and D-07/D-08 were decided by the orchestrator as mechanical consequences of
   operator choices, not offered as questions.
 
 The two decisions the operator made directly and which must NOT be revisited without asking them:
