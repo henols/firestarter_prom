@@ -71,9 +71,13 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
       symbol as planned.
 - [x] **SAFE-05**: `_get_rev2_2_jumper_settings_data` and its commented-out call site are deleted, so no code
       path can render JP5 as an operator-settable config header. (`todos/pending/delete-jp5-dead-renderer.md`)
-- [ ] **SAFE-06**: A refusal to erase a flash4 (`0x05`) part states its cause and its alternative — the part
-      self-erases per page during the write, so `erase` is unnecessary rather than unavailable — instead of a
-      bare `Not supported`.
+- [ ] **SAFE-06**: A refusal to erase a flash4 (`0x05`) part names the part — instead of a bare `Not
+      supported` — and does not carry a cause or an alternative in the CLI text. **AMENDED by Phase 183
+      under D-07/D-08:** the operator chose this one-line shape knowingly, with the conflict against this
+      requirement's original wording — which had promised the refusal state its cause and its alternative —
+      stated on the record before the choice was made. The cause and the alternative are not dropped; they
+      move to Phase 187's REPLY-03 (D-09), which answers gh#62 directly instead of printing the answer into
+      a tool every operator sees.
 - [ ] **SAFE-07**: The firmware-flash cost of SAFE-06 is measured before the mechanism is chosen, and the
       zero-firmware-byte alternative (host-side text against the existing `MSG_ERR_NOT_SUPPORTED`) is priced
       against a new `messages.toml` id. The decision and both figures are recorded. (D-3)

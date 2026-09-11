@@ -304,15 +304,18 @@ Plans:
 
 ### Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification
 
-**Goal**: A refusal that is right for a reason says the reason, and the open question behind gh#62 — whether
-this part is classified correctly at all — gets a recorded answer instead of an assumption.
+**Goal**: A refusal that is right for a reason names the part — the reason is recorded and answered to the
+reporter in Phase 187's REPLY-03, not printed — and the open question behind gh#62 — whether this part is
+classified correctly at all — gets a recorded answer instead of an assumption.
 
 **Requirements**: SAFE-06, SAFE-07, SAFE-08, SAFE-09
 
 **Success criteria**:
 
-1. `firestarter erase AE29F2008` names the cause (a page-write part self-erases during the write) and the
-   alternative (`write` directly) — not a bare `Not supported`.
+1. `firestarter erase <EPROM>` on a flash4 (`0x05`) part prints one line naming the part —
+   `Erase not supported for <EPROM>` — in place of a bare `Not supported`, carrying no cause clause and no
+   alternative command; the cause and the alternative are answered in Phase 187's REPLY-03 (D-09), not
+   printed here.
 2. Both candidate mechanisms carry a measured firmware-flash figure, and the choice cites those figures.
 3. `configure_flash_5v_page`'s unreachable `CMD_ERASE` arm is removed, or kept with the reason recorded —
    the phase record states which and why.
