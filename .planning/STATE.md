@@ -5,15 +5,15 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 183
 current_phase_name: Flash4 Erase Refusal & the AE29F2008 Classification
 status: executing
-stopped_at: Completed 183-03-PLAN.md
-last_updated: "2026-09-11T08:45:37.405Z"
+stopped_at: Completed 183-04-PLAN.md
+last_updated: "2026-09-11T09:19:41.610Z"
 last_activity: 2026-09-11
 last_activity_desc: "Phase 183 execution started (wave 1 of 4, 6 plans; sequential, worktrees off). Planning record retained: Phase 183 planned - 6 plans in 4 waves; plan-checker returned VERIFICATION PASSED (0 blockers, 0 warnings, 1 INFO advisory that RESEARCH.md's Open Questions section is not marked resolved). Research re-fetched the pinned upstream infoic.xml: ASD AE29F2008@DIP32 reads protocol_id 0x05 verbatim and the WINBOND W29C020/W29C020C/W29C022 row is field-for-field identical including chip_id 0x0000da45, so SAFE-09 takes the D-19/D-20 branch - classification CORRECT, software chip-erase backlogged, D-21 does NOT fire, and no build_db.py rule or chip_database.json regeneration is planned. D-23 settled: handle->vpp_mv is never read by flash_5v_page.cpp and the one live DB-level VPP gate excludes the handler by name, so the new-finding branch does not fire; a residual 301-row VPP display mislabel is filed to backlog instead. SAFE-08's blast radius is six sites larger than CONTEXT.md recorded - the erase-on-write block is :79-85 not :80-86, a forward declaration at flash_5v_page.cpp:33 is a fourth deletion site D-12 does not name, and two further copies of the impossible 196-231 citation exist. Wave 1 forks the missing v1.37 firmware branch off origin/beta (firestarter was still on gsd/v1.36-dev-test-fidelity) and prices SAFE-07's three mechanisms against a cold build of uno, uno328pb and leonardo, so pricing precedes the choice the wave-2 tracer implements. Coverage: requirements 4/4, decisions 23/23, 66/66 verify commands resolve and each states its failing direction."
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 13
-  completed_plans: 10
+  completed_plans: 11
   percent: 17
 ---
 
@@ -236,7 +236,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 183 (Flash4 Erase Refusal & the AE29F2008 Classification) — EXECUTING
-Plan: 3 of 6 complete (wave 2 of 4 done)
+Plan: 4 of 6 complete (wave 2 of 4 done)
 not strict numeric order)
 Status: Executing Phase 183
 phase-level verification / /gsd-verify-work.
@@ -2940,6 +2940,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 182]: D-05 resolved: the JP5/A19 gate ships, confirmed required not retired, against the operator's stated expectation. — The pin-map fix relocates the hazard onto A19 (Rev 2.x control bit 0x08 = CTRL_VPP_P1_ENABLE = CTRL_ADDRESS_LINE_18); it does not remove it.
 - [Phase 182]: 182-06 assumption A1 measured CONFIRMED — VPE rail read 4.9V at J6 pin 4 (regulator disabled, referenced to J5 pin 1 GND, Rev 2.2 board idle), decisively below the ~6V logic-level threshold. DAMAGE_CAPABLE_OPERATIONS stays {write, erase}; no firestarter_app or firestarter code changed. Rev 2.2's JP4 PROBE-PENDING cell closed by continuity probe: the socket-facing pole reaches socket pin 3, the periphery-facing pole reaches socket pin 25. D-14's retraction survived its bench falsification (hw_revision's physical field read Rev 2.0-class at every JP4 position), with the limit that the firmware reports a bucket, not the raw ADC count. JP5 confirmed intact (bridged, not cut) on the operator's board. Rev 2.0/2.1 and Rev 0/1 PROBE-PENDING cells remain open — those boards were not on the bench this session. SAFE-03 marked Complete in REQUIREMENTS.md.
 - [Phase 183]: 183-03: flash4_erase_gate.py wired as a pure, import-pure, fail-open predicate before jp5_gate.confirm_or_refuse in cli_handlers.erase; --ignore-unsupported changes only the exit code.
+- [Phase 183]: 183-04: Deleted flash4's 12V bulk-erase routine at all four sites (flash_5v_page_erase_execute definition + forward declaration, configure_flash_5v_page's CMD_ERASE arm, flash_5v_page_write_init's FLAG_CAN_ERASE block); a native case proves, observed RED before the deletion and GREEN after, that flash_5v_page_write_init energises no VPP rail even with FLAG_CAN_ERASE wrongly set.
 
 ## Performance Metrics
 
@@ -3351,11 +3352,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 182-jp5-destructive-operation-gate P03 | 70min | 3 tasks | 6 files |
 | Phase 182 P07 | 50min | 3 tasks | 3 files |
 | Phase 183 P03 | 24min | 3 tasks | 4 files |
+| Phase 183 P04 | 55min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-09-11T08:45:36.990Z
-**Stopped at:** Completed 183-03-PLAN.md
+**Last session:** 2026-09-11T09:19:15.954Z
+**Stopped at:** Completed 183-04-PLAN.md
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
