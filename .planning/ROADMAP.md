@@ -385,7 +385,13 @@ Plans:
 5. `gh run list --repo henols/firestarter_prom --workflow 'Catalog sync check'` shows the newest run on
    `main` as `success`, and the phase record names what was actually wrong.
 
-**Depends on:** — (independent; CLAIM-09's guard from 184 does not gate this)
+**Depends on:** Phase 183 — its SAFE-08 deletion reddens `check_size_baseline.py`'s gate via the flash shrink and the native case count moving 184 to 185 (both `native` and `native_nodevtools`); CLAIM-09's guard from Phase 184 still does not gate this phase.
+The two named inputs, in full: (1) the flash shrink (uno −234 B, uno328pb −238 B, leonardo −284 B; +0 B RAM
+on all three, `183-05-SUMMARY.md`), and (2) the native case count, which moved 184 to 185 on both native
+envs (`183-04-SUMMARY.md`) — `compare_native` asserts `cases` exactly, so a re-record that picks up only the
+flash figures leaves this gate red. The shrink authors no new MERGE-05 exemption (`183-05-SUMMARY.md`'s
+`--policy merge05` run against `size_baseline_base01.json` exited 0), so CLAIM-05's no-new-exemption clause
+survives unchanged.
 
 Plans:
 
