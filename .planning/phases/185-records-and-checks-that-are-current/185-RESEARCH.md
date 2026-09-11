@@ -1066,7 +1066,7 @@ proof that was asserted but not transcribed; a dirty sub-repo tree left behind.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Re-point `test_baseline_seam_precedence_flips_clean_log_to_fail` onto `v185`, or leave it on
    `v153`?**
@@ -1077,6 +1077,10 @@ proof that was asserted but not transcribed; a dirty sub-repo tree left behind.
      criterion demands.
    - Recommendation: **leave it on `v153`**, matching v158, and say so explicitly in the plan so the
      reconciliation reads *4 red, 1 known-stale-but-green, deliberately untouched*.
+   - **RESOLVED — leave it on `v153`; recommendation adopted verbatim by plan 185-01.** Task 1 Step 6
+     requires the reconciliation paragraph to read *4 red + 1 deliberately untouched*, naming
+     `test_baseline_seam_precedence_flips_clean_log_to_fail` explicitly, and 185-01's
+     `<flagged_assumptions>` records the non-repointing as a decision rather than an omission.
 
 2. **Does the D-12 deletion orphan any prose in `tests/fixtures/README.md`?**
    - What we know: the README's `_fullflash` and `_v151` sections name files by name; four of the six
@@ -1085,6 +1089,14 @@ proof that was asserted but not transcribed; a dirty sub-repo tree left behind.
    - Recommendation: after deleting, `/usr/bin/grep -n` each deleted filename across the firmware repo
      (excluding `.git`/`.pio`) and repair any prose that now names a non-existent file — otherwise the
      phase authors a fresh instance of its own defect class in its own evidence directory.
+   - **RESOLVED — by plan 185-02 Task 2, in a stronger form than this recommendation.** The
+     exact-filename search the recommendation assumes is the same form that produced D-12's premise, so
+     185-02 Task 2 re-measures brace-aware FIRST — from the tree, both search forms recorded — and lets
+     the disposition follow D-12's own criterion that a prose citation counts as a live reference. The
+     prose repair is then required only under a DELETE disposition. A brace-aware search run at planning
+     time found all three candidate families cited in `tests/fixtures/README.md` and in
+     `test_check_size_baseline.py`'s module docstring, so the expected disposition is KEEP and the
+     expected prose repair is none; the executor still measures rather than inherits that.
 
 3. **Where exactly does the `185-` fixture generation's severance account go?**
    - What we know: v151 and v153 wrote long module-docstring sections; v158 wrote **per-test**
@@ -1093,6 +1105,9 @@ proof that was asserted but not transcribed; a dirty sub-repo tree left behind.
    - Recommendation: follow **v158** — per-leg docstring paragraphs on the four severed/updated legs,
      no new module-docstring section, no README section. Smallest diff, most recent precedent, and it
      keeps the record next to the assertion it explains.
+   - **RESOLVED — follow `v158`; recommendation adopted verbatim by plan 185-01.** Task 1 Step 6 mandates
+     per-leg docstring paragraphs on the four severed/updated legs, and an acceptance criterion asserts
+     that no new module-docstring section and no new `tests/fixtures/README.md` section was added.
 
 ---
 
