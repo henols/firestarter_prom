@@ -4,15 +4,15 @@ milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 183
 current_phase_name: Flash4 Erase Refusal & the AE29F2008 Classification
-status: planning
-stopped_at: Phase 183 context gathered
-last_updated: "2026-09-11T00:00:00.000Z"
+status: planned
+stopped_at: Phase 183 planned — 6 plans in 4 waves
+last_updated: "2026-09-11T08:02:22.539Z"
 last_activity: 2026-09-11
-last_activity_desc: Phase 183 context gathered — all four gray areas discussed; 23 decisions locked. Refusal is a host pre-flight policy module firing before the port opens, firmware keeps MSG_ERR_NOT_SUPPORTED as the backstop; exit 1 default with an opt-in no-op flag; message is ONE line naming the part only (operator chose this knowingly, so SAFE-06 + the ROADMAP Phase 183 goal + success criterion 1 must all be AMENDED by this phase — D-08). SAFE-08 deletes the CMD_ERASE arm, flash_5v_page_erase_execute and write_init's erase block, removing the 12V path from the 0x05 family; that firmware shrink makes Phase 185's size-baseline re-record DEPEND on Phase 183 (D-15, ROADMAP amendment). SAFE-09's projected verdict is classification-CORRECT via W29C020C equivalence (0xDA45, 256Kx8, 128B page, 5V-only, 50ms software chip-erase — which also explains the reporter's successful SST39SF020 --force erase), verified additionally against the upstream infoic row; the 0x05 software chip-erase is backlogged, not built. Three stale line-number citations found in the blast radius (check_erase_no_vpp.py cites a range that cannot exist; test_val_5v_page.cpp:234; and its ERASE-02 cases go vacuous after the deletion — CLAIM-07 shape). Operator's blank-check policy verified ALREADY SHIPPED in chip_test.py and flash_5v_page_write_init. Four deferred ideas filed, incl. the JP4-third-position VPP gate (socket pin 25 confirmed; blocked because firestarter hw reports a bucket spanning Rev 2.0/2.1/2.2 and the 2516 family has no D-4-compliant DB predicate yet).
+last_activity_desc: "Phase 183 planned - 6 plans in 4 waves; plan-checker returned VERIFICATION PASSED (0 blockers, 0 warnings, 1 INFO advisory that RESEARCH.md's Open Questions section is not marked resolved). Research re-fetched the pinned upstream infoic.xml: ASD AE29F2008@DIP32 reads protocol_id 0x05 verbatim and the WINBOND W29C020/W29C020C/W29C022 row is field-for-field identical including chip_id 0x0000da45, so SAFE-09 takes the D-19/D-20 branch - classification CORRECT, software chip-erase backlogged, D-21 does NOT fire, and no build_db.py rule or chip_database.json regeneration is planned. D-23 settled: handle->vpp_mv is never read by flash_5v_page.cpp and the one live DB-level VPP gate excludes the handler by name, so the new-finding branch does not fire; a residual 301-row VPP display mislabel is filed to backlog instead. SAFE-08's blast radius is six sites larger than CONTEXT.md recorded - the erase-on-write block is :79-85 not :80-86, a forward declaration at flash_5v_page.cpp:33 is a fourth deletion site D-12 does not name, and two further copies of the impossible 196-231 citation exist. Wave 1 forks the missing v1.37 firmware branch off origin/beta (firestarter was still on gsd/v1.36-dev-test-fidelity) and prices SAFE-07's three mechanisms against a cold build of uno, uno328pb and leonardo, so pricing precedes the choice the wave-2 tracer implements. Coverage: requirements 4/4, decisions 23/23, 66/66 verify commands resolve and each states its failing direction."
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 7
+  total_plans: 13
   completed_plans: 7
   percent: 17
 ---
@@ -235,12 +235,12 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 183 — Flash4 Erase Refusal & the AE29F2008 Classification
+Phase: 183 (Flash4 Erase Refusal & the AE29F2008 Classification) — READY TO EXECUTE
 Plan: Not started
 not strict numeric order)
-Status: Ready to plan
+Status: Ready to execute
 phase-level verification / /gsd-verify-work.
-Last activity: 2026-09-11 — Phase 183 context gathered (23 decisions; SAFE-06/ROADMAP amendments required, Phase 185 now depends on 183)
+Last activity: 2026-09-11 — Phase 183 planned (6 plans, 4 waves); checker PASSED with 0 blockers / 0 warnings
 
 ## Roadmap Summary (v1.37)
 
