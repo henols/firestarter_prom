@@ -5,10 +5,10 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 183
 current_phase_name: Flash4 Erase Refusal & the AE29F2008 Classification
 status: planning
-stopped_at: Phase 182 complete, ready to plan Phase 183
-last_updated: "2026-09-10T21:19:20.946Z"
-last_activity: 2026-09-10
-last_activity_desc: Phase 182 complete, transitioned to Phase 183
+stopped_at: Phase 183 context gathered
+last_updated: "2026-09-11T00:00:00.000Z"
+last_activity: 2026-09-11
+last_activity_desc: Phase 183 context gathered — all four gray areas discussed; 23 decisions locked. Refusal is a host pre-flight policy module firing before the port opens, firmware keeps MSG_ERR_NOT_SUPPORTED as the backstop; exit 1 default with an opt-in no-op flag; message is ONE line naming the part only (operator chose this knowingly, so SAFE-06 + the ROADMAP Phase 183 goal + success criterion 1 must all be AMENDED by this phase — D-08). SAFE-08 deletes the CMD_ERASE arm, flash_5v_page_erase_execute and write_init's erase block, removing the 12V path from the 0x05 family; that firmware shrink makes Phase 185's size-baseline re-record DEPEND on Phase 183 (D-15, ROADMAP amendment). SAFE-09's projected verdict is classification-CORRECT via W29C020C equivalence (0xDA45, 256Kx8, 128B page, 5V-only, 50ms software chip-erase — which also explains the reporter's successful SST39SF020 --force erase), verified additionally against the upstream infoic row; the 0x05 software chip-erase is backlogged, not built. Three stale line-number citations found in the blast radius (check_erase_no_vpp.py cites a range that cannot exist; test_val_5v_page.cpp:234; and its ERASE-02 cases go vacuous after the deletion — CLAIM-07 shape). Operator's blank-check policy verified ALREADY SHIPPED in chip_test.py and flash_5v_page_write_init. Four deferred ideas filed, incl. the JP4-third-position VPP gate (socket pin 25 confirmed; blocked because firestarter hw reports a bucket spanning Rev 2.0/2.1/2.2 and the 2516 family has no D-4-compliant DB predicate yet).
 progress:
   total_phases: 6
   completed_phases: 1
@@ -240,12 +240,7 @@ Plan: Not started
 not strict numeric order)
 Status: Ready to plan
 phase-level verification / /gsd-verify-work.
-Last activity: 2026-09-10 — Phase 182 complete, transitioned to Phase 183
-(4.9V at J6 pin 4, regulator disabled); DAMAGE_CAPABLE_OPERATIONS stays {write, erase} — no code
-changed; Rev 2.2 JP4 PROBE-PENDING cell closed (socket-facing pole -> pin 3, periphery-facing pole
--> pin 25); D-14 bench falsification survived (hw_revision invariant across JP4 position); JP5
-confirmed intact on the operator's board. Tasks 1-2 were an operator bench session recorded
-earlier the same day.
+Last activity: 2026-09-11 — Phase 183 context gathered (23 decisions; SAFE-06/ROADMAP amendments required, Phase 185 now depends on 183)
 
 ## Roadmap Summary (v1.37)
 
@@ -3357,8 +3352,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-10T18:00:00.000Z
-**Stopped at:** Phase 182 complete, ready to plan Phase 183
+**Last session:** 2026-09-11T00:00:00.000Z
+**Stopped at:** Phase 183 context gathered
+**Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 181 context gathered
@@ -3420,7 +3416,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/183-flash4-erase-refusal-the-ae29f2008-classification/183-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
