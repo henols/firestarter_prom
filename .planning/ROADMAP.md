@@ -321,14 +321,14 @@ this part is classified correctly at all — gets a recorded answer instead of a
 
 **Depends on:** — (independent of 182)
 
-**Plans:** 0/6 plans complete
+**Plans:** 2/6 plans complete
 
 Plans:
 
 **Wave 1** *(price the mechanism before choosing it, and settle the classification — neither plan writes implementation code)*
 
-- [ ] 183-01-PLAN.md — SAFE-07 (D-01, D-11, D-16): create the missing v1.37 firmware submodule branch off `origin/beta`, cold-build uno/uno328pb/leonardo, and price M1/M2/M3 with a measurement probe that is reverted inside the task
-- [ ] 183-02-PLAN.md — SAFE-09 (D-18…D-23): the equivalence-based AE29F2008 verdict in `notes/ae29f2008-classification-verdict.md`, plus backlog items 999.63–999.66; D-21's branch does not fire, so no `build_db.py` rule and no regeneration
+- [x] 183-01-PLAN.md — SAFE-07 (D-01, D-11, D-16): create the missing v1.37 firmware submodule branch off `origin/beta`, cold-build uno/uno328pb/leonardo, and price M1/M2/M3 with a measurement probe that is reverted inside the task
+- [x] 183-02-PLAN.md — SAFE-09 (D-18…D-23): the equivalence-based AE29F2008 verdict in `notes/ae29f2008-classification-verdict.md`, plus backlog items 999.63–999.66; D-21's branch does not fire, so no `build_db.py` rule and no regeneration
 
 **Wave 2** *(file-disjoint — the host gate and the firmware deletion share no repository)*
 
