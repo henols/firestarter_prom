@@ -5,7 +5,7 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 183
 current_phase_name: Flash4 Erase Refusal & the AE29F2008 Classification
 status: executing
-stopped_at: Phase 183 executing — wave 3 of 4
+stopped_at: Phase 183 executing — wave 4 of 4
 last_updated: "2026-09-11T09:19:41.610Z"
 last_activity: 2026-09-11
 last_activity_desc: "Phase 183 execution started (wave 1 of 4, 6 plans; sequential, worktrees off). Planning record retained: Phase 183 planned - 6 plans in 4 waves; plan-checker returned VERIFICATION PASSED (0 blockers, 0 warnings, 1 INFO advisory that RESEARCH.md's Open Questions section is not marked resolved). Research re-fetched the pinned upstream infoic.xml: ASD AE29F2008@DIP32 reads protocol_id 0x05 verbatim and the WINBOND W29C020/W29C020C/W29C022 row is field-for-field identical including chip_id 0x0000da45, so SAFE-09 takes the D-19/D-20 branch - classification CORRECT, software chip-erase backlogged, D-21 does NOT fire, and no build_db.py rule or chip_database.json regeneration is planned. D-23 settled: handle->vpp_mv is never read by flash_5v_page.cpp and the one live DB-level VPP gate excludes the handler by name, so the new-finding branch does not fire; a residual 301-row VPP display mislabel is filed to backlog instead. SAFE-08's blast radius is six sites larger than CONTEXT.md recorded - the erase-on-write block is :79-85 not :80-86, a forward declaration at flash_5v_page.cpp:33 is a fourth deletion site D-12 does not name, and two further copies of the impossible 196-231 citation exist. Wave 1 forks the missing v1.37 firmware branch off origin/beta (firestarter was still on gsd/v1.36-dev-test-fidelity) and prices SAFE-07's three mechanisms against a cold build of uno, uno328pb and leonardo, so pricing precedes the choice the wave-2 tracer implements. Coverage: requirements 4/4, decisions 23/23, 66/66 verify commands resolve and each states its failing direction."
@@ -236,11 +236,11 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 183 (Flash4 Erase Refusal & the AE29F2008 Classification) — EXECUTING
-Plan: 4 of 6 complete (wave 2 of 4 done)
+Plan: 5 of 6 complete (wave 3 of 4 done)
 not strict numeric order)
 Status: Executing Phase 183
 phase-level verification / /gsd-verify-work.
-Last activity: 2026-09-11 — Phase 183 wave 2 complete (183-03 host flash4 erase gate, 2359 app tests pass; 183-04 12V bulk-erase deleted, native 185/185 on both CI envs)
+Last activity: 2026-09-11 — Phase 183 wave 3 complete (183-05 doc cascade repaired; measured shrink uno -234 B / uno328pb -238 B / leonardo -284 B flash, confirmed independently)
 
 ## Roadmap Summary (v1.37)
 

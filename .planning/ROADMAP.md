@@ -321,7 +321,7 @@ this part is classified correctly at all — gets a recorded answer instead of a
 
 **Depends on:** — (independent of 182)
 
-**Plans:** 4/6 plans complete
+**Plans:** 5/6 plans complete
 
 Plans:
 
@@ -337,7 +337,7 @@ Plans:
 
 **Wave 3** *(the cascade — four documents and the measured shrink)*
 
-- [ ] 183-05-PLAN.md — SAFE-08 (D-14, D-15): repair `check_erase_no_vpp.py`, the planted fixture, `PROTOCOLS.md` and `firestarter/CLAUDE.md`; measure the shrink and observe which gate it reddens and which it does not
+- [x] 183-05-PLAN.md — SAFE-08 (D-14, D-15): repair `check_erase_no_vpp.py`, the planted fixture, `PROTOCOLS.md` and `firestarter/CLAUDE.md`; measure the shrink and observe which gate it reddens and which it does not
 
 **Wave 4** *(the record close-out)*
 
