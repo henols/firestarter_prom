@@ -5,15 +5,15 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 184
 current_phase_name: Guards That Exist
 status: executing
-stopped_at: Phase 184 Wave 2 complete
+stopped_at: Phase 184 all plans complete, awaiting verification
 last_updated: "2026-09-11T12:54:06.701Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 184 Wave 2 complete (184-04). Both planted_dispatch_* fixtures deleted after their fail-open finding was checked present in the verdict note; three test_dispatch_mirror.py citations kept by name and re-dated to 39ea3e8 (2026-08-31). App suite 2360 passed under py3.11, unchanged."
+last_activity_desc: "Phase 184 all 5 plans complete across 3 waves. CLAIM-01/02/03/09 ticked. Final gates measured against the shipped tree: firestarter_app 2360 passed under py3.11; firestarter native 185/185 and native_nodevtools 185/185 (fw tree byte-identical to ec7c1bb since the wave-1 run). Zero backlog items filed, deliberately (D-06). Two false plan premises found and recorded rather than smoothed: 184-02 truth 3 (PROTOCOLS.md does carry a claims-region delimiter pair) and 184-04 Task 3 precondition (test_flash_path_record_sync.py is in the firmware repo, not the app repo)."
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 18
-  completed_plans: 17
+  completed_plans: 18
   percent: 33
 ---
 
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 184 (Guards That Exist) — EXECUTING
-Plan: 4 of 5 — Wave 2 complete (184-04)
+Plan: 5 of 5 — all plans complete, awaiting verification
 Status: Executing Phase 184
-Last activity: 2026-09-11 — Phase 184 Wave 2 complete; app suite 2360 passed (py3.11)
+Last activity: 2026-09-11 — Phase 184 all plans complete; final gates green (app 2360, fw 185/185 both envs)
 
 ## Roadmap Summary (v1.37)
 

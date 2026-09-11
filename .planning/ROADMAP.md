@@ -397,7 +397,7 @@ Plans:
 
 **Wave 3** *(the record close-out)*
 
-- [ ] 184-05-PLAN.md — CLAIM-01/02/03/09 (D-01, D-03, D-04): repair `CLAUDE.md`'s `tools/wiki/` claim, amend success criterion 1 alongside the work, assert it across all three repos with positive controls, close the requirement ledger and advance both gitlinks
+- [x] 184-05-PLAN.md — CLAIM-01/02/03/09 (D-01, D-03, D-04): repair `CLAUDE.md`'s `tools/wiki/` claim, amend success criterion 1 alongside the work, assert it across all three repos with positive controls, close the requirement ledger and advance both gitlinks
 
 ### Phase 185: Records and Checks That Are Current
 
