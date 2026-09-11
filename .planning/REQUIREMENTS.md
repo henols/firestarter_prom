@@ -128,19 +128,19 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
 - [x] **CLAIM-03**: Whether the three-way dispatch invariant (dispatch table / host tool / firmware agree) is
       worth re-guarding is decided and recorded. Retiring it is a valid outcome; leaving the question
       unanswered is not.
-- [ ] **CLAIM-04**: `firestarter/scripts/baseline/size_baseline.json` records the current cold-build figures
+- [x] **CLAIM-04**: `firestarter/scripts/baseline/size_baseline.json` records the current cold-build figures
       (uno 22968, uno328pb 23016, leonardo 25114 — to be re-measured, not transcribed from this line), and
       the default byte-identity gate is green again.
-- [ ] **CLAIM-05**: CLAIM-04 is achieved by fixture severance: a new version-named fixture family at the
+- [x] **CLAIM-05**: CLAIM-04 is achieved by fixture severance: a new version-named fixture family at the
       post-change figures, with the existing frozen `captured_build_v158_*` family left byte-unchanged —
       proven by an empty `git diff` over those paths. No new MERGE-05 exemption is authored. (D-7)
-- [ ] **CLAIM-06**: `tests/test_numeric_schema_source_scan.py`'s docstring stops citing `build_db.py:594` for
+- [x] **CLAIM-06**: `tests/test_numeric_schema_source_scan.py`'s docstring stops citing `build_db.py:594` for
       a symbol that lives at 545, and cites the symbol and its enclosing scope instead of a line number, so
       the next comment sweep cannot stale it a third time.
-- [ ] **CLAIM-07**: `_is_interactive` is removed, and the two tests named `..._on_a_tty` either gate real TTY
+- [x] **CLAIM-07**: `_is_interactive` is removed, and the two tests named `..._on_a_tty` either gate real TTY
       behaviour or are renamed and rewritten to assert what they actually cover. No test claims coverage that
       does not exist.
-- [ ] **CLAIM-08**: Originally demanded that `Catalog sync check` complete with conclusion `success` on
+- [x] **CLAIM-08**: Originally demanded that `Catalog sync check` complete with conclusion `success` on
       `firestarter_prom`'s `main`, and that the cause of the failure that has stood since 2026-08-31 be
       recorded rather than merely cleared. Unsatisfiable as written, for two independent reasons: (1) Phase
       185 deletes the workflow on the operator's own decision (D-01), and once it is deleted no run on `main`
@@ -200,11 +200,11 @@ Deferred, tracked, not in this roadmap.
 | CLAIM-02 | Phase 184 | Complete — both fixtures deleted (184-04); their fail-open finding preserved in notes/dispatch-invariant-retirement-verdict.md first (184-03) |
 | CLAIM-03 | Phase 184 | Complete — retired outright per D-05; verdict recorded in notes/dispatch-invariant-retirement-verdict.md; zero backlog items filed, deliberately (D-06) |
 | CLAIM-09 | Phase 184 | Complete — fail-closed check landed (184-01), proven RED on the real rotted entry before the entry was removed, then on three planted controls |
-| CLAIM-04 | Phase 185 | Pending |
-| CLAIM-05 | Phase 185 | Pending |
-| CLAIM-06 | Phase 185 | Pending |
-| CLAIM-07 | Phase 185 | Pending |
-| CLAIM-08 | Phase 185 | Pending |
+| CLAIM-04 | Phase 185 | Complete |
+| CLAIM-05 | Phase 185 | Complete |
+| CLAIM-06 | Phase 185 | Complete |
+| CLAIM-07 | Phase 185 | Complete |
+| CLAIM-08 | Phase 185 | Complete |
 | FLOOR-01 | Phase 186 | Pending |
 | FLOOR-02 | Phase 186 | Pending |
 | FLOOR-03 | Phase 186 | Pending |

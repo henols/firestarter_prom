@@ -2,19 +2,19 @@
 gsd_state_version: "1.0"
 milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
-current_phase: 185
-current_phase_name: Records and Checks That Are Current
-status: executing
-stopped_at: Phase 185 all 6 plans complete — verifying
-last_updated: "2026-09-11T17:29:50.331Z"
+current_phase: 186
+current_phase_name: The Python Floor, Before the EOL
+status: planning
+stopped_at: Phase 185 complete, ready to plan Phase 186
+last_updated: "2026-09-11T20:30:12.367Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 185 (Records and Checks That Are Current) EXECUTING — 6 plans in 4 waves, plan-checker PASSED at revision iteration 2 (0 blockers). Waves: 1 = 185-01 (fw, tracer) + 185-03 (app), file-disjoint; 2 = 185-02 (fw) + 185-04 (app); 3 = 185-05 (meta, D-14 sync script); 4 = 185-06 (meta, CLAIM-08 verdict note + workflow deletion + D-02 amendments + both gitlinks). Research corrected the ROADMAP's own dependency paragraph: Phase 183's published deltas (-234/-238/-284 B) were measured against 183-01's PRE-deletion figures, not against size_baseline.json's live figures, which were already 16 B stale — so the post-change figures are 22734/22778/24830, NOT 22952-234=22718; no plan may hardcode a byte count, every figure comes from the executor's own cold rebuild (D-11). Also measured: check_size_baseline.py --rebuild WRITES NOTHING and runs ~10-15 min (longer than one tool call), so the four fixture captures are a separate manual pass; the red-leg set is exactly FOUR, matching v158, plus one (test_baseline_seam_precedence_flips_clean_log_to_fail) left on v153 deliberately. D-12 was REVERSED on evidence and the reversal independently confirmed: the six captured_build_{fullflash,v132,v151}_* fixtures are NOT orphans — the repo cites those families in brace-collapsed form (README.md:87,91,113,143,146,177 and test_check_size_baseline.py:115,195,273,302,349), which D-12's expanded-filename search could not match, and D-12's own rule counts prose citations as live references, so the disposition is KEEP; 185-02 Task 2 re-measures brace-aware from the tree rather than trusting the planner. Research also found two _is_interactive sites CONTEXT.md did not name (test_dev_test_cmd.py:871 and check_devtest_orchestrator.py:66) and four distinct call-site shapes among the 51 _off_tty uses. D-04 honoured: nothing filed."
+last_activity_desc: "Phase 185 (Records and Checks That Are Current) COMPLETE 2026-09-11 — 6/6 plans, verifier 5/5 must-haves PASSED, CLAIM-04..08 all Complete. Outcomes: size_baseline.json re-recorded from one cold pass (uno 22734/1434, uno328pb 22778/1440, leonardo 24830/1875, native+native_nodevtools 185 cases/17 suites) with four legs severed onto a new v185 fixture family and the frozen v158 generation diffing empty; --rebuild independently exited 0 on all five envs (criterion 1); D-12 REVERSED to KEEP on brace-aware re-measurement (the six captured_build_{fullflash,v132,v151}_* fixtures ARE cited, in collapsed brace form) so nothing was deleted; 51 off-TTY forcing sites unwrapped and a UV slot-write pair merged in test_dev_test_cmd.py (64->63 collected); _is_interactive plus all three dependents deleted (git grep now exits 1); the build_db.py:594 line-number citation replaced by symbol-and-scope; both self-comparing diff verifications in tools/catalog/sync_to_subrepos.sh repaired and proven by an OBSERVED red naming the right operand plus a paired green; catalog-sync-check.yml retired with its verdict recorded in .planning/notes/catalog-sync-check-retirement.md, and CLAIM-08 plus ROADMAP criterion 5 amended by hand (D-02). Gates: firmware 360 passed, app 2359 passed on py3.11, code review 0 critical / 1 warning (WR-01 envs_agree_note stale 184 -> 185, FIXED in fw 3c3c802) / 1 info (left). Two tool defects met and worked around: GSD verbs prune config.json sub_repos on every write (restored 5x), and query verification fingerprint silently drops its FIRST positional path, which had stored a 23-file digest against a 24-file covered_files and pinned the phase at status=stale until recomputed."
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 24
   completed_plans: 24
-  percent: 50
+  percent: 67
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 185 (Records and Checks That Are Current) — EXECUTING
-Plan: 6 of 6
-Status: Executing Phase 185
-Last activity: 2026-09-11 — Phase 185 execution started; 6 plans in 4 waves, checker passed (0 blockers); D-12 reversed on evidence (fixtures cited brace-collapsed, disposition KEEP)
+Phase: 186 — The Python Floor, Before the EOL
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-11 — Phase 185 complete (6/6 plans, verifier 5/5); transitioned to Phase 186
 
 ## Roadmap Summary (v1.37)
 
@@ -3355,7 +3355,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-11T16:12:14.483Z
-**Stopped at:** Phase 185 context gathered
+**Stopped at:** Phase 185 complete, ready to plan Phase 186
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
