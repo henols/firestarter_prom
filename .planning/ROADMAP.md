@@ -466,9 +466,14 @@ rather than under it.
 
 **Depends on:** — (independent; the only phase with an external deadline)
 
+**Plans:** 4 plans
+
 Plans:
 
-- [ ] TBD (run `/gsd-plan-phase 186`)
+- [ ] 186-01-PLAN.md — TRACER: raise all four floor statements to 3.11, trim the classifier list, move both halves of the runtime guard, and delete every claim the move falsifies (FLOOR-01, FLOOR-02)
+- [ ] 186-02-PLAN.md — Absorb the 182-finding ruff consequence of the new target as its own commit, hand-fix the three ruff cannot, and repair the one source-text gate the rewrite reds (FLOOR-01)
+- [ ] 186-03-PLAN.md — The four-way fail-closed agreement gate in `tests/`, the app repo's corrected stack record, and the py3.11 CI-replica proof (FLOOR-01, FLOOR-02, FLOOR-03)
+- [ ] 186-04-PLAN.md — The rationale note, the three meta-repo records that still state the old floor, and backlog 999.67 carrying 2027-10-31 (FLOOR-03)
 
 ### Phase 187: Answered Reports
 
