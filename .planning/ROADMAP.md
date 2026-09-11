@@ -446,7 +446,7 @@ Plans:
 
 **Wave 4** *(the record close-out)*
 
-- [ ] 185-06-PLAN.md — CLAIM-08 (D-01, D-02, D-03, D-04): the `.planning/notes/` verdict document with all five required contents quoted from the workflow before it is deleted, the workflow retired outright, and CLAIM-08 plus this criterion 5 amended by hand with the conflict and the precedent on the record — no successor guard filed
+- [x] 185-06-PLAN.md — CLAIM-08 (D-01, D-02, D-03, D-04): the `.planning/notes/` verdict document with all five required contents quoted from the workflow before it is deleted, the workflow retired outright, and CLAIM-08 plus this criterion 5 amended by hand with the conflict and the precedent on the record — no successor guard filed
 
 ### Phase 186: The Python Floor, Before the EOL
 
