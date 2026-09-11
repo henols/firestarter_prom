@@ -321,9 +321,27 @@ this part is classified correctly at all — gets a recorded answer instead of a
 
 **Depends on:** — (independent of 182)
 
+**Plans:** 0/6 plans complete
+
 Plans:
 
-- [ ] TBD (run `/gsd-plan-phase 183`)
+**Wave 1** *(price the mechanism before choosing it, and settle the classification — neither plan writes implementation code)*
+
+- [ ] 183-01-PLAN.md — SAFE-07 (D-01, D-11, D-16): create the missing v1.37 firmware submodule branch off `origin/beta`, cold-build uno/uno328pb/leonardo, and price M1/M2/M3 with a measurement probe that is reverted inside the task
+- [ ] 183-02-PLAN.md — SAFE-09 (D-18…D-23): the equivalence-based AE29F2008 verdict in `notes/ae29f2008-classification-verdict.md`, plus backlog items 999.63–999.66; D-21's branch does not fire, so no `build_db.py` rule and no regeneration
+
+**Wave 2** *(file-disjoint — the host gate and the firmware deletion share no repository)*
+
+- [ ] 183-03-PLAN.md — SAFE-06 (D-02, D-03, D-06, D-07): tracer — `flash4_erase_gate.py`, the pre-connect `erase` wiring, `--ignore-unsupported`, and the board-free proof that `erase_eprom` is never called
+- [ ] 183-04-PLAN.md — SAFE-08 (D-12, D-13, D-17): RED-first no-VPP guarantee with `FLAG_CAN_ERASE` SET, then delete the 12 V bulk-erase path and its three call sites, and repair the assertions the deletion makes vacuous
+
+**Wave 3** *(the cascade — four documents and the measured shrink)*
+
+- [ ] 183-05-PLAN.md — SAFE-08 (D-14, D-15): repair `check_erase_no_vpp.py`, the planted fixture, `PROTOCOLS.md` and `firestarter/CLAUDE.md`; measure the shrink and observe which gate it reddens and which it does not
+
+**Wave 4** *(the record close-out)*
+
+- [ ] 183-06-PLAN.md — SAFE-06/07/08/09 (D-08, D-15): amend SAFE-06 and this phase's Goal and criterion 1 to the one-line refusal; make Phase 185 depend on Phase 183, naming both the flash shrink and the native case count
 
 ### Phase 184: Guards That Exist
 
