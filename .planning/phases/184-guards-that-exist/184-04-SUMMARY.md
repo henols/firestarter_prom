@@ -252,6 +252,29 @@ None — plan executed exactly as written.
 
 Task 3's `<precondition>` and `<read_first>` name `firestarter_app/tests/test_flash_path_record_sync.py` as asserting the whole repository is porcelain. That file does not exist in the current `firestarter_app` tree (`find . -iname '*flash_path_record_sync*'` returns nothing; `git grep -ln porcelain -- tests/` shows five other files, none matching that name, and the one that checks `git status --porcelain` — `tests/test_py32_asset_name_host.py` — checks the **firmware** repo's porcelain status, not the app repo's). This is a stale citation in the plan, most likely inherited from an earlier planning pass. It did not block this plan: Tasks 1 and 2 were committed before Task 3 ran regardless, per the plan's own ordering, and the two pre-existing untracked `datasheets/*.pdf` files (present before this plan started, explicitly out of scope per the orchestrator's instructions) do not affect `git status --porcelain`'s tracked-file assertions used elsewhere in the suite. Left unfixed per the scope boundary — out of scope for this plan's `files_modified` list.
 
+
+**Orchestrator correction to the observation above.** The citation is wrong in its *repository*,
+not in its existence. `test_flash_path_record_sync.py` is real, is 54 KB, and lives in the
+**firmware** repo:
+
+```
+$ ls -la /workspaces/firestarter/tests/test_flash_path_record_sync.py
+-rw-r--r-- 1 vscode vscode 54608 Aug  2 21:07 firestarter/tests/test_flash_path_record_sync.py
+$ git -C /workspaces/firestarter_app log --all --name-only --pretty=format: -- '*flash_path_record_sync*'
+(nothing — it has never existed in the app repo under any name)
+```
+
+`test_flash_path_record_sync.py::test_planted_mutation_of_the_real_subset_is_detected` does assert
+that an entire repository's `git status --porcelain` is empty, unscoped to the one file it tests —
+but the repository it asserts is `firestarter`, and it is one of five such `test_planted_*` gates
+there. So Task 3's `<precondition>` is a **misattribution across repositories**: that gate has never
+governed `firestarter_app`, and committing Tasks 1 and 2 first was never what kept it green.
+
+The correction does not change the executor's disposition — the precondition was satisfied for an
+unrelated and sufficient reason (GSD's atomic-commit-per-task rule), the plan's own ordering held,
+and no `files_modified` entry is affected. It is recorded because "the file does not exist" and "the
+file exists in the other repository" are different facts, and this phase does not get to leave the
+weaker one standing in its own record.
 ## Issues Encountered
 
 None.
