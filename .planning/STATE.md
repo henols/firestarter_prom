@@ -5,15 +5,15 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 184
 current_phase_name: Guards That Exist
 status: executing
-stopped_at: Phase 184 Wave 1 complete
+stopped_at: Phase 184 Wave 2 complete
 last_updated: "2026-09-11T12:54:06.701Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 184 Wave 1 complete (184-01, 184-02, 184-03). Post-merge gate green on all three legs: app suite 2360 passed under py3.11, firmware native 185/185, native_nodevtools 185/185."
+last_activity_desc: "Phase 184 Wave 2 complete (184-04). Both planted_dispatch_* fixtures deleted after their fail-open finding was checked present in the verdict note; three test_dispatch_mirror.py citations kept by name and re-dated to 39ea3e8 (2026-08-31). App suite 2360 passed under py3.11, unchanged."
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 18
-  completed_plans: 16
+  completed_plans: 17
   percent: 33
 ---
 
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 184 (Guards That Exist) — EXECUTING
-Plan: 3 of 5 — Wave 1 complete (184-01, 184-02, 184-03)
+Plan: 4 of 5 — Wave 2 complete (184-04)
 Status: Executing Phase 184
-Last activity: 2026-09-11 — Phase 184 Wave 1 complete; post-merge gate green (app 2360, fw native 185/185 both envs)
+Last activity: 2026-09-11 — Phase 184 Wave 2 complete; app suite 2360 passed (py3.11)
 
 ## Roadmap Summary (v1.37)
 

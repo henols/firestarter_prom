@@ -382,7 +382,7 @@ Plans:
 
 **Wave 2** *(the app-repo deletions, gated on the note already holding what the fixtures carried)*
 
-- [ ] 184-04-PLAN.md — CLAIM-02, CLAIM-01 (D-02, D-07): delete both `planted_dispatch_*` fixtures after reading them in full, re-date the three surviving `test_dispatch_mirror.py` provenance citations, and prove the suite still collects
+- [x] 184-04-PLAN.md — CLAIM-02, CLAIM-01 (D-02, D-07): delete both `planted_dispatch_*` fixtures after reading them in full, re-date the three surviving `test_dispatch_mirror.py` provenance citations, and prove the suite still collects
 
 **Wave 3** *(the record close-out)*
 
