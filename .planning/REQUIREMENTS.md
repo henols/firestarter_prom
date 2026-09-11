@@ -120,12 +120,12 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
 
 ### CLAIM — things the repo says that are not true
 
-- [ ] **CLAIM-01**: No file in any of the three repositories names `tools/wiki/dispatch_mirror.py` as a live
+- [x] **CLAIM-01**: No file in any of the three repositories names `tools/wiki/dispatch_mirror.py` as a live
       guard. `firestarter/PROTOCOLS.md:11` and `firestarter_app/tests/scan_paths.py:114` both stop claiming a
       checker that was deleted on 2026-09-02.
-- [ ] **CLAIM-02**: The two orphaned controls `tests/fixtures/planted_dispatch_comment_only_hex.cpp` and
+- [x] **CLAIM-02**: The two orphaned controls `tests/fixtures/planted_dispatch_comment_only_hex.cpp` and
       `planted_dispatch_missing_hex.cpp` are disposed — deleted, or re-pointed at a consumer that exists.
-- [ ] **CLAIM-03**: Whether the three-way dispatch invariant (dispatch table / host tool / firmware agree) is
+- [x] **CLAIM-03**: Whether the three-way dispatch invariant (dispatch table / host tool / firmware agree) is
       worth re-guarding is decided and recorded. Retiring it is a valid outcome; leaving the question
       unanswered is not.
 - [ ] **CLAIM-04**: `firestarter/scripts/baseline/size_baseline.json` records the current cold-build figures
@@ -142,7 +142,7 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
       does not exist.
 - [ ] **CLAIM-08**: `Catalog sync check` completes with conclusion `success` on `firestarter_prom`'s `main`,
       and the cause of the failure that has stood since 2026-08-31 is recorded rather than merely cleared.
-- [ ] **CLAIM-09**: A fail-closed check asserts that every guard file a `ScanPathEntry` names actually exists.
+- [x] **CLAIM-09**: A fail-closed check asserts that every guard file a `ScanPathEntry` names actually exists.
       The CLAIM strand exists because nothing detected any of the above; this is what stops it recurring.
 
 ### FLOOR — the one item with an external clock
@@ -190,10 +190,10 @@ Deferred, tracked, not in this roadmap.
 | SAFE-07 | Phase 183 | Complete — M3 chosen on D-02 grounds (183-01) |
 | SAFE-08 | Phase 183 | Complete — deletion landed (183-04), docs/shrink repaired (183-05) |
 | SAFE-09 | Phase 183 | Complete — equivalence-based verdict recorded (183-02) |
-| CLAIM-01 | Phase 184 | Pending |
-| CLAIM-02 | Phase 184 | Pending |
-| CLAIM-03 | Phase 184 | Pending |
-| CLAIM-09 | Phase 184 | Pending |
+| CLAIM-01 | Phase 184 | Complete — repaired in all three repos; criterion 1 amended by D-03 (184-05), three D-02 citations kept and re-dated (184-04) |
+| CLAIM-02 | Phase 184 | Complete — both fixtures deleted (184-04); their fail-open finding preserved in notes/dispatch-invariant-retirement-verdict.md first (184-03) |
+| CLAIM-03 | Phase 184 | Complete — retired outright per D-05; verdict recorded in notes/dispatch-invariant-retirement-verdict.md; zero backlog items filed, deliberately (D-06) |
+| CLAIM-09 | Phase 184 | Complete — fail-closed check landed (184-01), proven RED on the real rotted entry before the entry was removed, then on three planted controls |
 | CLAIM-04 | Phase 185 | Pending |
 | CLAIM-05 | Phase 185 | Pending |
 | CLAIM-06 | Phase 185 | Pending |
