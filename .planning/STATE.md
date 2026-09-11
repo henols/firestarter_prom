@@ -4,15 +4,15 @@ milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 186
 current_phase_name: The Python Floor, Before the EOL
-status: planning
-stopped_at: Phase 186 context gathered
-last_updated: "2026-09-11T21:13:40.000Z"
+status: planned
+stopped_at: Phase 186 planned
+last_updated: "2026-09-11T22:53:37.282Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 185 (Records and Checks That Are Current) COMPLETE 2026-09-11 — 6/6 plans, verifier 5/5 must-haves PASSED, CLAIM-04..08 all Complete. Outcomes: size_baseline.json re-recorded from one cold pass (uno 22734/1434, uno328pb 22778/1440, leonardo 24830/1875, native+native_nodevtools 185 cases/17 suites) with four legs severed onto a new v185 fixture family and the frozen v158 generation diffing empty; --rebuild independently exited 0 on all five envs (criterion 1); D-12 REVERSED to KEEP on brace-aware re-measurement (the six captured_build_{fullflash,v132,v151}_* fixtures ARE cited, in collapsed brace form) so nothing was deleted; 51 off-TTY forcing sites unwrapped and a UV slot-write pair merged in test_dev_test_cmd.py (64->63 collected); _is_interactive plus all three dependents deleted (git grep now exits 1); the build_db.py:594 line-number citation replaced by symbol-and-scope; both self-comparing diff verifications in tools/catalog/sync_to_subrepos.sh repaired and proven by an OBSERVED red naming the right operand plus a paired green; catalog-sync-check.yml retired with its verdict recorded in .planning/notes/catalog-sync-check-retirement.md, and CLAIM-08 plus ROADMAP criterion 5 amended by hand (D-02). Gates: firmware 360 passed, app 2359 passed on py3.11, code review 0 critical / 1 warning (WR-01 envs_agree_note stale 184 -> 185, FIXED in fw 3c3c802) / 1 info (left). Two tool defects met and worked around: GSD verbs prune config.json sub_repos on every write (restored 5x), and query verification fingerprint silently drops its FIRST positional path, which had stored a 23-file digest against a 24-file covered_files and pinned the phase at status=stale until recomputed."
+last_activity_desc: "Phase 186 (The Python Floor, Before the EOL) PLANNED — 4 plans, strictly sequential waves 1-4, plan-checker PASSED at iteration 1 (0 blockers, 0 warnings). Research + pattern map both ran. RESEARCH.md falsified 5 CONTEXT.md/D-11 claims: cli_handlers.py:1814's noqa SURVIVES the ruff sweep (needs its own task), main.py:31's sys.version_info guard was missed, two further meta-repo floor surfaces (STRUCTURE.md:363, CONVENTIONS.md:173), the sweep emits 3.11-only datetime.UTC so the config must land first (measured: sweep-first makes the watermark gate report 37>35 and exit 1), and D-12's pip claim holds only for a pinned request. D-05 resolves to NEITHER branch — mypy output is byte-identical at 3.10 and 3.11 (35 errors, 181 checked files, watermark already 35), so no watermark edit is planned. Orchestrator decided the D-04 gate as shape A (firestarter_app/tests/, stdlib tomllib + line regex, no pyyaml/tomli). D-06 tagged [informational] to close the decision-coverage gate (its own text forbids a plan task). Requirements 3/3 covered, decisions 11/11, both verify-command probes clean at 40/40."
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 24
+  total_plans: 28
   completed_plans: 24
   percent: 67
 ---
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 185 — Records and Checks That Are Current
+**Current focus:** Phase 186 — The Python Floor, Before the EOL
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 186 — The Python Floor, Before the EOL
+Phase: 186 (The Python Floor, Before the EOL) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-11 — Phase 185 complete (6/6 plans, verifier 5/5); transitioned to Phase 186
+Status: Ready to execute
+Last activity: 2026-09-11 — Phase 186 planned; 4 plans in 4 sequential waves, checker passed at iteration 1 (0 blockers, 0 warnings); research falsified 5 CONTEXT.md claims (sweep is 3.11-only, so config lands first); D-05 needs no watermark edit (mypy byte-identical at 3.10 and 3.11)
 
 ## Roadmap Summary (v1.37)
 

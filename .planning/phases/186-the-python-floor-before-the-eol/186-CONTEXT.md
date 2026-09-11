@@ -74,7 +74,7 @@ release or version bump (operator-gated, milestone-close work); broadening ruff'
   rises, **fix the new errors; do not raise the watermark.** Absorbing errors a deliberate change
   introduced is the dishonesty this milestone exists to remove.
 
-- **D-06:** **999.27's instruction to re-verify `_FOUND_RE` / `_CLEAN_RE` does not apply here.** That
+- **D-06 [informational]:** **999.27's instruction to re-verify `_FOUND_RE` / `_CLEAN_RE` does not apply here.** That
   instruction was written for a **mypy upgrade**; this phase moves only `python_version`, not the mypy
   version, so mypy's summary-line output format is unchanged. Settled at discussion time so no plan spends
   a task on it. (If a plan *does* bump mypy for an unrelated reason, the instruction re-arms.)
