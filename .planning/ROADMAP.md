@@ -424,9 +424,27 @@ flash figures leaves this gate red. The shrink authors no new MERGE-05 exemption
 `--policy merge05` run against `size_baseline_base01.json` exited 0), so CLAIM-05's no-new-exemption clause
 survives unchanged.
 
+**Plans:** 6 plans
+
 Plans:
 
-- [ ] TBD (run `/gsd-plan-phase 185`)
+**Wave 1** *(firmware ∥ app — file-disjoint, no shared dependency)*
+
+- [ ] 185-01-PLAN.md — CLAIM-04, CLAIM-05 (D-08…D-11): tracer — one uninterrupted cold pass captures three AVR logs and re-captures both native summaries, `size_baseline.json` is transcribed from them on both axes, the four coupled legs are severed onto a `v185` family, all in one commit; plus the frozen-`v158` empty-diff proof and the `--policy merge05` no-new-exemption re-proof against an untouched BASE-01
+- [ ] 185-03-PLAN.md — CLAIM-07 (D-05, D-06, D-07.3): the 51-site off-TTY unwrap by scripted transform across four distinct call-site shapes, the false module-docstring clause deleted, the redundant UV slot-write pair merged and the two misnamed tests renamed — 64 passed, then 63
+
+**Wave 2** *(each gated on its own wave-1 slice)*
+
+- [ ] 185-02-PLAN.md — CLAIM-04, CLAIM-05 (D-10, D-11, D-12): criterion 1's independent backgrounded `--rebuild` confirmation with its exit code classified against five named shapes, and the D-12 orphan premise re-measured brace-aware before any deletion is acted on
+- [ ] 185-04-PLAN.md — CLAIM-06, CLAIM-07 (D-07, D-13): `_is_interactive` deleted with all three dependents in one commit — including the `tools/` module-docstring site no requirement named — the subset rationale repaired by name substitution, the `build_db.py` line-number citation replaced by symbol-and-scope, and the app gate sweep on py3.11
+
+**Wave 3** *(meta repo — the folded sync-script todo, ordered after the firmware builds it would perturb)*
+
+- [ ] 185-05-PLAN.md — CLAIM-08 (D-14): both self-comparing `diff` verifications in `sync_to_subrepos.sh` replaced by generate-to-temp/install/verify-the-install with an `else` and a non-zero exit, proven by a planted break OBSERVED red and a paired green after restore by explicit path
+
+**Wave 4** *(the record close-out)*
+
+- [ ] 185-06-PLAN.md — CLAIM-08 (D-01, D-02, D-03, D-04): the `.planning/notes/` verdict document with all five required contents quoted from the workflow before it is deleted, the workflow retired outright, and CLAIM-08 plus this criterion 5 amended by hand with the conflict and the precedent on the record — no successor guard filed
 
 ### Phase 186: The Python Floor, Before the EOL
 
