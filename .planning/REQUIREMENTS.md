@@ -71,23 +71,32 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
       symbol as planned.
 - [x] **SAFE-05**: `_get_rev2_2_jumper_settings_data` and its commented-out call site are deleted, so no code
       path can render JP5 as an operator-settable config header. (`todos/pending/delete-jp5-dead-renderer.md`)
-- [ ] **SAFE-06**: A refusal to erase a flash4 (`0x05`) part names the part — instead of a bare `Not
+- [x] **SAFE-06**: A refusal to erase a flash4 (`0x05`) part names the part — instead of a bare `Not
       supported` — and does not carry a cause or an alternative in the CLI text. **AMENDED by Phase 183
       under D-07/D-08:** the operator chose this one-line shape knowingly, with the conflict against this
       requirement's original wording — which had promised the refusal state its cause and its alternative —
       stated on the record before the choice was made. The cause and the alternative are not dropped; they
       move to Phase 187's REPLY-03 (D-09), which answers gh#62 directly instead of printing the answer into
-      a tool every operator sees.
-- [ ] **SAFE-07**: The firmware-flash cost of SAFE-06 is measured before the mechanism is chosen, and the
+      a tool every operator sees. Trace: `183-03-SUMMARY.md`; shipped
+      `firestarter_app/firestarter/flash4_erase_gate.py` and `firestarter_app/tests/test_flash4_erase_gate.py`
+      (22 tests).
+- [x] **SAFE-07**: The firmware-flash cost of SAFE-06 is measured before the mechanism is chosen, and the
       zero-firmware-byte alternative (host-side text against the existing `MSG_ERR_NOT_SUPPORTED`) is priced
-      against a new `messages.toml` id. The decision and both figures are recorded. (D-3)
-- [ ] **SAFE-08**: `configure_flash_5v_page`'s `CMD_ERASE` arm — unreachable while the host clears
+      against a new `messages.toml` id. The decision and both figures are recorded. (D-3) Trace:
+      `183-01-SUMMARY.md`'s three-row M1/M2/M3 pricing table — M1 measured +12 B flash / +0 B RAM on all three
+      AVR targets, M2 and M3 recorded as structural zeros with their reasons; M3 (host pre-flight policy gate)
+      chosen on D-02 grounds, not the flash figures.
+- [x] **SAFE-08**: `configure_flash_5v_page`'s `CMD_ERASE` arm — unreachable while the host clears
       `FLAG_CAN_ERASE` for every `0x05` part — is adjudicated explicitly: removed as dead weight, or kept with
-      the reason it is kept recorded. It is not left undecided.
-- [ ] **SAFE-09**: Whether AE29F2008 is correctly classified `algorithm 5` is investigated against its
+      the reason it is kept recorded. It is not left undecided. Trace: `183-04-SUMMARY.md` (deletion at all
+      four sites, RED-then-GREEN native proof) and `183-05-SUMMARY.md` (documentation blast-radius repair and
+      the measured shrink).
+- [x] **SAFE-09**: Whether AE29F2008 is correctly classified `algorithm 5` is investigated against its
       datasheet and the reporter's evidence (die answers `0xDA45`; accepts an `algorithm 6` chip-erase and
       blank-checks clean over `0x40000`). The conclusion is recorded either way; any correction lands in
-      `build_db.py`, never in `chip_database.json`. (D-6)
+      `build_db.py`, never in `chip_database.json`. (D-6) Trace: `.planning/notes/ae29f2008-classification-verdict.md`
+      and `183-02-SUMMARY.md` — classification CORRECT, equivalence-based verdict; the gh#62 reporter is ALSO
+      correct.
 
 ### REPLY — answer the reporters
 
@@ -177,10 +186,10 @@ Deferred, tracked, not in this roadmap.
 | SAFE-03 | Phase 182 | Complete — trace recorded (182-05), assumption A1 measured CONFIRMED at 4.9V (182-06) |
 | SAFE-04 | Phase 182 | Complete |
 | SAFE-05 | Phase 182 | Complete |
-| SAFE-06 | Phase 183 | Pending |
-| SAFE-07 | Phase 183 | Pending |
-| SAFE-08 | Phase 183 | Pending |
-| SAFE-09 | Phase 183 | Pending |
+| SAFE-06 | Phase 183 | Complete — amended to D-07's one-line refusal (183-06); trace 183-03 |
+| SAFE-07 | Phase 183 | Complete — M3 chosen on D-02 grounds (183-01) |
+| SAFE-08 | Phase 183 | Complete — deletion landed (183-04), docs/shrink repaired (183-05) |
+| SAFE-09 | Phase 183 | Complete — equivalence-based verdict recorded (183-02) |
 | CLAIM-01 | Phase 184 | Pending |
 | CLAIM-02 | Phase 184 | Pending |
 | CLAIM-03 | Phase 184 | Pending |
