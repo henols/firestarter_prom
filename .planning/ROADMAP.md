@@ -376,9 +376,9 @@ Plans:
 
 **Wave 1** *(three repositories, zero shared files — the tracer and the two prose/record slices)*
 
-- [ ] 184-01-PLAN.md — CLAIM-09, CLAIM-01 (D-11…D-15): tracer — the fail-closed `resolved_by` check in `test_scan_paths_resolve.py`, observed RED on the real rotted entry with `scan_paths.py` untouched, then the removal that turns it green; three planted controls; `_FLOOR` re-anchored to a reason
-- [ ] 184-02-PLAN.md — CLAIM-01, CLAIM-03 (D-09, D-10, D-16): firmware prose — `PROTOCOLS.md`'s machine-read claim replaced by one honest line, and the false `one row per KNOWN_PROTOCOLS entry` clause deleted with nothing written in its place
-- [ ] 184-03-PLAN.md — CLAIM-03 (D-05, D-06, D-08, D-16): the verdict note — retired outright, the two-deletion history, the fixtures' fail-open finding carried before they are deleted, the drift recorded and explicitly not adjudicated, and the zero-backlog-items negative record
+- [x] 184-01-PLAN.md — CLAIM-09, CLAIM-01 (D-11…D-15): tracer — the fail-closed `resolved_by` check in `test_scan_paths_resolve.py`, observed RED on the real rotted entry with `scan_paths.py` untouched, then the removal that turns it green; three planted controls; `_FLOOR` re-anchored to a reason
+- [x] 184-02-PLAN.md — CLAIM-01, CLAIM-03 (D-09, D-10, D-16): firmware prose — `PROTOCOLS.md`'s machine-read claim replaced by one honest line, and the false `one row per KNOWN_PROTOCOLS entry` clause deleted with nothing written in its place
+- [x] 184-03-PLAN.md — CLAIM-03 (D-05, D-06, D-08, D-16): the verdict note — retired outright, the two-deletion history, the fixtures' fail-open finding carried before they are deleted, the drift recorded and explicitly not adjudicated, and the zero-backlog-items negative record
 
 **Wave 2** *(the app-repo deletions, gated on the note already holding what the fixtures carried)*
 
