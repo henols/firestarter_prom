@@ -165,3 +165,12 @@ None - no external service configuration required.
 ---
 *Phase: 183-flash4-erase-refusal-the-ae29f2008-classification*
 *Completed: 2026-09-11*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/183-flash4-erase-refusal-the-ae29f2008-classification/183-01-SUMMARY.md`
+- FOUND: commit `339a6b4a` (Task 1 — meta gitlink advance)
+- FOUND: commit `c36165c2` (plan metadata — this SUMMARY)
+- `cd /workspaces/firestarter && git rev-parse --abbrev-ref HEAD` → `gsd/v1.37-operator-safety-answered-reports-claim-hygiene`
+- `cd /workspaces/firestarter && git status --porcelain --untracked-files=no` → empty (clean)
+- Meta gitlink (`git ls-tree HEAD -- firestarter`) matches `git -C firestarter rev-parse HEAD` exactly (`3e26c1bb...`)
