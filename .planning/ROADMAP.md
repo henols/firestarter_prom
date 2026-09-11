@@ -430,8 +430,8 @@ Plans:
 
 **Wave 1** *(firmware ∥ app — file-disjoint, no shared dependency)*
 
-- [ ] 185-01-PLAN.md — CLAIM-04, CLAIM-05 (D-08…D-11): tracer — one uninterrupted cold pass captures three AVR logs and re-captures both native summaries, `size_baseline.json` is transcribed from them on both axes, the four coupled legs are severed onto a `v185` family, all in one commit; plus the frozen-`v158` empty-diff proof and the `--policy merge05` no-new-exemption re-proof against an untouched BASE-01
-- [ ] 185-03-PLAN.md — CLAIM-07 (D-05, D-06, D-07.3): the 51-site off-TTY unwrap by scripted transform across four distinct call-site shapes, the false module-docstring clause deleted, the redundant UV slot-write pair merged and the two misnamed tests renamed — 64 passed, then 63
+- [x] 185-01-PLAN.md — CLAIM-04, CLAIM-05 (D-08…D-11): tracer — one uninterrupted cold pass captures three AVR logs and re-captures both native summaries, `size_baseline.json` is transcribed from them on both axes, the four coupled legs are severed onto a `v185` family, all in one commit; plus the frozen-`v158` empty-diff proof and the `--policy merge05` no-new-exemption re-proof against an untouched BASE-01
+- [x] 185-03-PLAN.md — CLAIM-07 (D-05, D-06, D-07.3): the 51-site off-TTY unwrap by scripted transform across four distinct call-site shapes, the false module-docstring clause deleted, the redundant UV slot-write pair merged and the two misnamed tests renamed — 64 passed, then 63
 
 **Wave 2** *(each gated on its own wave-1 slice)*
 
