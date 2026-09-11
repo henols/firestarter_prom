@@ -28,7 +28,7 @@ covered_files:
   - "firestarter_app/tests/test_numeric_schema_source_scan.py"
   - "firestarter_app/tools/check_devtest_orchestrator.py"
   - "tools/catalog/sync_to_subrepos.sh"
-covered_digest: "v1:sha256:b1bb2485bda8d17380b842a0c09f8430f323544ac13c81c3ff57c65e48425271"
+covered_digest: "v1:sha256:4f35a3a4477ce8763d64dc0d67fe9e0087c874a8a32544862dacd1021611ac16"
 behavior_unverified: 0
 overrides_applied: 0
 ---
@@ -43,14 +43,19 @@ overrides_applied: 0
 
 ## Note on `covered_digest`
 
-`gsd_run query verification.fingerprint` was run against the full covered-file list (25 paths).
-It silently dropped exactly one path — `185-01-PLAN.md` — from `covered_files` and the digest on
-every invocation regardless of ordering or which other files accompanied it (reproduced in
-isolation: a single-file call with only `185-01-PLAN.md` errors `at least one covered file
-required`, while the identical call with `185-02-PLAN.md` succeeds). This looks like a tool defect
-specific to that one path, not a property of this phase's content — I did not chase it further
-since it does not affect any finding below. `covered_files`/`covered_digest` above are the verb's
-verbatim output; `185-01-PLAN.md` is listed in this report's own file-review scope regardless.
+`gsd_run query verification fingerprint` **silently drops its FIRST positional path** — the first
+argument is consumed before the covered-file list is read. Measured after this report was first
+written: feeding the 24 declared paths returns 23 `covered_files` (`.planning/REQUIREMENTS.md`,
+the first argument, missing); feeding the same 24 behind one sacrificial duplicate returns all 24.
+The original diagnosis in this section — that the verb dropped `185-01-PLAN.md` specifically —
+was the same defect seen through a different argument order, not a property of that filename.
+
+Consequence: the digest first stored here
+(`v1:sha256:b1bb2485bda8d17380b842a0c09f8430f323544ac13c81c3ff57c65e48425271`) was computed over
+a 23-path set while `covered_files` above declares 24, so it could never match a recomputation
+and `gsd_run query verification.status` reported this phase `stale` regardless of actual drift.
+`covered_digest` above has been corrected to the digest over exactly the 24 declared paths, with
+the dropped-argument defect worked around. No finding in this report is affected.
 
 ## Goal Achievement
 
