@@ -2,19 +2,19 @@
 gsd_state_version: "1.0"
 milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
-current_phase: 184
-current_phase_name: Guards That Exist
-status: executing
-stopped_at: Phase 184 all plans complete, awaiting verification
-last_updated: "2026-09-11T12:54:06.701Z"
+current_phase: 185
+current_phase_name: Records and Checks That Are Current
+status: planning
+stopped_at: Phase 184 complete, ready to plan Phase 185
+last_updated: "2026-09-11T15:22:15.199Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 184 all 5 plans complete across 3 waves. CLAIM-01/02/03/09 ticked. Final gates measured against the shipped tree: firestarter_app 2360 passed under py3.11; firestarter native 185/185 and native_nodevtools 185/185 (fw tree byte-identical to ec7c1bb since the wave-1 run). Zero backlog items filed, deliberately (D-06). Two false plan premises found and recorded rather than smoothed: 184-02 truth 3 (PROTOCOLS.md does carry a claims-region delimiter pair) and 184-04 Task 3 precondition (test_flash_path_record_sync.py is in the firmware repo, not the app repo)."
+last_activity_desc: "Phase 184 (Guards That Exist) COMPLETE and verified 4/4 — transitioned to Phase 185. CLAIM-01/02/03/09 closed. The fail-closed resolved_by check landed in firestarter_app/tests/test_scan_paths_resolve.py, seen RED on the real 11-day-rotted entry before that entry was removed, and on three transient planted controls; no marker, no escape hatch, no census assertion (D-15). PROTOCOLS.md and a native dispatch comment stopped asserting a deleted checker; both planted_dispatch_* fixtures deleted after their fail-open finding was preserved in .planning/notes/dispatch-invariant-retirement-verdict.md; the three test_dispatch_mirror.py citations kept by name and re-dated to 39ea3e8 per D-02. CLAIM-03 verdict: three-way dispatch invariant RETIRED OUTRIGHT, operator call against the orchestrator recommendation, ZERO backlog items filed (D-06). Gates on the shipped tree: app 2360 passed (py3.11), fw native 185/185, native_nodevtools 185/185, fw pytest 360 passed. Code review 0/0/0 clean. Two false plan premises found and recorded rather than smoothed: 184-02 truth 3 (PROTOCOLS.md DOES carry a firestarter-claims delimiter pair, left in place deliberately) and 184-04 Task 3 (test_flash_path_record_sync.py is in the FIRMWARE repo, never the app repo)."
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 18
   completed_plans: 18
-  percent: 33
+  percent: 50
 ---
 
 # Project State
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 184 (Guards That Exist) — EXECUTING
-Plan: 5 of 5 — all plans complete, awaiting verification
-Status: Executing Phase 184
-Last activity: 2026-09-11 — Phase 184 all plans complete; final gates green (app 2360, fw 185/185 both envs)
+Phase: 185 — Records and Checks That Are Current
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-11 — Phase 184 complete, transitioned to Phase 185
 
 ## Roadmap Summary (v1.37)
 
@@ -3355,7 +3355,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-11T11:54:27.524Z
-**Stopped at:** Phase 184 context gathered
+**Stopped at:** Phase 184 complete, ready to plan Phase 185
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
