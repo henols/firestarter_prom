@@ -5,10 +5,10 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 185
 current_phase_name: Records and Checks That Are Current
 status: planning
-stopped_at: Phase 184 complete, ready to plan Phase 185
-last_updated: "2026-09-11T15:22:15.199Z"
+stopped_at: Phase 185 context gathered
+last_updated: "2026-09-11T16:12:14.817Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 184 (Guards That Exist) COMPLETE and verified 4/4 — transitioned to Phase 185. CLAIM-01/02/03/09 closed. The fail-closed resolved_by check landed in firestarter_app/tests/test_scan_paths_resolve.py, seen RED on the real 11-day-rotted entry before that entry was removed, and on three transient planted controls; no marker, no escape hatch, no census assertion (D-15). PROTOCOLS.md and a native dispatch comment stopped asserting a deleted checker; both planted_dispatch_* fixtures deleted after their fail-open finding was preserved in .planning/notes/dispatch-invariant-retirement-verdict.md; the three test_dispatch_mirror.py citations kept by name and re-dated to 39ea3e8 per D-02. CLAIM-03 verdict: three-way dispatch invariant RETIRED OUTRIGHT, operator call against the orchestrator recommendation, ZERO backlog items filed (D-06). Gates on the shipped tree: app 2360 passed (py3.11), fw native 185/185, native_nodevtools 185/185, fw pytest 360 passed. Code review 0/0/0 clean. Two false plan premises found and recorded rather than smoothed: 184-02 truth 3 (PROTOCOLS.md DOES carry a firestarter-claims delimiter pair, left in place deliberately) and 184-04 Task 3 (test_flash_path_record_sync.py is in the FIRMWARE repo, never the app repo)."
+last_activity_desc: "Phase 185 (Records and Checks That Are Current) context gathered — 14 decisions (D-01..D-14). Operator retired .github/workflows/catalog-sync-check.yml OUTRIGHT (D-01), against the recommendation to re-point it at beta: the catalog is a dev-time tool and the compile is the real gate. CLAIM-08 and ROADMAP criterion 5 are AMENDED in-phase (D-02) since no run on main can exist once the workflow is gone; a .planning/notes/ verdict note carries five required contents (D-03) and NO successor guard or backlog item is filed (D-04, operator's call). Measured: the check has 8 runs — 6 failures, 2 successes, both on the gsd/v1.31 PR branch after 57e63429; both main runs failed. A naive beta fallback would NOT have worked (meta@main 27867 B vs sub-repos@beta 28658 B). CLAIM-07: _is_interactive has zero call sites; _off_tty() is deleted and its 51 sites unwrapped (D-05, measured 51 not the todo's ~14), the two ..._on_a_tty tests renamed and merged (D-06). CLAIM-04/05: new captured_build_v185_* family, v158 frozen, native pair updated in place 184->185, BASE-01 never re-anchored, 6 orphaned fixtures deleted (D-08..D-12). CLAIM-06: the citation has staled a THIRD time (538, not the requirement's 545) — symbol-and-scope form adopted (D-13). sync_to_subrepos.sh's two self-diff tautologies folded in (D-14)."
 progress:
   total_phases: 6
   completed_phases: 3
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 184 — Guards That Exist
+**Current focus:** Phase 185 — Records and Checks That Are Current
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -238,7 +238,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 Phase: 185 — Records and Checks That Are Current
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-11 — Phase 184 complete, transitioned to Phase 185
+Last activity: 2026-09-11 — Phase 185 context gathered; 14 decisions captured, catalog-sync-check retired (D-01)
 
 ## Roadmap Summary (v1.37)
 
@@ -3354,8 +3354,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-11T11:54:27.524Z
-**Stopped at:** Phase 184 complete, ready to plan Phase 185
+**Last session:** 2026-09-11T16:12:14.483Z
+**Stopped at:** Phase 185 context gathered
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
@@ -3418,7 +3418,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/184-guards-that-exist/184-CONTEXT.md
+**Resume file:** .planning/phases/185-records-and-checks-that-are-current/185-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
