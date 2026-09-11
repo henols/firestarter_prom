@@ -321,7 +321,7 @@ this part is classified correctly at all — gets a recorded answer instead of a
 
 **Depends on:** — (independent of 182)
 
-**Plans:** 2/6 plans complete
+**Plans:** 4/6 plans complete
 
 Plans:
 
@@ -332,8 +332,8 @@ Plans:
 
 **Wave 2** *(file-disjoint — the host gate and the firmware deletion share no repository)*
 
-- [ ] 183-03-PLAN.md — SAFE-06 (D-02, D-03, D-06, D-07): tracer — `flash4_erase_gate.py`, the pre-connect `erase` wiring, `--ignore-unsupported`, and the board-free proof that `erase_eprom` is never called
-- [ ] 183-04-PLAN.md — SAFE-08 (D-12, D-13, D-17): RED-first no-VPP guarantee with `FLAG_CAN_ERASE` SET, then delete the 12 V bulk-erase path and its three call sites, and repair the assertions the deletion makes vacuous
+- [x] 183-03-PLAN.md — SAFE-06 (D-02, D-03, D-06, D-07): tracer — `flash4_erase_gate.py`, the pre-connect `erase` wiring, `--ignore-unsupported`, and the board-free proof that `erase_eprom` is never called
+- [x] 183-04-PLAN.md — SAFE-08 (D-12, D-13, D-17): RED-first no-VPP guarantee with `FLAG_CAN_ERASE` SET, then delete the 12 V bulk-erase path and its three call sites, and repair the assertions the deletion makes vacuous
 
 **Wave 3** *(the cascade — four documents and the measured shrink)*
 
