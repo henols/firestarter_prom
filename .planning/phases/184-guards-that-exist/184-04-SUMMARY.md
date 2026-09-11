@@ -270,3 +270,10 @@ None — no external service configuration required.
 ---
 *Phase: 184-guards-that-exist*
 *Completed: 2026-09-11*
+
+## Self-Check: PASSED
+
+- `.planning/phases/184-guards-that-exist/184-04-SUMMARY.md` exists on disk.
+- Both `planted_dispatch_*` fixtures confirmed absent from `firestarter_app/tests/fixtures/`.
+- `firestarter_app` commits `4a90ce4` and `a745cb6` found in `git log --oneline --all`.
+- Meta-repo commit `262ae84` (SUMMARY + gitlink advance) found in `git log --oneline --all`.
