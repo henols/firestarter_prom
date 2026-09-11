@@ -4,11 +4,11 @@ milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 183
 current_phase_name: Flash4 Erase Refusal & the AE29F2008 Classification
-status: planned
-stopped_at: Phase 183 planned — 6 plans in 4 waves
-last_updated: "2026-09-11T08:02:22.539Z"
+status: executing
+stopped_at: Phase 183 executing — wave 1 of 4
+last_updated: "2026-09-11T08:12:53.705Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 183 planned - 6 plans in 4 waves; plan-checker returned VERIFICATION PASSED (0 blockers, 0 warnings, 1 INFO advisory that RESEARCH.md's Open Questions section is not marked resolved). Research re-fetched the pinned upstream infoic.xml: ASD AE29F2008@DIP32 reads protocol_id 0x05 verbatim and the WINBOND W29C020/W29C020C/W29C022 row is field-for-field identical including chip_id 0x0000da45, so SAFE-09 takes the D-19/D-20 branch - classification CORRECT, software chip-erase backlogged, D-21 does NOT fire, and no build_db.py rule or chip_database.json regeneration is planned. D-23 settled: handle->vpp_mv is never read by flash_5v_page.cpp and the one live DB-level VPP gate excludes the handler by name, so the new-finding branch does not fire; a residual 301-row VPP display mislabel is filed to backlog instead. SAFE-08's blast radius is six sites larger than CONTEXT.md recorded - the erase-on-write block is :79-85 not :80-86, a forward declaration at flash_5v_page.cpp:33 is a fourth deletion site D-12 does not name, and two further copies of the impossible 196-231 citation exist. Wave 1 forks the missing v1.37 firmware branch off origin/beta (firestarter was still on gsd/v1.36-dev-test-fidelity) and prices SAFE-07's three mechanisms against a cold build of uno, uno328pb and leonardo, so pricing precedes the choice the wave-2 tracer implements. Coverage: requirements 4/4, decisions 23/23, 66/66 verify commands resolve and each states its failing direction."
+last_activity_desc: "Phase 183 execution started (wave 1 of 4, 6 plans; sequential, worktrees off). Planning record retained: Phase 183 planned - 6 plans in 4 waves; plan-checker returned VERIFICATION PASSED (0 blockers, 0 warnings, 1 INFO advisory that RESEARCH.md's Open Questions section is not marked resolved). Research re-fetched the pinned upstream infoic.xml: ASD AE29F2008@DIP32 reads protocol_id 0x05 verbatim and the WINBOND W29C020/W29C020C/W29C022 row is field-for-field identical including chip_id 0x0000da45, so SAFE-09 takes the D-19/D-20 branch - classification CORRECT, software chip-erase backlogged, D-21 does NOT fire, and no build_db.py rule or chip_database.json regeneration is planned. D-23 settled: handle->vpp_mv is never read by flash_5v_page.cpp and the one live DB-level VPP gate excludes the handler by name, so the new-finding branch does not fire; a residual 301-row VPP display mislabel is filed to backlog instead. SAFE-08's blast radius is six sites larger than CONTEXT.md recorded - the erase-on-write block is :79-85 not :80-86, a forward declaration at flash_5v_page.cpp:33 is a fourth deletion site D-12 does not name, and two further copies of the impossible 196-231 citation exist. Wave 1 forks the missing v1.37 firmware branch off origin/beta (firestarter was still on gsd/v1.36-dev-test-fidelity) and prices SAFE-07's three mechanisms against a cold build of uno, uno328pb and leonardo, so pricing precedes the choice the wave-2 tracer implements. Coverage: requirements 4/4, decisions 23/23, 66/66 verify commands resolve and each states its failing direction."
 progress:
   total_phases: 6
   completed_phases: 1
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 182 — JP5 Destructive-Operation Gate
+**Current focus:** Phase 183 — Flash4 Erase Refusal & the AE29F2008 Classification
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,12 +235,12 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 183 (Flash4 Erase Refusal & the AE29F2008 Classification) — READY TO EXECUTE
-Plan: Not started
+Phase: 183 (Flash4 Erase Refusal & the AE29F2008 Classification) — EXECUTING
+Plan: 1 of 6
 not strict numeric order)
-Status: Ready to execute
+Status: Executing Phase 183
 phase-level verification / /gsd-verify-work.
-Last activity: 2026-09-11 — Phase 183 planned (6 plans, 4 waves); checker PASSED with 0 blockers / 0 warnings
+Last activity: 2026-09-11 — Phase 183 execution started
 
 ## Roadmap Summary (v1.37)
 
