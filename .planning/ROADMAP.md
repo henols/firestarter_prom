@@ -370,9 +370,23 @@ going unnoticed.
 
 **Depends on:** — (independent)
 
+**Plans:** 5 plans
+
 Plans:
 
-- [ ] TBD (run `/gsd-plan-phase 184`)
+**Wave 1** *(three repositories, zero shared files — the tracer and the two prose/record slices)*
+
+- [ ] 184-01-PLAN.md — CLAIM-09, CLAIM-01 (D-11…D-15): tracer — the fail-closed `resolved_by` check in `test_scan_paths_resolve.py`, observed RED on the real rotted entry with `scan_paths.py` untouched, then the removal that turns it green; three planted controls; `_FLOOR` re-anchored to a reason
+- [ ] 184-02-PLAN.md — CLAIM-01, CLAIM-03 (D-09, D-10, D-16): firmware prose — `PROTOCOLS.md`'s machine-read claim replaced by one honest line, and the false `one row per KNOWN_PROTOCOLS entry` clause deleted with nothing written in its place
+- [ ] 184-03-PLAN.md — CLAIM-03 (D-05, D-06, D-08, D-16): the verdict note — retired outright, the two-deletion history, the fixtures' fail-open finding carried before they are deleted, the drift recorded and explicitly not adjudicated, and the zero-backlog-items negative record
+
+**Wave 2** *(the app-repo deletions, gated on the note already holding what the fixtures carried)*
+
+- [ ] 184-04-PLAN.md — CLAIM-02, CLAIM-01 (D-02, D-07): delete both `planted_dispatch_*` fixtures after reading them in full, re-date the three surviving `test_dispatch_mirror.py` provenance citations, and prove the suite still collects
+
+**Wave 3** *(the record close-out)*
+
+- [ ] 184-05-PLAN.md — CLAIM-01/02/03/09 (D-01, D-03, D-04): repair `CLAUDE.md`'s `tools/wiki/` claim, amend success criterion 1 alongside the work, assert it across all three repos with positive controls, close the requirement ledger and advance both gitlinks
 
 ### Phase 185: Records and Checks That Are Current
 
