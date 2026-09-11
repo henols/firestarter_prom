@@ -324,7 +324,7 @@ classified correctly at all — gets a recorded answer instead of an assumption.
 
 **Depends on:** — (independent of 182)
 
-**Plans:** 5/6 plans complete
+**Plans:** 6/6 plans complete
 
 Plans:
 
@@ -344,7 +344,7 @@ Plans:
 
 **Wave 4** *(the record close-out)*
 
-- [ ] 183-06-PLAN.md — SAFE-06/07/08/09 (D-08, D-15): amend SAFE-06 and this phase's Goal and criterion 1 to the one-line refusal; make Phase 185 depend on Phase 183, naming both the flash shrink and the native case count
+- [x] 183-06-PLAN.md — SAFE-06/07/08/09 (D-08, D-15): amend SAFE-06 and this phase's Goal and criterion 1 to the one-line refusal; make Phase 185 depend on Phase 183, naming both the flash shrink and the native case count
 
 ### Phase 184: Guards That Exist
 
