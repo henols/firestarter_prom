@@ -234,7 +234,7 @@ of use.
 ### Phases
 
 - [x] **Phase 182: JP5 Destructive-Operation Gate** - Warn and refuse before an operation that can destroy an 8 Mbit part on a shield whose JP5 is intact, and delete the renderer that would describe JP5 wrongly. (completed 2026-09-10)
-- [ ] **Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification** - Make a correct refusal explain itself, so nobody is taught to route around it with a forged identity.
+- [x] **Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification** - Make a correct refusal name the part instead of saying only `Not supported`, and answer the reason to the reporter rather than printing it, so nobody is taught to route around it with a forged identity. (completed 2026-09-11)
 - [ ] **Phase 184: Guards That Exist** - Stop three repositories naming a checker that was deleted, and make a guard that does not exist impossible to declare silently.
 - [ ] **Phase 185: Records and Checks That Are Current** - The size baseline, the citation, the dead symbol and the red workflow — four records that describe a tree that no longer exists.
 - [ ] **Phase 186: The Python Floor, Before the EOL** - Settle the advertised floor against the type-checker while there is still slack before 2026-10-31.

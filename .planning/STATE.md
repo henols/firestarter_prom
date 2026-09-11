@@ -2,19 +2,19 @@
 gsd_state_version: "1.0"
 milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
-current_phase: 183
-current_phase_name: Flash4 Erase Refusal & the AE29F2008 Classification
-status: executing
-stopped_at: Phase 183 — all 6 plans complete, phase gates pending
-last_updated: "2026-09-11T09:19:41.610Z"
+current_phase: 184
+current_phase_name: Guards That Exist
+status: planning
+stopped_at: Phase 183 complete, ready to plan Phase 184
+last_updated: "2026-09-11T10:54:54.947Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 183 execution started (wave 1 of 4, 6 plans; sequential, worktrees off). Planning record retained: Phase 183 planned - 6 plans in 4 waves; plan-checker returned VERIFICATION PASSED (0 blockers, 0 warnings, 1 INFO advisory that RESEARCH.md's Open Questions section is not marked resolved). Research re-fetched the pinned upstream infoic.xml: ASD AE29F2008@DIP32 reads protocol_id 0x05 verbatim and the WINBOND W29C020/W29C020C/W29C022 row is field-for-field identical including chip_id 0x0000da45, so SAFE-09 takes the D-19/D-20 branch - classification CORRECT, software chip-erase backlogged, D-21 does NOT fire, and no build_db.py rule or chip_database.json regeneration is planned. D-23 settled: handle->vpp_mv is never read by flash_5v_page.cpp and the one live DB-level VPP gate excludes the handler by name, so the new-finding branch does not fire; a residual 301-row VPP display mislabel is filed to backlog instead. SAFE-08's blast radius is six sites larger than CONTEXT.md recorded - the erase-on-write block is :79-85 not :80-86, a forward declaration at flash_5v_page.cpp:33 is a fourth deletion site D-12 does not name, and two further copies of the impossible 196-231 citation exist. Wave 1 forks the missing v1.37 firmware branch off origin/beta (firestarter was still on gsd/v1.36-dev-test-fidelity) and prices SAFE-07's three mechanisms against a cold build of uno, uno328pb and leonardo, so pricing precedes the choice the wave-2 tracer implements. Coverage: requirements 4/4, decisions 23/23, 66/66 verify commands resolve and each states its failing direction."
+last_activity_desc: "Phase 183 complete (2026-09-11), verified 18/18, transitioned to Phase 184. SAFE-06: host pre-connect flash4 erase refusal shipped in firestarter_app (flash4_erase_gate.py, fails OPEN, one line naming the part, exit 1 or 0 under --ignore-unsupported); the cause and the alternative were deliberately NOT printed and are relocated to Phase 187's REPLY-03 - SAFE-06, the phase Goal and criteria 1 and 2 were all amended on the record to say so. SAFE-07: three mechanisms priced, M1 measured +12 B flash on every AVR target, M2/M3 structural zeros; M3 chosen on D-02 pre-connect grounds, NOT on the flash figures. SAFE-08: the 12 V bulk-erase path deleted at all four sites in flash_5v_page.cpp with the eprom_erase backstop byte-unchanged; native case count 184 -> 185 on both CI envs; measured shrink uno -234 B, uno328pb -238 B, leonardo -284 B, reproduced independently by the orchestrator. size_baseline.json deliberately NOT re-recorded - the default-mode gate is RED and --policy merge05 is GREEN with no new exemption, both of which are Phase 185's inputs. SAFE-09: equivalence-based AE29F2008 verdict recorded (classification CORRECT and the gh#62 reporter also correct); chip_database.json byte-unchanged, no build_db.py rule; backlog 999.63-999.66 filed. Code review 0 critical / 3 warning / 2 info: WR-01 (a false universal claim about CTRL_VPE_ENABLE) fixed, WR-02 kept by adjudication, WR-03 deferred because removing the unused include would invalidate the just-recorded flash figures."
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 13
   completed_plans: 13
-  percent: 17
+  percent: 33
 ---
 
 # Project State
@@ -235,12 +235,12 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 183 (Flash4 Erase Refusal & the AE29F2008 Classification) — EXECUTING
-Plan: 6 of 6 complete (all waves done; phase gates pending)
+Phase: 184 — Guards That Exist
+Plan: Not started
 not strict numeric order)
-Status: Executing Phase 183
+Status: Ready to plan
 phase-level verification / /gsd-verify-work.
-Last activity: 2026-09-11 — Phase 183 wave 4 complete (183-06 record close-out: SAFE-06 amended as a relocation, SAFE-06..09 marked complete, Phase 185 now depends on 183)
+Last activity: 2026-09-11 — Phase 183 complete, verified 18/18 (SAFE-06..09); transitioned to Phase 184
 
 ## Roadmap Summary (v1.37)
 
@@ -3357,7 +3357,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 ## Session
 
 **Last session:** 2026-09-11T09:19:15.954Z
-**Stopped at:** Completed 183-04-PLAN.md
+**Stopped at:** Phase 183 complete, ready to plan Phase 184
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
