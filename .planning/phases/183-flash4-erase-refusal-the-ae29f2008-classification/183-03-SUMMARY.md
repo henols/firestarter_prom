@@ -169,3 +169,18 @@ None - no external service configuration required.
 ---
 *Phase: 183-flash4-erase-refusal-the-ae29f2008-classification*
 *Completed: 2026-09-11*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/firestarter/flash4_erase_gate.py`
+- FOUND: `firestarter_app/tests/test_flash4_erase_gate.py`
+- FOUND: `.planning/phases/183-flash4-erase-refusal-the-ae29f2008-classification/183-03-SUMMARY.md`
+- FOUND (submodule log): commit `244ff7e` (Task 1)
+- FOUND (submodule log): commit `e0ea5ee` (Task 2)
+- FOUND (submodule log): commit `7446059` (Task 3)
+- FOUND (meta repo log): commits `8432a606`, `b926b0fe`, `1beff619` (per-task gitlink advances), `a1aa3995` (this SUMMARY)
+- Meta gitlink (`git ls-tree HEAD -- firestarter_app`) matches `git -C firestarter_app rev-parse HEAD` exactly (`7446059c...`)
+- Re-ran all plan-level `<verification>` commands: `pytest tests/test_flash4_erase_gate.py` (22 passed), `pytest tests/test_jp5_gate.py tests/test_sdp_capability.py` (53 passed), `firestarter erase --help` lists `--ignore-unsupported`, import-purity AST check reports `IMPORT_PURE`, `ruff check`/`ruff format --check` clean on all three touched files, no `#` comment lines in either new file or in the `cli_handlers.py` diff (directive lines excepted)
+- **Recovered from a `gsd-tools query commit` branch-switch during the metadata commit** — it created and switched to an errant `-activated-202` milestone branch and pruned two `sub_repos` entries from `.planning/config.json`. Fast-forwarded the correct branch onto the SUMMARY commit, deleted the errant branch, and reverted `config.json`; verified HEAD, gitlink, and working-tree state below.
+- `git rev-parse --abbrev-ref HEAD` → `gsd/v1.37-operator-safety-answered-reports-claim-hygiene`
+- `git status --short` → only pre-existing dirt (`.planning/VALIDATED-EPROMS.md`, `anything.txt`, `tmp/`, two untracked `firestarter_app/datasheets/*.pdf`), all out of this plan's scope per the executor prompt's `<project_mechanics>` §7
