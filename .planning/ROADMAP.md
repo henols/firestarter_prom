@@ -413,8 +413,10 @@ Plans:
 3. The `test_numeric_schema_source_scan.py` docstring cites the symbol and its enclosing scope, with no line
    number left to go stale.
 4. `_is_interactive` is gone, and no test name claims TTY gating that the test does not perform.
-5. `gh run list --repo henols/firestarter_prom --workflow 'Catalog sync check'` shows the newest run on
-   `main` as `success`, and the phase record names what was actually wrong.
+5. Originally: `gh run list --repo henols/firestarter_prom --workflow 'Catalog sync check'` shows the newest
+   run on `main` as `success`. Unsatisfiable once the workflow is deleted (D-01) — no run on `main` can exist
+   at all, and separately `main` is protected in all three repositories. AMENDED (D-02): the workflow is
+   deleted and `.planning/notes/catalog-sync-check-retirement.md` names what was actually wrong.
 
 **Depends on:** Phase 183 — its SAFE-08 deletion reddens `check_size_baseline.py`'s gate via the flash shrink and the native case count moving 184 to 185 (both `native` and `native_nodevtools`); CLAIM-09's guard from Phase 184 still does not gate this phase.
 The two named inputs, in full: (1) the flash shrink (uno −234 B, uno328pb −238 B, leonardo −284 B; +0 B RAM

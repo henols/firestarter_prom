@@ -140,8 +140,14 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
 - [ ] **CLAIM-07**: `_is_interactive` is removed, and the two tests named `..._on_a_tty` either gate real TTY
       behaviour or are renamed and rewritten to assert what they actually cover. No test claims coverage that
       does not exist.
-- [ ] **CLAIM-08**: `Catalog sync check` completes with conclusion `success` on `firestarter_prom`'s `main`,
-      and the cause of the failure that has stood since 2026-08-31 is recorded rather than merely cleared.
+- [ ] **CLAIM-08**: Originally demanded that `Catalog sync check` complete with conclusion `success` on
+      `firestarter_prom`'s `main`, and that the cause of the failure that has stood since 2026-08-31 be
+      recorded rather than merely cleared. Unsatisfiable as written, for two independent reasons: (1) Phase
+      185 deletes the workflow on the operator's own decision (D-01), and once it is deleted no run on `main`
+      can exist at all; (2) `main` is protected in all three repositories and nothing this phase does lands
+      there. AMENDED (D-02) to: the check is retired, and the cause of its standing failure is recorded in
+      `.planning/notes/catalog-sync-check-retirement.md`. Precedent for amending in the same phase as the
+      work: Phase 183's D-08 (SAFE-06 amended alongside the code) and Phase 184's D-03 (criterion 1 amended).
 - [x] **CLAIM-09**: A fail-closed check asserts that every guard file a `ScanPathEntry` names actually exists.
       The CLAIM strand exists because nothing detected any of the above; this is what stops it recurring.
 
