@@ -4,15 +4,15 @@ milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 185
 current_phase_name: Records and Checks That Are Current
-status: planning
-stopped_at: Phase 185 context gathered
-last_updated: "2026-09-11T16:12:14.817Z"
+status: planned
+stopped_at: Phase 185 planned
+last_updated: "2026-09-11T17:21:10.504Z"
 last_activity: 2026-09-11
-last_activity_desc: "Phase 185 (Records and Checks That Are Current) context gathered — 14 decisions (D-01..D-14). Operator retired .github/workflows/catalog-sync-check.yml OUTRIGHT (D-01), against the recommendation to re-point it at beta: the catalog is a dev-time tool and the compile is the real gate. CLAIM-08 and ROADMAP criterion 5 are AMENDED in-phase (D-02) since no run on main can exist once the workflow is gone; a .planning/notes/ verdict note carries five required contents (D-03) and NO successor guard or backlog item is filed (D-04, operator's call). Measured: the check has 8 runs — 6 failures, 2 successes, both on the gsd/v1.31 PR branch after 57e63429; both main runs failed. A naive beta fallback would NOT have worked (meta@main 27867 B vs sub-repos@beta 28658 B). CLAIM-07: _is_interactive has zero call sites; _off_tty() is deleted and its 51 sites unwrapped (D-05, measured 51 not the todo's ~14), the two ..._on_a_tty tests renamed and merged (D-06). CLAIM-04/05: new captured_build_v185_* family, v158 frozen, native pair updated in place 184->185, BASE-01 never re-anchored, 6 orphaned fixtures deleted (D-08..D-12). CLAIM-06: the citation has staled a THIRD time (538, not the requirement's 545) — symbol-and-scope form adopted (D-13). sync_to_subrepos.sh's two self-diff tautologies folded in (D-14)."
+last_activity_desc: "Phase 185 (Records and Checks That Are Current) PLANNED — 6 plans in 4 waves, plan-checker PASSED at revision iteration 2 (0 blockers). Waves: 1 = 185-01 (fw, tracer) + 185-03 (app), file-disjoint; 2 = 185-02 (fw) + 185-04 (app); 3 = 185-05 (meta, D-14 sync script); 4 = 185-06 (meta, CLAIM-08 verdict note + workflow deletion + D-02 amendments + both gitlinks). Research corrected the ROADMAP's own dependency paragraph: Phase 183's published deltas (-234/-238/-284 B) were measured against 183-01's PRE-deletion figures, not against size_baseline.json's live figures, which were already 16 B stale — so the post-change figures are 22734/22778/24830, NOT 22952-234=22718; no plan may hardcode a byte count, every figure comes from the executor's own cold rebuild (D-11). Also measured: check_size_baseline.py --rebuild WRITES NOTHING and runs ~10-15 min (longer than one tool call), so the four fixture captures are a separate manual pass; the red-leg set is exactly FOUR, matching v158, plus one (test_baseline_seam_precedence_flips_clean_log_to_fail) left on v153 deliberately. D-12 was REVERSED on evidence and the reversal independently confirmed: the six captured_build_{fullflash,v132,v151}_* fixtures are NOT orphans — the repo cites those families in brace-collapsed form (README.md:87,91,113,143,146,177 and test_check_size_baseline.py:115,195,273,302,349), which D-12's expanded-filename search could not match, and D-12's own rule counts prose citations as live references, so the disposition is KEEP; 185-02 Task 2 re-measures brace-aware from the tree rather than trusting the planner. Research also found two _is_interactive sites CONTEXT.md did not name (test_dev_test_cmd.py:871 and check_devtest_orchestrator.py:66) and four distinct call-site shapes among the 51 _off_tty uses. D-04 honoured: nothing filed."
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 18
+  total_plans: 24
   completed_plans: 18
   percent: 50
 ---
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 185 — Records and Checks That Are Current
+Phase: 185 (Records and Checks That Are Current) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-11 — Phase 185 context gathered; 14 decisions captured, catalog-sync-check retired (D-01)
+Status: Ready to execute
+Last activity: 2026-09-11 — Phase 185 planned; 6 plans in 4 waves, checker passed (0 blockers); D-12 reversed on evidence (fixtures cited brace-collapsed, disposition KEEP)
 
 ## Roadmap Summary (v1.37)
 
