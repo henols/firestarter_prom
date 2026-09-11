@@ -316,7 +316,13 @@ classified correctly at all — gets a recorded answer instead of an assumption.
    `Erase not supported for <EPROM>` — in place of a bare `Not supported`, carrying no cause clause and no
    alternative command; the cause and the alternative are answered in Phase 187's REPLY-03 (D-09), not
    printed here.
-2. Both candidate mechanisms carry a measured firmware-flash figure, and the choice cites those figures.
+2. All three candidate mechanisms carry a firmware-flash figure — M1 a measured one, M2 and M3 structural zeros
+   stated with the reason the zero is structural — and the record states the grounds the choice was actually
+   made on. **AMENDED by Phase 183 alongside criterion 1 (D-08):** the original wording said "both" of two
+   mechanisms and that the choice cites those figures. Pricing found no flash cliff (M1 is +12 B on every
+   target), so the figures did not decide it; M3 was chosen on D-02 grounds — M1 and M2 both fire only after
+   `Connecting... OK`, and a pre-connect refusal was the requirement. The measurement is not dropped, it is
+   simply not the deciding evidence, and `183-01-SUMMARY.md` says so on the record.
 3. `configure_flash_5v_page`'s unreachable `CMD_ERASE` arm is removed, or kept with the reason recorded —
    the phase record states which and why.
 4. The classification question has a datasheet-grounded answer; if it changes anything, the
