@@ -435,8 +435,8 @@ Plans:
 
 **Wave 2** *(each gated on its own wave-1 slice)*
 
-- [ ] 185-02-PLAN.md — CLAIM-04, CLAIM-05 (D-10, D-11, D-12): criterion 1's independent backgrounded `--rebuild` confirmation with its exit code classified against five named shapes, and the D-12 orphan premise re-measured brace-aware before any deletion is acted on
-- [ ] 185-04-PLAN.md — CLAIM-06, CLAIM-07 (D-07, D-13): `_is_interactive` deleted with all three dependents in one commit — including the `tools/` module-docstring site no requirement named — the subset rationale repaired by name substitution, the `build_db.py` line-number citation replaced by symbol-and-scope, and the app gate sweep on py3.11
+- [x] 185-02-PLAN.md — CLAIM-04, CLAIM-05 (D-10, D-11, D-12): criterion 1's independent backgrounded `--rebuild` confirmation with its exit code classified against five named shapes, and the D-12 orphan premise re-measured brace-aware before any deletion is acted on
+- [x] 185-04-PLAN.md — CLAIM-06, CLAIM-07 (D-07, D-13): `_is_interactive` deleted with all three dependents in one commit — including the `tools/` module-docstring site no requirement named — the subset rationale repaired by name substitution, the `build_db.py` line-number citation replaced by symbol-and-scope, and the app gate sweep on py3.11
 
 **Wave 3** *(meta repo — the folded sync-script todo, ordered after the firmware builds it would perturb)*
 
