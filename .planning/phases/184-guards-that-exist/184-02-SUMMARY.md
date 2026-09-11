@@ -163,6 +163,61 @@ None - no external service configuration required.
 - All plan-level `<verify>` commands re-run above (grep counts, diffstat, `pio test -e native -f 'native/avr/test_dispatch'`) — all PASS.
 - All `<acceptance_criteria>` for both tasks re-checked above — all PASS.
 
+## Post-Execution Correction — a must-have premise is false (recorded by the phase orchestrator)
+
+Found while executing `184-03`, after this plan had already committed and returned. Recorded
+here rather than silently, because a false claim left standing in a claim-hygiene phase's own
+record is the exact failure mode this phase exists to close.
+
+**The claim.** This plan's must-have truth 3 reads, in part:
+
+> "...and none refers to a `claims region` — **the file carries no claims-region delimiter of
+> any kind**, so such a reference would name a boundary that does not exist (D-09)."
+
+**The bolded clause is false, and was false before this phase started.**
+`firestarter/PROTOCOLS.md` carries a delimiter pair and still does:
+
+```
+$ /usr/bin/grep -n "firestarter-claims" /workspaces/firestarter/PROTOCOLS.md
+53:<!-- firestarter-claims-begin -->
+82:<!-- firestarter-claims-end -->
+```
+
+They predate the phase — `git show e44ba6f:PROTOCOLS.md` has them at lines 52 and 81, shifted by
+one only because this plan's replacement paragraph is one line longer than the three lines it
+replaced. The now-deleted `tools/wiki/dispatch_mirror.py` parsed that pair structurally; it is
+recoverable with `git show 5426d7ef^:tools/wiki/dispatch_mirror.py` in the meta repository. The
+error is inherited from `184-CONTEXT.md` D-08 item 1, which states the same thing; `184-03`
+independently found it, declined to carry it forward, and corrected the ground in
+`.planning/notes/dispatch-invariant-retirement-verdict.md`.
+
+**What IS satisfied.** The must-have's two operative requirements both hold, and the executor
+verified both:
+
+- no surviving sentence instructs a reader to keep the table shape intact for a tool — the
+  "Keep its table shape intact when editing." sentence was deleted with the paragraph;
+- no surviving sentence refers to a "claims region" — `grep -ci 'claims region'` returns 0.
+
+Only the trailing factual justification about the file's markup is wrong.
+
+**Disposition: the delimiters are LEFT IN PLACE, deliberately.** Deleting them was considered
+and rejected:
+
+- They name no checker, so they are outside CLAIM-01, whose subject is a file *naming*
+  `tools/wiki/dispatch_mirror.py`. `git grep -l "firestarter-claims"` outside `.planning/`
+  returns `firestarter/PROTOCOLS.md` alone — no tool, in any of the three repositories, reads
+  them.
+- They declare no guard to a human reader — they are inert HTML comments carrying no prose
+  claim — so they are outside the phase Goal's second half as well.
+- `184-05`'s prohibitions bar widening CLAIM-01 into a general retired-checker sweep. Removing
+  an orphaned marker because its consumer is gone is exactly that widening.
+
+The honest statement of the end state, superseding the must-have's wording: *`PROTOCOLS.md` no
+longer claims anything machine-reads it, and its orphaned `firestarter-claims-*` delimiter pair
+is left standing as inert markup, outside this phase's scope.*
+
+No source file was changed by this correction; it edits this SUMMARY only.
+
 ---
 *Phase: 184-guards-that-exist*
 *Completed: 2026-09-11*
