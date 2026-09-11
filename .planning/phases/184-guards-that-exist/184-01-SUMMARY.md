@@ -270,6 +270,15 @@ None - no external service configuration required.
   in this phase, not this one.
 - No blockers for `184-02`..`184-05`.
 
+## Self-Check: PASSED
+
+- `firestarter_app/tests/test_scan_paths_resolve.py` and `firestarter_app/tests/scan_paths.py` exist on disk: FOUND
+- Commit `ae92dd1` (Task 1, app repo): FOUND
+- Commit `c511589` (Task 3, app repo): FOUND
+- Commit `f37b1050` (meta repo, SUMMARY + gitlink): FOUND
+- Gitlink `firestarter_app` in meta HEAD points at `c511589a6c45180e51570ede0aa47f0e7e3263a0`: matches
+- Final re-run of `tests/test_scan_paths_resolve.py`: `5 passed`
+
 ---
 *Phase: 184-guards-that-exist*
 *Completed: 2026-09-11*
