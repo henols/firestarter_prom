@@ -440,7 +440,7 @@ Plans:
 
 **Wave 3** *(meta repo — the folded sync-script todo, ordered after the firmware builds it would perturb)*
 
-- [ ] 185-05-PLAN.md — CLAIM-08 (D-14): both self-comparing `diff` verifications in `sync_to_subrepos.sh` replaced by generate-to-temp/install/verify-the-install with an `else` and a non-zero exit, proven by a planted break OBSERVED red and a paired green after restore by explicit path
+- [x] 185-05-PLAN.md — CLAIM-08 (D-14): both self-comparing `diff` verifications in `sync_to_subrepos.sh` replaced by generate-to-temp/install/verify-the-install with an `else` and a non-zero exit, proven by a planted break OBSERVED red and a paired green after restore by explicit path
 
 **Wave 4** *(the record close-out)*
 
