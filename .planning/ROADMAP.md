@@ -362,6 +362,17 @@ going unnoticed.
 **Success criteria**:
 
 1. `git grep -n 'dispatch_mirror' -- . ':(exclude).planning'` returns nothing in all three repositories.
+   **AMENDED by Phase 184 alongside the code (D-03):** the operative check is that no file in any of the
+   three repositories names `tools/wiki/dispatch_mirror.py` as a live guard, verified by
+   `git grep -n 'tools/wiki/dispatch_mirror' -- . ':(exclude).planning'` returning nothing in all three. The
+   original bare-substring command could not be used as written: `dispatch_mirror` collides across two
+   unrelated deletions — `tools/wiki/dispatch_mirror.py` (meta repo, deleted 2026-09-02 by `5426d7ef`) and
+   `tests/test_dispatch_mirror.py` (app repo, deleted 2026-08-31 by `39ea3e8`). Three citations of the SECOND
+   survive deliberately by D-02 — one in `tools/check_no_exists_proxy.py`, two in
+   `tests/fixtures/planted_no_exists_proxy.py` — each now naming its own deletion, because the module name is
+   the only record of why the live lint guards the compound `not (a.exists() and b.exists())` shape.
+   CLAIM-01's own words are the narrower and correct target: it forbids naming `tools/wiki/dispatch_mirror.py`
+   as a live guard, not any occurrence of the substring.
 2. A test fails when a `ScanPathEntry` names a guard file that is absent — proven by planting one, observed
    red, then removed.
 3. The two orphaned `planted_dispatch_*` fixtures are deleted or re-pointed at a consumer that exists.
