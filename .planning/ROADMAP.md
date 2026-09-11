@@ -6887,6 +6887,82 @@ this item's reachability, though not the layer disagreement itself.
 input, and a CLI-level test showing that the operator sees a message naming missing bus evidence
 rather than a JP5/A19 hazard.
 
+### Phase 999.63: Software chip-erase for the `0x05` family (BACKLOG — filed 2026-09-11 during v1.37 Phase 183)
+
+**Goal:** Implement a firmware chip-erase for the flash4 (`algorithm 5`) family, using the
+`0x0D` family's `eeprom28c_erase_execute` (AN-0544B six-byte software chip erase, 0 B RAM via
+inline literal writes) as the template.
+
+A NEW FIRMWARE CAPABILITY, excluded from v1.37 by the milestone boundary. `183-02`'s SAFE-09
+verdict confirmed the `0x05` silicon documents its own six-byte software chip-erase sequence
+(`{0x5555,0xAA} {0x2AAA,0x55} {0x5555,0x80} {0x5555,0xAA} {0x2AAA,0x55} {0x5555,0x10}` — the same
+`FLASH_ERASE` array already present in `firestarter/include/flash_utils.h:34-41`), with a 50 ms
+fast chip-erase. Any future `0x05` chip-erase implementation must carry the W29C020C datasheet's
+boot-block caveat **verbatim in substance**: once the boot-block programming lockout feature is
+activated, the chip-erase function is disabled — so the two 8 KB boot blocks need explicit
+handling, not a bare replay of the six-cycle command.
+
+**Shipping this REVERSES SAFE-06's refusal for this family and therefore needs an explicit
+operator scope decision, not a quiet follow-on** — SAFE-06/`flash4_erase_gate` exists specifically
+because the `0x05` path was decided not to erase; building this capability is a reversal of that
+decision, not a bugfix.
+
+Cite `.planning/notes/ae29f2008-classification-verdict.md` for the full evidence chain.
+
+### Phase 999.64: Generalize the erase refusal beyond flash4 (BACKLOG — filed 2026-09-11 during v1.37 Phase 183)
+
+**Goal:** Extend the flash4-scoped erase refusal (SAFE-06/`flash4_erase_gate`, Phase 183) to every
+part lacking `FLAG_CAN_ERASE`, not flash4 (`0x05`) alone.
+
+`eprom_erase`'s bare `Not supported` (`firestarter/src/eprom_operations.cpp`) also fires for
+UV-EPROM, SRAM and `0x0D` electrical-type outliers — every part without `FLAG_CAN_ERASE`. D-05
+scoped Phase 183 to flash4 only; this item is the other half.
+
+The design is already done and must be named: reuse `chip_test.py`'s existing per-family reason
+strings so `erase` and `dev test` say the same thing about the same chip, rather than inventing a
+second explanation for the same fact.
+
+Note that Phase 183's `flash4_erase_gate` deliberately **fails OPEN** on an unknown part —
+precisely so that widening the refusal to other families is a deliberate decision made here, not
+an accident inherited from a broader predicate.
+
+### Phase 999.65: `firestarter info` labels an elevated VPP on 5V-only parts (BACKLOG — filed 2026-09-11 during v1.37 Phase 183)
+
+**Goal:** Make `firestarter info`'s VPP display honor the same WP-pin-voltage carve-out
+`check_dispatch.py` already records, instead of printing a non-zero "VPP" for parts whose elevated
+voltage is not a programming VPP.
+
+Measured this week (Phase 183, SAFE-09 D-23 investigation): 301 rows across three 5V-only families
+print a non-zero VPP because the display gates in `firestarter_app/firestarter/eprom_info.py:396`
+and `firestarter_app/firestarter/ic_layout.py:573` carry no equivalent of
+`firestarter_app/tools/check_dispatch.py`'s WP-pin carve-out (`configure_flash_5v_page`'s
+`(0, 6000)` VPP-invariant exemption, deliberately excluded from `_DB_CHECKED_VPP_INVARIANTS`
+with the reason recorded beside it), which already records the correct reading.
+
+**State plainly: this is NOT a `build_db.py` correction** — the `electrical.vpp_mv` decode is
+faithful to the upstream `infoic.xml` `voltages` field; the value is correct data, only the
+display label is wrong. Activation decision D-6 (corrections land in `build_db.py`, never in
+`chip_database.json`) therefore does not apply to this item.
+
+Adjacent observation, from the same investigation: the same `info` output says `Can be erased:
+yes (electrically erasable)` for a part the tool then refuses to erase, because that string is
+derived from `electrical.type` (`ic_layout.py:555-559`) and not from the protocol. That is a
+second contributor to gh#62 reading as a malfunction, alongside the bare `Not supported` Phase 183
+fixed for flash4 specifically.
+
+Cite `.planning/notes/ae29f2008-classification-verdict.md` § D-23 for the full trace.
+
+### Phase 999.66: `PROTOCOLS.md` cites datasheet files that exist in neither repository (BACKLOG — filed 2026-09-11 during v1.37 Phase 183)
+
+**Goal:** Either add the missing datasheet files `PROTOCOLS.md` references, or amend the document
+to stop citing paths that do not exist.
+
+`firestarter/doc/PROTOCOLS.md`'s `0x05` section points at
+`datasheets/0x05-FLASH-AMD-STD/*.pdf`; no such directory exists in `firestarter/` or
+`firestarter_app/`. A CLAIM-class finding (a document naming a file that is not there), adjacent
+to CLAIM-09 but outside SAFE-08's scope — reported by Phase 183's research pass rather than fixed,
+since fixing it is outside the flash4-erase-refusal scope this phase was chartered for.
+
 ---
 
 ## v1.20 — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis (SHIPPED 2026-07-02)
