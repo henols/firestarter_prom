@@ -5,8 +5,8 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 184
 current_phase_name: Guards That Exist
 status: planning
-stopped_at: Phase 183 complete, ready to plan Phase 184
-last_updated: "2026-09-11T10:54:54.947Z"
+stopped_at: Phase 184 context gathered
+last_updated: "2026-09-11T11:54:28.269Z"
 last_activity: 2026-09-11
 last_activity_desc: "Phase 183 complete (2026-09-11), verified 18/18, transitioned to Phase 184. SAFE-06: host pre-connect flash4 erase refusal shipped in firestarter_app (flash4_erase_gate.py, fails OPEN, one line naming the part, exit 1 or 0 under --ignore-unsupported); the cause and the alternative were deliberately NOT printed and are relocated to Phase 187's REPLY-03 - SAFE-06, the phase Goal and criteria 1 and 2 were all amended on the record to say so. SAFE-07: three mechanisms priced, M1 measured +12 B flash on every AVR target, M2/M3 structural zeros; M3 chosen on D-02 pre-connect grounds, NOT on the flash figures. SAFE-08: the 12 V bulk-erase path deleted at all four sites in flash_5v_page.cpp with the eprom_erase backstop byte-unchanged; native case count 184 -> 185 on both CI envs; measured shrink uno -234 B, uno328pb -238 B, leonardo -284 B, reproduced independently by the orchestrator. size_baseline.json deliberately NOT re-recorded - the default-mode gate is RED and --policy merge05 is GREEN with no new exemption, both of which are Phase 185's inputs. SAFE-09: equivalence-based AE29F2008 verdict recorded (classification CORRECT and the gh#62 reporter also correct); chip_database.json byte-unchanged, no build_db.py rule; backlog 999.63-999.66 filed. Code review 0 critical / 3 warning / 2 info: WR-01 (a false universal claim about CTRL_VPE_ENABLE) fixed, WR-02 kept by adjudication, WR-03 deferred because removing the unused include would invalidate the just-recorded flash figures."
 progress:
@@ -3356,8 +3356,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-11T09:19:15.954Z
-**Stopped at:** Phase 183 complete, ready to plan Phase 184
+**Last session:** 2026-09-11T11:54:27.524Z
+**Stopped at:** Phase 184 context gathered
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
@@ -3420,7 +3420,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/184-guards-that-exist/184-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
