@@ -237,7 +237,7 @@ of use.
 - [x] **Phase 183: Flash4 Erase Refusal & the AE29F2008 Classification** - Make a correct refusal name the part instead of saying only `Not supported`, and answer the reason to the reporter rather than printing it, so nobody is taught to route around it with a forged identity. (completed 2026-09-11)
 - [x] **Phase 184: Guards That Exist** - Stop three repositories naming a checker that was deleted, and make a guard that does not exist impossible to declare silently. (completed 2026-09-11)
 - [x] **Phase 185: Records and Checks That Are Current** - The size baseline, the citation, the dead symbol and the red workflow — four records that describe a tree that no longer exists. (completed 2026-09-11)
-- [ ] **Phase 186: The Python Floor, Before the EOL** - Settle the advertised floor against the type-checker while there is still slack before 2026-10-31.
+- [x] **Phase 186: The Python Floor, Before the EOL** - Settle the advertised floor against the type-checker while there is still slack before 2026-10-31. (completed 2026-09-12)
 - [ ] **Phase 187: Answered Reports** *(runs last — describes what shipped)* - Reply to every reporter this milestone owes, ask for the re-runs that would settle the disputes, and close nothing unilaterally.
 
 ## Phase Details
@@ -466,7 +466,7 @@ rather than under it.
 
 **Depends on:** — (independent; the only phase with an external deadline)
 
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1**
