@@ -508,17 +508,52 @@ is closed on our own reading.
 
 Plans:
 
+**Wave 1**
+
 - [ ] 187-01-PLAN.md — Pre-flight: working-tree hygiene and the five D-07 record repairs, plus REPLY-01's D-11 amendment
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 187-02-PLAN.md — Tracer: the meta merge to `beta`, one pinned permalink SHA, both linked documents proven to resolve at it
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 187-03-PLAN.md — App merge and cut; the pre-release version read from the API and confirmed on PyPI
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 187-04-PLAN.md — Firmware merge and cut via `beta-build.yml`; the pre-release version read from the API
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 187-05-PLAN.md — Draft gh#60 and gh#62 bodies, capture the pre-post issue state, resolve every link
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 187-06-PLAN.md — Draft gh#23, gh#28 and gh#31 bodies with both caveats and the re-run asks
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 187-07-PLAN.md — Post REPLY-04 to gh#60, label, close as done (operator-gated)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 187-08-PLAN.md — Post REPLY-03 to gh#62, label, leave open (operator-gated)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 187-09-PLAN.md — Post REPLY-01 to gh#23, add `cause:rig` and `needs:report`, leave open (operator-gated)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 187-10-PLAN.md — Post REPLY-02 to gh#28, add `needs:report`, withhold `fix:released`, leave open (operator-gated)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 187-11-PLAN.md — Post REPLY-02 to gh#31, add `needs:report`, withhold `fix:released`, leave open (operator-gated)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 187-12-PLAN.md — After-state reconciliation, no-collateral-post proof, the D-09 ledger, and the merge-record tail
 
 ## v1.36 — `dev test` Fidelity (CLOSED 2026-09-09 — 46/46 requirements; merged to `beta` in all three repos, NOT tagged by operator decision)

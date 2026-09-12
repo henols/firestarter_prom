@@ -4,15 +4,15 @@ milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 187
 current_phase_name: Answered Reports
-status: planning
-stopped_at: Phase 187 context gathered
-last_updated: "2026-09-12T10:28:29.015Z"
+status: planned
+stopped_at: "Phase 187 planned — 12 plans"
+last_updated: "2026-09-12T11:45:26.144Z"
 last_activity: 2026-09-12
-last_activity_desc: Phase 187 context gathered — 187-CONTEXT.md written; 17 decisions locked, including that 187 owns the v1.37 ship (three PRs to beta, two cuts) before any reply is posted, and that REPLY-07 was already discharged by Phase 173's 2026-09-02 comment on gh#9
+last_activity_desc: "Phase 187 planned — 12 plans across 12 sequential waves; research re-measured the release seam and found five drifts from CONTEXT.md (firmware cuts via beta-build.yml not beta-release.yml; gh#65/#66 no longer unanswered; origin/beta carries a 76-line stub of jumper-display-ground-truth.md so every permalink must pin a post-merge SHA; a dirty working tree incl. the known sub_repos prune; zero branch rules on beta). Plan checker PASSED with 0 blockers. 7/7 requirements and 17/17 decisions covered; 8 blocking-human gates, one per public act, per D-16."
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 28
+  total_plans: 40
   completed_plans: 28
   percent: 83
 ---
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 186 — The Python Floor, Before the EOL
+**Current focus:** Phase 187 — Answered Reports
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 187 — Answered Reports
+Phase: 187 (Answered Reports) — READY TO EXECUTE
 Plan: Not started
-Status: Context gathered — ready to plan
-Last activity: 2026-09-12 — Phase 187 context gathered; 187-CONTEXT.md committed (758b4f82). Locked: 187 owns the v1.37 ship (PRs to beta in all three repos, two cuts, versions read after the fact, no tag) before any reply posts; REPLY-07 discharged by Phase 173's gh#9 comment issuecomment-5511487546 and five stale live records repaired; REPLY-01 amended because the status axis does not fire on a VPP wiring fault; gh#60 closes, gh#62 and gh#23/#28/#31 stay open.
+Status: Planned — 12 plans, ready to execute
+Last activity: 2026-09-12 — Phase 187 planned; 12 plans committed (d60137a4). Research re-measured the release seam: app 33 ahead of origin/beta, firmware 9, meta 174, no v1.37 PR open anywhere; five drifts from CONTEXT.md recorded in 187-RESEARCH.md § Drift. Checker passed 0 blockers. Phase must NOT be dispatched under --auto/--chain (D-16).
 
 ## Roadmap Summary (v1.37)
 
