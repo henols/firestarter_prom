@@ -4,11 +4,11 @@ milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 187
 current_phase_name: Answered Reports
-status: planned
-stopped_at: "Phase 187 planned — 12 plans"
-last_updated: "2026-09-12T11:45:26.144Z"
+status: executing
+stopped_at: "Completed 187-01-PLAN.md"
+last_updated: "2026-09-12T13:27:43.525Z"
 last_activity: 2026-09-12
-last_activity_desc: "Phase 187 planned — 12 plans across 12 sequential waves; research re-measured the release seam and found five drifts from CONTEXT.md (firmware cuts via beta-build.yml not beta-release.yml; gh#65/#66 no longer unanswered; origin/beta carries a 76-line stub of jumper-display-ground-truth.md so every permalink must pin a post-merge SHA; a dirty working tree incl. the known sub_repos prune; zero branch rules on beta). Plan checker PASSED with 0 blockers. 7/7 requirements and 17/17 decisions covered; 8 blocking-human gates, one per public act, per D-16."
+last_activity_desc: "Phase 187 execution started (wave 1 of 12). Planning record: 12 plans across 12 sequential waves; research re-measured the release seam and found five drifts from CONTEXT.md (firmware cuts via beta-build.yml not beta-release.yml; gh#65/#66 no longer unanswered; origin/beta carries a 76-line stub of jumper-display-ground-truth.md so every permalink must pin a post-merge SHA; a dirty working tree incl. the known sub_repos prune; zero branch rules on beta). Plan checker PASSED with 0 blockers. 7/7 requirements and 17/17 decisions covered; 8 blocking-human gates, one per public act, per D-16."
 progress:
   total_phases: 6
   completed_phases: 5
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 187 (Answered Reports) — READY TO EXECUTE
-Plan: Not started
-Status: Planned — 12 plans, ready to execute
-Last activity: 2026-09-12 — Phase 187 planned; 12 plans committed (d60137a4). Research re-measured the release seam: app 33 ahead of origin/beta, firmware 9, meta 174, no v1.37 PR open anywhere; five drifts from CONTEXT.md recorded in 187-RESEARCH.md § Drift. Checker passed 0 blockers. Phase must NOT be dispatched under --auto/--chain (D-16).
+Phase: 187 (Answered Reports) — EXECUTING
+Plan: 2 of 12
+Status: Executing Phase 187 — plan 187-01 complete
+Last activity: 2026-09-12 — Phase 187 execution started (wave 1 of 12). Plans committed at d60137a4; research re-measured the release seam: app 33 ahead of origin/beta, firmware 9, meta 174, no v1.37 PR open anywhere; five drifts from CONTEXT.md recorded in 187-RESEARCH.md § Drift. Checker passed 0 blockers. Phase must NOT be dispatched under --auto/--chain (D-16).
 
 ## Roadmap Summary (v1.37)
 
@@ -2946,6 +2946,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 186]: 186-03: FLOOR-01 and FLOOR-02 marked Complete in REQUIREMENTS.md (this is their last contributing plan); FLOOR-03 left Pending per plan instruction -- it spans into 186-04, which creates the rationale note FLOOR-03 requires
 - [Phase 186]: 186-04: Recorded the Python-floor rationale in .planning/notes/python-floor-decision.md (decision, three rejected alternatives, transcribed evidence, standing rule, enforcing gate, successor, named residual gap), stating the consumer impact as measured -- a silent pin on 3.9/3.10, not a pip refusal -- per D-12's correction; corrected the three meta-repo records still stating the old floor (STACK.md, STRUCTURE.md, CONVENTIONS.md); FLOOR-03 marked Complete (last contributing plan)
 - [Phase 186]: 186-04: Filed backlog 999.67 carrying 2027-10-31 (Python 3.11's EOL), repeating Phase 131 D-13's mechanism so the next floor move arrives as tracked work; advanced the meta repo's firestarter_app gitlink to 612aa69, once, last, after every app-repo commit and the CI-REPLICA: PASS proof
+- [Phase 187]: Repaired the five D-07 live sites (3 in ROADMAP.md, 2 in REQUIREMENTS.md) claiming gh#9 owes a closing reply, citing the pre-existing comment 5511487546; left the two explicitly-excluded ROADMAP sites and all .planning/milestones/ citations untouched.
+- [Phase 187]: Amended REPLY-01 wording per D-11 to state the chip_test.py:2599 status-axis measurement honestly, without flipping its checkbox — only REPLY-07 is discharged by this plan.
 
 ## Performance Metrics
 
@@ -3361,11 +3363,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 183 P04 | 55min | 3 tasks | 2 files |
 | Phase 186 P03 | 34min | 3 tasks | 3 files |
 | Phase 186 P04 | 24min | 3 tasks | 5 files |
+| Phase 187 P01 | 20 min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-09-12T10:28:28.883Z
-**Stopped at:** Phase 187 context gathered
+**Last session:** 2026-09-12T13:27:43.331Z
+**Stopped at:** Completed 187-01-PLAN.md
 **Was (superseded, retained for continuity):** Completed 186-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 186 context gathered
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
@@ -3430,7 +3433,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/187-answered-reports/187-CONTEXT.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing

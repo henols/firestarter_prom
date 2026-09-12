@@ -514,7 +514,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 187-01-PLAN.md — Pre-flight: working-tree hygiene and the five D-07 record repairs, plus REPLY-01's D-11 amendment
+- [x] 187-01-PLAN.md — Pre-flight: working-tree hygiene and the five D-07 record repairs, plus REPLY-01's D-11 amendment
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
