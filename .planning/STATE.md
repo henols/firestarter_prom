@@ -6,7 +6,7 @@ current_phase: 186
 current_phase_name: The Python Floor, Before the EOL
 status: executing
 stopped_at: Completed 186-01-PLAN.md
-last_updated: "2026-09-12T06:37:16.051Z"
+last_updated: "2026-09-12T06:38:08.727Z"
 last_activity: 2026-09-12
 last_activity_desc: Completed 186-01-PLAN.md — Python floor raised to 3.11
 progress:
@@ -2939,6 +2939,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 182]: 182-06 assumption A1 measured CONFIRMED — VPE rail read 4.9V at J6 pin 4 (regulator disabled, referenced to J5 pin 1 GND, Rev 2.2 board idle), decisively below the ~6V logic-level threshold. DAMAGE_CAPABLE_OPERATIONS stays {write, erase}; no firestarter_app or firestarter code changed. Rev 2.2's JP4 PROBE-PENDING cell closed by continuity probe: the socket-facing pole reaches socket pin 3, the periphery-facing pole reaches socket pin 25. D-14's retraction survived its bench falsification (hw_revision's physical field read Rev 2.0-class at every JP4 position), with the limit that the firmware reports a bucket, not the raw ADC count. JP5 confirmed intact (bridged, not cut) on the operator's board. Rev 2.0/2.1 and Rev 0/1 PROBE-PENDING cells remain open — those boards were not on the bench this session. SAFE-03 marked Complete in REQUIREMENTS.md.
 - [Phase 183]: 183-03: flash4_erase_gate.py wired as a pure, import-pure, fail-open predicate before jp5_gate.confirm_or_refuse in cli_handlers.erase; --ignore-unsupported changes only the exit code.
 - [Phase 183]: 183-04: Deleted flash4's 12V bulk-erase routine at all four sites (flash_5v_page_erase_execute definition + forward declaration, configure_flash_5v_page's CMD_ERASE arm, flash_5v_page_write_init's FLAG_CAN_ERASE block); a native case proves, observed RED before the deletion and GREEN after, that flash_5v_page_write_init energises no VPP rail even with FLAG_CAN_ERASE wrongly set.
+- [Phase 186 Plan 01]: Checkpoint (D-01 one-way-door confirmation) answered by the operator as proceed-as-locked -- raise the Python floor to 3.11 across all four statements — The operator was shown the full C-5 correction (an unpinned `pip install firestarter` on 3.9/3.10 silently pins to the last release advertising the old floor rather than erroring, contradicting D-12's assumption) alongside all three options and their consequences before answering. C-5 is recorded as a wording correction for plan 186-04's release-note fragment, not a scope change; nothing about it was written into source. Option 2 (consumer notice / CHANGELOG.md) was not selected.
 
 ## Performance Metrics
 
@@ -3356,6 +3357,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 **Last session:** 2026-09-12T06:37:15.783Z
 **Stopped at:** Completed 186-01-PLAN.md
+**Was (superseded, retained for continuity):** Phase 186 context gathered
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
