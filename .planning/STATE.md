@@ -5,15 +5,15 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 186
 current_phase_name: The Python Floor, Before the EOL
 status: executing
-stopped_at: Completed 186-01-PLAN.md
-last_updated: "2026-09-12T06:38:08.727Z"
+stopped_at: Completed 186-02-PLAN.md
+last_updated: "2026-09-12T07:13:34.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Completed 186-01-PLAN.md — Python floor raised to 3.11
+last_activity_desc: Completed 186-02-PLAN.md — py311 ruff sweep absorbed (D-09), CAP-03 regex repaired
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 28
-  completed_plans: 25
+  completed_plans: 26
   percent: 67
 ---
 
@@ -2940,11 +2940,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 183]: 183-03: flash4_erase_gate.py wired as a pure, import-pure, fail-open predicate before jp5_gate.confirm_or_refuse in cli_handlers.erase; --ignore-unsupported changes only the exit code.
 - [Phase 183]: 183-04: Deleted flash4's 12V bulk-erase routine at all four sites (flash_5v_page_erase_execute definition + forward declaration, configure_flash_5v_page's CMD_ERASE arm, flash_5v_page_write_init's FLAG_CAN_ERASE block); a native case proves, observed RED before the deletion and GREEN after, that flash_5v_page_write_init energises no VPP rail even with FLAG_CAN_ERASE wrongly set.
 - [Phase 186 Plan 01]: Checkpoint (D-01 one-way-door confirmation) answered by the operator as proceed-as-locked -- raise the Python floor to 3.11 across all four statements — The operator was shown the full C-5 correction (an unpinned `pip install firestarter` on 3.9/3.10 silently pins to the last release advertising the old floor rather than erroring, contradicting D-12's assumption) alongside all three options and their consequences before answering. C-5 is recorded as a wording correction for plan 186-04's release-note fragment, not a scope change; nothing about it was written into source. Option 2 (consumer notice / CHANGELOG.md) was not selected.
+- [Phase 186 Plan 02]: The 182-finding py311 ruff sweep (D-09) was absorbed as its own commit, separate from 186-01's config change, exactly as measured in RESEARCH.md: mechanical `--fix` (190 fixed, 3 remaining), three UP045 findings in `eprom_info.py`'s `prepare_detailed_eprom_data` signature hand-collapsed to `dict | None` (orphaned inner comments dropped, none replaced — RESEARCH's exact three lines), a second `--fix` pass for the resulting F401, then `ruff format` for the four files it wants to unwrap. `--unsafe-fixes` was never invoked, per the plan's standing prohibition (it would have deleted `main.py`'s runtime-guard `noqa: UP036`). mypy watermark stayed at 35/35, confirming the ordering constraint (config-before-sweep) held. The one gate the sweep reds — `test_cap03_ack_layout_parity.py`'s `_DECODE_ID_FRAME_DEF_RE` pinning the pre-sweep `Optional[LogMessage]` spelling — was predicted (6 legs) before being observed (exactly 6, exact names matched), then repaired in a separate commit with a one-line regex edit matching only the new `LogMessage | None` form (not both spellings, since the old form can no longer reappear without tripping UP045). Full suite back at 2359 passed / 0 failed, coverage 84.76% >= 70% floor. FLOOR-01 deliberately left Pending in REQUIREMENTS.md — it spans 186-01/02/03 and this is only the second contributing plan.
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
+| Phase 186 P02 | 2 tasks | ~24min | 182-finding py311 ruff sweep absorbed (D-09), 16 files, 2 commits; CAP-03 regex repaired, 2359 passed / 0 failed, coverage 84.76% |
 | Phase 182 P06 | 1 task (Task 3 only) | ~15min | A1 CONFIRMED at 4.9V, gate scope unchanged, 2 record files folded |
 | Phase 154 P06 | 2 tasks | ~35min | 1 source file swept (34 comment blocks, 33->0 hits), 4 meta files |
 | Phase 154 P11 | 3 tasks | ~115min | 26 app-test files (139->84 hits, 63 line edits) + the D7 gate retarget; 1976 passed / 0 failed in a clean clone |
@@ -3355,8 +3357,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-12T06:37:15.783Z
-**Stopped at:** Completed 186-01-PLAN.md
+**Last session:** 2026-09-12T07:13:34.000Z
+**Stopped at:** Completed 186-02-PLAN.md
+**Was (superseded, retained for continuity):** Completed 186-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 186 context gathered
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
