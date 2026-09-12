@@ -5,10 +5,10 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 187
 current_phase_name: Answered Reports
 status: planning
-stopped_at: Phase 186 complete, ready to plan Phase 187
-last_updated: "2026-09-12T08:55:37.156Z"
+stopped_at: Phase 187 context gathered
+last_updated: "2026-09-12T10:28:29.015Z"
 last_activity: 2026-09-12
-last_activity_desc: Phase 186 complete, transitioned to Phase 187
+last_activity_desc: Phase 187 context gathered — 187-CONTEXT.md written; 17 decisions locked, including that 187 owns the v1.37 ship (three PRs to beta, two cuts) before any reply is posted, and that REPLY-07 was already discharged by Phase 173's 2026-09-02 comment on gh#9
 progress:
   total_phases: 6
   completed_phases: 5
@@ -237,8 +237,8 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 187 — Answered Reports
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-12 — Phase 186 complete, transitioned to Phase 187
+Status: Context gathered — ready to plan
+Last activity: 2026-09-12 — Phase 187 context gathered; 187-CONTEXT.md committed (758b4f82). Locked: 187 owns the v1.37 ship (PRs to beta in all three repos, two cuts, versions read after the fact, no tag) before any reply posts; REPLY-07 discharged by Phase 173's gh#9 comment issuecomment-5511487546 and five stale live records repaired; REPLY-01 amended because the status axis does not fire on a VPP wiring fault; gh#60 closes, gh#62 and gh#23/#28/#31 stay open.
 
 ## Roadmap Summary (v1.37)
 
@@ -3364,8 +3364,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-12T08:23:00.692Z
-**Stopped at:** Phase 186 complete, ready to plan Phase 187
+**Last session:** 2026-09-12T10:28:28.883Z
+**Stopped at:** Phase 187 context gathered
 **Was (superseded, retained for continuity):** Completed 186-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 186 context gathered
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
@@ -3430,7 +3430,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/187-answered-reports/187-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
