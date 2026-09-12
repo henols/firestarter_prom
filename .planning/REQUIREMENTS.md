@@ -102,7 +102,17 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
 
 - [ ] **REPLY-01**: gh#23 receives a reply naming what v1.36's fault-attribution work changed and what a
       fresh run would now show, and acknowledging that the reporter's diagnosis — a rig fault reported as a
-      chip verdict — was correct.
+      chip verdict — was correct. **AMENDED by Phase 187 (D-11):** the literal wording above, read as "a
+      fresh run would now show" a passing result, would be an overclaim. Measured: `chip_test.py:2599` fires
+      the status axis only on `(SerialError, HardwareOperationError)`; gh#23's fault — VPP not hooked up —
+      raises neither, and produces BAD data instead (`diagnostic_report.py:56-68`: "a rig with VPP unhooked
+      still reads a healthy rail"). A fresh run today would still report `write BAD, verify BAD` and still
+      file as `[dev test] w27e257 — FAIL`. v1.36 did not and cannot make the tool see an unhooked VPP; what
+      did change is fault attribution and reporting: Phase 181 deleted the misleading `voltage.vpp_mv` /
+      `vpe_mv` from the report, and Phase 178 added `rail_reading_disclosure`, naming the exact trap the
+      reporter hit. The reply concedes the reporter's diagnosis in full and states this limit plainly, but
+      does not imply a PASS the tracker does not carry. Precedent for amending in the same phase as the
+      work: Phase 183's D-08, Phase 184's D-03, Phase 185's D-02.
 - [ ] **REPLY-02**: gh#28 and gh#31 each receive a reply naming the v1.36 changes that bear on them and
       requesting an attributable re-run.
 - [ ] **REPLY-03**: gh#62 receives the answer this milestone produces: why the refusal exists, what changed,
@@ -115,8 +125,16 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
       A reporter must not read an intended re-key as a new defect.
 - [ ] **REPLY-06**: No issue is closed on our own reading. gh#23, #28 and #31 stay open pending the
       reporters' response; a close requires their confirmation or a superseding PASS.
-- [ ] **REPLY-07**: gh#9 (`Repository Structure and Contribution Guide`) receives a closing reply or a
+- [x] **REPLY-07**: gh#9 (`Repository Structure and Contribution Guide`) receives a closing reply or a
       close-as-done — the end-state it describes has been configured since v1.35 Phase 172.
+      **AMENDED by Phase 187 (D-06/D-07):** this requirement was already discharged when it was written.
+      Phase 173 posted an operator-approved body verbatim as `#issuecomment-5511487546` on 2026-09-02 — byte-identical to
+      `.planning/milestones/v1.35-phases/173-close-beta-cut-under-protection-close-procedure-honesty-ledg/evidence/bodies/173-gh9.md`
+      (see `173-07-SUMMARY.md:115-118`) — eight days before REPLY-07 was filed on 2026-09-10, then
+      deliberately left gh#9 open and pinned via the GraphQL `pinIssue` mutation. gh#9 stays open and pinned
+      as the deliberate configured end state; that is not an omission, and Phase 187 posts nothing new on
+      gh#9. Precedent for amending in the same phase as the work: Phase 183's D-08, Phase 184's D-03, Phase
+      185's D-02.
 
 ### CLAIM — things the repo says that are not true
 
@@ -214,7 +232,7 @@ Deferred, tracked, not in this roadmap.
 | REPLY-04 | Phase 187 | Pending |
 | REPLY-05 | Phase 187 | Pending |
 | REPLY-06 | Phase 187 | Pending |
-| REPLY-07 | Phase 187 | Pending |
+| REPLY-07 | Phase 187 | Complete — discharged by #issuecomment-5511487546 (2026-09-02, Phase 173-07); amended by D-06/D-07 (187-01) |
 
 **Coverage:**
 

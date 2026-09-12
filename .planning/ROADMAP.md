@@ -499,7 +499,11 @@ is closed on our own reading.
 2. Every reply that requests a re-run states that reports are `schema_version` 2.0 and that v1.36
    deliberately re-keyed `dedup_fingerprint`, so a non-grouping fresh run is expected.
 3. gh#23, #28 and #31 remain OPEN — no unilateral close.
-4. gh#9 carries a closing reply or is closed as done.
+4. gh#9 carries a closing reply or is closed as done. **AMENDED by Phase 187 (D-07):** this criterion is
+   already satisfied by the pre-existing comment
+   [`#issuecomment-5511487546`](https://github.com/henols/firestarter_prom/issues/9#issuecomment-5511487546)
+   (posted 2026-09-02, Phase 173-07) — gh#9 stays open and pinned, and Phase 187 posts nothing new on gh#9
+   per D-06.
 5. Every posted wording was approved by the operator first; the phase did not run under `--auto`/`--chain`.
 
 **Depends on:** Phase 182, Phase 183 (the replies describe what those shipped)
@@ -5454,9 +5458,15 @@ Consolidation & Wiki Migration**, and **[gh#6](https://github.com/henols/firesta
 fails at the version-bump step) and **999.47** (`Catalog sync check` red on `firestarter_prom`'s `main`).
 Retiring this item does **not** retire those.
 
-**Absorbed 999.16 / gh#9 remains partially owed:** [gh#9](https://github.com/henols/firestarter_prom/issues/9)
-(`Repository Structure and Contribution Guide`) is **still OPEN**, last touched 2026-09-02. The end-state it
-describes is now configured, so what it needs is a closing reply or a close-as-done, not implementation.
+**Absorbed 999.16 / gh#9 was discharged 2026-09-02:** [gh#9](https://github.com/henols/firestarter_prom/issues/9)
+(`Repository Structure and Contribution Guide`) is **still OPEN**, last touched 2026-09-02.
+**AMENDED by Phase 187 (D-07):** this heading and the two lines below it previously said the end-state gh#9
+describes "needs a closing reply or a close-as-done, not implementation." That was already false when
+REPLY-07 filed this claim on 2026-09-10: Phase 173 posted an operator-approved body verbatim as
+[`#issuecomment-5511487546`](https://github.com/henols/firestarter_prom/issues/9#issuecomment-5511487546) on
+2026-09-02, then deliberately left gh#9 open and pinned it via the GraphQL `pinIssue` mutation
+(`173-07-SUMMARY.md:115-118`). gh#9 stays open and pinned as the configured, deliberate end state — that is
+not an omission, and nothing further is owed.
 
 **Goal:** [Captured from GitHub] Make `henols/firestarter_prom` the single issue tracker (issues disabled in the app + firmware repos, both linking to it, existing open issues migrated/cross-referenced first), and put all three repos' `main` behind rulesets: no direct pushes, PR required, no force-push, no deletion, admins included absent a documented emergency bypass, required status checks + resolved conversations where applicable. Approval count may stay 0 for a single-maintainer workflow provided a PR is still mandatory.
 **Requirements:** TBD
@@ -5469,7 +5479,12 @@ describes is now configured, so what it needs is a closing reply or a close-as-d
 
 Plans:
 
-- [x] Shipped as **v1.35 Phases 172–173** (closed 2026-09-02). Residuals live on as **999.46** and **999.47**; gh#9 still owes a closing reply.
+- [x] Shipped as **v1.35 Phases 172–173** (closed 2026-09-02). Residuals live on as **999.46** and **999.47**.
+      **AMENDED by Phase 187 (D-07):** this line previously ended "gh#9 still owes a closing reply." Phase
+      173 posted an operator-approved body verbatim as
+      [`#issuecomment-5511487546`](https://github.com/henols/firestarter_prom/issues/9#issuecomment-5511487546)
+      on 2026-09-02 and pinned gh#9 open (`173-07-SUMMARY.md:115-118`) — the reply was already discharged,
+      and gh#9 stays open and pinned as the deliberate configured end state.
 
 <!-- Phase 999.14 (Generated device/algorithm documentation site, gh#7) was RETIRED into 999.12
      at the third backlog-review pass on 2026-07-27. The two stubs proposed competing destinations
