@@ -186,3 +186,11 @@ None - no external service configuration required.
 ---
 *Phase: 186-the-python-floor-before-the-eol*
 *Completed: 2026-09-12*
+
+## Self-Check: PASSED
+
+- `firestarter_app/pyproject.toml`, `firestarter_app/firestarter/main.py`, `firestarter_app/firestarter/cli_handlers.py`, `firestarter_app/tests/test_py32_packaging.py` all exist and carry the described changes.
+- Commit `176c22d` (Task 1), `bd25270` (Task 2), `2fd23ca` (Task 3) all found in `firestarter_app`'s `git log --oneline --all`.
+- Commit `4d7ab18b` (this SUMMARY, in the meta repo) found in `git log --oneline --all`.
+- All plan-level `<acceptance_criteria>` re-verified passing except the one authoring-defect criterion documented above under "Acceptance-criterion authoring defect", which is verified via an equivalent check instead.
+- Plan-level `<verification>` block re-run: tomllib prints `>=3.11 py311 3.11`; 3 CI workflow lines all `'3.11'`; watermark gate `checked 181 source files` / `mypy errors: 35 (watermark: 35)` / `OK: error count at watermark.`; `python -m firestarter.main --version` exits 0 and prints `Firestarter, version 3.0.0b38`; 31 targeted tests passed; `ruff format --check` reports `179 files already formatted`; `ruff check` RED at 182 findings (177 UP045, 2 UP017, 2 UP035, 1 I001) as expected; `git status --porcelain` in `firestarter_app` names only the two pre-existing untracked datasheet PDFs, no tracked file outside this plan's `files_modified` list.
