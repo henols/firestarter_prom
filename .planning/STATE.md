@@ -1,20 +1,20 @@
 ---
 gsd_state_version: "1.0"
-milestone: v1.36
-milestone_name: "`dev test` Fidelity (PLANNING)"
-current_phase: 181
-current_phase_name: Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
-status: complete
-stopped_at: "v1.36 CLOSED 2026-09-09 — 8 phases, 42 plans, 46/46 requirements; merged to beta in all three repos (app 3.0.0b38, fw 3.0.0b26). NOT tagged, by operator decision."
-last_updated: "2026-09-09T16:57:44.490Z"
-last_activity: 2026-09-09
-last_activity_desc: "v1.36 `dev test` Fidelity CLOSED 2026-09-09. 8 phases (174-181), 42 plans, 46/46 requirements. Merged to beta with MERGE COMMITS not squashes (prom#63/297eeea, app#61/b868264, fw#60/85c4761) so the meta gitlinks stay reachable from beta; sub-repos merged first and both gitlinks verified reachable before the meta PR. Pre-releases cut automatically: app 3.0.0b38 (also on PyPI, wheel+sdist, 33s after the release — the v1.21 manual-dispatch note is STALE), fw 3.0.0b26. NOT tagged, by operator decision. App suite 2285 passed/0 failed (2247 at milestone start); regression gate 886/886; security 36/36 closed, threats_open 0; verification passed 19/19 after one gap. The gap was an ORCHESTRATOR error: all ten executor prompts said leave the firestarter_app gitlink alone, a v1.6-v1.8 convention phase 180 had already superseded. Zero of 19 frozen dedup hashes moved across the whole milestone — the invariant it was built around. Archive is HAND-written: .planning/v1.36/CLOSE-RECORD.md, milestones/v1.36-{ROADMAP,REQUIREMENTS}.md, MILESTONES.md close entry. milestone.complete was NOT run. Open: WR-01 (_is_interactive dead, two ..._on_a_tty tests pass for the wrong reason) filed as a todo. Phase dirs 174-181 still in .planning/phases/ — /gsd-cleanup archives those separately."
+milestone: v1.37
+milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
+current_phase: 187
+current_phase_name: Answered Reports
+status: executing
+stopped_at: "Completed 187-01-PLAN.md"
+last_updated: "2026-09-12T13:27:43.525Z"
+last_activity: 2026-09-12
+last_activity_desc: "Phase 187 execution started (wave 1 of 12). Planning record: 12 plans across 12 sequential waves; research re-measured the release seam and found five drifts from CONTEXT.md (firmware cuts via beta-build.yml not beta-release.yml; gh#65/#66 no longer unanswered; origin/beta carries a 76-line stub of jumper-display-ground-truth.md so every permalink must pin a post-merge SHA; a dirty working tree incl. the known sub_repos prune; zero branch rules on beta). Plan checker PASSED with 0 blockers. 7/7 requirements and 17/17 decisions covered; 8 blocking-human gates, one per public act, per D-16."
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 42
-  completed_plans: 42
-  percent: 100
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 40
+  completed_plans: 29
+  percent: 83
 ---
 
 # Project State
@@ -27,7 +27,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-09-08 — v1.36 activated 2026-09-02; Phase 179 falsification notes appended)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end. **Corrected 2026-08-31 (Phase 168 close): the prior sentence here asserting a product-code-free milestone was false and is retracted.** It changes documentation, repository configuration and check tooling, plus a bounded, named set of product-source edits: the chip-database generator (`firestarter_app/tools/build_db.py`, one emitted-string repoint, D-14), its shipped output (`firestarter_app/firestarter/data/chip_database.json`, 9 rows regenerated, sha256-16 `ccbc8d2c4866a5af`), and two firmware source files that had a comment block deleted outright rather than repointed, per the no-comments rule (`firestarter/include/proto_constants.h`'s provenance header; `firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp`'s doc-citing block, whose substantive content is preserved in `168-07-SUMMARY.md` rather than in source). Narrower in kind, also touched: comment/docstring-only edits repointing a retired `doc/` reference in five `firestarter_app/firestarter/` modules and two `firestarter_app/tools/` scripts, with no behavior changed in any of them (`168-06-SUMMARY.md`). None of this touches dispatch logic, chip *values*, or the algorithm-first invariant itself — the core value is behaviorally untouched — but it is product source, and the prior blanket claim otherwise was the exact kind of false statement this milestone exists to catch, in its own state file. The milestone's own value is a different one: **one front door, one documentation home, and no page that claims more than the code can back.**
-**Current focus:** Phase 181 — Report Fidelity — Schema 2.0, Canonical Naming & Hygiene Close
+**Current focus:** Phase 187 — Answered Reports
 
 **v1.35 Documentation Consolidation & Wiki Migration** — ACTIVATED 2026-08-30. Phases continue at **167**
 (v1.34 ran 160–166; the vacated **150** slot and the v1.24–v1.29 version slots stay unreused so every
@@ -235,10 +235,43 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: — (v1.36 closed; no milestone active)
-Plan: —
-Status: v1.36 CLOSED 2026-09-09 — merged to beta, not tagged. Awaiting next milestone.
-Last activity: 2026-09-09 — v1.36 `dev test` Fidelity closed and archived by hand. 8 phases, 42 plans, 46/46 requirements, 0 of 19 frozen hashes moved. Merged to beta in all three repos; app 3.0.0b38 on PyPI, fw 3.0.0b26. Not tagged.
+Phase: 187 (Answered Reports) — EXECUTING
+Plan: 2 of 12
+Status: Executing Phase 187 — plan 187-01 complete
+Last activity: 2026-09-12 — Phase 187 execution started (wave 1 of 12). Plans committed at d60137a4; research re-measured the release seam: app 33 ahead of origin/beta, firmware 9, meta 174, no v1.37 PR open anywhere; five drifts from CONTEXT.md recorded in 187-RESEARCH.md § Drift. Checker passed 0 blockers. Phase must NOT be dispatched under --auto/--chain (D-16).
+
+## Roadmap Summary (v1.37)
+
+**Created:** 2026-09-10, hand-authored against `.planning/REQUIREMENTS.md` (28 v1 requirements, 4
+categories, D-1…D-7). **No roadmapper subagent and no research phase were run**, deliberately: `ROADMAP.md`
+is a ~6,300-line hand-authored file carrying the entire `999.x` Backlog and every archived milestone, and
+every fact this milestone rests on was verified against live source, the live GitHub API or the in-repo
+schematic record during the 2026-09-09 backlog review. The v1.37 section was spliced immediately after the
+`## Milestones` summary list and before the v1.36 section; the splice measured **210 insertions / 1
+deletion**, the single deletion being the deliberate relabel of v1.36's own header from `(PLANNING)` to its
+closed state.
+
+**Phases:** 6 (**182–187**). Numbering continues from v1.36's 181; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused.
+**Coverage:** 28 requirements, all mapped, 0 orphans, 0 duplicates.
+
+| # | Phase | Requirements | Depends on |
+|---|-------|--------------|------------|
+| 182 | JP5 Destructive-Operation Gate | SAFE-01…05 (5) | — (first phase) |
+| 183 | Flash4 Erase Refusal & the AE29F2008 Classification | SAFE-06…09 (4) | — (∥ 182) |
+| 184 | Guards That Exist | CLAIM-01, 02, 03, 09 (4) | — (∥) |
+| 185 | Records and Checks That Are Current | CLAIM-04…08 (5) | — (∥) |
+| 186 | The Python Floor, Before the EOL | FLOOR-01…03 (3) | — (∥; external deadline 2026-10-31) |
+| 187 | Answered Reports | REPLY-01…07 (7) | **182, 183** |
+
+**The one hard ordering constraint:** Phase 187 runs last — every reply describes what 182 and 183 actually
+shipped, so a reply written earlier would describe an intention. Everything else is parallelizable.
+
+**Bench: none.** First milestone since v1.33 with no hardware-gated leg. CLAIM-04 needs a cold `pio run`
+(a build, not a flash); SAFE-03's answer comes from the schematics, not from measurement.
+
+**Deliberately excluded (D-1):** 999.43 R4 session reuse, against a measured 50–80 s/run payoff. Stays
+shortlisted for v1.38.
 
 ## Roadmap Summary (v1.36)
 
@@ -2893,11 +2926,35 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 180]: 180-03: PRUNE-08 flipped Complete in exactly two REQUIREMENTS.md lines, gated on a precondition that 180-PRUNE-08-CLOSURE.md exist and be committed first (T-180-09 mitigation). Seven-leg green-tree seal run and recorded: 2245 passed / 0 failed (measured, not transcribed), tokenize comment gate 621/0 held, both submodules and chip_database.json clean. ROADMAP.md's Phase 180 section ticked for all three plans, exactly two lines changed. One Rule-3 auto-fix landed first: ruff format --check failed on a 180-01-introduced implicit string concat in test_readback_inventory.py, collapsed to one literal (no semantic change) before the battery ran.
 - [Phase 180]: 180-04 (gap closure): R3's remaining "Escalate to..." and "Cost, stated:" paragraphs removed by absence (not annotation, per D-09), connect-count objection preserved; a dated follow-through paragraph appended to the seed's Phase 180 amendment section restating its own not-touched list in full. WR-01 hardened (connect_route_calls counts every connect-shaped call in read_eprom's whole body, not just the with-header) and WR-02 hardened (_last_ok_assignment_shape pins last_ok's exact assignment shape), each proven with a three-way GREEN/RED/GREEN discrimination against a planted mutant. IN-01 closed (stale line-number citation dropped). test_readback_inventory.py 10 -> 12 passed. REQUIREMENTS.md/ROADMAP.md deliberately untouched (180-05's scope).
 - [Phase 180]: 180-05 (gap closure): IN-02 closed by sharing one `_alternating_read_side_effect(*call_returns)` builder between both read-step verdict legs, replacing their near-identical nested closures with zero assertion lines removed since app anchor 93a1672; the genuinely different divergence-metric closure was left untouched. PRUNE-08 re-flipped to Complete only after every named gap fix measured zero/present/clean (seed fragments at zero, both hardened pins present, the builder present, both trees porcelain-clean) — same precedent 180-03 set, gated on a different precondition. ROADMAP.md's Phase 180 section extended to 5 plans with a Gap closure grouping copying Phase 174's form; both regions outside the section proven cmp-identical against the pinned pre-edit blob. Seven-leg battery re-run green at the measured floor of 2247 (2245 + plan 180-04's two additive legs). One Rule-3 auto-fix landed mid-task: 180-04's WR-02 hardening left 2 new mypy errors (reading .lineno/.col_offset off an ast.AST-typed loop variable, a type typeshed does not declare there) that pushed the app-wide count from the watermarked 35 to 37; narrowed the loop's isinstance check to the four node types it already restricts target extraction to (no behavior change), mypy back to 35/35 — 180-04 had not run this battery leg itself, so the regression was invisible until this plan's seal caught it.
+- [Phase 182]: 182-01: gate ships (D-05) scoped to write/erase; GATED_ADDRESS_BIT>=19; Option B on _is_interactive; chip_database.json rows still pending Plan 02's generator fix
+- [Phase 182]: 182-04 (SAFE-05): deleted `_get_rev2_2_jumper_settings_data` and its commented call site, guarded by a hasattr deletion test (observed RED first) and a positive survivor test for the live `_get_rev2_jumper_settings_data`. Two plan-text deviations recorded: the plan's `get_chip_layout` does not exist (used `build_specifications`), and Task 2's literal `git grep '*.py'` acceptance criterion can never print nothing once the guard test exists (it necessarily names the string) — verified against the production package (`firestarter/*.py`) instead, which prints nothing. `firestarter info` still prints JP4 = Closed for the eight 8 Mbit parts (still on DIP32_STD pending Plan 02's generator fix) — jumper-display-ground-truth.md's confirmed defect 1, D-09's scope, not a Phase 182 regression.
+- [Phase 182]: JP4 is not a VPP source: socket pin 1 is its common pole; its two poles export whatever socket pin 1 carries to socket pin 3 or socket pin 25. The footprint change (1x2->2x2, 3-pole) is at Rev 2.1->Rev 2.2, settled by Rev 2.2's own pick-and-place CSV and gerber drill file.
+- [Phase 182]: The R41-couples-to-JP4 claim in v1.7-SHIELD-REVS.md is retracted as measured false: R41's GND pin routes directly to GND, ~29mm from JP4 in a different board region. The hw_revision detect band is independent of JP4 position.
+- [Phase 182]: D-02: 32-pin proto_id==0x08 dispatch forks on variant_lo (0x03->DIP32_27C801, 0x02->DIP32_STD, residual size arm otherwise); measured 8-row blast radius — Fork stays inside proto_id==0x08 test (protocol 0x10 Intel-flash unaffected); mem_size threshold survives as fall-through so SST37VF040 stays on DIP32_STD
+- [Phase 182]: D-03: MAX_27C020_SIZE and its self-comparing parity test deleted outright (no firmware counterpart exists) — Confirmed empty git -C firestarter grep -n MAX_27C020; boundary lives on as build_db.py's module-local _PGM_ON_PIN31_MAX_SIZE
+- [Phase 182]: RULE_PHASE182_A19_PINOUT is scoped by both pinout value (DIP32_27C801) and a 7-entry part_number frozenset, so a future DIP32_27C801 row outside the eight named parts escalates to UNEXPLAINED rather than being silently absorbed.
+- [Phase 182]: Coverage-matrix golden regenerated via scratch output/ledger seeded from the committed .planning/v1.3-defect-coverage-ids.json, never writing to that tracked file (precedent: commit 6e4b31a, 148-05).
+- [Phase 182]: Two pre-existing pinned test expectations were corrected as Rule 1 deviations, both stale as a direct consequence of this plan's authorized chip_database.json regeneration.
+- [Phase 182]: D-05 resolved: the JP5/A19 gate ships, confirmed required not retired, against the operator's stated expectation. — The pin-map fix relocates the hazard onto A19 (Rev 2.x control bit 0x08 = CTRL_VPP_P1_ENABLE = CTRL_ADDRESS_LINE_18); it does not remove it.
+- [Phase 182]: 182-06 assumption A1 measured CONFIRMED — VPE rail read 4.9V at J6 pin 4 (regulator disabled, referenced to J5 pin 1 GND, Rev 2.2 board idle), decisively below the ~6V logic-level threshold. DAMAGE_CAPABLE_OPERATIONS stays {write, erase}; no firestarter_app or firestarter code changed. Rev 2.2's JP4 PROBE-PENDING cell closed by continuity probe: the socket-facing pole reaches socket pin 3, the periphery-facing pole reaches socket pin 25. D-14's retraction survived its bench falsification (hw_revision's physical field read Rev 2.0-class at every JP4 position), with the limit that the firmware reports a bucket, not the raw ADC count. JP5 confirmed intact (bridged, not cut) on the operator's board. Rev 2.0/2.1 and Rev 0/1 PROBE-PENDING cells remain open — those boards were not on the bench this session. SAFE-03 marked Complete in REQUIREMENTS.md.
+- [Phase 183]: 183-03: flash4_erase_gate.py wired as a pure, import-pure, fail-open predicate before jp5_gate.confirm_or_refuse in cli_handlers.erase; --ignore-unsupported changes only the exit code.
+- [Phase 183]: 183-04: Deleted flash4's 12V bulk-erase routine at all four sites (flash_5v_page_erase_execute definition + forward declaration, configure_flash_5v_page's CMD_ERASE arm, flash_5v_page_write_init's FLAG_CAN_ERASE block); a native case proves, observed RED before the deletion and GREEN after, that flash_5v_page_write_init energises no VPP rail even with FLAG_CAN_ERASE wrongly set.
+- [Phase 186 Plan 01]: Checkpoint (D-01 one-way-door confirmation) answered by the operator as proceed-as-locked -- raise the Python floor to 3.11 across all four statements — The operator was shown the full C-5 correction (an unpinned `pip install firestarter` on 3.9/3.10 silently pins to the last release advertising the old floor rather than erroring, contradicting D-12's assumption) alongside all three options and their consequences before answering. C-5 is recorded as a wording correction for plan 186-04's release-note fragment, not a scope change; nothing about it was written into source. Option 2 (consumer notice / CHANGELOG.md) was not selected.
+- [Phase 186 Plan 02]: The 182-finding py311 ruff sweep (D-09) was absorbed as its own commit, separate from 186-01's config change, exactly as measured in RESEARCH.md: mechanical `--fix` (190 fixed, 3 remaining), three UP045 findings in `eprom_info.py`'s `prepare_detailed_eprom_data` signature hand-collapsed to `dict | None` (orphaned inner comments dropped, none replaced — RESEARCH's exact three lines), a second `--fix` pass for the resulting F401, then `ruff format` for the four files it wants to unwrap. `--unsafe-fixes` was never invoked, per the plan's standing prohibition (it would have deleted `main.py`'s runtime-guard `noqa: UP036`). mypy watermark stayed at 35/35, confirming the ordering constraint (config-before-sweep) held. The one gate the sweep reds — `test_cap03_ack_layout_parity.py`'s `_DECODE_ID_FRAME_DEF_RE` pinning the pre-sweep `Optional[LogMessage]` spelling — was predicted (6 legs) before being observed (exactly 6, exact names matched), then repaired in a separate commit with a one-line regex edit matching only the new `LogMessage | None` form (not both spellings, since the old form can no longer reappear without tripping UP045). Full suite back at 2359 passed / 0 failed, coverage 84.76% >= 70% floor. FLOOR-01 deliberately left Pending in REQUIREMENTS.md — it spans 186-01/02/03 and this is only the second contributing plan.
+- [Phase 186]: 186-03: reworded the new gate's docstring to avoid literal 'tomli'/'yaml' substrings (acceptance criteria forbid them); factored a shared _assert_floor_statements_agree helper so the disagreement leg proves the real leg's own code, not a parallel one
+- [Phase 186]: 186-03: fixed ci_replica_venv.sh's INTERPRETER divergence stamp by prepending the uv-managed python3.11 bin dir to PATH (no --refresh) -- resolve_base_python() stamps unconditionally even on a reused venv, so the prior invocation's ambient python3 3.12.14 fallback would have poisoned the CI-REPLICA: PASS evidence with a 3.12 measurement
+- [Phase 186]: 186-03: FLOOR-01 and FLOOR-02 marked Complete in REQUIREMENTS.md (this is their last contributing plan); FLOOR-03 left Pending per plan instruction -- it spans into 186-04, which creates the rationale note FLOOR-03 requires
+- [Phase 186]: 186-04: Recorded the Python-floor rationale in .planning/notes/python-floor-decision.md (decision, three rejected alternatives, transcribed evidence, standing rule, enforcing gate, successor, named residual gap), stating the consumer impact as measured -- a silent pin on 3.9/3.10, not a pip refusal -- per D-12's correction; corrected the three meta-repo records still stating the old floor (STACK.md, STRUCTURE.md, CONVENTIONS.md); FLOOR-03 marked Complete (last contributing plan)
+- [Phase 186]: 186-04: Filed backlog 999.67 carrying 2027-10-31 (Python 3.11's EOL), repeating Phase 131 D-13's mechanism so the next floor move arrives as tracked work; advanced the meta repo's firestarter_app gitlink to 612aa69, once, last, after every app-repo commit and the CI-REPLICA: PASS proof
+- [Phase 187]: Repaired the five D-07 live sites (3 in ROADMAP.md, 2 in REQUIREMENTS.md) claiming gh#9 owes a closing reply, citing the pre-existing comment 5511487546; left the two explicitly-excluded ROADMAP sites and all .planning/milestones/ citations untouched.
+- [Phase 187]: Amended REPLY-01 wording per D-11 to state the chip_test.py:2599 status-axis measurement honestly, without flipping its checkbox — only REPLY-07 is discharged by this plan.
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
+| Phase 186 P02 | 2 tasks | ~24min | 182-finding py311 ruff sweep absorbed (D-09), 16 files, 2 commits; CAP-03 regex repaired, 2359 passed / 0 failed, coverage 84.76% |
+| Phase 182 P06 | 1 task (Task 3 only) | ~15min | A1 CONFIRMED at 4.9V, gate scope unchanged, 2 record files folded |
 | Phase 154 P06 | 2 tasks | ~35min | 1 source file swept (34 comment blocks, 33->0 hits), 4 meta files |
 | Phase 154 P11 | 3 tasks | ~115min | 26 app-test files (139->84 hits, 63 line edits) + the D7 gate retarget; 1976 passed / 0 failed in a clean clone |
 | Phase 98 P04 | 35min | 3 tasks | 2 files |
@@ -3296,11 +3353,27 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 180 P03 | 30min | 2 tasks | 5 files |
 | Phase 180 P04 | 15min | 2 tasks | 5 files |
 | Phase 180 P05 | 19min | 3 tasks | 7 files |
+| Phase 182 P01 | 55min | 3 tasks | 6 files |
+| Phase 182 P04 | 18min | 2 tasks | 2 files |
+| Phase 182 P05 | 55min | 2 tasks | 2 files |
+| Phase 182 P02 | 45min | 3 tasks | 5 files |
+| Phase 182-jp5-destructive-operation-gate P03 | 70min | 3 tasks | 6 files |
+| Phase 182 P07 | 50min | 3 tasks | 3 files |
+| Phase 183 P03 | 24min | 3 tasks | 4 files |
+| Phase 183 P04 | 55min | 3 tasks | 2 files |
+| Phase 186 P03 | 34min | 3 tasks | 3 files |
+| Phase 186 P04 | 24min | 3 tasks | 5 files |
+| Phase 187 P01 | 20 min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-09-09T08:45:00.000Z
-**Stopped at:** Phase 181 complete — all phases complete
+**Last session:** 2026-09-12T13:27:43.331Z
+**Stopped at:** Completed 187-01-PLAN.md
+**Was (superseded, retained for continuity):** Completed 186-01-PLAN.md
+**Was (superseded, retained for continuity):** Phase 186 context gathered
+**Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
+**Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
+**Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 181 context gathered
 **Was (superseded, retained for continuity):** Phase 180 complete, ready to plan Phase 181
 **Was (superseded, retained for continuity):** Completed 180-04-PLAN.md
@@ -3360,7 +3433,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** `.planning/phases/181-report-fidelity-schema-2-0-canonical-naming-hygiene-close/181-CONTEXT.md`
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing

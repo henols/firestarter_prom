@@ -10,6 +10,21 @@ files:
   - firestarter_app/firestarter/data/pinouts.json
 ---
 
+## Status update — 2026-09-10 (Phase 182, plan 182-02)
+
+**Points 2 and 3 are resolved; point 1 is not.** Plan 182-02 deleted `MAX_27C020_SIZE` from
+`firestarter/constants.py` and deleted its self-comparing parity arm outright (the docstring cited
+a firmware `#define` that does not exist, so the assertion compared the host constant to a literal
+copy of itself). The decode boundary now lives in `tools/build_db.py` as a module-local constant
+with an honest name and no host-to-firmware parity claim, and a real 32-pin dispatch test replaced
+the retired arm.
+
+What remains is point 1 alone: the boundary is still a **constant** rather than derived from
+`code_memory_size` arithmetic. Note that 182-02 also narrowed its blast radius — the 32-pin
+`0x08` cluster now forks on infoic's `variant_lo` first, and the size threshold survives only as
+the fall-through arm (it still correctly keeps SST37VF040 on `DIP32_STD`). So the constant governs
+fewer rows than when this was captured, but it has not been derived away.
+
 ## Problem
 
 `MAX_27C020_SIZE = 262144` (`firestarter/constants.py:51`) is the size gate that splits

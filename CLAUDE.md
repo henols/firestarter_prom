@@ -9,7 +9,7 @@ This is a meta-repo / planning repo for the Firestarter EPROM programmer project
 - `firestarter/` — Arduino C++ firmware (PlatformIO). See `firestarter/CLAUDE.md`.
 - `firestarter_app/` — Python host CLI application (pip package). See `firestarter_app/CLAUDE.md`.
 
-This repo tracks `.planning/` (GSD project management artifacts), `.claude/` (project settings), `tools/` and `.github/` (repo-level tooling and CI). Neither sub-repo is committed here. Documentation lives only in the `firestarter_prom` GitHub wiki — there is no in-repo copy of it. The `tools/wiki/` checkers that used to validate a clone of that wiki were retired on 2026-09-02 (`5426d7ef`); only `MIGRATION-TABLE.md` survives there, as a record of the completed migration, and **no automated wiki guard exists now**.
+This repo tracks `.planning/` (GSD project management artifacts), `.claude/` (project settings), `tools/` and `.github/` (repo-level tooling and CI). Neither sub-repo is committed here. Documentation lives only in the `firestarter_prom` GitHub wiki — there is no in-repo copy of it. The `tools/wiki/` checkers that used to validate a clone of that wiki were retired on 2026-09-02 (`5426d7ef`); `tools/wiki/` was removed entirely on 2026-09-08, when its last occupant, `MIGRATION-TABLE.md`, moved to `.planning/v1.35/MIGRATION-TABLE.md` as a record of the completed migration — `tools/` now holds `catalog/` alone — and **no automated wiki guard exists now**.
 
 ## System Overview
 

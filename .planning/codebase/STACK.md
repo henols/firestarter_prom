@@ -190,7 +190,7 @@ All statements in this part are carried forward verbatim from the prior mapping 
 ## Languages
 
 **Primary:**
-- Python 3.9+ - Host application (CLI tool, `firestarter_app/`)
+- Python 3.11+ - Host application (CLI tool, `firestarter_app/`)
 - C/C++ (Arduino/AVR) - Firmware (`firestarter/src/`)
 
 **Secondary:**
@@ -200,7 +200,7 @@ All statements in this part are carried forward verbatim from the prior mapping 
 ## Runtime
 
 **Environment:**
-- Python 3.9+ (tested through 3.12; system Python 3.13 present in dev)
+- Python 3.11+ (classifiers: 3.11-3.12; CI tests 3.11; system Python 3.13 present in dev)
 - Arduino AVR microcontroller (ATmega328P / ATmega32U4)
 
 **Package Manager:**
@@ -253,7 +253,7 @@ All statements in this part are carried forward verbatim from the prior mapping 
 ## Platform Requirements
 
 **Development:**
-- Python 3.9+ with pip
+- Python 3.11+ with pip
 - PlatformIO CLI (for firmware development)
 - avrdude (for firmware flashing)
 - Physical RURP Arduino shield hardware for integration testing

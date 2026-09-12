@@ -16,3 +16,9 @@ the host version.
 | w29c040 | 0x05 | DIP32_SST39SF040 | 0x80000 | 3.0.0b33 | 3.0.0b22 | #48 | 2026-08-31 |
 | w27e020 | 0x08 | DIP32_27C020 | 0x40000 | 3.0.0b33 | 3.0.0b22 | #51 | 2026-08-31 |
 | w29c020 | 0x05 | DIP32_SST39SF040 | 0x40000 | 3.0.0b33 | 3.0.0b22 | #52 | 2026-08-31 |
+| AE29F2008 | 0x05 | DIP32_SST39SF040 | 0x40000 | 3.0.0b37 | 3.0.0b25 | #61 | 2026-09-10 |
+
+AE29F2008 (ASD) and w29c020 (Winbond) are the same silicon: both report chip ID
+`0xDA45` — Winbond manufacturer `0xDA`, device `0x45` — and their database entries are
+identical but for a `page_size` field that algorithm `0x05` never reads. Two rows are kept
+because two distinct physical parts were validated, not because two devices were.

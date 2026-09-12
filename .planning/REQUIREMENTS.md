@@ -1,203 +1,245 @@
-# Requirements: Firestarter — v1.36 `dev test` Fidelity
+# Requirements: Firestarter — v1.37 Operator Safety, Answered Reports & Claim Hygiene
 
-**Defined:** 2026-09-02
-**Milestone:** v1.36 — "Only Run What Can Tell You Something, Report Only What You Know"
-**Core Value (this milestone):** `dev test` fails only for reasons that are actually the chip's, runs no
-operation whose result is empty by construction, and reports only what the run already knows.
+**Defined:** 2026-09-10
+**Milestone:** v1.37 — "Say the thing you already know"
+**Core Value (this milestone):** The project stops withholding what it already knows — from the operator
+about to destroy a chip, from the reporter waiting for an answer, and from the maintainer reading a guard
+that no longer exists.
 
-**Scope:** `firestarter_app` (host) only. No firmware change.
+**Scope:** `firestarter_app` (host) and `firestarter_prom` (replies, CI) primarily. Firmware is touched only
+at the edges: one `.md`, one baseline JSON plus its test fixtures, and — only if D-3 resolves that way — one
+generated message id. No protocol change, no dual-repo behavioural lockstep, no golden register traces.
 
 ---
 
-## Decisions taken at definition (operator, 2026-09-02)
+## Decisions taken at activation (operator, 2026-09-10)
 
-These were surfaced as D-1…D-8 by the research synthesis and are settled here so no phase re-litigates them.
+Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.md` § Current Milestone.
 
-| ID | Decision | Consequence |
-|---|---|---|
-| **D-1** | The seed's R1 sentence — *"this applies to the fingerprint read-backs"* — is **amended**. | Read literally it converts the diagnostic into an oracle and destroys the mismatch distribution `classify_fingerprint` exists to compute. A rule that contradicts itself in the artifact a planner reads is a defect in the artifact. Owned by RPT/PRUNE phase that touches the seed. |
-| **D-2** | Canonical naming is an **additive field** (`auto_capture.canonical_part_number`); `ac.chip` keeps the operator's raw token. | Zero re-key. Measured alternative: normalizing `parts[0]` gives `a00791f1c2b4` → `a6f6c6354047`, and 732/746 part numbers differ from their lowercase form while every open issue title is lowercase — it would re-key essentially all project history. |
-| **D-3** | `schema_version` becomes **2.0**, not 1.8. | Three keys are deleted, the filed corpus carries real values under two of them (`vpp_mv: 11800`, `vpe_mv: 13700` in the frozen 1.2 fixtures), and `duration_s` keeps its name while changing meaning. A major number is the honest label. Costs nothing mechanically: both parsers accept `schema_version` by **presence only** (a live fixture carries `"9.9-future"`) and the dedup hash never reads it. **This reverses 999.36's RPT-E1, which said 1.8.** |
-| **D-4 + D-6** | `classify_fingerprint` gains a **`match` bucket** for `bad == 0`, emitted on the cheap path; `build_db_diff` stops forcing `_LADDER_NONE` on it, so an **all-OK run becomes promotable to `community-reported`**. | Removes the `indeterminate`-on-a-bit-perfect-compare absurdity. **Re-keys dedup history once, deliberately** — declared and dated in `MILESTONES.md`, and stated publicly because it changes what a report implies to the triage skill and to every human reader. |
-| **D-5** | `.claude/skills/devtest-triage/SKILL.md` is updated in the **same commit** as the `vpp_mv` deletion. | Its fallback — `chip_database.json`'s `electrical.vpp_mv` — encodes WP-pin voltage on 5V families and would **mis-blame every AMD/SST flash part**. Replaced by `vpp_before_mv`/`vpp_after_mv`, with the row stating what they do **not** prove: they are rail readings, never socket readings. **AMENDED by phase 181 plan 09 (discharged):** this row originally named `SKILL.md:375` as the line to rewrite. That anchor is wrong and acting on it would have introduced a defect — `:375` is the **database** `vpp_mv` in the datasheet-vs-`firestarter info` cross-check table, a different field that merely shares the name, and rewriting it as `vpp_before_mv`/`vpp_after_mv` would have turned a **correct** row false. The report-voltage sentence was extended instead (now `:337`) and the database row was deliberately left verbatim (now `:385`, moved only by the insertion above it). Discharged as a skill-first commit pair, `d2116df9` then app `c994849`. |
-| **D-7** | `Plan.locked_destructive` deletability is adjudicated inside the report phase, not pre-decided. | Live tests depend on it and it feeds `count_applicable`'s `M`; the deletion is narrower than 999.36's RPT-B2 states. |
-| **D-8** | Whether the whole-DB structural sweep covers user-override entries (`~/.firestarter/database.json`) is a plan-time decision in the sentinel phase. | `derive_plan` reads whatever `db.get_eprom` returns; an override could emit a shape the shipped 746 never do. |
+| ID | Decision |
+|---|---|
+| **D-1** | **999.43 R4 (session reuse) is OUT**, against a measured 50–80 s/run payoff, because a leased link poisoned by one `SerialError` would silently corrupt every later step. Stays shortlisted for v1.38. |
+| **D-2** | The FLOOR strand is in because **Python 3.10 EOLs 2026-10-31**, inside this milestone's window — not because it is thematically related. |
+| **D-3** | Whether the flash4 erase refusal takes a **new message id** is a plan-time decision priced against firmware flash on boards at 0 B headroom, not a default. |
+| **D-4** | The SAFE gate's part predicate is **derived from the database**, never a hand-kept part list. |
+| **D-5** | Every outward-facing reply stays behind **operator wording review**. `--auto`/`--chain` auto-approve human-verify gates, so the REPLY phase must not run in those modes. |
+| **D-6** | If AE29F2008 proves misclassified, the fix goes in **`build_db.py`'s decode** — `chip_database.json` is generated. |
+| **D-7** | `size_baseline.json`'s re-record uses the **fixture-severance pattern**. No acceptance criterion may say "tests byte-unchanged" — it is unsatisfiable by construction. |
 
 ---
 
 ## v1 Requirements
 
-### Blast-Radius Oracle
+### SAFE — refusals and warnings that teach
 
-The gate this milestone was scoped around **does not exist**. Every dedup test in
-`firestarter_app/tests/test_diagnostic_report.py` is *relational* (`fp(a) == fp(b)`, computed at
-runtime), so a change to the hash algorithm passes all of them. There is exactly **one** frozen
-expected-hash literal in the entire suite (`tests/test_diagnostic_report.py:1377`, `"a0a50436ae3d"`),
-and the frozen schema-1.2 fixtures carry hand-written placeholder tokens (`"deadnu11id00"`), not real
-hashes. `count_agreeing` reads the **embedded** hash and never re-hashes, so any re-key is permanent.
-**Nothing else in this milestone may land before this category is green.**
+- [x] **SAFE-01**: The set of parts at risk from an intact JP5 — those whose pin map puts A19 on socket pin 1
+      where the shield may still route VPP — is achieved by CORRECTING the pin map so this requirement's own
+      words are literally true, not by deriving a synthetic predicate around a database that was wrong.
+      Measured 2026-09-10: no pin map in `pinouts.json` declared A19 at all, and all eight 1 MB rows sat on
+      `DIP32_STD` (19 address lines, `vpp-pin: [1]`). An address-line-shortfall test, a size threshold, and the
+      291-row VPP-on-pin-1 set were considered and rejected (D-01; `182-01-SUMMARY.md`, `182-02-SUMMARY.md`).
+      The set is derived from the chip database and its pin maps, not a hand-written list — proved by
+      `test_jp5_gate.py::test_synthetic_pin_map_with_pin1_at_index19_appears_in_the_affected_set` — so adding a
+      new part to the database cannot silently omit it from the gate.
+- [x] **SAFE-02** — **CONFIRMED REQUIRED 2026-09-10 (D-05 resolved)**: Before an affected operation on an
+      affected part, the operator is told, in the terminal, that JP5 must be cut on Rev 2.x shields for this
+      part and why (`JP5 = A19_CUT`; JP5 routes VPP to socket pin 1), and the operation does not proceed
+      without explicit confirmation. D-05 resolution: the operator's stated expectation was that the pin-map
+      fix would supersede this requirement; the SAFE-03 trace found the opposite — the outcome is against that
+      expectation. On
+      Rev 2.x, control bit `0x08` is both `CTRL_VPP_P1_ENABLE` and `CTRL_ADDRESS_LINE_18`, and socket pin 1 is
+      bus line 21, inside the address mask a write/erase drives on every byte. The fix moves VPP off pin 1 and
+      onto pin 24, but puts A19 on the same physical line pin 1 already was — it relocates the hazard, it does
+      not remove it, so the retirement branch of D-05 does not fire. Trace: `182-05-SUMMARY.md`,
+      `.planning/notes/jumper-display-ground-truth.md` § "Which operations energize socket pin 1".
+- [x] **SAFE-03** — **CONFIRMED 2026-09-10 (182-06 bench probe)**: Which operations the gate covers is settled
+      from the shield schematics and the protocol's VPP path — not inferred — and the answer is recorded with
+      its evidence. The reporter's own open question ("just writing, or reading too?") is answered in the
+      artifact: writing and erasing, not reading, verifying or blank-checking. The one inferred link in that
+      trace — assumption A1, the VPE rail level with the boost regulator disabled — was measured at 4.9 V
+      (decisively below the ~6 V logic-level threshold), confirming rather than widening the scope. Trace:
+      `182-05-SUMMARY.md`, `182-06-SUMMARY.md`, `.planning/notes/jumper-display-ground-truth.md`.
+- [x] **SAFE-04** — **CONFIRMED REQUIRED 2026-09-10 (D-05 resolved)**: The gate cannot be auto-answered. A
+      non-interactive invocation, a piped stdin, `dev test`, and `--auto`/`--chain` each either refuse the
+      affected operation or require an explicit, separate acknowledgement flag — never a default-yes. Same
+      D-05 trace and reasoning as SAFE-02, against the same stated operator expectation. `--auto`/`--chain` have no
+      firestarter CLI counterpart (measured: no match in `firestarter_app/firestarter/`) — they are GSD
+      execution-mode flags, and a GSD run in those modes invokes the CLI non-interactively, so the non-TTY
+      refusal satisfies this clause for them, not any flag handling. **Option B taken on `_is_interactive`:**
+      the gate (`jp5_gate.py`) carries its own injectable `isatty_fn`, per the `submit.py` pattern, and never
+      calls or imports `cli_handlers._is_interactive` — CLAIM-07 needs no amendment and Phase 185 removes that
+      symbol as planned.
+- [x] **SAFE-05**: `_get_rev2_2_jumper_settings_data` and its commented-out call site are deleted, so no code
+      path can render JP5 as an operator-settable config header. (`todos/pending/delete-jp5-dead-renderer.md`)
+- [x] **SAFE-06**: A refusal to erase a flash4 (`0x05`) part names the part — instead of a bare `Not
+      supported` — and does not carry a cause or an alternative in the CLI text. **AMENDED by Phase 183
+      under D-07/D-08:** the operator chose this one-line shape knowingly, with the conflict against this
+      requirement's original wording — which had promised the refusal state its cause and its alternative —
+      stated on the record before the choice was made. The cause and the alternative are not dropped; they
+      move to Phase 187's REPLY-03 (D-09), which answers gh#62 directly instead of printing the answer into
+      a tool every operator sees. Trace: `183-03-SUMMARY.md`; shipped
+      `firestarter_app/firestarter/flash4_erase_gate.py` and `firestarter_app/tests/test_flash4_erase_gate.py`
+      (22 tests).
+- [x] **SAFE-07**: The firmware-flash cost of SAFE-06 is measured before the mechanism is chosen, and the
+      zero-firmware-byte alternative (host-side text against the existing `MSG_ERR_NOT_SUPPORTED`) is priced
+      against a new `messages.toml` id. The decision and both figures are recorded. (D-3) Trace:
+      `183-01-SUMMARY.md`'s three-row M1/M2/M3 pricing table — M1 measured +12 B flash / +0 B RAM on all three
+      AVR targets, M2 and M3 recorded as structural zeros with their reasons; M3 (host pre-flight policy gate)
+      chosen on D-02 grounds, not the flash figures.
+- [x] **SAFE-08**: `configure_flash_5v_page`'s `CMD_ERASE` arm — unreachable while the host clears
+      `FLAG_CAN_ERASE` for every `0x05` part — is adjudicated explicitly: removed as dead weight, or kept with
+      the reason it is kept recorded. It is not left undecided. Trace: `183-04-SUMMARY.md` (deletion at all
+      four sites, RED-then-GREEN native proof) and `183-05-SUMMARY.md` (documentation blast-radius repair and
+      the measured shrink).
+- [x] **SAFE-09**: Whether AE29F2008 is correctly classified `algorithm 5` is investigated against its
+      datasheet and the reporter's evidence (die answers `0xDA45`; accepts an `algorithm 6` chip-erase and
+      blank-checks clean over `0x40000`). The conclusion is recorded either way; any correction lands in
+      `build_db.py`, never in `chip_database.json`. (D-6) Trace: `.planning/notes/ae29f2008-classification-verdict.md`
+      and `183-02-SUMMARY.md` — classification CORRECT, equivalence-based verdict; the gh#62 reporter is ALSO
+      correct.
 
-- [x] **GATE-01**: A frozen `(report shape → 12-hex `dedup_fingerprint`)` table exists, computed against HEAD **before** any behaviour change lands, covering at minimum the four measured re-key shapes (read-back gating, SDP-step pruning, canonical naming, UV `run_count` collapse).
-- [x] **GATE-02**: The suite fails when `dedup_fingerprint` output changes for any frozen shape. The assertion is against an absolute expected value, never `fp(a) == fp(b)`.
-- [x] **GATE-03**: `build_db_diff`'s ladder output is pinned for the same shapes, so a promotion-ladder change cannot land silently.
-- [x] **GATE-04**: The raw-CLI-token → `part_number` delta across the shipped database is measured and recorded as an artifact, not assumed.
-- [x] **GATE-05**: A report corpus lives in `firestarter_app/tests/fixtures/`. There is none today — the frozen fixtures are in the meta repo and cannot prove hash continuity.
-- [x] **GATE-06**: Every deliberate re-key in this milestone is recorded in `MILESTONES.md` as a declared, dated, one-time decision with its before/after hashes.
+### REPLY — answer the reporters
 
-### No-Information Operations
+- [ ] **REPLY-01**: gh#23 receives a reply naming what v1.36's fault-attribution work changed and what a
+      fresh run would now show, and acknowledging that the reporter's diagnosis — a rig fault reported as a
+      chip verdict — was correct. **AMENDED by Phase 187 (D-11):** the literal wording above, read as "a
+      fresh run would now show" a passing result, would be an overclaim. Measured: `chip_test.py:2599` fires
+      the status axis only on `(SerialError, HardwareOperationError)`; gh#23's fault — VPP not hooked up —
+      raises neither, and produces BAD data instead (`diagnostic_report.py:56-68`: "a rig with VPP unhooked
+      still reads a healthy rail"). A fresh run today would still report `write BAD, verify BAD` and still
+      file as `[dev test] w27e257 — FAIL`. v1.36 did not and cannot make the tool see an unhooked VPP; what
+      did change is fault attribution and reporting: Phase 181 deleted the misleading `voltage.vpp_mv` /
+      `vpe_mv` from the report, and Phase 178 added `rail_reading_disclosure`, naming the exact trap the
+      reporter hit. The reply concedes the reporter's diagnosis in full and states this limit plainly, but
+      does not imply a PASS the tracker does not carry. Precedent for amending in the same phase as the
+      work: Phase 183's D-08, Phase 184's D-03, Phase 185's D-02.
+- [ ] **REPLY-02**: gh#28 and gh#31 each receive a reply naming the v1.36 changes that bear on them and
+      requesting an attributable re-run.
+- [ ] **REPLY-03**: gh#62 receives the answer this milestone produces: why the refusal exists, what changed,
+      and — explicitly — that re-running under another chip's identity with `--force` is not a safe
+      workaround.
+- [ ] **REPLY-04**: gh#60 receives a reply confirming the hazard from the project's own schematic record and
+      stating what the gate does and does not do (it warns; it cannot detect the jumper).
+- [ ] **REPLY-05**: Every reply that asks for a re-run states that reports are now `schema_version` 2.0 and
+      that v1.36 deliberately re-keyed `dedup_fingerprint`, so a fresh run will not group with the old one.
+      A reporter must not read an intended re-key as a new defect.
+- [ ] **REPLY-06**: No issue is closed on our own reading. gh#23, #28 and #31 stay open pending the
+      reporters' response; a close requires their confirmation or a superseding PASS.
+- [x] **REPLY-07**: gh#9 (`Repository Structure and Contribution Guide`) receives a closing reply or a
+      close-as-done — the end-state it describes has been configured since v1.35 Phase 172.
+      **AMENDED by Phase 187 (D-06/D-07):** this requirement was already discharged when it was written.
+      Phase 173 posted an operator-approved body verbatim as `#issuecomment-5511487546` on 2026-09-02 — byte-identical to
+      `.planning/milestones/v1.35-phases/173-close-beta-cut-under-protection-close-procedure-honesty-ledg/evidence/bodies/173-gh9.md`
+      (see `173-07-SUMMARY.md:115-118`) — eight days before REPLY-07 was filed on 2026-09-10, then
+      deliberately left gh#9 open and pinned via the GraphQL `pinIssue` mutation. gh#9 stays open and pinned
+      as the deliberate configured end state; that is not an omission, and Phase 187 posts nothing new on
+      gh#9. Precedent for amending in the same phase as the work: Phase 183's D-08, Phase 184's D-03, Phase
+      185's D-02.
 
-Success is stated in **operation counts, never in seconds**. Every timing figure available comes from
-one log, one Leonardo, one 64 KiB `0x07` part; read rate varies ~24% by protocol and the Uno's 512 B
-buffer is unmodelled.
+### CLAIM — things the repo says that are not true
 
-- [x] **PRUNE-01**: A passing run performs **zero** fingerprint read-backs.
-- [x] **PRUNE-02**: The read-back gate consults the step's outcomes **across all cycles**, not the final cycle alone. A cycle-1-fail / cycle-2-pass run keeps its fingerprint. (`not all(outcomes)` at `chip_test.py:3100` is insufficient at HEAD — under the cycle block `outcomes` is a one-element list for the final cycle only.)
-- [x] **PRUNE-03**: A passing write/verify still reports a fingerprint, **synthesized** from what the operation already established (`bad=0`, `total=region_length`, `ff_ratio: None`) and classified `match` per D-4/D-6. The read-back is what costs; the classification is free.
-- [x] **PRUNE-04**: Where the engine reads a whole device back only to compare it against a buffer it already holds, it uses the on-device verify instead. **The fingerprint read-back is explicitly excluded from this rule** (D-1). Closed as measured-empty within the engine: exactly two `operator.read_eprom` sites exist in `chip_test.py`, both excluded (the fingerprint read-back by D-1, the SDP leg by the seed's own carve-out); `eprom_operations.write_cycle_eprom` is named and excluded as the one genuine match in the package, outside the engine, the uno328pb read-repeatability oracle. Evidenced by `177-READBACK-INVENTORY.md`.
-- [x] **PRUNE-05**: Unsupported steps keep their `StepResult` with an NA verdict; only the work is skipped. They are **not** dropped from `Plan.steps` — 637 of 677 chips carry six `supported=False` SDP steps and they are hash ballast, not waste.
-- [x] **PRUNE-06**: A structural test over `derive_plan` output fails when a plan emits a write with no verify behind it. Expressed as a relational predicate over `Plan.steps`, not a self-declared per-step annotation, and carrying anti-vacuity legs including a planted counter-example.
-- [x] **PRUNE-07**: The seed `.planning/seeds/dev-test-adaptive-sequencing.md` is amended so R1 no longer instructs a planner to destroy the diagnostic R2 preserves (D-1).
-- [x] **PRUNE-08**: The read step's second full sweep is replaced by a bit-structured sample **only if** MEAS-01 shows the sample is cheaper on the measured board class. If it is not, this requirement closes as *measured, not worth doing*, with the measurement recorded — that is a success, not a miss.
+- [x] **CLAIM-01**: No file in any of the three repositories names `tools/wiki/dispatch_mirror.py` as a live
+      guard. `firestarter/PROTOCOLS.md:11` and `firestarter_app/tests/scan_paths.py:114` both stop claiming a
+      checker that was deleted on 2026-09-02.
+- [x] **CLAIM-02**: The two orphaned controls `tests/fixtures/planted_dispatch_comment_only_hex.cpp` and
+      `planted_dispatch_missing_hex.cpp` are disposed — deleted, or re-pointed at a consumer that exists.
+- [x] **CLAIM-03**: Whether the three-way dispatch invariant (dispatch table / host tool / firmware agree) is
+      worth re-guarding is decided and recorded. Retiring it is a valid outcome; leaving the question
+      unanswered is not.
+- [x] **CLAIM-04**: `firestarter/scripts/baseline/size_baseline.json` records the current cold-build figures
+      (uno 22968, uno328pb 23016, leonardo 25114 — to be re-measured, not transcribed from this line), and
+      the default byte-identity gate is green again.
+- [x] **CLAIM-05**: CLAIM-04 is achieved by fixture severance: a new version-named fixture family at the
+      post-change figures, with the existing frozen `captured_build_v158_*` family left byte-unchanged —
+      proven by an empty `git diff` over those paths. No new MERGE-05 exemption is authored. (D-7)
+- [x] **CLAIM-06**: `tests/test_numeric_schema_source_scan.py`'s docstring stops citing `build_db.py:594` for
+      a symbol that lives at 545, and cites the symbol and its enclosing scope instead of a line number, so
+      the next comment sweep cannot stale it a third time.
+- [x] **CLAIM-07**: `_is_interactive` is removed, and the two tests named `..._on_a_tty` either gate real TTY
+      behaviour or are renamed and rewritten to assert what they actually cover. No test claims coverage that
+      does not exist.
+- [x] **CLAIM-08**: Originally demanded that `Catalog sync check` complete with conclusion `success` on
+      `firestarter_prom`'s `main`, and that the cause of the failure that has stood since 2026-08-31 be
+      recorded rather than merely cleared. Unsatisfiable as written, for two independent reasons: (1) Phase
+      185 deletes the workflow on the operator's own decision (D-01), and once it is deleted no run on `main`
+      can exist at all; (2) `main` is protected in all three repositories and nothing this phase does lands
+      there. AMENDED (D-02) to: the check is retired, and the cause of its standing failure is recorded in
+      `.planning/notes/catalog-sync-check-retirement.md`. Precedent for amending in the same phase as the
+      work: Phase 183's D-08 (SAFE-06 amended alongside the code) and Phase 184's D-03 (criterion 1 amended).
+- [x] **CLAIM-09**: A fail-closed check asserts that every guard file a `ScanPathEntry` names actually exists.
+      The CLAIM strand exists because nothing detected any of the above; this is what stops it recurring.
 
-### Fault Attribution
+### FLOOR — the one item with an external clock
 
-`chip_test.py:2567-2574` currently spends `VERDICT_BAD` — a chip verdict — on "a half-seated cable", and its
-own comment says so. This is the gh#23 gap.
-
-- [x] **ATTR-01**: A run carries a **status** axis (did the run execute validly) separate from the **result** axis (the verdict on the part), following the OCP Test & Validation two-axis model.
-- [x] **ATTR-02**: A step that failed for a tool or transport reason is not reported as a chip verdict.
-- [x] **ATTR-03**: The overall verdict and the filed issue title reflect the status axis — a run that did not execute validly does not file as `[dev test] <chip> — FAIL`.
-- [x] **ATTR-04**: **No sixth `verdict` value is introduced.** The status axis is a separate additive field kept out of the dedup hash — a cardinality change inside `op=verdict:cls` would re-key every group that hits it.
-- [x] **ATTR-05**: Auto-classification never suppresses the submit prompt. It changes the title and disposition only; the offer to file always stands.
-- [x] **ATTR-06**: The report states what a rail reading does **not** prove. `sample_vpp_mv` → `hw_read_voltage`'s `CMD_READ_VPP` branch sets `CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE` (the regulator drop divider — part of the HV rail composition, not a socket route) and no socket-routing bits, so a rig with VPP unhooked still reads a healthy `vpp_before_mv: 11800`. No requirement here may claim to detect that fault.
-
-### UV Slot Writes
-
-- [x] **UV-01**: A UV part holding data outside the target slot accepts a slot write.
-- [x] **UV-02**: Such a run reports **`overall_verdict == "PASS"` with `run_count == 2`**. `FLAG_SKIP_BLANK_CHECK` fixes the firmware write-init pre-flight only; the plan's own standalone `blank-check` step also had to stop dominating the fold, so the write step going OK is **not** the criterion. (**Mechanism FALSIFIED, Phase 179** — the original wording of this requirement said the blank-check "trips `hardware_refused` and aborts cycle 2". MEASURED: the standalone blank-check sits at index 2, OUTSIDE a `cycle_block_bounds` that is `(3, 6)` for `m27c512`, `am27c020` and `tms27c512`, and `run_plan`'s per-step path has no `hardware_refused` mechanism at all — the cycle-2 abort came from the WRITE step's own firmware refusal. What the blank-check actually did was return `VERDICT_BAD` into a FAIL-dominant `submit.overall_verdict` (`submit.py:164-171`). The requirement's substance is unchanged — both defects still had to be closed for UV-02 to be reachable — but the named mechanism was wrong. Same falsification recorded at `.planning/research/PITFALLS.md` Pitfall 5 step 2 and `.planning/research/SUMMARY.md`.)
-- [x] **UV-03**: The `FLAG_SKIP_BLANK_CHECK` pass is witness-form — not gated on `region_policy`.
-
-### Report Fidelity
-
-Reuses 999.36's drafted IDs. **RPT-E1 is changed** by D-3.
-
-- [x] **RPT-A1**: `chip_id_actual` is populated with the verified id on a **passing** id check, not only on a mismatch. No companion provenance key, no qualifier string.
-- [x] **RPT-A2**: `steps[].fingerprint` gains `total`, `bad`, `bad_pct` and `evidence` as **additive siblings**; `classification` keeps its existing key.
-- [x] **RPT-A3**: `steps[].divergence` is exported — `None` only when no divergence was computed.
-- [x] **RPT-A4**: `plan.is_uv` reaches the report as a top-level boolean, read off the single `derive_plan` decision, never re-derived.
-- [x] **RPT-A5**: The detected chip ID becomes a `StepResult` field rather than being recovered by scraping prose (`cli_handlers.py:2172-2179`).
-- [x] **RPT-B1**: `voltage.vpp_mv` and `voltage.vpe_mv` are deleted from the dataclass, `_voltage_dict()` and the schema. That no code path assigns them is proven by **test**, not asserted.
-- [x] **RPT-B2**: `banner.locked_steps` is deleted; the N-of-M banner itself is kept. `Plan.locked_destructive` is adjudicated separately per D-7.
-- [x] **RPT-C1**: The two re-sync events at `serial_comm.py:488-494` and `:504-510`, `_decode_id_frame` returning `None`, and `get_response`'s timeout each increment a real counter reachable by the report.
-- [x] **RPT-C2**: `transport_health` reports those real counts. `NOT_MEASURED` remains **only** for a counter genuinely not wired, and `_is_transport_suspect`'s present-AND-elevated rule is unchanged — absent data still cannot fabricate suspicion.
-- [x] **RPT-D1**: `duration_s` is the **per-operation** cost — `_aggregate_cycle_results` (`chip_test.py:1280`) stops summing across cycles. Its meaning must not vary with `run_count`, so a `--fast` value is directly comparable to a default run's.
-- [x] **RPT-D2**: A real wall-clock `elapsed` for the whole command is added to `to_dict()`, and the render-only `steps total` sum-of-sums row is removed.
-- [x] **RPT-E1**: `schema_version` becomes **`2.0`** (D-3).
-- [x] **RPT-E2**: Deletions are forward-only — the frozen schema-1.2 fixtures keep parsing unchanged, asserted by test.
-- [x] **RPT-E3**: `dedup_fingerprint` is byte-identical for every pre-existing report shape **except** the re-keys declared under GATE-06, each of which is asserted to be exactly the change it declared and nothing more.
-- [x] **RPT-F1**: `auto_capture.canonical_part_number` carries the matched database `part_number` and is used for the issue title and body; `ac.chip` keeps the operator's raw token (D-2). A rule states which alias a title shows when `part_number` is a comma-joined list.
-- [x] **RPT-F2**: `.claude/skills/devtest-triage/SKILL.md` is updated in the same commit as RPT-B1 (D-5).
-
-### Measurement
-
-- [x] **MEAS-01**: Per-connect cost is measured **per board class** (Uno 512 B, Leonardo 1024 B), not as one number. On Uno-class boards the DTR auto-reset and bootloader wait are likely the dominant term. This gates PRUNE-08 and the R4 deferral.
-- [x] **MEAS-02**: `_SUSPECT_THRESHOLD = 5` is either justified against real counts or re-derived once RPT-C1's counters exist — it was chosen while the counters were dormant and has never been exercised.
-- [x] **MEAS-03**: Which of `retries` / `timeouts` are genuinely wireable is traced end to end. Anything not actually wired keeps `NOT_MEASURED`.
-
-### Hygiene
-
-- [x] **HYG-01**: `syrupy` is bounded `>=5.0,<7`. It is pinned unbounded today; PyPI now serves 6.0.0, whose headline change is native Amber serialization of stdlib dataclasses — and `Plan`, `Step`, `Fingerprint` and the report classes are all dataclasses.
-- [x] **HYG-02**: No new runtime dependency is added. The shipped set stays `pyserial, requests, tqdm, click, rich, packaging`.
-- [x] **HYG-03**: A decision is recorded that `dedup_fingerprint` must **not** be refactored to hash `to_dict()`. It is the tempting cleanup and it would make every additive field re-key every historical report — the precise failure this milestone forbids.
-- [x] **HYG-04**: Any new `dev_test` helper is registered in `tools/check_devtest_orchestrator.py:152-164`, which silently does not scan what is not listed.
+- [x] **FLOOR-01**: The advertised Python floor and the type-checker agree. Either mypy enforces the
+      advertised `>=3.9` floor, or the floor is raised deliberately and `requires-python`, `target-version`
+      and `python_version` all move together.
+- [x] **FLOOR-02**: The choice is made and applied **before 2026-10-31**, when Python 3.10 reaches
+      end-of-life, and the milestone does not close with the pair still divergent.
+- [x] **FLOOR-03**: The reasoning — which floor, and why — is recorded where the next person to face this
+      finds it, not only in a commit message. The treadmill recurs; the decision should not be re-derived.
 
 ---
 
 ## Future Requirements
 
-Tracked, not in this roadmap.
+Deferred, tracked, not in this roadmap.
 
-### Session Reuse (R4)
-
-- **R4-01**: `EpromOperator` leases one validated link per plan rather than tearing `self.comm` down after every call (32 connects for one at28c256 run). **Deferred**: its payoff is unmeasured, MEAS-01 gates whether it is worth scoping, and `run_plan`'s non-fatal-step guarantee means a shared link poisons every later step unless the lease is invalidated on any `SerialError`.
-- **R4-02**: Folding the VPP and VPE sampler reads is **out of scope in a host-only milestone** — they are two distinct firmware commands (`hardware.py:400-448`), so the seed's −2 connects must not be counted toward any projection.
-
-### Rig Conveyance Leg
-
-- **RIG-01**: A rig-sanity leg that proves the socket is actually connected. Deferred because the only instrument available measures the rail, not the socket (ATTR-06), so such a leg would confirm a healthy rail and still miss the contact fault that motivated it — it would over-claim.
+| ID | Requirement | Where it lives |
+|---|---|---|
+| **REUSE-01** | `EpromOperator` leases one validated link per plan rather than reconnecting per call (measured 50–80 s/run). Deferred by D-1; the lease must be invalidated on any `SerialError`. | Backlog 999.43, shortlisted for v1.38 |
+| **BLANK-01** | Region-scope the firmware write-init blank check so `firestarter write -a` stops refusing a partial write to a non-erasable part holding data elsewhere. | Backlog 999.44 (host half shipped v1.36) |
+| **DOCS-01** | The wiki's compatibility matrix, family pages and tutorials — content v1.35 relocated but never authored. | Backlog 999.12, gh#5 |
 
 ## Out of Scope
 
 | Feature | Reason |
 |---|---|
-| 999.44 firmware half — region-scoped `mem_util_blank_check` | Host-only milestone. **The product-level bug stays open:** `firestarter write foo.bin -a 0x3FF00` remains refused on any non-erasable part holding data anywhere. Backlog. The backlog's own analysis rejected the host half *alone* on this ground; it is taken knowingly. |
-| Replying to or closing gh#21, #23, #28, #31, #45, #50 | This milestone builds the fixes; it does not work the tracker. |
-| `MSG_ERR_EMPTY_INPUT` (0xA4) overload — Backlog 999.40 | Firmware change. |
-| 64 KiB `Empty input` investigation — Backlog 999.37 | Depends on RPT-C1's counters existing first; the investigation has no instrumentation to stand on until then. |
-| `RIG_FAULT` as a sixth `verdict` value | Cardinality change inside the dedup input; re-keys every group that hits it and makes illegal states representable again. |
-| Dropping unsupported steps from `Plan.steps` | Re-keys 637 of 677 chips for no serial-traffic saving. |
-| `hypothesis`, `jsonschema`, `pydantic`, `jcs`/RFC 8785 | Measured unnecessary. The `derive_plan` domain is 9 behaviour classes exhaustively sweepable in 4.22 s; the schema consumer matches by presence; canonical JSON would make every additive field re-key every historical report. |
-| Quoting the cost model's second-counts as acceptance criteria | One log, one Leonardo, one 64 KiB `0x07` part. Criteria are stated in operation counts. |
+| Detecting JP5's physical state | Not readable by the tool — the reporter says so and the schematics agree. The deliverable is a warning and a refusal, never a detection. |
+| Closing gh#23 / #28 / #31 | The reporters' disputes are the open question. A unilateral close is the failure mode this milestone exists to correct. (REPLY-06) |
+| Re-guarding the three-way dispatch invariant | CLAIM-03 decides *whether* it is worth doing. Building the guard is a separate milestone's work if the answer is yes. |
+| Any firmware protocol or behaviour change | Keeps this milestone off dual-repo lockstep, golden register traces and the flash budget. Leonardo has 0 B flash and 0 B RAM headroom. |
+| `dev test` throughput work | D-1. Explicitly deferred with its measurement intact. |
 
 ## Traceability
 
-Populated by `/gsd-new-project` roadmap creation, 2026-09-02.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GATE-01 | Phase 174 | Complete |
-| GATE-02 | Phase 174 | Complete |
-| GATE-03 | Phase 174 | Complete |
-| GATE-04 | Phase 174 | Complete |
-| GATE-05 | Phase 174 | Complete |
-| GATE-06 | Phase 174 | Complete |
-| PRUNE-05 | Phase 175 | Complete |
-| PRUNE-06 | Phase 175 | Complete |
-| RPT-C1 | Phase 176 | Complete |
-| RPT-C2 | Phase 176 | Complete |
-| MEAS-01 | Phase 176 | Complete |
-| MEAS-02 | Phase 176 | Complete |
-| MEAS-03 | Phase 176 | Complete |
-| PRUNE-01 | Phase 177 | Complete |
-| PRUNE-02 | Phase 177 | Complete |
-| PRUNE-03 | Phase 177 | Complete |
-| PRUNE-04 | Phase 177 | Complete |
-| PRUNE-07 | Phase 177 | Complete |
-| ATTR-01 | Phase 178 | Complete |
-| ATTR-02 | Phase 178 | Complete |
-| ATTR-03 | Phase 178 | Complete |
-| ATTR-04 | Phase 178 | Complete |
-| ATTR-05 | Phase 178 | Complete |
-| ATTR-06 | Phase 178 | Complete |
-| UV-01 | Phase 179 | Complete |
-| UV-02 | Phase 179 | Complete |
-| UV-03 | Phase 179 | Complete |
-| PRUNE-08 | Phase 180 | Complete |
-| RPT-A1 | Phase 181 | Complete |
-| RPT-A2 | Phase 181 | Complete |
-| RPT-A3 | Phase 181 | Complete |
-| RPT-A4 | Phase 181 | Complete |
-| RPT-A5 | Phase 181 | Complete |
-| RPT-B1 | Phase 181 | Complete |
-| RPT-B2 | Phase 181 | Complete |
-| RPT-D1 | Phase 181 | Complete |
-| RPT-D2 | Phase 181 | Complete |
-| RPT-E1 | Phase 181 | Complete |
-| RPT-E2 | Phase 181 | Complete |
-| RPT-E3 | Phase 181 | Complete |
-| RPT-F1 | Phase 181 | Complete |
-| RPT-F2 | Phase 181 | Complete |
-| HYG-01 | Phase 181 | Complete |
-| HYG-02 | Phase 181 | Complete |
-| HYG-03 | Phase 181 | Complete |
-| HYG-04 | Phase 181 | Complete |
+| SAFE-01 | Phase 182 | Complete |
+| SAFE-02 | Phase 182 | Complete |
+| SAFE-03 | Phase 182 | Complete — trace recorded (182-05), assumption A1 measured CONFIRMED at 4.9V (182-06) |
+| SAFE-04 | Phase 182 | Complete |
+| SAFE-05 | Phase 182 | Complete |
+| SAFE-06 | Phase 183 | Complete — amended to D-07's one-line refusal (183-06); trace 183-03 |
+| SAFE-07 | Phase 183 | Complete — M3 chosen on D-02 grounds (183-01) |
+| SAFE-08 | Phase 183 | Complete — deletion landed (183-04), docs/shrink repaired (183-05) |
+| SAFE-09 | Phase 183 | Complete — equivalence-based verdict recorded (183-02) |
+| CLAIM-01 | Phase 184 | Complete — repaired in all three repos; criterion 1 amended by D-03 (184-05), three D-02 citations kept and re-dated (184-04) |
+| CLAIM-02 | Phase 184 | Complete — both fixtures deleted (184-04); their fail-open finding preserved in notes/dispatch-invariant-retirement-verdict.md first (184-03) |
+| CLAIM-03 | Phase 184 | Complete — retired outright per D-05; verdict recorded in notes/dispatch-invariant-retirement-verdict.md; zero backlog items filed, deliberately (D-06) |
+| CLAIM-09 | Phase 184 | Complete — fail-closed check landed (184-01), proven RED on the real rotted entry before the entry was removed, then on three planted controls |
+| CLAIM-04 | Phase 185 | Complete |
+| CLAIM-05 | Phase 185 | Complete |
+| CLAIM-06 | Phase 185 | Complete |
+| CLAIM-07 | Phase 185 | Complete |
+| CLAIM-08 | Phase 185 | Complete |
+| FLOOR-01 | Phase 186 | Complete — all four statements raised to 3.11 together (186-01), the sweep absorbed (186-02), and a fail-closed agreement gate now asserts it (186-03) |
+| FLOOR-02 | Phase 186 | Complete — applied 2026-09-12, well ahead of the 2026-10-31 deadline; proven at the floor in the py3.11 CI-replica (186-03) |
+| FLOOR-03 | Phase 186 | Complete — `.planning/notes/python-floor-decision.md` records the decision, its three rejected alternatives with measured grounds, the evidence transcribed from `186-RESEARCH.md`, the standing rule and its enforcing gate (`test_python_floor_agreement.py`), and successor backlog 999.67 carrying 2027-10-31; `firestarter_app/.planning/codebase/STACK.md` (186-03) points an app-repo-only reader at it (186-04) |
+| REPLY-01 | Phase 187 | Pending |
+| REPLY-02 | Phase 187 | Pending |
+| REPLY-03 | Phase 187 | Pending |
+| REPLY-04 | Phase 187 | Pending |
+| REPLY-05 | Phase 187 | Pending |
+| REPLY-06 | Phase 187 | Pending |
+| REPLY-07 | Phase 187 | Complete — discharged by #issuecomment-5511487546 (2026-09-02, Phase 173-07); amended by D-06/D-07 (187-01) |
 
 **Coverage:**
 
-- v1 requirements: 46 total
-- Mapped to phases: 46
+- v1 requirements: 28 total
+- Mapped to phases: 28
 - Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-09-02*
-*Sources: `.planning/research/SUMMARY.md` (4 parallel researchers, findings measured against `firestarter_app @ 0a93999`), Backlog 999.36 / 999.43 / 999.44, `.planning/seeds/dev-test-adaptive-sequencing.md`, and community issues gh#21/#23/#28/#31/#45/#50.*
+*Requirements defined: 2026-09-10*
+*Last updated: 2026-09-10 after milestone activation*

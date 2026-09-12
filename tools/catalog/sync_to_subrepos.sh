@@ -76,26 +76,40 @@ FS_ROOT="$META_REPO_CATALOG/../../firestarter"
 FA_ROOT="$META_REPO_CATALOG/../../firestarter_app"
 
 echo "Regenerating firestarter/include/messages.h ..."
+tmp_h="$(mktemp)"
 python3 "$META_REPO_CATALOG/codegen.py" \
     --catalog "$META_REPO_CATALOG/messages.toml" \
     --language cpp \
-    --target "$FS_ROOT/include/messages.h"
+    --target "$tmp_h"
+cp "$tmp_h" "$FS_ROOT/include/messages.h" || true
 
-if diff -q "$FS_ROOT/include/messages.h" "$FS_ROOT/include/messages.h" >/dev/null 2>&1; then
+if diff -q "$tmp_h" "$FS_ROOT/include/messages.h" >/dev/null 2>&1; then
     echo "  OK: firestarter/include/messages.h regenerated."
+else
+    echo "ERROR: regenerated messages.h did not land at $FS_ROOT/include/messages.h" >&2
+    rm -f "$tmp_h"
+    exit 1
 fi
+rm -f "$tmp_h"
 
 # ---------------------------------------------------------------------------
 # Step 3: regenerate messages.py in firestarter_app sub-repo
 # ---------------------------------------------------------------------------
 echo "Regenerating firestarter_app/firestarter/messages.py ..."
+tmp_py="$(mktemp)"
 python3 "$META_REPO_CATALOG/codegen.py" \
     --catalog "$META_REPO_CATALOG/messages.toml" \
     --language python \
-    --target "$FA_ROOT/firestarter/messages.py"
+    --target "$tmp_py"
+cp "$tmp_py" "$FA_ROOT/firestarter/messages.py" || true
 
-if diff -q "$FA_ROOT/firestarter/messages.py" "$FA_ROOT/firestarter/messages.py" >/dev/null 2>&1; then
+if diff -q "$tmp_py" "$FA_ROOT/firestarter/messages.py" >/dev/null 2>&1; then
     echo "  OK: firestarter_app/firestarter/messages.py regenerated."
+else
+    echo "ERROR: regenerated messages.py did not land at $FA_ROOT/firestarter/messages.py" >&2
+    rm -f "$tmp_py"
+    exit 1
 fi
+rm -f "$tmp_py"
 
 echo "OK: catalog synced to both sub-repos."
