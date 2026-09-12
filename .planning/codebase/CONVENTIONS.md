@@ -165,16 +165,27 @@ Type hints are used on method signatures but not universally throughout the code
 
 ```python
 def method(self, name: str, data: dict, flags: int = 0) -> bool:
-def method(self, x: Optional[str] = None) -> Tuple[bool, Optional[int]]:
+def parse_address(s: str | None) -> int | None:
 ```
 
-The `Optional`, `Tuple`, `Dict`, `Callable`, `List`, `Generator` types are imported from `typing`.
+The `Dict`, `Tuple`, `Callable`, `List`, `Generator` types remain imported from `typing` where a
+bare generic (e.g. `Dict[str, Any]`) is still needed; each such import site carries its own
+`# noqa: UP035`, since ruff's deprecated-import rule is enforced but these generics have no
+PEP 585 bare-builtin replacement selected for this project.
 
-Union types use the Python 3.10+ `X | Y` syntax in some places despite the `>=3.9` requirement:
+After v1.37 Phase 186 raised the floor to 3.11 and absorbed the accompanying ruff sweep, the
+`X | Y` union spelling — including `X | None` for what used to be `Optional[X]` — is the
+convention throughout `firestarter/`, not an occasional departure from the pre-raise
+`Optional[X]`/`Tuple[...]` norm:
 
 ```python
-self.comm: SerialCommunicator | None = None
+def parse_address(s: str | None) -> int | None:
+def parse_size(s: str | None) -> int | None:
 ```
+
+One deliberately preserved exception: `firestarter/py32_dfu.py`, whose 14 `Optional[...]` sites
+are each individually `# noqa: UP045`-suppressed and were left untouched by the sweep — see
+`.planning/notes/python-floor-decision.md` § 5 for why.
 
 ## Error Handling Patterns
 

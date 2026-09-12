@@ -360,7 +360,7 @@ firestarter/
 *[unverified in 2026-08-26 scoped remap — submodule contents, out of scope]*
 
 ### Python Application
-- **Python:** 3.9+
+- **Python:** 3.11+
 - **Build:** `pip install -e .` (setuptools + setuptools_scm)
 - **Entry point:** `firestarter` → `firestarter.main:main`
 - **Runtime deps:** `pyserial`, `requests`, `tqdm`, `argcomplete`, `rich`
