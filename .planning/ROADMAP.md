@@ -479,7 +479,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 186-03-PLAN.md — The four-way fail-closed agreement gate in `tests/`, the app repo's corrected stack record, and the py3.11 CI-replica proof (FLOOR-01, FLOOR-02, FLOOR-03)
+- [x] 186-03-PLAN.md — The four-way fail-closed agreement gate in `tests/`, the app repo's corrected stack record, and the py3.11 CI-replica proof (FLOOR-01, FLOOR-02, FLOOR-03)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
