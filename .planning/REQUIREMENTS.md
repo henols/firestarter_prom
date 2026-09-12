@@ -158,7 +158,7 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
       and `python_version` all move together.
 - [x] **FLOOR-02**: The choice is made and applied **before 2026-10-31**, when Python 3.10 reaches
       end-of-life, and the milestone does not close with the pair still divergent.
-- [ ] **FLOOR-03**: The reasoning — which floor, and why — is recorded where the next person to face this
+- [x] **FLOOR-03**: The reasoning — which floor, and why — is recorded where the next person to face this
       finds it, not only in a commit message. The treadmill recurs; the decision should not be re-derived.
 
 ---
@@ -207,7 +207,7 @@ Deferred, tracked, not in this roadmap.
 | CLAIM-08 | Phase 185 | Complete |
 | FLOOR-01 | Phase 186 | Complete — all four statements raised to 3.11 together (186-01), the sweep absorbed (186-02), and a fail-closed agreement gate now asserts it (186-03) |
 | FLOOR-02 | Phase 186 | Complete — applied 2026-09-12, well ahead of the 2026-10-31 deadline; proven at the floor in the py3.11 CI-replica (186-03) |
-| FLOOR-03 | Phase 186 | Pending |
+| FLOOR-03 | Phase 186 | Complete — `.planning/notes/python-floor-decision.md` records the decision, its three rejected alternatives with measured grounds, the evidence transcribed from `186-RESEARCH.md`, the standing rule and its enforcing gate (`test_python_floor_agreement.py`), and successor backlog 999.67 carrying 2027-10-31; `firestarter_app/.planning/codebase/STACK.md` (186-03) points an app-repo-only reader at it (186-04) |
 | REPLY-01 | Phase 187 | Pending |
 | REPLY-02 | Phase 187 | Pending |
 | REPLY-03 | Phase 187 | Pending |
