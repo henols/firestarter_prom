@@ -471,7 +471,7 @@ rather than under it.
 Plans:
 **Wave 1**
 
-- [ ] 186-01-PLAN.md — TRACER: raise all four floor statements to 3.11, trim the classifier list, move both halves of the runtime guard, and delete every claim the move falsifies (FLOOR-01, FLOOR-02)
+- [x] 186-01-PLAN.md — TRACER: raise all four floor statements to 3.11, trim the classifier list, move both halves of the runtime guard, and delete every claim the move falsifies (FLOOR-01, FLOOR-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
