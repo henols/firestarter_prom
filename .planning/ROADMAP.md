@@ -475,7 +475,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 186-02-PLAN.md — Absorb the 182-finding ruff consequence of the new target as its own commit, hand-fix the three ruff cannot, and repair the one source-text gate the rewrite reds (FLOOR-01)
+- [x] 186-02-PLAN.md — Absorb the 182-finding ruff consequence of the new target as its own commit, hand-fix the three ruff cannot, and repair the one source-text gate the rewrite reds (FLOOR-01)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
