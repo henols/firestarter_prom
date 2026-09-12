@@ -7067,6 +7067,49 @@ This is the same mechanism Phase 131's D-13 used to file 999.26/999.27 — a bac
 the next deadline in its own title is the only reason the 3.10 EOL, and now the 3.11 one, arrive as
 tracked work rather than a surprise.
 
+### Phase 999.68: The Python version guard is unreachable from the console script every user actually runs (BACKLOG — filed 2026-09-12 during v1.37 Phase 186, from `186-REVIEW.md` WR-01/WR-02/WR-03)
+
+**Goal:** Make the runtime floor refusal actually fire for a pip-installed user, and close the two
+narrower measurement gaps the same review surfaced.
+
+**WR-01 — the guard never runs in the shipped wheel.** `firestarter_app/firestarter/main.py:20`
+re-exports `main = cli`, and `pyproject.toml:88` declares the console script as
+`firestarter = "firestarter.main:main"` — so the installed `firestarter` command calls Click's
+`cli` directly and never enters the `if __name__ == "__main__":` block at `main.py:29` where the
+`sys.version_info < (3, 11)` check lives. Every pip-installed user bypasses the check entirely,
+whatever their interpreter. This shape predates Phase 186 — that phase only moved the version
+number and message inside it, which is exactly what its must-have promised — so it is a
+pre-existing defect, not a regression. It is filed here rather than fixed there because moving the
+guard is new behaviour outside that phase's charter.
+
+**WR-02 — on the one interpreter that does reach it, something else fails first.** Invoked directly
+as `python main.py`, a sub-3.10 interpreter dies while importing `firestarter.cli_handlers` (and at
+`main.py:23`'s own `FrameType | None`) before the guard is reached: Phase 186's ruff sweep rewrote
+annotations to PEP 604 `X | None` form, none of the touched modules carry
+`from __future__ import annotations`, and those annotations are evaluated eagerly. Combined with
+WR-01, the guard is live on exactly one interpreter — 3.10.
+
+**WR-03 — the new agreement gate's CI clause matches only one pin spelling.**
+`firestarter_app/tests/test_python_floor_agreement.py:41-43` matches a bare scalar
+`python-version: '3.11'`. A future matrix-style pin (`python-version: ['3.9', '3.11']`) would
+contribute zero matches and go undetected, because the pin count is asserted as a floor rather than
+an exact count. The gate is genuinely reachable today (each of the four guarded values was
+perturbed and seen to turn it red), so this is a robustness gap against a future CI shape, not a
+present-day vacuity.
+
+**Scope note.** Practical exposure for WR-01 is narrow: `requires-python = ">=3.11"` already makes
+pip refuse an under-floor *pinned* install, so the runtime guard is defence-in-depth rather than the
+only barrier. But it is not nothing — as Phase 186's own D-01 checkpoint established (C-5), an
+*unpinned* `pip install firestarter` on 3.10 emits no error at all and silently pins to the last
+release advertising the old floor, so a user can arrive on an under-floor interpreter without ever
+seeing a refusal from either layer.
+
+**Also close when this is picked up:** plan `186-01-PLAN.md`'s objective describes its output as
+"the runtime refusal inside the shipped wheel". Given WR-01 that phrase is false as written —
+narrative framing rather than a must-have, and the verifier ruled it falsifies no criterion, but it
+is exactly the kind of overstated claim this milestone exists to remove. Correct it, or record why
+not, in whatever artifact carries this work.
+
 ---
 
 ## v1.20 — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis (SHIPPED 2026-07-02)

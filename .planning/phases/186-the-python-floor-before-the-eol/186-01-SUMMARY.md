@@ -194,3 +194,19 @@ None - no external service configuration required.
 - Commit `4d7ab18b` (this SUMMARY, in the meta repo) found in `git log --oneline --all`.
 - All plan-level `<acceptance_criteria>` re-verified passing except the one authoring-defect criterion documented above under "Acceptance-criterion authoring defect", which is verified via an equivalent check instead.
 - Plan-level `<verification>` block re-run: tomllib prints `>=3.11 py311 3.11`; 3 CI workflow lines all `'3.11'`; watermark gate `checked 181 source files` / `mypy errors: 35 (watermark: 35)` / `OK: error count at watermark.`; `python -m firestarter.main --version` exits 0 and prints `Firestarter, version 3.0.0b38`; 31 targeted tests passed; `ruff format --check` reports `179 files already formatted`; `ruff check` RED at 182 findings (177 UP045, 2 UP017, 2 UP035, 1 I001) as expected; `git status --porcelain` in `firestarter_app` names only the two pre-existing untracked datasheet PDFs, no tracked file outside this plan's `files_modified` list.
+
+## Correction (appended 2026-09-12, after `186-REVIEW.md` WR-01)
+
+This plan's `<objective>` describes its output as "the runtime refusal inside the shipped wheel".
+**That phrase is false as written.** `firestarter/main.py:20` re-exports `main = cli`, and
+`pyproject.toml:88` declares the console script as `firestarter.main:main`, so the installed
+`firestarter` command calls Click's `cli` directly and never enters the `if __name__ == "__main__":`
+block at `main.py:29` where the guard lives. No pip-installed user is protected by it.
+
+What this plan actually delivered is the narrower must-have it was held to, which remains true: the
+guard's two halves were moved together and its load-bearing `# noqa: UP036` survived. The
+unreachable-guard shape predates this phase; `186-VERIFICATION.md` ruled it falsifies no must-have
+and no ROADMAP success criterion. It is carried forward as backlog **999.68**.
+
+Recorded here rather than by editing the plan, per `/workspaces/CLAUDE.md` — rationale belongs in
+the phase SUMMARY, and the plan is a historical record of what was asked, not of what was true.
