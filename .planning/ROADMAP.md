@@ -504,9 +504,22 @@ is closed on our own reading.
 
 **Depends on:** Phase 182, Phase 183 (the replies describe what those shipped)
 
+**Plans:** 12 plans
+
 Plans:
 
-- [ ] TBD (run `/gsd-plan-phase 187`)
+- [ ] 187-01-PLAN.md — Pre-flight: working-tree hygiene and the five D-07 record repairs, plus REPLY-01's D-11 amendment
+- [ ] 187-02-PLAN.md — Tracer: the meta merge to `beta`, one pinned permalink SHA, both linked documents proven to resolve at it
+- [ ] 187-03-PLAN.md — App merge and cut; the pre-release version read from the API and confirmed on PyPI
+- [ ] 187-04-PLAN.md — Firmware merge and cut via `beta-build.yml`; the pre-release version read from the API
+- [ ] 187-05-PLAN.md — Draft gh#60 and gh#62 bodies, capture the pre-post issue state, resolve every link
+- [ ] 187-06-PLAN.md — Draft gh#23, gh#28 and gh#31 bodies with both caveats and the re-run asks
+- [ ] 187-07-PLAN.md — Post REPLY-04 to gh#60, label, close as done (operator-gated)
+- [ ] 187-08-PLAN.md — Post REPLY-03 to gh#62, label, leave open (operator-gated)
+- [ ] 187-09-PLAN.md — Post REPLY-01 to gh#23, add `cause:rig` and `needs:report`, leave open (operator-gated)
+- [ ] 187-10-PLAN.md — Post REPLY-02 to gh#28, add `needs:report`, withhold `fix:released`, leave open (operator-gated)
+- [ ] 187-11-PLAN.md — Post REPLY-02 to gh#31, add `needs:report`, withhold `fix:released`, leave open (operator-gated)
+- [ ] 187-12-PLAN.md — After-state reconciliation, no-collateral-post proof, the D-09 ledger, and the merge-record tail
 
 ## v1.36 — `dev test` Fidelity (CLOSED 2026-09-09 — 46/46 requirements; merged to `beta` in all three repos, NOT tagged by operator decision)
 
