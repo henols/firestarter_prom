@@ -4,16 +4,16 @@ milestone: v1.37
 milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 2026-09-10)
 current_phase: 186
 current_phase_name: The Python Floor, Before the EOL
-status: planned
-stopped_at: Phase 186 planned
-last_updated: "2026-09-11T22:53:37.282Z"
-last_activity: 2026-09-11
-last_activity_desc: "Phase 186 (The Python Floor, Before the EOL) PLANNED — 4 plans, strictly sequential waves 1-4, plan-checker PASSED at iteration 1 (0 blockers, 0 warnings). Research + pattern map both ran. RESEARCH.md falsified 5 CONTEXT.md/D-11 claims: cli_handlers.py:1814's noqa SURVIVES the ruff sweep (needs its own task), main.py:31's sys.version_info guard was missed, two further meta-repo floor surfaces (STRUCTURE.md:363, CONVENTIONS.md:173), the sweep emits 3.11-only datetime.UTC so the config must land first (measured: sweep-first makes the watermark gate report 37>35 and exit 1), and D-12's pip claim holds only for a pinned request. D-05 resolves to NEITHER branch — mypy output is byte-identical at 3.10 and 3.11 (35 errors, 181 checked files, watermark already 35), so no watermark edit is planned. Orchestrator decided the D-04 gate as shape A (firestarter_app/tests/, stdlib tomllib + line regex, no pyyaml/tomli). D-06 tagged [informational] to close the decision-coverage gate (its own text forbids a plan task). Requirements 3/3 covered, decisions 11/11, both verify-command probes clean at 40/40."
+status: executing
+stopped_at: Completed 186-01-PLAN.md
+last_updated: "2026-09-12T06:37:16.051Z"
+last_activity: 2026-09-12
+last_activity_desc: Completed 186-01-PLAN.md — Python floor raised to 3.11
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 28
-  completed_plans: 24
+  completed_plans: 25
   percent: 67
 ---
 
@@ -235,10 +235,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 186 (The Python Floor, Before the EOL) — READY TO EXECUTE
-Plan: Not started
+Phase: 186 (The Python Floor, Before the EOL) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-09-11 — Phase 186 planned; 4 plans in 4 sequential waves, checker passed at iteration 1 (0 blockers, 0 warnings); research falsified 5 CONTEXT.md claims (sweep is 3.11-only, so config lands first); D-05 needs no watermark edit (mypy byte-identical at 3.10 and 3.11)
+Last activity: 2026-09-12 — Completed 186-01-PLAN.md (Python floor raised to 3.11)
 
 ## Roadmap Summary (v1.37)
 
@@ -3354,8 +3354,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-09-11T21:13:39.591Z
-**Stopped at:** Phase 186 context gathered
+**Last session:** 2026-09-12T06:37:15.783Z
+**Stopped at:** Completed 186-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183
 **Was (superseded, retained for continuity):** Completed 182-07-PLAN.md
 **Was (superseded, retained for continuity):** Completed 182-01-PLAN.md
@@ -3418,7 +3418,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** .planning/phases/186-the-python-floor-before-the-eol/186-CONTEXT.md
+**Resume file:** None
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
