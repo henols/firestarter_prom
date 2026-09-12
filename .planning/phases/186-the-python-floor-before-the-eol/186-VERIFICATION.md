@@ -1,7 +1,7 @@
 ---
 phase: 186-the-python-floor-before-the-eol
 verified: 2026-09-12T09:15:00Z
-status: human_needed
+status: passed
 score: 8/8 must-haves verified
 covered_files:
   - ".planning/REQUIREMENTS.md"
@@ -52,7 +52,7 @@ human_verification:
 
 **Phase Goal:** The advertised Python floor and the type-checker stop disagreeing, decided ahead of the deadline rather than under it.
 **Verified:** 2026-09-12T09:15:00Z
-**Status:** human_needed
+**Status:** passed
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -165,3 +165,19 @@ One item is routed to human verification, not because any must-have failed, but 
 
 _Verified: 2026-09-12T09:15:00Z_
 _Verifier: Claude (gsd-verifier)_
+
+## Human Verification Resolved (2026-09-12)
+
+The single `human_verification` item — whether `186-REVIEW.md`'s WR-01/WR-02/WR-03 warrant a filed
+successor — was put to the operator, who chose **file a backlog item**, matching this project's own
+precedent (999.53, 999.61, 999.62 were each filed from a prior phase's REVIEW.md WARNING).
+
+Resolved by commit `4685606e`:
+- **Backlog 999.68** filed in `.planning/ROADMAP.md`, covering all three warnings with their
+  measured evidence, an honest scope note on how narrow WR-01's practical exposure is, and the
+  instruction to correct or account for the overstated claim when the work is picked up.
+- **`186-01-SUMMARY.md`** carries an appended correction retracting the objective's "runtime
+  refusal inside the shipped wheel" phrasing, recorded in the SUMMARY rather than by editing the
+  plan, per `/workspaces/CLAUDE.md`.
+
+Status advances `human_needed` → `passed`. No gaps.
