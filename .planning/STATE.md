@@ -5,15 +5,15 @@ milestone_name: Operator Safety, Answered Reports & Claim Hygiene (ACTIVATED 202
 current_phase: 186
 current_phase_name: The Python Floor, Before the EOL
 status: executing
-stopped_at: Completed 186-02-PLAN.md
-last_updated: "2026-09-12T07:13:34.000Z"
+stopped_at: Completed 186-03-PLAN.md
+last_updated: "2026-09-12T08:02:33.729Z"
 last_activity: 2026-09-12
-last_activity_desc: Completed 186-02-PLAN.md — py311 ruff sweep absorbed (D-09), CAP-03 regex repaired
+last_activity_desc: Completed 186-03-PLAN.md — four-way floor agreement gate installed (D-04), app-repo STACK.md corrected (D-07), proven at the floor in the py3.11 CI-replica
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 28
-  completed_plans: 26
+  completed_plans: 27
   percent: 67
 ---
 
@@ -236,9 +236,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 186 (The Python Floor, Before the EOL) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
-Last activity: 2026-09-12 — Completed 186-01-PLAN.md (Python floor raised to 3.11)
+Last activity: 2026-09-12 — Completed 186-03-PLAN.md (four-way floor agreement gate, app-repo STACK.md corrected, proven at the floor in the py3.11 CI-replica)
 
 ## Roadmap Summary (v1.37)
 
@@ -2941,6 +2941,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 183]: 183-04: Deleted flash4's 12V bulk-erase routine at all four sites (flash_5v_page_erase_execute definition + forward declaration, configure_flash_5v_page's CMD_ERASE arm, flash_5v_page_write_init's FLAG_CAN_ERASE block); a native case proves, observed RED before the deletion and GREEN after, that flash_5v_page_write_init energises no VPP rail even with FLAG_CAN_ERASE wrongly set.
 - [Phase 186 Plan 01]: Checkpoint (D-01 one-way-door confirmation) answered by the operator as proceed-as-locked -- raise the Python floor to 3.11 across all four statements — The operator was shown the full C-5 correction (an unpinned `pip install firestarter` on 3.9/3.10 silently pins to the last release advertising the old floor rather than erroring, contradicting D-12's assumption) alongside all three options and their consequences before answering. C-5 is recorded as a wording correction for plan 186-04's release-note fragment, not a scope change; nothing about it was written into source. Option 2 (consumer notice / CHANGELOG.md) was not selected.
 - [Phase 186 Plan 02]: The 182-finding py311 ruff sweep (D-09) was absorbed as its own commit, separate from 186-01's config change, exactly as measured in RESEARCH.md: mechanical `--fix` (190 fixed, 3 remaining), three UP045 findings in `eprom_info.py`'s `prepare_detailed_eprom_data` signature hand-collapsed to `dict | None` (orphaned inner comments dropped, none replaced — RESEARCH's exact three lines), a second `--fix` pass for the resulting F401, then `ruff format` for the four files it wants to unwrap. `--unsafe-fixes` was never invoked, per the plan's standing prohibition (it would have deleted `main.py`'s runtime-guard `noqa: UP036`). mypy watermark stayed at 35/35, confirming the ordering constraint (config-before-sweep) held. The one gate the sweep reds — `test_cap03_ack_layout_parity.py`'s `_DECODE_ID_FRAME_DEF_RE` pinning the pre-sweep `Optional[LogMessage]` spelling — was predicted (6 legs) before being observed (exactly 6, exact names matched), then repaired in a separate commit with a one-line regex edit matching only the new `LogMessage | None` form (not both spellings, since the old form can no longer reappear without tripping UP045). Full suite back at 2359 passed / 0 failed, coverage 84.76% >= 70% floor. FLOOR-01 deliberately left Pending in REQUIREMENTS.md — it spans 186-01/02/03 and this is only the second contributing plan.
+- [Phase 186]: 186-03: reworded the new gate's docstring to avoid literal 'tomli'/'yaml' substrings (acceptance criteria forbid them); factored a shared _assert_floor_statements_agree helper so the disagreement leg proves the real leg's own code, not a parallel one
+- [Phase 186]: 186-03: fixed ci_replica_venv.sh's INTERPRETER divergence stamp by prepending the uv-managed python3.11 bin dir to PATH (no --refresh) -- resolve_base_python() stamps unconditionally even on a reused venv, so the prior invocation's ambient python3 3.12.14 fallback would have poisoned the CI-REPLICA: PASS evidence with a 3.12 measurement
+- [Phase 186]: 186-03: FLOOR-01 and FLOOR-02 marked Complete in REQUIREMENTS.md (this is their last contributing plan); FLOOR-03 left Pending per plan instruction -- it spans into 186-04, which creates the rationale note FLOOR-03 requires
 
 ## Performance Metrics
 
@@ -3354,11 +3357,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 182 P07 | 50min | 3 tasks | 3 files |
 | Phase 183 P03 | 24min | 3 tasks | 4 files |
 | Phase 183 P04 | 55min | 3 tasks | 2 files |
+| Phase 186 P03 | 34min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-09-12T07:13:34.000Z
-**Stopped at:** Completed 186-02-PLAN.md
+**Last session:** 2026-09-12T08:02:33.603Z
+**Stopped at:** Completed 186-03-PLAN.md
 **Was (superseded, retained for continuity):** Completed 186-01-PLAN.md
 **Was (superseded, retained for continuity):** Phase 186 context gathered
 **Was (superseded, retained for continuity):** Phase 182 complete, ready to plan Phase 183

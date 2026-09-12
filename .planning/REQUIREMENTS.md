@@ -153,10 +153,10 @@ Settled here so no phase re-litigates them. Full text and rationale in `PROJECT.
 
 ### FLOOR — the one item with an external clock
 
-- [ ] **FLOOR-01**: The advertised Python floor and the type-checker agree. Either mypy enforces the
+- [x] **FLOOR-01**: The advertised Python floor and the type-checker agree. Either mypy enforces the
       advertised `>=3.9` floor, or the floor is raised deliberately and `requires-python`, `target-version`
       and `python_version` all move together.
-- [ ] **FLOOR-02**: The choice is made and applied **before 2026-10-31**, when Python 3.10 reaches
+- [x] **FLOOR-02**: The choice is made and applied **before 2026-10-31**, when Python 3.10 reaches
       end-of-life, and the milestone does not close with the pair still divergent.
 - [ ] **FLOOR-03**: The reasoning — which floor, and why — is recorded where the next person to face this
       finds it, not only in a commit message. The treadmill recurs; the decision should not be re-derived.
@@ -205,8 +205,8 @@ Deferred, tracked, not in this roadmap.
 | CLAIM-06 | Phase 185 | Complete |
 | CLAIM-07 | Phase 185 | Complete |
 | CLAIM-08 | Phase 185 | Complete |
-| FLOOR-01 | Phase 186 | Pending |
-| FLOOR-02 | Phase 186 | Pending |
+| FLOOR-01 | Phase 186 | Complete — all four statements raised to 3.11 together (186-01), the sweep absorbed (186-02), and a fail-closed agreement gate now asserts it (186-03) |
+| FLOOR-02 | Phase 186 | Complete — applied 2026-09-12, well ahead of the 2026-10-31 deadline; proven at the floor in the py3.11 CI-replica (186-03) |
 | FLOOR-03 | Phase 186 | Pending |
 | REPLY-01 | Phase 187 | Pending |
 | REPLY-02 | Phase 187 | Pending |
