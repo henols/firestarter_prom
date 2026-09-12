@@ -1,6 +1,6 @@
 ---
 phase: 186-the-python-floor-before-the-eol
-verified: 2026-09-12T09:15:00Z
+verified: 2026-09-12T09:40:00Z
 status: passed
 score: 8/8 must-haves verified
 covered_files:
@@ -39,7 +39,7 @@ covered_files:
   - "firestarter_app/tests/test_py32_packaging.py"
   - "firestarter_app/tests/test_python_floor_agreement.py"
   - "firestarter_app/tests/test_runtime_dependencies.py"
-covered_digest: "v1:sha256:5fb418ae663e9adac48e430b2d26ecde608fb9f80a7b3bff9dd5fae1cff1cf91"
+covered_digest: "v1:sha256:baaa6fad72128ebc523e33729c6363982879384a868dcca65d664a39bb6916eb"
 behavior_unverified: 0
 overrides_applied: 0
 human_verification:
@@ -181,3 +181,18 @@ Resolved by commit `4685606e`:
   plan, per `/workspaces/CLAUDE.md`.
 
 Status advances `human_needed` → `passed`. No gaps.
+
+### Fingerprint re-stamp (2026-09-12T09:40:00Z)
+
+`covered_digest` was re-stamped after the human-verification resolution above, because two covered
+inputs changed as a direct result of it: `.planning/ROADMAP.md` (backlog 999.68 filed) and
+`186-01-SUMMARY.md` (the appended correction). Measured, not assumed — `git diff --name-only`
+against the original verification commit `2ffb8b3c` names only those two covered files plus this
+report and the UAT.
+
+**No source file changed.** `firestarter_app` has no commits after `612aa69` and its tree is clean
+but for the two pre-existing untracked datasheet PDFs, so every code-level measurement in this
+report still stands on the bytes it was taken against. The re-stamp records that the covered set
+moved for documentation reasons alone; it is not a re-verification, and none was needed.
+
+Previous digest: `v1:sha256:5fb418ae…cff1cf91`
