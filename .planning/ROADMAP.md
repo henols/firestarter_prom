@@ -7038,6 +7038,35 @@ to stop citing paths that do not exist.
 to CLAIM-09 but outside SAFE-08's scope — reported by Phase 183's research pass rather than fixed,
 since fixing it is outside the flash4-erase-refusal scope this phase was chartered for.
 
+### Phase 999.67: mypy minimum-target treadmill, round two — Python 3.11 EOLs 2027-10-31 (BACKLOG — filed 2026-09-12 during v1.37 Phase 186)
+
+**Goal:** Re-run the same four-statement move v1.37 Phase 186 performed, next time mypy's minimum
+supported target rises above 3.11, or when Python 3.11 reaches end of life — whichever forces the
+question first.
+
+This is the direct successor to backlog 999.26/999.27, which Phase 186 promoted and closed: the
+floor is 3.11 today (`requires-python`, `[tool.ruff] target-version`, `[tool.mypy] python_version`,
+and every CI `python-version:` pin all name it), and **Python 3.11 EOLs 2027-10-31**. The standing
+rule this item exists to re-fire is recorded in full, with its evidence and its three rejected
+alternatives, in `.planning/notes/python-floor-decision.md`: *the floor tracks the version CI runs;
+when mypy's minimum supported target rises above it, move all four statements together.* Read that
+note before re-deriving anything here.
+
+What makes the next move mechanical rather than a fresh investigation: the fail-closed gate
+`firestarter_app/tests/test_python_floor_agreement.py` (installed by Phase 186 plan 186-03) already
+asserts all four statements agree, so the next divergence — whether from a mypy release quietly
+raising its own minimum target, from CI moving to a newer interpreter first, or from anything else
+— shows up as a **red gate**, not a silent, unnoticed drift the way the 2026-05-27 divergence this
+milestone corrected was allowed to survive for over a year.
+
+Note honestly, as `python-floor-decision.md` § 4 also records: the 2027-10-31 date is carried
+forward from this phase's own discussion (`186-CONTEXT.md` D-08) and was not independently
+re-verified against python.org at the time this item was filed.
+
+This is the same mechanism Phase 131's D-13 used to file 999.26/999.27 — a backlog item carrying
+the next deadline in its own title is the only reason the 3.10 EOL, and now the 3.11 one, arrive as
+tracked work rather than a surprise.
+
 ---
 
 ## v1.20 — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis (SHIPPED 2026-07-02)
