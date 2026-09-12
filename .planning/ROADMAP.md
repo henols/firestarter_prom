@@ -483,7 +483,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 186-04-PLAN.md — The rationale note, the three meta-repo records that still state the old floor, and backlog 999.67 carrying 2027-10-31 (FLOOR-03)
+- [x] 186-04-PLAN.md — The rationale note, the three meta-repo records that still state the old floor, and backlog 999.67 carrying 2027-10-31 (FLOOR-03)
 
 ### Phase 187: Answered Reports
 
